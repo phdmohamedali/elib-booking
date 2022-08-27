@@ -67,7 +67,7 @@ if ( $number == 0 ) {
 			if ( $number >= $bkap_start_record_from && $number <= $bkap_end_record_on ) {
 				?>
 				
-				<tr id="bkap_date_time_row_<?php echo $number; ?>">
+				<tr id="bkap_date_time_row_<?php echo $number; ?>" class="bkap_dateday_td">
 					<td width="20%">
 						<select id="bkap_dateday_selector_<?php echo $number; ?>" class="bkap_dateday_selector" multiple="multiple" disabled >
 						
@@ -99,17 +99,17 @@ if ( $number == 0 ) {
 						   <option name="all" value="all"><?php _e( 'All', 'woocommerce-booking' ); ?></option>
 						</select>
 					</td>
-					<td width="10%"><input id="bkap_from_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_from_time; ?>" readonly></td>
-					<td width="10%"><input id="bkap_to_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_to_time; ?>" readonly></td>
-					<td width="10%"><input id="bkap_lockout_time_<?php echo $number; ?>" onkeypress="return bkap_only_number( event )" type="number" name="quantity" style="width:100%;" min="0" placeholder="Max bookings" value="<?php echo $bkap_lockout; ?>" class = "bkap_default" ></td>
-					<td width="10%"><input id="bkap_price_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" placeholder="Price" value="<?php echo $bkap_price; ?>" class = "bkap_default wc_input_price"></td>
-					<td width="10%" style="text-align:center;">
+					<td width="10%" class="bkap_from_time_td"><input id="bkap_from_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_from_time; ?>" readonly></td>
+					<td width="10%" class="bkap_to_time_td"><input id="bkap_to_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_to_time; ?>" readonly></td>
+					<td width="10%" class="bkap_lockout_time_td"><input id="bkap_lockout_time_<?php echo $number; ?>" onkeypress="return bkap_only_number( event )" type="number" name="quantity" style="width:100%;" min="0" placeholder="Max bookings" value="<?php echo $bkap_lockout; ?>" class = "bkap_default" ></td>
+					<td width="10%" class="bkap_price_time_td"><input id="bkap_price_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" placeholder="Price" value="<?php echo $bkap_price; ?>" class = "bkap_default wc_input_price"></td>
+					<td width="10%" style="text-align:center;" class="bkap_global_time_td">
 						<label class="bkap_switch">
 						  <input id="bkap_global_time_<?php echo $number; ?>" type="checkbox" name="bkap_global_timeslot" style="margin-left: 35%;" <?php echo $bkap_global_checked; ?> class = "bkap_default">
 						  <div class="bkap_slider round"></div>
 						</label>
 					</td>
-					<td width="23%"><textarea id="bkap_note_time_<?php echo $number; ?>" rows="1" cols="2" style="width:100%;" class = "bkap_default" ><?php echo $bkap_note; ?></textarea></td>
+					<td width="23%" class="bkap_note_time_td"><textarea id="bkap_note_time_<?php echo $number; ?>" rows="1" cols="2" style="width:100%;" class = "bkap_default" ><?php echo $bkap_note; ?></textarea></td>
 					<td width="4%"  class="bkap_actions" id="bkap_actions_<?php echo $number; ?>" style="text-align: center;cursor:pointer;">
 						<a href="#" id="bkap_edit_<?php echo $number;?>" class="bkap_edit_row" ><i class="fa fa-edit" aria-hidden="true"></i></a>
 						<a href="#" id="bkap_close_<?php echo $number;?>" class="bkap_delete_row" ><i class="fa fa-trash" aria-hidden="true"></i></a>

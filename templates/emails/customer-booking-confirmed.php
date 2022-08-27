@@ -51,6 +51,15 @@ if ( $order ) :
 				</tr>
 			<?php
 		}
+
+		if ( isset( $booking->person_data ) && '' != $booking->person_data ) {
+			?>
+			<tr>
+				<th style="text-align:left; border: 1px solid #eee;" scope="row"><?php _e( $booking->person_label, 'woocommerce-booking' ); ?></th>
+				<td style="text-align:left; border: 1px solid #eee;" scope="row"><?php echo $booking->person_data; ?></td>
+			</tr>
+			<?php
+		}
 		?>
 	</tbody>
 </table>

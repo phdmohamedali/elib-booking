@@ -39,6 +39,29 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			add_action( 'bkap_before_get_per_night_price', array( &$this, 'bkap_before_get_per_night_price_callback' ) );
 			// Dequeuing the custom script of plugin or theme on single product page.
 			add_action( 'wp_enqueue_scripts', array( &$this, 'bkap_wp_enqueue_scripts' ), 9999 );
+			// Adding clear selection link on front end.
+			add_action( 'bkap_before_add_to_cart_button', array( &$this, 'bkap_reset_booking_details_in_booking_form' ), 10, 1 );
+		}
+
+		/**
+         * Clear Selection link on the front end to clear the selected booking details.
+         * @param object $booking_settings Booking Setting.
+         *
+         * @since 5.14.0
+         * @hook bkap_before_add_to_cart_button
+         */
+		public static function bkap_reset_booking_details_in_booking_form( $booking_settings ) {
+
+            if ( get_post_type() == "product" ) {
+				$show = apply_filters( 'bkap_reset_bookings_link', true, $booking_settings );
+                if ( isset( $booking_settings['booking_purchase_without_date'] ) && 'on' === $booking_settings['booking_purchase_without_date'] && $show ){
+                    ?>
+                    <div class="bkap_reset_dates_selection">
+                        <a href="" class="bkap_reset_dates"><?php echo __( 'Clear booking details', 'woocommerce-booking' );?></a>
+                    </div>
+                    <?php
+                }
+            }
 		}
 
 		/**
@@ -682,6 +705,29 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$date2         = new DateTime( $booking_date2 );
 					$booking_date1 = date( 'Y-m-d H:i', $current_time );
 					$date1         = new DateTime( $booking_date1 );
+					$phpversion    = version_compare( phpversion(), '5.3', '>' );
+					$include       = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
+
+					if ( ! $include ) {
+						$min_date = date( 'j-n-Y', strtotime( $min_date . '+1 day' ) );
+					}
+				}
+			} elseif ( isset( $booking_settings['booking_enable_time'] ) && 'duration_time' === $booking_settings['booking_enable_time'] ) {
+
+				$duration_settings = $booking_settings['bkap_duration_settings'];
+				$d_end_time        = $duration_settings['end_duration'];
+
+				if ( '' !== $d_end_time ) {
+
+					$advance_booking_hrs = bkap_advance_booking_hrs( $booking_settings, $product_id );
+					$booking_date1 = date( 'Y-m-d H:i', $current_time );
+					$date1         = new DateTime( $booking_date1 );
+
+					$booking_date2 = $min_date . ' ' . $d_end_time;
+					$booking_date2 = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_date2, $min_date, $d_end_time, $d_end_time, $product_id, $booking_settings );
+					$booking_date2 = date( 'Y-m-d H:i', strtotime( $booking_date2 ) );
+					$date2         = new DateTime( $booking_date2 );
+
 					$phpversion    = version_compare( phpversion(), '5.3', '>' );
 					$include       = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
@@ -1735,7 +1781,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$additional_data['wapbk_lockout_days'] = str_replace( $start_date, '', $additional_data['wapbk_lockout_days'] );
 					}
 
-					if ( $booking_type == 'only_day' ) {
+
+					if ( $booking_type == 'only_day' || 'multidates' === $booking_type ) {
 						if ( $resource_id != 0 && isset( $additional_data['bkap_booked_resource_data'] ) ) {
 							if ( strpos( $additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'], $start_date ) > 0 ) {
 								$additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'] = str_replace( $start_date, '', $additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'] );

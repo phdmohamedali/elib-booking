@@ -79,7 +79,7 @@
 						</th>
 						<td>
 							<?php wp_editor( $content, 'bkap_reminder_message', array( 'textarea_name' => 'bkap_reminder_message' ) ); ?>
-							<span class="description"><?php esc_html_e( 'You can insert the following tags. They will be replaced dynamically', 'woocommerce-booking' ); ?>: <code>{product_title} {order_date} {order_number} {customer_name} {customer_first_name} {customer_last_name} {start_date} {end_date} {booking_time} {booking_id} {booking_resource} {zoom_link}</code></span>
+							<span class="description"><?php esc_html_e( 'You can insert the following tags. They will be replaced dynamically', 'woocommerce-booking' ); ?>: <code>{product_title} {order_date} {order_number} {customer_name} {customer_first_name} {customer_last_name} {start_date} {end_date} {booking_time} {booking_id} {booking_resource} {booking_persons} {zoom_link}</code></span>
 						</td>
 					</tr>
 

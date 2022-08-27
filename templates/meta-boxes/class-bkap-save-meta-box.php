@@ -69,6 +69,7 @@ class BKAP_Save_Meta_Box {
 	 * Render inner part of meta box.
 	 */
 	public function meta_box_inner( $post ) {
+
 		wp_nonce_field( 'bkap_save_booking_meta_box', 'bkap_save_booking_meta_box_nonce' );
 
 		$bkap_actions = array(

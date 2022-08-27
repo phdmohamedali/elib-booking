@@ -32,6 +32,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 		public function __construct() {
 			add_action( 'bkap_sms_reminder_settings', array( $this, 'bkap_send_sms_reminders' ) );
 			add_action( 'admin_init', array( $this, 'bkap_save_sms_settings' ) );
+			add_action( 'init', array( $this, 'bkap_save_sms_settings' ) );
 		}
 
 		/**
@@ -41,12 +42,24 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 		 */
 		public static function bkap_save_sms_settings() {
 
-			if ( isset( $_POST['bkap_sms_reminder'] ) && '' !== $_POST['bkap_sms_reminder'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			if ( ! empty( $_POST ) && isset( $_POST[ 'bkap_sms_reminder' ] ) ) {
+
+				$is_vendor = false;
+				if ( ! is_admin() ) {
+					$vendor_id = get_current_user_id();
+					$is_vendor = BKAP_Vendors::bkap_is_vendor( $vendor_id );
+				}
+
+				if ( $is_vendor ) {
+					$sms_option_name = 'bkap_vendor_sms_settings_' . $vendor_id;
+				} else {
+					$sms_option_name = 'bkap_sms_settings';
+				}
+
 				$bkap_sms_settings = array();
 				if ( isset( $_POST['bkap_sms_settings'] ) && is_array( $_POST['bkap_sms_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 					$bkap_sms_settings         = array_map( 'sanitize_text_field', wp_unslash( $_POST['bkap_sms_settings'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-					$bkap_sms_settings['body'] = sanitize_textarea_field( wp_unslash( $_POST['bkap_sms_settings']['body'] ) );
-					update_option( 'bkap_sms_settings', $bkap_sms_settings );
+					update_option( $sms_option_name, $bkap_sms_settings );
 				}
 			}
 		}
@@ -63,7 +76,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 		public static function bkap_send_automatic_sms_reminder( $booking, $twilio_details, $item_id ) {
 
 			$item_obj            = bkap_common::get_bkap_booking( $item_id );
-			$from_phone          = $twilio_details['from_phone'];
+			$from                = $twilio_details['from'];
 			$sid                 = $twilio_details['sid'];
 			$token               = $twilio_details['token'];
 			$msg_body            = $twilio_details['body'];
@@ -75,6 +88,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 			$booking_time        = $item_obj->item_booking_time;
 			$booking_id          = $item_obj->booking_id;
 			$booking_resource    = $item_obj->resource_title;
+			$booking_persons     = $item_obj->person_data;
 			$zoom_link           = $item_obj->zoom_meeting;
 			$customer_name       = '';
 			$customer_first_name = '';
@@ -120,6 +134,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 					'{booking_time}',
 					'{booking_id}',
 					'{booking_resource}',
+					'{booking_persons}',
 					'{zoom_link}',
 				),
 				array(
@@ -134,6 +149,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 					$booking_time,
 					$booking_id,
 					$booking_resource,
+					$booking_persons,
 					$zoom_link,
 				),
 				$msg_body
@@ -147,7 +163,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 					$message = $client->messages->create(
 						$to_phone,
 						array(
-							'from' => $from_phone,
+							'from' => $from,
 							'body' => $body,
 						)
 					);
@@ -208,6 +224,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 		 * @since 7.9
 		 */
 		public static function bkap_send_sms_reminders() {
+			
 			$sms_settings = get_option( 'bkap_sms_settings' );
 			$sms_settings = apply_filters( 'bkap_sms_settings', $sms_settings );
 

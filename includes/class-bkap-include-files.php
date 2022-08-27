@@ -63,11 +63,14 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				'/includes/bkap-global-menu.php',
 				'/includes/bkap-global-settings.php',
 				'/includes/class-bkap-addon-settings.php',
+				'/includes/class-bkap-reminder.php',
 				'/includes/bkap-send-reminder.php',
 				'/includes/bkap-zoom-meeting-functions.php',
 				'/includes/class-bkap-zoom-meeting-settings.php',
 				'/includes/bkap-fluentcrm-functions.php',
 				'/includes/class-bkap-fluentcrm-settings.php',
+				'/includes/class-bkap-background-process.php',
+				'/includes/class-bkap-bulk-booking-settings.php',
 				'/includes/bkap-booking-box.php',
 				'/includes/class-bkap-multidates.php',
 				'/includes/bkap-timeslot-price.php',
@@ -82,6 +85,7 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				'/includes/class-bkap-edit-bookings.php',
 				'/includes/class-bkap-calendar-view.php',
 				'/includes/class-bkap-custom-post-types.php',
+				'/templates/meta-boxes/class-bkap-send-reminder-meta-box.php',
 				'/includes/class-bkap-privacy-policy.php',
 				'/includes/class-bkap-privacy-exporter.php',
 				'/includes/class-bkap-privacy-erasure.php',
@@ -102,7 +106,6 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				'/includes/class-bkap-product-filter.php',
 				'/includes/class-bkap-booking-dashboard-widget.php',
 				'/includes/class-bkap-scripts.php',
-				'/includes/class-bkap-bulk-booking-settings.php',
 				'/includes/class-bkap-booking-endpoints.php',
 				'/includes/class-bkap-sms-settings.php',
 				'/includes/class-bkap-oauth-google-calendar.php',
@@ -112,6 +115,7 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				'/includes/class-bkap-cancel-booking.php',
 				'/includes/api/zapier/class-bkap-api-zapier-settings.php',
 				'/includes/api/zapier/class-bkap-api-zapier-log.php',
+				'/includes/class-bkap-coupons.php',
 			);
 
 			foreach ( $include_files as $include_file ) {

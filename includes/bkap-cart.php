@@ -207,6 +207,9 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 								$time_slots[] = $value->time_slot;
 							}
 							$price_charged[] = $value->price_charged;
+							if ( isset( $value->resource_id ) ) {
+								$resource_id[] = $value->resource_id;
+							}
 						}
 					} else {
 						$date_checks[]   = isset( $_POST['wapbk_hidden_date'] ) ? $_POST['wapbk_hidden_date'] : '';
@@ -274,6 +277,10 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 						if ( isset( $_POST['bkap_front_resource_selection'] ) ) {
 							$cart_arr['resource_id'] = $_POST['bkap_front_resource_selection'];
+						}
+
+						if ( $bkap_multidates && isset( $resource_id ) ) {
+							$cart_arr['resource_id'] = $resource_id[ $key ];
 						}
 
 						// Adding information for persons.
@@ -712,7 +719,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 							$time_slot_to_display = $from_time;
 						}
 
-						if ( $type_of_slot != 'multiple' ) {
+						if ( $type_of_slot != 'multiple' || $is_multidates ) {
 
 							$name = __( ( '' !== $cart_time_label ? $cart_time_label : 'Booking Time' ), 'woocommerce-booking' );
 							if ( $is_multidates ) {

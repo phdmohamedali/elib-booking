@@ -38,6 +38,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 			// To validate the product in cart and checkout as per the Advance Booking Period set.
 			add_action( 'woocommerce_check_cart_items', array( &$this, 'bkap_remove_product_from_cart' ) );
 			add_action( 'woocommerce_before_checkout_process', array( &$this, 'bkap_remove_product_from_cart' ) );
+
+			add_filter( 'bkap_get_validate_add_cart_item', array( &$this, 'bkap_same_bookings_in_cart_validation' ), 10, 4 );
 		}
 
 		/**
@@ -106,7 +108,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 				$passed = true;
 			}
 
-			return $passed;
+			do_action( 'bkap_get_validate_add_cart_item_after', $product_id, $booking_settings, $product );
+
+			return apply_filters( 'bkap_get_validate_add_cart_item', $passed, $product_id, $booking_settings, $product );
 		}
 
 		/**
@@ -833,7 +837,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 				case 'multidates_fixedtime':
 					$type_of_slot = apply_filters( 'bkap_slot_type', $post_id );
 
-					if ( $type_of_slot == 'multiple' ) {
+					if ( $type_of_slot == 'multiple' && ! isset( $_POST[ 'bkap_multidate_data' ] ) ) {
 						$quantity_check_pass = apply_filters( 'bkap_validate_add_to_cart', $_POST, $post_id );
 					} else {
 
@@ -2171,6 +2175,134 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 					}
 				}
 			}
+		}
+
+		/**
+		 * This function force the same booking details in the cart.
+		 *
+		 * @param bool   $passed true.
+		 * @param int    $product_id Product ID.
+		 * @param array  $booking_settings Booking Settings.
+		 * @param object $product Product Object.
+		 *
+		 * @since 5.10.0
+		 */
+		public static function bkap_same_bookings_in_cart_validation( $passed, $product_id, $booking_settings, $product ) {
+
+			$global_settings = bkap_global_setting();
+
+			if ( ! isset( $global_settings->same_bookings_in_cart ) || ( isset( $global_settings->same_bookings_in_cart ) && 'on' !== $global_settings->same_bookings_in_cart ) ) {
+				return $passed;
+			}
+
+			if ( $passed && isset( $_POST['wapbk_hidden_date'] ) ) {
+
+				$bkap_booking = bkap_get_first_booking_data_from_cart();
+
+				if ( ! empty( $bkap_booking ) ) {
+
+					$date         = $_POST['wapbk_hidden_date'];
+					$end_date     = '';
+					$booking_type = bkap_type( $product_id );
+
+					if ( isset( $_POST['variation_id'] ) && '' !== $_POST['variation_id'] ) {
+						$variation     = wc_get_product( $_POST['variation_id'] );
+						$product_title = $variation->get_formatted_name();
+					} else {
+						$variation    = wc_get_product( $product_id );
+						$product_title = $product->get_name();
+					}
+
+					if ( $date !== $bkap_booking['hidden_date'] ) {
+						$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title ); 
+						wc_add_notice( $message, $notice_type = 'error' );
+						return false;
+					}
+
+					if ( isset( $_POST['wapbk_hidden_date_checkout'] ) && '' !== $_POST['wapbk_hidden_date_checkout'] ) {
+						$end_date = $_POST['wapbk_hidden_date_checkout'];
+					}
+
+					switch ( $booking_type ) {
+
+						case 'multiple_days':
+
+							if ( '' != $end_date ) { // Check if the product being added to cart is havin end date or not.
+
+								if ( isset( $bkap_booking['hidden_date_checkout'] ) ) { // first product in cart having end date or not.
+
+									if ( $date !== $bkap_booking['hidden_date'] || $end_date !== $bkap_booking['hidden_date_checkout'] ) {
+
+										$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title ); 
+										wc_add_notice( $message, $notice_type = 'error' );
+										$passed = false;
+									}
+								} else {
+
+									// checks in cart for the multiple days booking.
+									if ( isset( WC()->cart ) ) {
+
+										$mbkap_booking = bkap_get_first_booking_data_from_cart( 'multiple_days' );
+
+										if ( ! empty( $mbkap_booking ) ) {
+
+											if ( $date !== $mbkap_booking['hidden_date'] || $end_date !== $mbkap_booking['hidden_date_checkout'] ) {
+												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking['date_checkout'], $product_title ); 
+												wc_add_notice( $message, $notice_type = 'error' );
+												$passed = false;
+											}
+
+										} else {
+
+											if ( $date !== $bkap_booking['hidden_date'] ) {
+												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
+												wc_add_notice( $message, $notice_type = 'error' );
+												$passed = false;
+											}
+										}
+									}
+								}
+							}
+							break;
+						case 'date_time':
+						case 'duration_time':
+
+							$key = ( 'duration_time' == $booking_type ) ? 'duration_time_slot' : 'time_slot';
+							if ( isset( $_POST[ $key ] ) && '' !== $_POST[ $key ] ) {
+
+								$time_slot = $_POST[ $key ];
+
+								if ( isset( $bkap_booking[ $key ] ) ) { // first product in cart having end date or not.
+
+									if ( $time_slot !== $bkap_booking[ $key ] ) {
+
+										$message = sprintf( __( 'Please select %s and %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking[$key], $product_title ); 
+										wc_add_notice( $message, $notice_type = 'error' );
+										$passed = false;
+									}
+								} else {
+									// checks in cart for the date and time booking.
+									if ( isset( WC()->cart ) ) {
+
+										$mbkap_booking = bkap_get_first_booking_data_from_cart( $booking_type );
+
+										if ( ! empty( $mbkap_booking ) ) {
+
+											if ( $time_slot !== $mbkap_booking[ $key ] ) {
+												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking[$key], $product_title ); 
+												wc_add_notice( $message, $notice_type = 'error' );
+												$passed = false;
+											}
+										}
+									}
+								}
+							}
+							break;
+					}
+				}
+			}
+
+			return $passed;
 		}
 	}
 	$bkap_validation = new Bkap_Validation();

@@ -127,7 +127,6 @@ if ( ! class_exists( 'Bkap_Plugin_Update' ) ) {
 					as_enqueue_async_action( 'bkap_update_time_gi_to_hi' );
 				}
 
-
 				// add the new messages in the options table.
 				add_option( 'book_stock-total', __( 'AVAILABLE_SPOTS stock total', 'woocommerce-booking' ) );
 				add_option( 'book_available-stock-date', __( 'AVAILABLE_SPOTS bookings are available on DATE', 'woocommerce-booking' ) );

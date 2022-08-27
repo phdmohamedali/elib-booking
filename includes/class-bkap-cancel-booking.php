@@ -298,12 +298,19 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 * @param int $booking_id Booking ID.
 		 * @since 5.9.1
 		 */
-		public static function bkap_cancel_booking_url( $booking_id ) {
+		public static function bkap_cancel_booking_url( $booking_id, $called_from = '' ) {
+
+			$args = array(
+				'cancel_booking' => 'true',
+				'booking_id'     => $booking_id,
+			);
+
+			if ( 'order_details' === $called_from ) {
+				$args['called_from'] = $called_from;
+			}
+
 			return add_query_arg(
-				array(
-					'cancel_booking' => 'true',
-					'booking_id'     => $booking_id,
-				),
+				$args,
 				wc_get_endpoint_url( self::$endpoint )
 			);
 		}
@@ -336,11 +343,11 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 * @param int $booking_id Booking ID.
 		 * @since 5.9.1
 		 */
-		public static function bkap_cancel_booking_action( $booking_id ) {
+		public static function bkap_cancel_booking_action( $booking_id, $called_from = '' ) {
 
 			$is_cancel_enabled_for_booking = false;
 
-			$booking_cancel_url        = self::bkap_cancel_booking_url( $booking_id );
+			$booking_cancel_url        = self::bkap_cancel_booking_url( $booking_id, $called_from );
 			$booking_cancel_url_button = '<a href="' . esc_url( $booking_cancel_url ) . '" class="woocommerce-button button bkap-cancel-booking-cancel-button">' . __( 'Cancel', 'woocommerce-booking' ) . '</a>';
 
 			$booking = new BKAP_Booking( $booking_id );
@@ -461,13 +468,12 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 */
 		public static function bkap_cancel_booking_action_cancel() {
 
-			$cancel_booking_view_url = wc_get_endpoint_url( self::$endpoint );
-
 			if ( isset( $_GET['booking_id'] ) && isset( $_GET['cancel_booking'] ) && 'true' === $_GET['cancel_booking'] ) { // phpcs:ignore
 
 				$booking_id = sanitize_text_field( wp_unslash( $_GET['booking_id'] ) ); // phpcs:ignore
 				$booking    = new BKAP_Booking( $booking_id );
 				$item_id    = $booking->get_item_id();
+				$order_id   = $booking->get_order_id();
 
 				if ( isset( $booking_id ) && ( $booking_id > 0 ) ) {
 
@@ -478,9 +484,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 						bkap_booking_confirmation::bkap_save_booking_status( $item_id, 'cancelled' );
 
 						// Add note about Booking cancellation in the order.
-						$order_id = $booking->get_order_id();
-						$_order   = wc_get_order( $order_id );
-
+						$_order        = wc_get_order( $order_id );
 						$current_user  = wp_get_current_user();
 						$customer_name = $current_user->display_name;
 
@@ -498,7 +502,14 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 					} else {
 						wc_add_notice( __( 'This Booking cannot be cancelled.', 'woocommerce-booking' ), 'error' );
 					}
-					print( '<script type="text/javascript">location.href="' . esc_url( $cancel_booking_view_url ) . '";</script>' );
+
+					if ( isset( $_GET['called_from'] ) && 'order_details' === $_GET['called_from'] ) {
+						$cancel_redirect_url = wc_get_endpoint_url( 'view-order' ) . $order_id . '/';
+					} else {
+						$cancel_redirect_url = wc_get_endpoint_url( self::$endpoint );
+					}
+
+					print( '<script type="text/javascript">location.href="' . esc_url( $cancel_redirect_url ) . '";</script>' );
 				}
 			}
 		}

@@ -522,7 +522,9 @@ class import_bookings {
 				$booking['fixed_block'] = $fixed_block;
 				$booking['persons']     = $persons;
 
-				$booking['selected_duration'] = $bkap_duration;
+				if ( '' !== $bkap_duration ) {
+					$booking['selected_duration'] = $bkap_duration;
+				}
 
 				$hidden_checkout_date = '';
 
@@ -1174,7 +1176,9 @@ class import_bookings {
 
 				$unlimited_lang = __( 'Unlimited', 'woocommerce-booking' );
 
-				if ( $availability > 0 || trim( $availability ) == $unlimited_lang ) {
+				if ( trim( $availability ) == $unlimited_lang ) {
+					$validation_check = 0;
+				} elseif ( $availability > 0 ) {
 					if ( $availability > 0 ) {
 						$new_availability = $availability - $lockout_quantity;
 						if ( $new_availability < 0 ) {

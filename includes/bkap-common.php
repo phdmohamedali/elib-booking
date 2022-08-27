@@ -451,7 +451,7 @@ class bkap_common {
 				}
 
 				if ( $consider_date || empty( $recurring_days ) ) {
-					$days[] = $start_date;
+					$days[] = date( $format, strtotime( $start_date ) );
 				}
 				$start_date           = date( $format, strtotime( '+1 day', strtotime( $start_date ) ) );
 				$start_date_timestamp = $start_date_timestamp + 86400;
@@ -1327,8 +1327,10 @@ class bkap_common {
 			$time_slot_meta            = 0;
 			$wapbk_time_slot_meta      = 0;
 			$resource_id_meta          = 0;
+			$person_id_meta            = 0;
 			$booking_status_meta       = 0;
 			$i                         = 0;
+
 			foreach ( $item->get_meta_data() as $meta_index => $meta ) {
 
 				switch ( $meta->key ) {
@@ -1362,6 +1364,10 @@ class bkap_common {
 						$all_booking_details[ $resource_id_meta ]['resource_id'] = $meta->value;
 						$resource_id_meta                                        = $resource_id_meta + 1;
 						break;
+					case '_person_ids':
+						$all_booking_details[ $person_id_meta ]['person_ids'] = $meta->value;
+						$person_id_meta                                       = $person_id_meta + 1;
+						break;
 					case '_wapbk_booking_status':
 						$all_booking_details[ $booking_status_meta ]['wapbk_booking_status'] = $meta->value;
 						$booking_status_meta = $booking_status_meta + 1;
@@ -1377,6 +1383,7 @@ class bkap_common {
 				'item_checkout_date'        => 'hidden_date_checkout',
 				'item_booking_time'         => 'time_slot',
 				'resource_id'               => 'resource_id',
+				'person_ids'                => 'person_ids',
 			);
 
 			foreach ( $item_data as $item_k => $item_v ) {
@@ -1401,7 +1408,18 @@ class bkap_common {
 
 			// resource.
 			$booking_object->resource_id = wc_get_order_item_meta( $item_id, '_resource_id' );
+			$booking_object->person_ids  = wc_get_order_item_meta( $item_id, '_person_ids' );
 		}
+
+		// Booking ID.
+		$booking_id = self::get_booking_id( $item_id );
+		if ( is_array( $booking_id ) ) {
+			$booking_object->booking_id = $booking_id[ $key ];
+		} else {
+			$booking_object->booking_id = $booking_id;
+		}
+
+		$booking = new BKAP_Booking( $booking_object->booking_id );
 
 		$booking_object->resource_title = '';
 		$booking_object->resource_label = '';
@@ -1415,6 +1433,14 @@ class bkap_common {
 			}
 		}
 
+		$booking_object->person_label = '';
+		$booking_object->person_data = '';
+		if ( isset( $booking_object->person_ids ) && '' !== $booking_object->person_ids ) {
+
+			$booking_object->person_label = __( 'Persons', 'woocommerce-booking' );
+			$booking_object->person_data  = $booking->get_persons_info();
+		}
+
 		if ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) {
 			$booking_object->billing_email = $order->billing_email;
 			$booking_object->customer_id   = $order->user_id;
@@ -1425,16 +1451,6 @@ class bkap_common {
 
 		$zoom_label                   = bkap_zoom_join_meeting_label( $product_id );
 		$booking_object->zoom_meeting = wc_get_order_item_meta( $item_id, $zoom_label );
-
-		// Booking ID.
-		$booking_id = self::get_booking_id( $item_id );
-		if ( is_array( $booking_id ) ) {
-			$booking_object->booking_id = $booking_id[ $key ];
-		} else {
-			$booking_object->booking_id = $booking_id;
-		}
-
-		$booking = new BKAP_Booking( $booking_id );
 
 		$variation_id = $booking->get_variation_id();
 		if ( $variation_id > 0 ) {
@@ -2927,8 +2943,8 @@ class bkap_common {
 		$format              = self::bkap_get_date_format();
 		$current_date        = date( $format );
 
-		foreach ( $bookings as $key => $value ) {
-			$booking         = new BKAP_Booking( $value->get_id() );
+		foreach ( $bookings as $booking ) {
+			//$booking         = new BKAP_Booking( $value->get_id() );
 			$booking_product = $booking->get_product_id();
 			$start_date      = $booking->get_start_date();
 

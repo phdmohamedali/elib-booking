@@ -357,6 +357,79 @@ if ( ! class_exists( 'Bkap_Custom_Post_Type' ) ) {
 					)
 				)
 			);
+
+			/**
+			 * Post Type: Send Reminder.
+			 */
+			register_post_type(
+				'bkap_reminder',
+				apply_filters(
+					'bkap_register_post_type_reminder',
+					array(
+						'label'               => __( 'Send Reminder', 'woocommerce-booking' ),
+						'labels'              => array(
+							'name'               => __( 'Send Reminder', 'woocommerce-booking' ),
+							'singular_name'      => __( 'Send Reminder', 'woocommerce-booking' ),
+							'add_new'            => __( 'Add new Reminder', 'woocommerce-booking' ),
+							'add_new_item'       => __( 'Add New Reminder', 'woocommerce-booking' ),
+							'edit'               => __( 'Edit', 'woocommerce-booking' ),
+							'edit_item'          => __( 'Edit Reminder', 'woocommerce-booking' ),
+							'new_item'           => __( 'New Reminder', 'woocommerce-booking' ),
+							'view'               => __( 'View Reminder', 'woocommerce-booking' ),
+							'view_item'          => __( 'View Reminder', 'woocommerce-booking' ),
+							'search_items'       => __( 'Search Resource', 'woocommerce-booking' ),
+							'not_found'          => __( 'No Resource found', 'woocommerce-booking' ),
+							'not_found_in_trash' => __( 'No Resource found in trash', 'woocommerce-booking' ),
+							'parent'             => __( 'Parent Reminders', 'woocommerce-booking' ),
+							'menu_name'          => _x( 'Send Reminders', 'Admin menu name', 'woocommerce-booking' ),
+							'all_items'          => __( 'Send Reminders', 'woocommerce-booking' ),
+						),
+						//'description'         => __( 'Bookable resources are bookable within a bookings product.', 'woocommerce-booking' ),
+						'public'              => false,
+						'show_ui'             => true,
+						'capability_type'     => 'product',
+						'map_meta_cap'        => true,
+						'publicly_queryable'  => false,
+						'exclude_from_search' => true,
+						'show_in_menu'        => true,
+						'hierarchical'        => false,
+						'show_in_nav_menus'   => false,
+						'rewrite'             => false,
+						'query_var'           => false,
+						'supports'            => array( 'title' ),
+						'has_archive'         => false,
+						'show_in_rest'        => true,
+						'show_in_menu'        => 'edit.php?post_type=bkap_booking',
+					)
+				)
+			);
+
+			/**
+			 * Post status cancelled.
+			 */
+			register_post_status(
+				'bkap-active',
+				array(
+					'label'                     => '<span class="status-active tips" data-tip="' . _x( 'Active', 'woocommerce-booking', 'woocommerce-booking' ) . '">' . _x( 'Active', 'woocommerce-booking', 'woocommerce-booking' ) . '</span>',
+					'public'                    => true,
+					'exclude_from_search'       => false,
+					'show_in_admin_all_list'    => true,
+					'show_in_admin_status_list' => true,
+					'label_count'               => _n_noop( 'Active <span class="count">(%s)</span>', 'Active <span class="count">(%s)</span>', 'woocommerce-booking' ),
+				)
+			);
+
+			register_post_status(
+				'bkap-inactive',
+				array(
+					'label'                     => '<span class="status-inactive tips" data-tip="' . _x( 'Inactive', 'woocommerce-booking', 'woocommerce-booking' ) . '">' . _x( 'Inactive', 'woocommerce-booking', 'woocommerce-booking' ) . '</span>',
+					'public'                    => true,
+					'exclude_from_search'       => false,
+					'show_in_admin_all_list'    => true,
+					'show_in_admin_status_list' => true,
+					'label_count'               => _n_noop( 'Inactive <span class="count">(%s)</span>', 'Inactive <span class="count">(%s)</span>', 'woocommerce-booking' ),
+				)
+			);
 		}
 		
 		/**

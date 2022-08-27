@@ -1617,6 +1617,7 @@ function bkap_save_resources( $post_id, $post ) {
 		$availability  = bkap_get_posted_availability();
 		$resource_data = array(
 			'bkap_resource_qty'          => wc_clean( $_POST['_bkap_booking_qty'] ),
+			'bkap_resource_menu_order'   => wc_clean( $_POST['_bkap_resource_menu_order'] ),
 			'bkap_resource_availability' => $availability,
 			'bkap_resource_meeting_host' => bkap_get_posted_meeting_host()
 		);
@@ -2836,8 +2837,43 @@ function bkap_get_future_bookings() {
 	);
 	$booking_posts = get_posts( $args );
 
-	return $booking_posts;
+	$bookings = array();
+	foreach ( $booking_posts as $booking_post ) {
+		$bookings[] = new BKAP_Booking( $booking_post->ID );
+	}
+
+	return $bookings;
 }
+
+/**
+ * Get all the past bookings
+ *
+ * @return array
+ * @since 5.14.0
+ */
+function bkap_get_past_bookings() {
+
+	$current_date = Date( 'Y-m-d H:i:s', current_time( 'timestamp' ) );
+
+	$args          = array(
+		'post_type'    => 'bkap_booking',
+		'numberposts'  => -1,
+		'post_status'  => array( 'paid', 'pending-confirmation', 'confirmed' ),
+		'meta_key'     => '_bkap_start',
+		'meta_value'   => date( 'YmdHis', strtotime( $current_date ) ),
+		'meta_compare' => '<',
+	);
+	$booking_posts = get_posts( $args );
+
+	$bookings = array();
+	foreach ( $booking_posts as $booking_post ) {
+		$bookings[] = new BKAP_Booking( $booking_post->ID );
+	}
+
+	return $bookings;
+}
+
+
 
 /**
  * Arrange timeslots in chronological order
@@ -4805,7 +4841,7 @@ function bkap_get_sms_settings() {
 			$twilio_details = array(
 				'sid'        => $acc_id,
 				'token'      => $auth_token,
-				'from_phone' => $from,
+				'from'       => $from,
 				'body'       => $body,
 			);
 			return $twilio_details;
@@ -4813,6 +4849,98 @@ function bkap_get_sms_settings() {
 	}
 
 	return false;
+}
+
+/**
+ * This function will return the Merge Codes.
+ *
+ * @since 5.14.0
+ */
+function bkap_reminder_merge_codes() {
+
+	$merge_codes = array(
+		'{start_date}'          => __( 'Use this merge code to replace the Start Date infomration of the Booking.', 'woocommerce-booking' ),
+		'{end_date}'            => __( 'Use this merge code to replace the End Date infomration of the Booking.', 'woocommerce-booking' ),
+		'{booking_time}'        => __( 'Use this merge code to replace the Time infomration of the Booking.', 'woocommerce-booking' ),
+		'{booking_id}'          => __( 'Use this merge code to replace the Booking ID infomration of the Booking.', 'woocommerce-booking' ),
+		'{booking_resource}'    => __( 'Use this merge code to replace the Resource infomration of the Booking.', 'woocommerce-booking' ),
+		'{booking_persons}'     => __( 'Use this merge code to replace the Persons infomration of the Booking.', 'woocommerce-booking' ),
+		'{zoom_link}'           => __( 'Use this merge code to replace the Zoom Link infomration of the Booking.', 'woocommerce-booking' ),
+		'{product_title}'       => __( 'Use this merge code to replace the Product Title of the Booking.', 'woocommerce-booking' ),
+		'{order_number}'        => __( 'Use this merge code to replace the Order Number infomration of the Booking.', 'woocommerce-booking' ),
+		'{order_date}'          => __( 'Use this merge code to replace the Order Date infomration of the Booking.', 'woocommerce-booking' ),
+		'{customer_name}'       => __( 'Use this merge code to replace the Customer Name infomration of the Booking.', 'woocommerce-booking' ),
+		'{customer_first_name}' => __( 'Use this merge code to replace the Customer First Name infomration of the Booking.', 'woocommerce-booking' ),
+		'{customer_last_name}'  => __( 'Use this merge code to replace the Customer Last Name infomration of the Booking.', 'woocommerce-booking' ),
+		'{booking_table}'       => __( 'Use this merge code to show the all booking infomration in the table.', 'woocommerce-booking' ),
+	);
+
+	return $merge_codes;
+}
+
+/**
+ * Save Reminder meta upon save/update Reminder.
+ *
+ * @since 5.14.0
+ */
+function bkap_reminder_save_data( $post_id ) {
+	
+	if ( isset( $_POST['bkap_email_subject'] ) ) {
+		
+		/* Email Reminder Settings */
+
+		if ( isset( $_POST[ 'bkap_email_content' ] ) ) {
+			$bkap_email_content = wp_filter_post_kses( $_POST[ 'bkap_email_content' ] );
+			update_post_meta( $post_id, 'bkap_email_content', $bkap_email_content );
+		}
+
+		if ( isset( $_POST[ 'bkap_email_subject' ] ) ) {
+			$email_subject = sanitize_text_field( $_POST[ 'bkap_email_subject' ] );
+			update_post_meta( $post_id, 'bkap_email_subject', $email_subject );
+		}
+
+		if ( isset( $_POST[ 'bkap_email_heading' ] ) ) {
+			$bkap_email_heading = sanitize_text_field( $_POST[ 'bkap_email_heading' ] );
+			update_post_meta( $post_id, 'bkap_email_heading', $bkap_email_heading );
+		}
+
+		/* Trigger Settings */
+
+		if ( isset( $_POST[ 'bkap_sending_delay' ] ) ) {
+			$bkap_sending_delay = $_POST[ 'bkap_sending_delay' ];
+			update_post_meta( $post_id, 'bkap_sending_delay', $bkap_sending_delay );
+			update_post_meta( $post_id, 'bkap_delay_value', $bkap_sending_delay['delay_value'] );
+			update_post_meta( $post_id, 'bkap_delay_unit', $bkap_sending_delay['delay_unit'] );
+		}
+
+		if ( isset( $_POST[ 'bkap_trigger' ] ) ) {
+			$bkap_trigger = sanitize_text_field( $_POST[ 'bkap_trigger' ] );
+			update_post_meta( $post_id, 'bkap_trigger', $bkap_trigger );
+		}
+
+		if ( isset( $_POST[ 'bkap_products' ] ) ) {
+			$bkap_products = $_POST[ 'bkap_products' ];
+			update_post_meta( $post_id, 'bkap_products', $bkap_products );
+		}
+
+		if ( isset( $_POST[ 'bkap_enable_sms' ] ) ) {
+			$bkap_enable_sms = $_POST[ 'bkap_enable_sms' ];
+			update_post_meta( $post_id, 'bkap_enable_sms', $bkap_enable_sms );
+		} else {
+			update_post_meta( $post_id, 'bkap_enable_sms', '' );
+		}
+
+		if ( isset( $_POST[ 'bkap_sms_body' ] ) ) {
+			$bkap_products = wp_filter_post_kses( $_POST[ 'bkap_sms_body' ] );
+			update_post_meta( $post_id, 'bkap_sms_body', $bkap_products );
+		}
+
+		if ( ! wp_next_scheduled( 'bkap_auto_reminder_emails' ) ) {
+			wp_schedule_event( time(), 'hourly', 'bkap_auto_reminder_emails' );
+		}
+
+		do_action( 'bkap_reminder_save_data', $post_id );
+	}
 }
 
 /**
@@ -5970,7 +6098,7 @@ function bkap_get_post_meta( $product_id ) {
 function bkap_get_post_meta_data( $product_id, $meta_key, $default_data = array(), $default = false ) {
 
 	if ( $default ) {
-		$data = $default_data[ $meta_key ];
+		$data = isset( $default_data[ $meta_key ] ) ? $default_data[ $meta_key ] : '';
 	} else {
 		$data = get_post_meta( $product_id, $meta_key, true );
 	}
@@ -6203,4 +6331,80 @@ function bkap_persons_info( $persons, $product_id ) {
 	}
 
 	return $person_info;
+}
+
+/**
+ * This function return the first booking product array.
+ *
+ * @param string $booking_type Booking Type.
+ * @since 5.14.0
+ */
+function bkap_get_first_booking_data_from_cart( $booking_type = '' ) {
+
+	$bkap_booking = array();
+	$cart         = WC()->cart;
+
+	if ( isset( WC()->cart ) ) {
+		$cart_content = WC()->cart->cart_contents;
+
+		if ( ! empty( $cart_content ) ) {
+
+			foreach ( $cart_content as $key => $value ) {
+				if ( isset( $value['bkap_booking'] ) ) {
+					$p_id   = $value['product_id'];
+					$b_type = bkap_type( $p_id );
+
+					if ( '' !== $booking_type ) {
+
+						if ( $booking_type == $b_type ) {
+							$bkap_booking = $value['bkap_booking'][0];
+							break;
+						} else {
+							continue;
+						}
+					} else {
+						$bkap_booking = $value['bkap_booking'][0];
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return $bkap_booking;
+}
+
+/**
+ * Sorting the array based on the key value.
+ *
+ * @since 5.14.0
+ */
+function bkap_array_orderby_array_key() {
+	$args = func_get_args();
+	$data = array_shift($args);
+	foreach ( $args as $n => $field ) {
+		if ( is_string( $field ) ) {
+			$tmp = array();
+			foreach ( $data as $key => $row )
+				$tmp[$key] = $row[$field];
+			$args[$n] = $tmp;
+		}
+	}
+	$args[] = &$data;
+	call_user_func_array( 'array_multisort', $args );
+	return array_pop( $args );
+}
+
+/**
+ * Create temporary directory in uploads folder.
+ *
+ * @since 5.14.0
+ */
+function bkap_temporary_directory() {
+	$file_path = WP_CONTENT_DIR . '/uploads/wbkap_tmp';
+	if ( ! file_exists( $file_path ) ) {
+		mkdir( $file_path, 0777 );
+	}
+
+	return $file_path;
 }

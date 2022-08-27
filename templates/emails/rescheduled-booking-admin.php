@@ -50,6 +50,24 @@ if ( ! is_null( $booking ) ) :
 			<?php
 		}
 
+		if ( isset( $booking->resource_title ) && '' != $booking->resource_title ) {
+			?>
+				<tr>
+					<th style="text-align:left; border: 1px solid #eee;" scope="row"><?php echo $booking->resource_label; ?></th>
+					<td style="text-align:left; border: 1px solid #eee;"><?php echo $booking->resource_title; ?></td>
+				</tr>
+			<?php
+		}
+
+		if ( isset( $booking->person_data ) && '' != $booking->person_data ) {
+			?>
+			<tr>
+				<th style="text-align:left; border: 1px solid #eee;" scope="row"><?php _e( $booking->person_label, 'woocommerce-booking' ); ?></th>
+				<td style="text-align:left; border: 1px solid #eee;" scope="row"><?php echo $booking->person_data; ?></td>
+			</tr>
+			<?php
+		}
+
 		if ( isset( $booking->zoom_meeting ) && '' != $booking->zoom_meeting ) {
 
 			$meeting_label = bkap_zoom_join_meeting_label( $booking->product_id );
@@ -60,8 +78,6 @@ if ( ! is_null( $booking ) ) :
 			</tr>
 			<?php
 		}
-
-		
 		?>
 	</tbody>
 </table>

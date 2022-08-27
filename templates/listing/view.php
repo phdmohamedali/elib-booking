@@ -42,11 +42,13 @@
 			eventOrder: 'sort, start,-duration,allDay,title',
 			eventRender: function(info) {
 
-				if ( 'undefined' !== typeof info.event.extendedProps.end ) {
-					max_date = info.event.extendedProps.end;
-				}
+				if ( '' != info.event ) {
+					if ( 'undefined' !== typeof info.event.extendedProps.last_event_date ) {
+						max_date = info.event.extendedProps.last_event_date;
+					}
 
-				bkapListing.eventRender( info, bkap_data.is_admin );
+					bkapListing.eventRender( info, bkap_data.is_admin );
+				}
 			},
 			allDayText: bkap_data.full_day_text,
 			datesRender: function( info ) {

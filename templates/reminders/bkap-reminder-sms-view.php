@@ -67,30 +67,7 @@
 							<input type='text' id='bkap_sms_auth_token' name='bkap_sms_settings[auth_token]' value='<?php echo wp_kses_post( $auth_token ); ?>'> 
 						</td>
 					</tr>
-
-					<tr valign="top">
-						<th scope="row">
-							<label for="bkap_sms_body"><?php esc_html_e( 'SMS Body', 'woocommerce-booking' ); ?></label>
-						</th>
-						<td>
-							<?php
-							if ( isset( $options['body'] ) && '' !== $options['body'] ) {
-								$content = $options['body'];
-							} else {
-								$content = 'Hi {customer_first_name},
-
-You have a booking of {product_title} on {start_date}. 
-
-Your Order # : {order_number}
-Order Date : {order_date}
-Your booking id is: {booking_id}';
-							}
-
-							?>
-							<textarea id="bkap_sms_body" name='bkap_sms_settings[body]' rows="6" cols="70"><?php echo esc_textarea( $content ); ?></textarea>
-							<p><span class="description"><?php esc_html_e( 'You can insert the following tags. They will be replaced dynamically', 'woocommerce-booking' ); ?>: <code>{product_title} {order_date} {order_number} {customer_name} {customer_first_name} {customer_last_name} {start_date} {end_date} {booking_time} {booking_id} {booking_resource} {zoom_link}</code></span></p>
-						</td>
-					</tr>				
+				
 					<tr valign="top">
 						<td>
 							<input type="submit" name="bkap_sms_reminder" class="button-primary" value="<?php esc_html_e( 'Save Settings', 'woocommerce-booking' ); ?>" />

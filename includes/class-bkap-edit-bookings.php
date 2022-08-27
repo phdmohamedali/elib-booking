@@ -36,16 +36,15 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 
 				add_filter( 'woocommerce_cart_item_name', array( &$this, 'bkap_add_edit_link' ), 10, 3 );
 			}
-			
-			if ( 
-				( 
+
+			if ( (
 					isset( $global_settings->bkap_enable_booking_reschedule ) &&
-					$global_settings->bkap_enable_booking_reschedule === 'on' 
-				) || 
+					$global_settings->bkap_enable_booking_reschedule === 'on'
+				) ||
 				(
 					isset( $global_settings->bkap_enable_booking_without_date ) &&
-					'on' === $global_settings->bkap_enable_booking_without_date  
-				) 
+					'on' === $global_settings->bkap_enable_booking_without_date
+				)
 			) {
 
 				add_action( 'woocommerce_order_item_meta_end', array( &$this, 'bkap_add_reschedule_link' ), 10, 3 );
@@ -68,8 +67,8 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 		 * @since 4.1.0
 		 */
 		public static function bkap_load_template( $booking_details, $cart_product, $product_id, $localized_array, $bkap_cart_item_key, $variation_id, $additional_addon_data = array() ) {
-			
-			$bkap_order_id = ! empty( $localized_array[ 'bkap_order_id' ] ) ? $localized_array[ 'bkap_order_id' ] : 0; 
+
+			$bkap_order_id = ! empty( $localized_array['bkap_order_id'] ) ? $localized_array['bkap_order_id'] : 0;
 			wc_get_template(
 				'bkap-edit-booking-modal.php',
 				array(
@@ -130,7 +129,6 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				! bkap_common::bkap_is_cartitem_bundled( $cart_item ) &&
 				! bkap_common::bkap_is_cartitem_composite( $cart_item ) ) {
 
-					
 				$product_id   = $cart_item['product_id'];
 				$product_id   = bkap_common::bkap_get_product_id( $product_id );
 				$booking_type = bkap_type( $product_id );
@@ -255,9 +253,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							$booking_details['time_slot'] = $meta->value;
 						} elseif ( $meta->key == '_resource_id' ) {
 							$booking_details['resource_id'] = $meta->value;
-						} elseif( $meta->key == '_wapbk_booking_status' ) {
+						} elseif ( $meta->key == '_wapbk_booking_status' ) {
 							$booking_details['booking_status'] = $meta->value;
-						} elseif( $meta->key == '_person_ids' ) {
+						} elseif ( $meta->key == '_person_ids' ) {
 							$booking_details['persons'] = $meta->value;
 						}
 					}
@@ -337,10 +335,10 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							__( 'Reschedule Booking', 'woocommerce-booking' )
 						);
 
-						if ( isset( $global_settings->bkap_enable_booking_without_date ) && 
-							'on' === $global_settings->bkap_enable_booking_without_date && 
-							'on' === $bkap_setting['booking_purchase_without_date'] && 
-							'' === $booking_details['date'] 
+						if ( isset( $global_settings->bkap_enable_booking_without_date ) &&
+							'on' === $global_settings->bkap_enable_booking_without_date &&
+							'on' === $bkap_setting['booking_purchase_without_date'] &&
+							'' === $booking_details['date']
 						) {
 							$edit_booking_label = apply_filters(
 								'bkap_edit_booking_label',
@@ -348,7 +346,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							);
 						}
 
-						if ( 'cancelled' != $booking_details['booking_status'] ) {
+						if ( ! isset( $booking_details['booking_status'] ) || 'cancelled' != $booking_details['booking_status'] ) {
 							printf( '<input type="button" class="bkap_edit_bookings" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,%s)" value="%s">', $item->get_product_id( 'view' ), $item_id, __( $edit_booking_label, 'woocommerce-booking' ) );
 						} else {
 							esc_html_e( 'Cancelled', 'woocommerce-booking' );
@@ -374,6 +372,18 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							$item->get_variation_id( 'view' ),
 							$additional_addon_data
 						);
+					}
+
+					$booking_id     = bkap_common::get_booking_id( $item_id );
+					$current_date   = date( 'YmdHis', current_time( 'timestamp' ) );
+					$start          = get_post_meta( $booking_id, '_bkap_start', true );
+					$booking_status = wc_get_order_item_meta( $item_id, '_wapbk_booking_status' );
+					if ( 'cancelled' !== $booking_status ) {
+
+						if ( $start >= $current_date ) {
+							$bkap_cancel_booking_action = Bkap_Cancel_Booking::bkap_cancel_booking_action( $booking_id, $called_from = 'order_details' );
+							echo wp_kses_post( $bkap_cancel_booking_action );
+						}
 					}
 				}
 			}
@@ -440,7 +450,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				// Set the per qty price for 'price' in 'bkap_booking'.
 				$per_qty_price = $cart_item_obj['bkap_booking'][0]['price'] / $session_cart[ $_POST['cart_item_key'] ]['quantity'];
 
-				$cart_item_obj['bkap_booking'][0]['price']                = $per_qty_price;
+				$cart_item_obj['bkap_booking'][0]['price'] = $per_qty_price;
 
 				/* Persons Calculations */
 				if ( isset( $cart_item_obj['bkap_booking'][0]['persons'] ) ) {
@@ -451,7 +461,6 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							$person_update                 = true;
 							$data[ $persons['person_id'] ] = $persons['person_val'];
 						}
-						
 					}
 					if ( $person_update ) {
 						$cart_item_obj['bkap_booking'][0]['persons'] = $data;
@@ -470,6 +479,8 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				}
 
 				WC()->session->set( 'cart', $session_cart );
+
+				do_action( 'bkap_updated_edited_bookings', 'bkap_updated_edited_bookings', $session_cart );
 			} elseif ( isset( $_POST['page_type'] ) && $_POST['page_type'] === 'view-order' ) {
 
 				/* When Rescheduling the booking from My Account Page then it comes here */
@@ -511,7 +522,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 					$old_bookings['booking_date_checkout'] = isset( $item_booking_date_checkout[ $item_number ] ) ? $item_booking_date_checkout[ $item_number ] : '';
 					$old_bookings['time_slot']             = isset( $item_time_slot[ $item_number ] ) ? $item_time_slot[ $item_number ] : '';
 
-					$multidates = true;
+					$multidates                        = true;
 					$additional_data['multiple_dates'] = $multidates;
 
 					$booking_data['item_number']    = $item_number;
@@ -523,7 +534,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 					$old_bookings['booking_date_checkout'] = wc_get_order_item_meta( $item_id, $checkout_item_meta_date );
 					$old_bookings['time_slot']             = wc_get_order_item_meta( $item_id, $book_item_meta_time );
 				}
-				
+
 				// Fallback to zero if not set.
 				if ( ! isset( $additional_data['item_number'] ) ) {
 					$additional_data['item_number'] = 0;
@@ -543,7 +554,6 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							$person_update                 = true;
 							$data[ $persons['person_id'] ] = $persons['person_val'];
 						}
-						
 					}
 					if ( $person_update ) {
 						$booking_data['persons'] = $data;
@@ -575,7 +585,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				$new_item_total = (float) $_POST['booking_data']['booking_price'];
 
 				if ( $multidates ) {
-					$old_price  = get_post_meta( $booking_id, '_bkap_cost', true );
+					$old_price = get_post_meta( $booking_id, '_bkap_cost', true );
 					if ( $old_price != $new_item_total ) {
 						$updated_item_total = $item_total - $old_price;
 						$updated_item_total = $updated_item_total + $new_item_total;
@@ -585,12 +595,12 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				foreach ( $order->get_coupon_codes() as $coupon_code ) {
 
 					// Retrieving the coupon ID.
-					$coupon_post_obj = get_page_by_title($coupon_code, OBJECT, 'shop_coupon');
+					$coupon_post_obj = get_page_by_title( $coupon_code, OBJECT, 'shop_coupon' );
 					$coupon_id       = $coupon_post_obj->ID;
 
 					// Get an instance of WC_Coupon object in an array(necessary to use WC_Coupon methods).
-					$coupon          = new WC_Coupon( $coupon_id );
-					$coupon_type     = $coupon->get_discount_type();
+					$coupon      = new WC_Coupon( $coupon_id );
+					$coupon_type = $coupon->get_discount_type();
 
 					if ( 'percent' === $coupon_type ) {
 						$new_item_total = $new_item_total - ( ( $new_item_total * $coupon->get_amount() ) / 100 );
@@ -653,17 +663,26 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 
 			do_action( 'bkap_before_rescheduling_booking', $order_id, $item_id, $item_obj, $product_id, $booking_data, $booking_id, $quantity, $page, $key, $additional_data );
 
-			$booking      = new BKAP_Booking( $booking_id );
-			$old_start    = date( 'Y-m-d', strtotime( $booking->get_start() ) );
-			$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
-			$old_resource = $booking->get_resource();
+			$old_start    = '';
 			$old_end      = '';
 			$old_time     = '';
+			$old_resource = '';
+			$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
 
-			if ( 'multiple_days' === $booking_type ) {
-				$old_end = date( 'Y-m-d', strtotime( $booking->get_end() ) );
-			} elseif ( 'date_time' === $booking_type || 'multidates_fixedtime' == $booking_type ) {
-				$old_time = $booking->get_time();
+			if ( $booking_id > 0 ) {
+				$booking      = new BKAP_Booking( $booking_id );
+				$old_start    = date( 'Y-m-d', strtotime( $booking->get_start() ) );
+				$old_resource = $booking->get_resource();
+				if ( 'multiple_days' === $booking_type ) {
+					$old_end = date( 'Y-m-d', strtotime( $booking->get_end() ) );
+				} elseif ( 'date_time' === $booking_type || 'multidates_fixedtime' == $booking_type ) {
+					$old_time = $booking->get_time();
+				}
+			} else {
+				// when do not have any bookings.
+				wc_add_order_item_meta( $item_id, '_wapbk_booking_status', 'confirmed' );
+				$booking    = bkap_checkout::bkap_create_booking_post( $item_id, $product_id, $quantity, $booking_data );
+				$booking_id = $booking->id;
 			}
 
 			if ( isset( $booking_data['time_slot'] ) && '' != $booking_data['time_slot'] ) {
@@ -776,7 +795,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				bkap_update_order_itemmeta_multidates( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start, $additional_data['item_number'] );
 			} else {
 				wc_update_order_item_meta( $item_id, $book_item_meta_date, $booking_data['booking_date'], $additional_data['old_bookings']['booking_date'] );
-				wc_update_order_item_meta( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start );	
+				wc_update_order_item_meta( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start );
 			}
 
 			$postmeta_start_date = $date_to_convert . '000000';
@@ -806,7 +825,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				}
 
 				if ( $timezone ) { // Timezone conversion to create booking details for post.
-					$his = bkap_convert_date_from_timezone_to_timezone( $booking_data['hidden_date'] . ' ' . $timeslots[0], $customer_timezone, $site_timezone, 'His' );
+					$his             = bkap_convert_date_from_timezone_to_timezone( $booking_data['hidden_date'] . ' ' . $timeslots[0], $customer_timezone, $site_timezone, 'His' );
 					$date_to_convert = bkap_convert_date_from_timezone_to_timezone( $booking_data['hidden_date'] . ' ' . $timeslots[0], $customer_timezone, $site_timezone, 'Ymd' );
 				} else {
 					$his = date( 'His', strtotime( $timeslots[0] ) );
@@ -1019,7 +1038,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 								} else {
 									$time_slot = $bkap_details[0]->from_time;
 								}
-								
+
 								if ( $old_start === $bkap_details[0]->start_date && $old_time === $time_slot ) {
 									$booking_id = $id->booking_id;
 									$matched    = true;
@@ -1068,9 +1087,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				isset( $old_bookings['time_slot'] ) && $old_bookings['time_slot'] !== '' &&
 				isset( $new_bookings['time_slot'] ) && $new_bookings['time_slot'] !== '' ) {
 
-				$note_details_old = $old_bookings['booking_date'] . ' ' . $old_bookings['time_slot'];
+				$note_details_old          = $old_bookings['booking_date'] . ' ' . $old_bookings['time_slot'];
 				$new_bookings['time_slot'] = apply_filters( 'bkap_update_item_bookings_timeslot', $new_bookings['time_slot'], $new_bookings, $product_id );
-				$note_details_new = $new_bookings['booking_date'] . ' ' . $new_bookings['time_slot'];
+				$note_details_new          = $new_bookings['booking_date'] . ' ' . $new_bookings['time_slot'];
 			} elseif ( isset( $old_bookings['booking_date'] ) && $old_bookings['booking_date'] !== '' &&
 				isset( $new_bookings['booking_date'] ) && $new_bookings['booking_date'] !== '' &&
 				isset( $old_bookings['duration_time_slot'] ) && $old_bookings['duration_time_slot'] !== '' &&
@@ -1155,7 +1174,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				'bkap_global_settings_section',
 				array( __( 'Enabling this option will allow Bookings to be reschedulable from My Account page', 'woocommerce-booking' ) )
 			);
-			
+
 			add_settings_field(
 				'bkap_enable_booking_without_date',
 				__( 'Allow adding bookings date:', 'woocommerce-booking' ),
@@ -1170,7 +1189,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				__( 'Minimum number of hours for rescheduling:', 'woocommerce-booking' ),
 				array( &$this, 'bkap_reschedulable_hours_callback' ),
 				'bkap_global_settings_page',
-			'bkap_global_settings_section',
+				'bkap_global_settings_section',
 				array( __( 'Minimum number of hours before the booking date, after which Booking cannot be rescheduled. <em>(24 hours = 1 day)</em>', 'woocommerce-booking' ) )
 			);
 
@@ -1241,7 +1260,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				</label>
 			<?php
 		}
-		
+
 		/**
 		 * Call back for displaying booking without date settings option.
 		 *
@@ -1252,7 +1271,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			$saved_settings                   = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 			$bkap_enable_booking_without_date = '';
 			if ( isset( $saved_settings->bkap_enable_booking_without_date ) &&
-				( 'on' === $saved_settings->bkap_enable_booking_without_date ) 
+				( 'on' === $saved_settings->bkap_enable_booking_without_date )
 			) {
 
 				$bkap_enable_booking_without_date = 'checked';
@@ -1296,7 +1315,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 
 		/**
 		 * Function to update 'day' values to 'hour' values
-		 * 
+		 *
 		 * @return int reschedule_hours.
 		 */
 		public function bkap_update_booking_reschedule_day_to_hour() {

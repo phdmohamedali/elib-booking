@@ -29,7 +29,6 @@ if ( ! class_exists( 'Bkap_Vendor_Compatibility' ) ) {
 			add_action( 'bkap_vendor_feature_header', array( $this, 'bkap_vendor_navigation_icons_in_header' ), 10, 3 );
             add_action( 'bkap_vendor_feature_content', array( $this, 'bkap_vendor_feature_content' ), 10, 3 );
 
-			add_action( 'bkap_automatic_reminder_email_settings', array( &$this, 'bkap_vendor_automatic_reminder_email_settings_html' ), 1 );
 			add_action( 'bkap_reminder_email_heading', array( $this, 'bkap_vendor_feature_content_hidden_data' ), 10 );
 			
 			add_filter( 'bkap_get_bookings_args_for_manual_reminder', array( $this, 'bkap_vendor_bookings_args_for_manual_reminder' ), 10, 1 );
@@ -41,6 +40,7 @@ if ( ! class_exists( 'Bkap_Vendor_Compatibility' ) ) {
 			add_filter( 'bkap_sms_settings', array( $this, 'bkap_vendor_sms_settings' ), 10, 1 );
 
 			add_filter( 'bkap_resource_link_on_front_end', array( $this, 'bkap_vendor_resource_link_on_front_end' ), 10, 3 );
+			add_filter( 'bkap_reminder_link_on_front_end', array( $this, 'bkap_vendor_reminder_link_on_front_end' ), 10, 3 );
 
 			add_filter( 'bkap_all_resources_link', array( $this, 'bkap_all_resources_link' ), 10, 1 );
 			add_filter( 'bkap_resource_link_booking_metabox', array( $this, 'bkap_resource_link_booking_metabox' ), 10, 2 );
@@ -125,6 +125,23 @@ if ( ! class_exists( 'Bkap_Vendor_Compatibility' ) ) {
 		}
 
 		/**
+		 * Modifying the Edit Reminder Link on the front end.
+		 *
+		 * @param string $reminder_edit_link Reminder Edit Link.
+		 * @param int    $reminder_id Reminder ID.
+		 * @param string $manage_reminder_link Manage Reminder URL.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_vendor_reminder_link_on_front_end( $reminder_edit_link, $reminder_id, $manage_reminder_link ) {
+			
+			$reminder_edit_link  = $manage_reminder_link;
+			$reminder_edit_link .= '?bkap-reminder=' . $reminder_id;
+
+			return $reminder_edit_link;
+		}
+
+		/**
 		 * Getting the SMS Settings according to the Vendor.
 		 *
 		 * @param array $sms_settings SMS Reminder Settings Data.
@@ -135,6 +152,7 @@ if ( ! class_exists( 'Bkap_Vendor_Compatibility' ) ) {
 
 			$vendor_id = get_current_user_id();
 			$is_vendor = BKAP_Vendors::bkap_is_vendor( $vendor_id );
+
 			if ( $is_vendor ) {
 				$sms_settings = get_option( 'bkap_vendor_sms_settings_' . $vendor_id );
 			}
@@ -253,19 +271,7 @@ Your booking id is: {booking_id}';
 			}
 		}
 
-		/**
-		 * This function will add form for Automatic Reminder Settings on front end.
-		 *
-		 * @since 5.10.0
-		 */
-		public function bkap_vendor_automatic_reminder_email_settings_html() {
-			if ( ! is_admin() ) {
-				$vendor_id = get_current_user_id();
-				Bkap_Send_Reminder::bkap_automatic_reminder_email_settings_html( $vendor_id, 'vendor' );
-			}
-		}
-
-        /**
+        	/**
 		 * Displaying Navigation Icons to the Right Side of Header on Feature page.
 		 *
 		 * @param string $end_point Current Endpoint.
@@ -379,6 +385,7 @@ Your booking id is: {booking_id}';
 							$edit                  = true;
 							$resource              = new BKAP_Product_Resource( $resource_post );
 							$resource_qty          = $resource->get_resource_qty();
+							$resource_menu_order   = $resource->get_resource_menu_order();
 							$resource_availability = $resource->get_resource_availability();
 							$zoom_host_id          = $resource->get_resource_host();
 							$resource_title        = get_the_title( $resource_post );
@@ -394,7 +401,91 @@ Your booking id is: {booking_id}';
 					}
 					break;
 				case 'bkap-send-reminders':
-					Bkap_Send_Reminder::bkap_add_reminder_page();
+
+					$bkap_reminder       = '';
+					$manage_reminder_url = '';
+					switch ( $bkap_vendor ) {
+						case 'dokan':
+							$manage_reminder_url = dokan_get_navigation_url( 'bkap-send-reminders' );
+							break;
+						case 'wcfm':
+							$manage_reminder_url = wcfm_get_bkap_manage_reminder_url();
+							break;
+						case 'wc-vendor':
+							$manage_reminder_url = WCVendors_Pro_Dashboard::get_dashboard_page_url( 'bkap-booking/bkap-send-reminders' );
+							break;
+						default:
+							# code...
+							break;
+					}
+					
+					if ( isset( $_GET['bkap-sms-reminder'] ) && '' !== $_GET['bkap-sms-reminder'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+						/**
+						 * SMS Reminder Settings.
+						 */
+						do_action( 'bkap_sms_reminder_settings' );
+					} else if ( isset( $_GET['bkap-manual-reminder'] ) && '' !== $_GET['bkap-manual-reminder'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+						
+						/**
+						 * Reminder Email Page Heading.
+						 */
+						do_action( 'bkap_reminder_email_heading' );
+
+						/**
+						 * Manual Reminder Email Settings.
+						 */
+						do_action( 'bkap_manual_reminder_email_settings' );
+					} else if ( isset( $_GET['bkap-reminder'] ) && '' !== $_GET['bkap-reminder'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+						$bkap_reminder = sanitize_text_field( wp_unslash( $_GET['bkap-reminder'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+						if ( 'new' === $bkap_reminder ) {
+							$reminder_id = 0;
+						} else {
+							$reminder_id = (int) $bkap_reminder;
+						}
+
+						
+						$edit = false;
+						$reminder_actions  = array(
+							'bkap-active'   => __( 'Active', 'woocommerce-booking' ),
+							'bkap-inactive' => __( 'Inactive', 'woocommerce-booking' ),
+						);
+						if ( ! $reminder_id ) {
+							$post           = (object)array();
+							$email_subject  = '';
+							$email_heading  = '';
+							$email_content  = 'Hello {customer_first_name},
+
+You have an upcoming booking. The details of your booking are shown below.
+
+{booking_table}';
+
+							$reminder_title  = '';
+							$reminder_status = 'bkap-active';
+							$sending_delay   = array( 'delay_value' => 0, 'delay_unit' => 'hours' );
+						} else {
+							$edit              = true;
+							$post              = get_post( $reminder_id );
+							$reminder          = new BKAP_Reminder( $reminder_id );
+							$email_subject     = $reminder->get_email_subject();
+							$email_heading     = $reminder->get_email_heading();
+							$email_content     = $reminder->get_email_content();
+							$reminder_status   = $reminder->get_status();
+							$sending_delay     = $reminder->get_sending_delay();
+							$trigger           = $reminder->get_trigger();
+							$products          = $reminder->get_products();
+							$sms_body          = $reminder->get_sms_body();
+							$enable_sms        = $reminder->get_enable_sms();
+							$reminder_title    = get_the_title( $reminder_id );
+						}
+
+						include_once BKAP_VENDORS_TEMPLATE_PATH . 'bkap-manage-reminders.php';
+					} else {
+						include_once BKAP_VENDORS_TEMPLATE_PATH . 'bkap-reminders.php';
+					}
+
+					if ( isset( $_GET['bkap-add-reminder'] ) && '' !== $_GET['bkap-add-reminder'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+						$bkap_resource = sanitize_text_field( wp_unslash( $_GET['bkap-add-reminder'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+					}
 					break;
 				default:
 					break;

@@ -419,6 +419,10 @@ if ( ! class_exists( 'bkap_booking_confirmation' ) ) {
 			}
 
 			$order      = wc_get_order( $order_id ); // create order object.
+			if ( ! $order ) {
+				return;
+			}
+
 			$order_data = $order->get_items(); // order details.
 			$item_value = isset( $order_data[ $item_id ] ) ? $order_data[ $item_id ] : false;
 

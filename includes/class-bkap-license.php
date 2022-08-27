@@ -227,7 +227,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 
 					$did_update           = true;
 					self::$license_status = $license_data->license;
-					self::$license_type   = self::get_license_type( strval( $license_data->price_id ), $license_data );
+					self::$license_type   = self::get_license_type( strval( $license_data->price_id ) );
 
 					update_option( 'edd_sample_license_status', self::$license_status );
 					update_option( 'edd_sample_license_expires', $license_data->expires );
@@ -295,7 +295,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			}
 
 			self::$license_status = $license_data->license;
-			self::$license_type   = self::get_license_type( strval( $license_data->price_id ), $license_data );
+			self::$license_type   = self::get_license_type( strval( $license_data->price_id ) );
 
 			update_option( 'edd_sample_license_status', self::$license_status );
 			update_option( 'edd_sample_license_expires', $license_data->expires );
@@ -319,7 +319,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			$license_data = self::fetch_license();
 
 			if ( $license_data && isset( $license_data->license ) && '' !== $license_data->license && 'invalid' !== $license_data->license ) {
-				self::$license_type = self::get_license_type( strval( $license_data->price_id ), $license_data );
+				self::$license_type = self::get_license_type( strval( $license_data->price_id ) );
 				update_option( 'edd_sample_license_type', self::$license_type );
 			}
 		}
@@ -348,15 +348,9 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		 *
 		 * @since Updated 5.12.0
 		 */
-		private static function get_license_type( $price_id, $license_data ) {
+		private static function get_license_type( $price_id ) {
 
 			$license_type = '';
-
-			if ( isset( $license_data->expires ) ) {
-				if ( 'lifetime' === $license_data->expires || ( strtotime( $license_data->expires ) <= strtotime( '2023-03-31' ) ) ) {
-					return 'enterprise';
-				}
-			}
 
 			switch ( $price_id ) {
 
@@ -373,6 +367,18 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 				default:
 					$license_type = 'starter';
 					break;
+			}
+
+			// Consider starter licenses earlier purchased.
+			$license_data         = self::fetch_license();
+			$is_earlier_purchased = false;
+
+			if ( isset( $license_data->payment_date ) && '' !== $license_data->payment_date ) {
+				$is_earlier_purchased = 'lifetime' === $license_data->expires || ( strtotime( $license_data->payment_date ) <= strtotime( '2022-03-31' ) );
+			}
+
+			if ( $is_earlier_purchased ) {
+				$license_type = 'enterprise';
 			}
 
 			return $license_type;

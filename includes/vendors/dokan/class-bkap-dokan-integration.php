@@ -48,6 +48,8 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 
 			add_filter( 'bkap_after_successful_manual_booking', array( $this, 'bkap_dokan_modify_manual_booking_redirect_url' ), 10, 2 );
 			add_action( 'bkap_manual_booking_created_with_new_order', array( $this, 'bkap_dokan_manual_booking_created_with_new_order' ), 10, 1 );
+
+			add_action( 'bkap_after_reminder_settings', array( &$this, 'bkap_after_reminder_settings' ) );
 		}
 
 		/**
@@ -79,7 +81,7 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 			$base_url = isset( $_SERVER['REQUEST_URI'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( '/' . $wp->request . '/' );
 
 			
-			if ( false !== strpos( $base_url, 'bkap-create-booking' ) ) {
+			if ( false !== strpos( $base_url, 'bkap-create-booking' ) || false !== strpos( $base_url, 'bkap-calendar' ) ) {
 				$redirect_url = add_query_arg( '_wpnonce', wp_create_nonce( 'dokan_view_order' ), add_query_arg( [ 'order_id' => $order_id ], dokan_get_navigation_url( 'orders' ) ) );
 			}
 
@@ -416,6 +418,21 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 				echo 'success';
 			}
 			die();
+		}
+
+		/**
+		 * Loading BKAP Dokan Script on Send Reminders page.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_after_reminder_settings() {
+
+			bkap_load_scripts_class::bkap_load_dokan_product_scripts_js( BKAP_VERSION, get_admin_url() . 'admin-ajax.php' );
+
+			wp_register_script( 'jquery-tiptip', bkap_load_scripts_class::bkap_asset_url( '/assets/js/jquery.tipTip.minified.js', BKAP_FILE, false, false ), array( 'jquery' ), BKAP_VERSION, false );
+			wp_enqueue_script( 'jquery-tiptip' );
+			wp_dequeue_script( 'bkap-jqueryui' );
+			wp_deregister_script( 'bkap-jqueryui' );
 		}
 	}
 }

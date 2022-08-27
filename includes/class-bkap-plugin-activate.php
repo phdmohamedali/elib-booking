@@ -143,6 +143,7 @@ if ( ! class_exists( 'Bkap_Plugin_Activate' ) ) {
 			$booking_settings->booking_global_timeslot            = '';
 			$booking_settings->woo_product_addon_price            = '';
 			$booking_settings->booking_global_holidays            = '';
+			$booking_settings->same_bookings_in_cart              = '';
 			$booking_settings->resource_price_per_day             = '';
 			$booking_settings->booking_themes                     = 'smoothness';
 			$booking_settings->hide_variation_price               = 'on';

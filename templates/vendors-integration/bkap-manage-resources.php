@@ -21,6 +21,7 @@
 		array(
 			'resource_qty'          => $resource_qty,
 			'resource_availability' => $resource_availability,
+			'resource_menu_order'   => $resource_menu_order,
 			'response'              => $response,
 			'bkap_intervals'        => $bkap_intervals,
 			'zoom_host_id'          => $zoom_host_id,

@@ -117,6 +117,7 @@ class Bkap_Calendar_View {
 
 					$value = array(
 						'order_id'      => $order->get_id(),
+						'order_url'     => apply_filters( 'bkap_after_successful_manual_booking', admin_url( 'post.php?post=' . ( $order->get_id() ) . '&action=edit' ), $order->get_id() ),
 						'post_id'       => $product_id,
 						'start_date'    => $booking->get_start_date(),
 						'end_date'      => $booking->get_end_date(),
@@ -280,10 +281,9 @@ class Bkap_Calendar_View {
 			$value[] = $_REQUEST['event_value'];
 
 			$content = '<table>
-												<tr> <td> <strong>' . $order_txt . '</strong></td><td><a href="post.php?post=' . $order_id . '&action=edit">#' . $order_id . ' </a> </td> </tr>
-												<tr> <td> <strong>' . $product_txt . '</strong></td><td> ' . get_the_title( $value[0]['post_id'] ) . '</td> </tr>
-												<tr> <td> <strong>' . $customer_txt . '</strong></td><td> ' . $billing_first_name . ' ' . $billing_last_name . '</td> </tr>
-												';
+				<tr> <td> <strong>' . $order_txt . '</strong></td><td><a href="' . $value[0]['order_url'] . '">#' . $order_id . ' </a> </td> </tr>
+				<tr> <td> <strong>' . $product_txt . '</strong></td><td> ' . get_the_title( $value[0]['post_id'] ) . '</td> </tr>
+				<tr> <td> <strong>' . $customer_txt . '</strong></td><td> ' . $billing_first_name . ' ' . $billing_last_name . '</td> </tr>';
 
 			foreach ( $order_items as $item_id => $item ) {
 

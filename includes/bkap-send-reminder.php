@@ -5,11 +5,10 @@
  * Menu page for sending manual reminder emails and setting automatic reminders for bookings
  *
  * @author      Tyche Softwares
- * @package     BKAP/Menus
+ * @package     BKAP/Send_Reminder
  * @since       2.0
  * @category    Classes
  */
-
 if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 
 	/**
@@ -18,15 +17,378 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 	class Bkap_Send_Reminder {
 
 		/**
+		 * Post Type.
+		 *
+		 * @var String
+		 */
+		public $post_type = 'bkap_reminder';
+
+		/**
 		 * Constructor
 		 */
 		public function __construct() {
-			add_action( 'admin_init', array( $this, 'bkap_send_automatic_reminder' ), 10 );
-			add_filter( 'woocommerce_screen_ids', array( $this, 'bkap_add_screen_id' ) );
+
 			add_action( 'bkap_auto_reminder_emails', array( $this, 'bkap_send_auto_reminder_emails' ) );
-			add_action( 'bkap_reminder_email_heading', array( $this, 'bkap_reminder_email_settings_page_heading' ), 10 );
-			add_action( 'bkap_automatic_reminder_email_settings', array( $this, 'bkap_automatic_reminder_email_settings' ), 10 );
 			add_action( 'bkap_manual_reminder_email_settings', array( $this, 'bkap_manual_reminder_email_settings' ), 10 );
+			
+			add_action( 'bkap_integration_links', array( $this, 'bkap_twilio_link' ), 10, 1 );
+			add_action( 'bkap_global_integration_settings', array( $this, 'bkap_twilio_settings_page' ), 10, 1 );
+			add_action( 'admin_head', array( $this, 'bkap_add_manual_reminder_button' ) );
+
+			// All Reminders Page.
+			add_filter( 'bulk_actions-edit-' . $this->post_type, array( $this, 'bkap_reminder_bulk_actions' ), 10, 1 );
+			add_filter( 'months_dropdown_results', array( $this, 'bkap_reminder_remove_month_filter' ), PHP_INT_MAX, 2 );
+			add_filter( 'manage_edit-' . $this->post_type . '_columns', array( &$this, 'bkap_reminder_edit_columns' ) );
+			add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( &$this, 'bkap_reminder_custom_columns' ), 2 );
+			add_filter( 'wp_untrash_post_status', array( $this, 'bkap_reminder_set_status_upon_untrash' ), 10, 3 );
+			add_filter( 'post_row_actions', array( $this, 'bkap_reminder_disable_quick_edit'), 10, 2 );
+			add_action( 'bkap_add_submenu', array( $this, 'bkap_add_manual_reminder_settings_page' ) );
+
+			// Update Script.
+			add_action( 'bkap_bookings_update_db_check', array( $this, 'bkap_reminder_adding_default_reminder' ), 10, 2 );
+
+			// Preview - @todo work on this later.
+			add_action( 'wp_ajax_bkap_reminder_preview_email_in_browser', array( $this, 'bkap_reminder_preview_email_in_browser' ), 10 );
+
+			add_action( 'admin_enqueue_scripts', array( $this, 'bkap_reminder_remove_autosave') );
+		}
+
+		/**
+		 * Disabling autosave for the Reminders.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_reminder_remove_autosave() {
+
+			global $post_type;
+
+			if ( 'bkap_reminder' === $post_type ) {
+				wp_deregister_script( 'autosave' );
+			}
+		}
+
+		/**
+		 * Trashes/Deletes the Reminder.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function bkap_delete_reminder() {
+
+			$reminder_id = $_POST['reminder_id'];
+			wp_trash_post( $reminder_id );
+
+			wp_die();
+		}
+
+		/**
+		 * Open a preview e-mail.
+		 *
+		 * @return null
+		 */
+		function bkap_reminder_preview_email_in_browser() {
+
+			if ( is_admin() ) {
+				$bkap_mailer        = WC()->mailer();
+				$bkap_email_heading = __( 'Booking Reminder', 'woocommerce-booking' );
+				$bkap_email         = new WC_Email();
+				$bkap_message       = $wcap_email->style_inline( $bkap_mailer->wrap_message( $bkap_email_heading, 'Booking Content....' ) );
+				echo $bkap_message;
+			}
+			return null;
+		}
+
+		/**
+		 * Setting actual status of Reminder upon untrashing the reminder.
+		 *
+		 * @param string $new_status Draft status.
+		 * @param int    $post_id Reminder ID.
+		 * @param string $previous_status Actual Status of the reminder before moving to the trash.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function bkap_reminder_set_status_upon_untrash( $new_status, $post_id, $previous_status ) {
+
+			$post_obj = get_post( $post_id );
+			
+			if ( 'bkap_reminder' == $post_obj->post_type ) {
+				return $previous_status;
+			}
+
+			return $new_status;
+		}
+
+		/**
+		 * Script to add the default reminder settings.
+		 *
+		 * @param array $actions Actions of the post.
+		 * @param obj   $post Reminder Post Object.
+		 * @since 5.14.0
+		 */
+		public function bkap_reminder_disable_quick_edit( $actions = array(), $post = null ) {
+
+			if ( isset( $post->post_type ) && $this->post_type === $post->post_type ) {
+				if ( isset( $actions['inline hide-if-no-js'] ) ) {
+					unset( $actions['inline hide-if-no-js'] );
+				}
+			}
+			
+			return $actions;
+		}
+
+		/**
+		 * Script to add the default reminder settings.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_reminder_adding_default_reminder( $old_version, $new_version ) {
+
+			if ( $old_version < '5.14.0' ) {
+
+				if ( '' === get_option( 'bkap_reminder_default_data_added', '' ) ) {
+
+					// Adding default Reminder for the Admin/Store owner.
+					$number_of_hours = self::bkap_update_reminder_email_day_to_hour(); // reminder settings by admin.
+					$sms_settings    = get_option( 'bkap_sms_settings' ); // Getting SMS settings. sms settings by admin.
+
+					$data           = array();
+					$data['author'] = bkap_get_user_id();
+					if ( $number_of_hours > 0 ) {
+						$data['sending_delay'] = (int) $number_of_hours;
+						$data['status']        = 'bkap-active';
+						$schedule              = true;
+					}
+
+					if ( isset( $sms_settings['enable_sms'] ) && 'on' === $sms_settings['enable_sms'] ) {
+						$data['enable_sms'] = 'on';
+					}
+
+					if ( isset( $sms_settings['body'] ) && 'on' === $sms_settings['body'] ) {
+						$data['sms_body'] = $sms_settings['body'];
+					}
+
+					$created_reminder = BKAP_Reminder::bkap_create_reminder( $data );
+
+					// Adding default Reminder for the Vendors.
+					$vendor_hours = BKAP_Vendors::bkap_vendor_reminder_hours(); // key - Vendor ID & Value - Hours.
+					$vendor_sms   = BKAP_Vendors::bkap_vendor_sms_settings(); // key - Vendor ID & Value - Hours.
+
+					foreach ( $vendor_hours as $vendor_id => $number_of_hours ) {
+
+						$data           = array();
+						$data['author'] = $vendor_id;
+						$user           = get_userdata( $vendor_id );
+						$user_name      = $user->display_name;
+						$data['title']  = $user_name;
+
+						if ( $number_of_hours > 0 ) {
+							$data['sending_delay'] = (int) $number_of_hours;
+							$data['status']        = 'bkap-active';
+							$schedule              = true;
+						}
+
+						$sms_settings = isset( $vendor_sms[ $vendor_id ] ) ? $vendor_sms[ $vendor_id ] : array();
+
+						if ( isset( $sms_settings['enable_sms'] ) && 'on' === $sms_settings['enable_sms'] ) {
+							$data['enable_sms'] = 'on';
+						}
+
+						if ( isset( $sms_settings['body'] ) ) {
+							$data['sms_body'] = $sms_settings['body'];
+						}
+
+						$created_reminder = BKAP_Reminder::bkap_create_reminder( $data );
+					}
+
+					if ( $schedule ) {
+						if ( ! wp_next_scheduled( 'bkap_auto_reminder_emails' ) ) {
+							wp_schedule_event( time(), 'hourly', 'bkap_auto_reminder_emails' );
+						}
+					}
+
+					update_option( 'bkap_reminder_default_data_added', 'done' );
+				}
+			}
+		}
+
+		/**
+		 * Change the columns shown in admin.
+		 *
+		 * @param array $existing_columns Exiting Columns Array.
+		 * @return array Columns Modified Array.
+		 *
+		 * @since 5.14.0
+		 * @hook manage_edit-bkap_reminder_columns
+		 */
+		public function bkap_reminder_edit_columns( $existing_columns ) {
+
+			if ( empty( $existing_columns ) && ! is_array( $existing_columns ) ) {
+				$existing_columns = array();
+			}
+
+			$columns                                = array();
+			$columns['title']                       = __( 'Reminder Title', 'woocommerce-booking' ); // Resource Title
+			$columns['bkap_reminder_status']        = __( 'Status', 'woocommerce-booking' ); 
+			$columns['bkap_reminder_time_after_before_booking'] = __( 'Send time after/before Booking Date', 'woocommerce-booking' ); 
+			$columns['date']                        = $existing_columns['date'];
+
+			unset( $existing_columns['comments'], $existing_columns['title'], $existing_columns['date'] );
+
+			return apply_filters( 'bkap_reminder_listing_columns', array_merge( $existing_columns, $columns ) );
+		}
+
+		/**
+		 * Define our custom columns shown in admin.
+		 *
+		 * @param  string $column Custom Columns Array.
+		 * @global object $post WP_Post
+		 *
+		 * @since 5.14.0
+		 *
+		 * @hook manage_bkap_reminder_posts_custom_column
+		 */
+		public function bkap_reminder_custom_columns( $column ) {
+			
+			global $post;
+
+			if ( get_post_type( $post->ID ) === 'bkap_reminder' ) {
+
+				$reminder = new BKAP_Reminder( $post );
+
+				switch ( $column ) {
+					case 'bkap_reminder_status':
+						echo $reminder->get_status_name();
+						break;
+					case 'bkap_reminder_time_after_before_booking':
+						echo $reminder->get_reminder_time_before_after_booking();
+						break;
+				}
+			}
+		}
+
+		/**
+		 * Reminder Edit option from the Bulk Action dropdown.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_reminder_bulk_actions( $actions ) {
+
+			if ( isset( $actions['edit'] ) ) {
+				unset( $actions['edit'] );
+			}
+
+			return $actions;
+		}
+
+		/**
+		 * Remove month filter from the All Reminders page.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_reminder_remove_month_filter( $months, $post_type ) {
+			
+			if ( $post_type === $this->post_type ) {
+				$months = array();
+			}
+
+			return $months;
+		}
+
+		/**
+		 * Adding Manual Reminders page.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_add_manual_reminder_settings_page() {
+
+			$page = add_submenu_page(
+				null,
+				__( 'Manual Reminder', 'woocommerce-booking' ),
+				__( 'Manual Reminder', 'woocommerce-booking' ),
+				'manage_woocommerce',
+				'bkap_manual_reminder_page',
+				array( 'Bkap_Send_Reminder', 'bkap_manual_reminder_page' )
+			);
+		}
+
+		/**
+		 * Manual Reminder pagee content.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function bkap_manual_reminder_page() {
+
+			/**
+			 * Manual Reminder Email Settings.
+			 */
+			do_action( 'bkap_manual_reminder_email_settings' );
+		}
+
+		/**
+		 * Adding Manual Reminder button next to Add new Reminder button.
+		 *
+		 * @since 5.14.0
+		 */
+		public function bkap_add_manual_reminder_button() {
+
+			$bkap_screen = get_current_screen();
+
+			// Not our post type, exit earlier
+			// You can remove this if condition if you don't have any specific post type to restrict to. 
+			if ( $this->post_type != $bkap_screen->post_type ) {
+				return;
+			}
+
+			$manual_reminder_url   = esc_url( get_admin_url( null, 'edit.php?post_type=bkap_booking&page=bkap_manual_reminder_page' ) );
+			$manual_reminder_label = __( 'Manual Reminder', 'woocommerce-booking' );
+			?>
+			<script type="text/javascript">
+				jQuery( document ).ready( function($){
+
+					let $product_screen = $( '.post-type-bkap_reminder' ),
+					$title_action       = $product_screen.find( '.page-title-action:first' );
+
+					let manual_reminder_url   = '<?php echo $manual_reminder_url; ?>';
+					let manual_reminder_lable = '<?php echo $manual_reminder_label; ?>';
+					$title_action.after( '<a href="'+ manual_reminder_url +'" class="page-title-action">' + manual_reminder_lable + '</a>' );
+				});
+			</script>
+
+			<style type="text/css">
+				.post-type-bkap_reminder .search-box{ display:none }
+			</style>
+			<?php
+		}
+
+		/**
+		 * This function will add Twilio link in Integrations tab.
+		 *
+		 * @param string $section Section of Integration.
+		 * @since 5.14.0
+		 */
+		public function bkap_twilio_link( $section ) {
+
+			$twilio_class = ( 'twilio' === $section ) ? 'current' : '';
+			?>
+			<li>
+				<a href="edit.php?post_type=bkap_booking&page=woocommerce_booking_page&action=calendar_sync_settings&section=twilio" class="<?php echo esc_attr( $twilio_class ); ?>"><?php esc_html_e( 'Twilio SMS', 'woocommerce-booking' ); ?></a> |
+			</li>
+			<?php
+		}
+
+		/**
+		 * This function will add FluentCRM Settings page.
+		 *
+		 * @param string $section Section of Integration.
+		 * @since 5.14.0
+		 */
+		public function bkap_twilio_settings_page( $section ) {
+
+			if ( 'twilio' === $section ) {
+				/**
+				 * SMS Reminder Settings.
+				 */
+				do_action( 'bkap_sms_reminder_settings' );
+			}
 		}
 
 		/**
@@ -57,7 +419,8 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 
 						$bookings = bkap_common::bkap_get_bookings_by_product( $product_id );
 						foreach ( $bookings as $id => $booking ) {
-							$reminder->trigger( $booking->get_item_id(), $subject, $message );
+							$item_id = $booking->get_item_id();
+							$reminder->trigger( $item_id, $subject, $message );
 							do_action( 'bkap_send_manual_reminder_emails', $booking, $item_id );
 							echo '<div class="updated fade"><p>' . $success . '</p></div>'; // phpcs:ignore
 						}
@@ -71,7 +434,8 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 						$start_date = $booking->get_start();
 
 						if ( strtotime( $start_date ) > strtotime( $current_date ) ) {
-							$reminder->trigger( $booking->get_item_id(), $subject, $message );
+							$item_id = $booking->get_item_id();
+							$reminder->trigger( $item_id, $subject, $message );
 							do_action( 'bkap_send_manual_reminder_emails', $booking, $item_id );
 							echo '<div class="updated fade"><p>' . $success . '</p></div>'; // phpcs:ignore
 						}
@@ -88,7 +452,8 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 							$start_date = $booking->get_start();
 
 							if ( strtotime( $start_date ) > strtotime( $current_date ) ) {
-								$reminder->trigger( $booking->get_item_id(), $subject, $message );
+								$item_id = $booking->get_item_id();
+								$reminder->trigger( $item_id, $subject, $message );
 								do_action( 'bkap_send_manual_reminder_emails', $booking, $item_id );
 								echo '<div class="updated fade"><p>' . $success . '</p></div>'; // phpcs:ignore
 							}
@@ -148,300 +513,139 @@ Your booking id is: {booking_id}
 		}
 
 		/**
-		 * Automatic Reminder Email Settings.
-		 *
-		 * @since 5.10.0
-		 */
-		public function bkap_automatic_reminder_email_settings() {
-
-			if ( is_admin() ) {
-				wc_get_template(
-					'reminders/bkap-automatic-reminder-email-settings.php',
-					array(
-						'bkap_heading' => __( 'Automatic Reminders', 'woocommerce-booking' ),
-					),
-					'woocommerce-booking/',
-					BKAP_BOOKINGS_TEMPLATE_PATH
-				);
-			}
-		}
-
-		/**
-		 * Reminder Email Page Heading.
-		 *
-		 * @since 5.10.0
-		 */
-		public function bkap_reminder_email_settings_page_heading() {
-
-			if ( is_admin() ) {
-				wc_get_template(
-					'bkap-page-heading.php',
-					array(
-						'bkap_heading' => __( 'Reminder Settings', 'woocommerce-booking' ),
-					),
-					'woocommerce-booking/',
-					BKAP_BOOKINGS_TEMPLATE_PATH
-				);
-			}
-		}
-
-		/**
-		 * Settings screen id for Send reminder page.
-		 *
-		 * @param array $screen_ids Array of Screen Ids.
-		 * @since 4.10.0
-		 */
-		public static function bkap_add_screen_id( $screen_ids ) {
-
-			$screen_ids[] = 'bkap_booking_page_booking_reminder_page';
-			return $screen_ids;
-		}
-
-		/**
-		 * Callback for Reminder Settings section.
-		 */
-		public static function bkap_reminder_settings_section_callback() {}
-
-		/**
-		 * Add a page in the Bookings menu to send reminder emails
-		 *
-		 * @since 4.10.0
-		 */
-		public static function bkap_add_reminder_page() {
-
-			/**
-			 * Reminder Email Page Heading.
-			 */
-			do_action( 'bkap_reminder_email_heading' );
-
-			/**
-			 * Automatic Reminder Email Settings.
-			 */
-			do_action( 'bkap_automatic_reminder_email_settings' );
-
-			/**
-			 * Manual Reminder Email Settings.
-			 */
-			do_action( 'bkap_manual_reminder_email_settings' );
-
-			/**
-			 * SMS Reminder Settings.
-			 */
-			do_action( 'bkap_sms_reminder_settings' );
-		}
-
-		/**
-		 * Add a setting for automatic reminders to set the number of hours
-		 *
-		 * @since 4.10.0
-		 */
-		public static function bkap_send_automatic_reminder() {
-
-			add_settings_section(
-				'bkap_reminder_section',
-				'',
-				array( 'Bkap_Send_Reminder', 'bkap_reminder_settings_section_callback' ),
-				'booking_reminder_page'
-			);
-
-			add_settings_field(
-				'reminder_email_before_hours',
-				__( 'Number of hours for reminder before booking date', 'woocommerce-booking' ),
-				array( 'Bkap_Send_Reminder', 'reminder_email_before_hours_callback' ),
-				'booking_reminder_page',
-				'bkap_reminder_section',
-				array( __( 'Send the reminder email X number of hours before booking date', 'woocommerce-booking' ) )
-			);
-
-			register_setting(
-				'bkap_reminder_settings',
-				'bkap_reminder_settings',
-				array( 'Bkap_Send_Reminder', 'bkap_reminder_settings_callback' )
-			);
-		}
-
-		/**
-		 * Callback function for the automatic reminder settings
-		 *
-		 * @param array $args Argument Array.
-		 * @since 4.10.0
-		 */
-		public static function reminder_email_before_hours_callback( $args ) {
-
-			$number_of_hours = self::bkap_update_reminder_email_day_to_hour();
-
-			if ( is_admin() ) {
-				if ( $number_of_hours > 0 ) {
-					if ( ! wp_next_scheduled( 'bkap_auto_reminder_emails' ) ) {
-						wp_schedule_event( time(), 'hourly', 'bkap_auto_reminder_emails' );
-					}
-				} else {
-					if ( '' === get_option( 'bkap_vendor_enabled_automatic_reminders', '' ) ) {
-						wp_clear_scheduled_hook( 'bkap_auto_reminder_emails' );
-					}
-				}
-			}
-
-			echo '<input type="number" name="bkap_reminder_settings[reminder_email_before_hours]" id="reminder_email_before_hours" value="' . esc_attr( $number_of_hours ) . '"/>';
-			$html = '<label for="reminder_email_before_hours"> ' . $args[0] . '</label>';
-			echo $html; // phpcs:ignore
-		}
-
-		public static function bkap_automatic_reminder_email_settings_html( $vendor_id, $vendor_type ) {
-
-			$is_vendor = BKAP_Vendors::bkap_is_vendor( $vendor_id );
-			if ( $is_vendor ) {
-				$option_name = 'bkap_vendor_reminder_settings_' . $vendor_id;
-			} else {
-				$option_name = 'bkap_reminder_settings';
-			}
-
-			$saved_settings  = json_decode( get_option( $option_name ) );
-			$number_of_hours = ( isset( $saved_settings->reminder_email_before_hours ) &&
-			'' !== $saved_settings->reminder_email_before_hours ) ? $saved_settings->reminder_email_before_hours : 0;
-			$save_button     = 'save_reminder_' . $vendor_type;
-
-			// Saving the Automatic Reminder Email Settings.
-			if ( ! empty( $_POST ) && isset( $_POST[ $save_button ] ) ) {
-				if ( null === $saved_settings ) {
-					$saved_settings = new stdClass();
-				}
-				$number_of_hours                             = (int) $_POST['bkap_reminder_settings']['reminder_email_before_hours'];
-				$saved_settings->reminder_email_before_hours = $number_of_hours;
-				update_option( $option_name, wp_json_encode( $saved_settings ) );
-				$vendors = get_option( 'bkap_vendor_enabled_automatic_reminders', '' );
-				if ( $is_vendor ) {
-					if ( '' === $vendors ) {
-						if ( $number_of_hours > 0 ) {
-							update_option( 'bkap_vendor_enabled_automatic_reminders', $vendor_id );
-							if ( ! wp_next_scheduled( 'bkap_auto_reminder_emails' ) ) {
-								wp_schedule_event( time(), 'hourly', 'bkap_auto_reminder_emails' );
-							}
-						}
-					} else {
-						if ( $number_of_hours > 0 ) {
-							update_option( 'bkap_vendor_enabled_automatic_reminders', $vendors . ',' . $vendor_id );
-							if ( ! wp_next_scheduled( 'bkap_auto_reminder_emails' ) ) {
-								wp_schedule_event( time(), 'hourly', 'bkap_auto_reminder_emails' );
-							}
-						} elseif ( 0 === $number_of_hours ) {
-							$all_vendors = explode( ',', $vendors );
-							if ( ( $key = array_search( $vendor_id, $all_vendors ) ) !== false) {
-								unset( $all_vendors[$key] );
-							}
-
-							if ( empty( $all_vendors ) ) {
-								update_option( 'bkap_vendor_enabled_automatic_reminders', '' );
-
-								$number_of_hours = self::bkap_update_reminder_email_day_to_hour();
-								if ( $number_of_hours <= 0 ) {
-									wp_clear_scheduled_hook( 'bkap_auto_reminder_emails' );
-								}
-							} else {
-								update_option( 'bkap_vendor_enabled_automatic_reminders', implode( ',', $all_vendors ) );
-							}
-						}
-					}
-				}
-			}
-
-			if ( ! empty( $_POST ) && isset( $_POST[ 'bkap_sms_reminder' ] ) ) {
-
-				if ( $is_vendor ) {
-					$sms_option_name = 'bkap_vendor_sms_settings_' . $vendor_id;
-				} else {
-					$sms_option_name = 'bkap_sms_settings';
-				}
-
-				$bkap_sms_settings = array();
-				if ( isset( $_POST['bkap_sms_settings'] ) && is_array( $_POST['bkap_sms_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-					$bkap_sms_settings         = array_map( 'sanitize_text_field', wp_unslash( $_POST['bkap_sms_settings'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-					$bkap_sms_settings['body'] = sanitize_textarea_field( wp_unslash( $_POST['bkap_sms_settings']['body'] ) );
-					update_option( $sms_option_name, $bkap_sms_settings );
-				}
-			}
-
-			$heading     = __( 'Automatic Reminders', 'woocommerce-booking' );
-			$row_heading = __( 'Number of hours for reminder before booking date', 'woocommerce-booking' );
-			$label       = __( ' Send the reminder email X number of hours before booking date', 'woocommerce-booking' );
-
-			// Including the template from core plugin.
-			wc_get_template(
-				'reminders/bkap-automatic-reminder-email-settings-html.php',
-				array(
-					'heading'         => $heading,
-					'row_heading'     => $row_heading,
-					'number_of_hours' => $number_of_hours,
-					'label'           => $label,
-					'save_button'     => $save_button,
-				),
-				'woocommerce-booking/',
-				BKAP_BOOKINGS_TEMPLATE_PATH
-			);
-		}
-
-		/**
-		 * Save the Automatic reminder Settings
-		 *
-		 * @param array $input - Settings on the page.
-		 * @return string $bkap_reminder_settings - JSON.
-		 * @since 4.10.0
-		 */
-		public static function bkap_reminder_settings_callback( $input ) {
-			$bkap_reminder_settings_callback = ( is_array( $input) ) ? wp_json_encode( $input ) : $input;
-			return $bkap_reminder_settings_callback;
-		}
-
-		/**
-		 * Scheduled event for the automatic reminder emails
+		 * Scheduled event for the automatic reminder emails.
 		 *
 		 * @since 4.10.0
 		 */
 		public static function bkap_send_auto_reminder_emails() {
 
-			$booking_posts     = bkap_get_future_bookings();
-			$current_date      = date( 'Y-m-d H', current_time( 'timestamp' ) ); // phpcs:ignore
-			$current_date      = $current_date . ':00';
-			$current_date_time = strtotime( $current_date );
-			$number_of_hours   = self::bkap_update_reminder_email_day_to_hour();
-			$number_of_hours   = absint( $number_of_hours );
-			$mailer            = WC()->mailer();
-			$reminder          = $mailer->emails['BKAP_Email_Booking_Reminder'];
-			$twilio_details    = bkap_get_sms_settings(); // Getting SMS settings.
+			$all_reminders = get_posts(
+				array(
+					'post_type'      => 'bkap_reminder',
+					'post_status'    => array( 'bkap-active' ),
+					'posts_per_page' => -1,
+					'meta_query'     => array(
+						array(
+							'key'     => 'bkap_delay_value',
+							'value'   => '0',
+							'compare' => '>',
+						),
+					),
+				)
+			);
 
-			// Vendor Settings.
-			$vendor_hours = BKAP_Vendors::bkap_vendor_reminder_hours(); // key - Vendor ID & Value - Hours.
-			$vendor_sms   = BKAP_Vendors::bkap_vendor_sms_settings(); // key - Vendor ID & Value - Hours.
+			if ( count( $all_reminders ) > 0 ) {
 
-			foreach ( $booking_posts as $key => $value ) {
-				$booking       = new BKAP_Booking( $value->ID );
-				$booked_date   = date( 'Y-m-d H', strtotime( $booking->get_start() ) );
-				$hours         = $number_of_hours;
-				$twiliodetails = $twilio_details;
+				$ids_of_vendor_has_reminders = array_unique( array_column( $all_reminders, 'post_author' ) );
+
+				$future_bookings     = bkap_get_future_bookings();
+				$past_bookings       = bkap_get_past_bookings();
+				$current_date        = date( 'Y-m-d H', current_time( 'timestamp' ) ); // phpcs:ignore
+				$current_date        = $current_date . ':00';
+				$current_date_time   = strtotime( $current_date );
+				$mailer              = WC()->mailer();
+				$reminder_email      = $mailer->emails['BKAP_Email_Booking_Reminder'];
+				$main_twilio_details = bkap_get_sms_settings(); // Getting SMS settings.
+				$vendor_sms          = BKAP_Vendors::bkap_vendor_sms_settings(); // key - Vendor ID & Value - Hours.
 				
-				// Consider the Hours set by vendor.
-				$vendor_id = $booking->get_vendor_id();
-				if ( isset( $vendor_hours[ $vendor_id ] ) ) {
-					$hours = absint( $vendor_hours[ $vendor_id ] );
-				}
+				foreach ( $all_reminders as $key => $value ) {
 
-				// Consider the sms settings set by vendor.
-				if ( isset( $vendor_sms[ $vendor_id ] ) ) {
-					$twiliodetails = $vendor_sms[ $vendor_id ];
-				}
-
-				$booked_date  = $booked_date . ':00';
-				$booking_date = strtotime( $booked_date ); // phpcs:ignore
-				$interval     = ( $booking_date - $current_date_time ); // booking date - current date time.
-				if ( $interval === absint( $hours * 3600 ) ) { // phpcs:ignore
-					$item_id = $booking->get_item_id();
-					$reminder->trigger( $item_id );
-					if ( is_array( $twilio_details ) ) {
-						Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $twiliodetails, $item_id );
+					$reminder_id = $value->ID;
+					$reminder    = new BKAP_Reminder( $reminder_id );
+					$products    = $reminder->get_products();
+					if ( empty( $products ) ) {
+						continue;
 					}
 
-					// Sending remiders from other tools.
-					do_action( 'bkap_send_auto_reminder_emails', $booking, $item_id );
+					$subject    = $reminder->get_email_subject();
+					$message    = $reminder->get_email_content();
+					$heading    = $reminder->get_email_heading();
+					$trigger    = $reminder->get_trigger();
+					$enable_sms = $reminder->get_enable_sms();
+					$sms_body   = $reminder->get_sms_body();
+
+					switch ( $trigger ) {
+						case 'before_booking_date':
+							$all_booking_posts = $future_bookings;
+							break;
+						case 'after_booking_date':
+							$all_booking_posts = $past_bookings;
+							break;
+					}
+
+					if ( in_array( 'all', $products ) ) {
+						$booking_posts = $all_booking_posts;
+					} else {
+						$booking_posts = array();
+						foreach ( $all_booking_posts as $bkey => $bvalue ) {
+							if ( in_array( $bvalue->product_id, $products ) ) {
+								$booking_posts[] = $bvalue;
+							}
+						}
+					}
+
+					$sending_delay   = $reminder->get_sending_delay();
+					$number_of_hours = $sending_delay['delay_value'];
+					switch ( $sending_delay['delay_unit'] ) {
+						case 'days':
+							$number_of_hours *= 24; 
+							break;
+						case 'months':
+							$number_of_hours *= 730;
+							break;
+						case 'years':
+							$number_of_hours *= 8760;
+							break;
+						default:
+							break;
+					}	
+
+					foreach ( $booking_posts as $key => $booking ) {
+						$booked_date  = date( 'Y-m-d H', strtotime( $booking->get_start() ) );
+						$booked_date  = $booked_date . ':00';
+						$booking_date = strtotime( $booked_date );
+
+						// Check if reminder is set by Vendor.
+						$vendor_id = $booking->get_vendor_id();
+
+						if ( in_array( $vendor_id, $ids_of_vendor_has_reminders ) && $value->post_author != $vendor_id ) {
+							continue; // This will make sure that the Reminders setup by Vendor will only proceed for sending the reminder for current booking.
+						}
+
+						switch ( $trigger ) {
+							case 'before_booking_date':
+								$interval = ( $booking_date - $current_date_time ); // booking date - current date time.		
+								break;
+							case 'after_booking_date':
+								$interval = ( $current_date_time - $booking_date ); // booking date - current date time.
+								break;
+						}
+
+						if ( $interval === absint( $number_of_hours * 3600 ) ) { // phpcs:ignore
+
+							$item_id             = $booking->get_item_id();
+							$mailer              = WC()->mailer();
+							$reminder_email      = $mailer->emails['BKAP_Email_Booking_Reminder'];
+
+							$reminder_email->trigger( $item_id, $subject, $message, $heading );
+							if ( 'on' === $enable_sms ) {
+								if ( isset( $vendor_sms[ $vendor_id ] ) ) {
+									$vendor_twilio_details         = $vendor_sms[ $vendor_id ];
+									
+									$vendor_twilio_details['body'] = $sms_body;
+									Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $vendor_twilio_details, $item_id );
+								} else {
+									if ( is_array( $main_twilio_details ) ) {
+										$main_twilio_details['body'] = $sms_body;
+										Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $main_twilio_details, $item_id );
+									}
+								}
+							}
+		
+							// Sending remiders from other tools.
+							do_action( 'bkap_send_auto_reminder_emails', $booking, $item_id );
+						}
+					}
 				}
 			}
 		}
@@ -465,6 +669,92 @@ Your booking id is: {booking_id}
 			if ( is_array( $twilio_details ) ) {
 				Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $twilio_details, $item_id );
 			}
+			wp_die();
+		}
+
+		/**
+		 * Send Test Reminder Email.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function bkap_reminder_test() {
+
+			$email_subject = $_POST['email_subject']; // phpcs:ignore
+			$email_content = $_POST['email_content']; // phpcs:ignore
+			$email_heading = $_POST['email_heading']; // phpcs:ignore
+			$email_address = $_POST['email_address']; // phpcs:ignore
+			$booking_id    = $_POST['booking_id']; // phpcs:ignore
+			
+			if ( $booking_id > 0 ) {
+				$booking    = new BKAP_Booking( $booking_id );
+				$item_id    = $booking->get_item_id();
+			} else {
+				$booking = array();
+				$item_id = 0;
+			}
+			
+			$mailer     = WC()->mailer();
+			$reminder   = $mailer->emails['BKAP_Email_Booking_Reminder'];
+
+			if ( '' === $email_subject ) {
+				$email_subject = $reminder->subject;
+			}
+
+			if ( '' === $email_heading ) {
+				$email_heading = $reminder->heading;
+			}
+
+			$reminder->recipient = ( $reminder->recipient == '' ) ? $email_address : ',' . $email_address;
+
+			$reminder->trigger( $item_id, $email_subject, $email_content, $email_heading, $email_address );
+
+			$twilio_details = bkap_get_sms_settings(); // Getting SMS settings.
+			if ( is_array( $twilio_details ) ) {
+				Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $twilio_details, $item_id );
+			}
+
+			wp_die();
+		}
+
+		/**
+		 * Preview Reminder Email.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function bkap_preview_reminder() {
+
+			$email_subject = $_POST['email_subject']; // phpcs:ignore
+			$email_content = $_POST['email_content']; // phpcs:ignore
+			$email_heading = $_POST['email_heading']; // phpcs:ignore
+			$booking_id    = $_POST['booking_id']; // phpcs:ignore
+
+			if ( $booking_id > 0 ) {
+				$booking = new BKAP_Booking( $booking_id );
+				$item_id = $booking->get_item_id();
+			} else {
+				$booking = array();
+				$item_id = 0;
+			}
+
+			$mailer              = WC()->mailer();
+			$reminder            = $mailer->emails['BKAP_Email_Booking_Reminder'];
+			$reminder->recipient = '';
+
+			if ( '' === $email_subject ) {
+				$email_subject = $reminder->subject;
+			}
+
+			if ( '' === $email_heading ) {
+				$email_heading = $reminder->heading;
+			}
+
+			$reminder->trigger( $item_id, $email_subject, $email_content, $email_heading, '', true );
+
+			$content = $reminder->get_content_html();
+			$content = apply_filters( 'woocommerce_mail_content', $reminder->style_inline( $content ) );
+
+			echo $content;
+
 			wp_die();
 		}
 
