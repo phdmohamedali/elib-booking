@@ -51,6 +51,24 @@ $order = new WC_order( $booking->order_id );
 			<?php
 		}
 
+		if ( isset( $booking->resource_title ) && '' != $booking->resource_title ) {
+			?>
+			<tr>
+				<th style="text-align:left; border: 1px solid #eee;" scope="row"><?php _e( $booking->resource_label, 'woocommerce-booking' ); ?></th>
+				<td style="text-align:left; border: 1px solid #eee;" scope="row"><?php echo $booking->resource_title; ?></td>
+			</tr>
+			<?php
+		}
+
+		if ( isset( $booking->person_data ) && '' != $booking->person_data ) {
+			?>
+			<tr>
+				<th style="text-align:left; border: 1px solid #eee;" scope="row"><?php _e( $booking->person_label, 'woocommerce-booking' ); ?></th>
+				<td style="text-align:left; border: 1px solid #eee;" scope="row"><?php echo $booking->person_data; ?></td>
+			</tr>
+			<?php
+		}
+
 		?>
 
 	</tbody>

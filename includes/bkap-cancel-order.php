@@ -350,7 +350,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 					$diff_from_booked_date = (int) ( (int) strtotime( $booking_date ) - current_time( 'timestamp' ) );
 
 					if ( isset( $settings->bkap_booking_minimum_hours_cancel ) && ( $diff_from_booked_date >= $_diff_interval ) ) {
-						$order_obj = new WC_Order( $action_id );
+						$order_obj = wc_get_order( $action_id );
 						$order_obj->update_status( 'cancelled' );
 						wc_add_notice( __( 'Booking has been successsfully cancelled.', 'woocommerce-booking' ), 'success' );
 					} else {
@@ -394,7 +394,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 					if ( ! in_array( $post_obj->post_status, $status ) ) {
 
 						// trash the booking posts as well.
-						$order = new WC_Order( $post_id );
+						$order = wc_get_order( $post_id );
 
 						self::bkap_woocommerce_cancel_order( $post_id ); // Previously it was below foreach but when moving the order to trash from bulk then booking id was coming blank hence moved it above foreach.
 
@@ -432,7 +432,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 			if ( 'shop_order' == $post_obj->post_type && ( 'wc-cancelled' != $post_obj->post_status || 'wc-refunded' != $post_obj->post_status ) ) {
 
 				// untrash the booking posts as well.
-				$order = new WC_Order( $post_id );
+				$order = wc_get_order( $post_id );
 				foreach ( $order->get_items() as $order_item_id => $item ) {
 					if ( 'line_item' == $item['type'] ) {
 						// get the booking ID for each item.
@@ -478,7 +478,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			if ( in_array( $old_status, $old_status_arr ) && ! in_array( $new_status, $new_status_arr ) ) {
 				global $wpdb, $post;
-				$order_obj   = new WC_order( $order_id );
+				$order_obj   = wc_get_order( $order_id );
 				$order_items = $order_obj->get_items();
 				foreach ( $order_items as $item_key => $item_value ) {
 					self::bkap_restore_trashed_booking( $item_key, $item_value, $order_obj );
@@ -711,7 +711,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 			global $wpdb,$post;
 
 			$array           = array();
-			$order_obj       = new WC_order( $order_id );
+			$order_obj       = wc_get_order( $order_id );
 			$order_items     = $order_obj->get_items();
 			$select_query    = 'SELECT booking_id FROM `' . $wpdb->prefix . 'booking_order_history` WHERE order_id= %d';
 			$results         = $wpdb->get_results( $wpdb->prepare( $select_query, $order_id ) );
@@ -1951,7 +1951,10 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			if ( $order_id > 0 ) {
 
-				$order_obj   = new WC_Order( absint( $order_id ) );
+				$order_obj   = wc_get_order( absint( $order_id ) );
+				if ( ! $order_obj ) {
+					return;
+				}
 				$order_items = $order_obj->get_items();
 
 				foreach ( $order_items as $oid => $o_value ) {

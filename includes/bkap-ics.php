@@ -59,7 +59,7 @@ if ( ! class_exists( 'Bkap_Ics' ) ) {
 				$order_id = $order->get_id();
 			}
 
-			$file_path = WP_CONTENT_DIR . '/uploads/wbkap_tmp';
+			$file_path = bkap_temporary_directory();;
 			$file      = array();
 			$c         = 0;
 
@@ -177,10 +177,6 @@ if ( ! class_exists( 'Bkap_Ics' ) ) {
 											get_option( 'bkap_calendar_event_description' )
 										);
 
-										if ( ! file_exists( $file_path ) ) {
-											mkdir( $file_path, 0777 );
-										}
-
 										$file[ $c ] = $file_path . '/' . $file_name . '_' . $c . '.ics';
 										$current    = self::bkap_ics_booking_details_email( $booked_product );
 										file_put_contents( $file[ $c ], $current );
@@ -195,10 +191,6 @@ if ( ! class_exists( 'Bkap_Ics' ) ) {
 											get_option( 'bkap_calendar_event_description' )
 										);
 										self::bkap_ics_booking_details_email( $booked_product );
-
-										if ( ! file_exists( $file_path ) ) {
-											mkdir( $file_path, 0777 );
-										}
 
 										$file[ $c ] = $file_path . '/' . $file_name . '_' . $c . '.ics';
 										$current    = self::bkap_ics_booking_details_email( $booked_product );

@@ -112,6 +112,10 @@ if ( ! class_exists( 'BKAP_Addon_Settings' ) ) {
 
 			$bkap_hide_booking_options = get_option( 'bkap_hide_booking_options', array() );
 
+			if ( '' === $bkap_hide_booking_options ) {
+				$bkap_hide_booking_options = array();
+			}
+
 			$id_class_data = array(
 				'enable_booking'         => '#enable_booking_options_section',
 				'booking_type_section'   => '#enable_booking_types_section',

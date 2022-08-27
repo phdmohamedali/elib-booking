@@ -59,7 +59,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 	 * @since 2.5
 	 * @return string
 	 */
-	public function trigger( $item_id, $subject = '', $message = '' ) {
+	public function trigger( $item_id, $subject = '', $message = '', $heading = '', $email = '', $preview = false ) {
 
 		$enabled = $this->is_enabled();
 
@@ -96,7 +96,13 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->find[]    = '{order_number}';
 			$this->replace[] = $this->booking_data->order_id;
 
-			$this->recipient = $this->booking_data->billing_email;
+			if ( ! $preview ) {
+				$this->recipient = $this->booking_data->billing_email;
+			}
+
+			if ( '' !== $email ) {
+				$this->recipient .= ',' . $email;
+			}
 		} else {
 
 			$this->find[]    = '{order_date}';
@@ -106,7 +112,9 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = __( 'N/A', 'woocommerce-booking' );
 
 			if ( $this->booking_data->customer_id && ( $customer = get_user_by( 'id', $this->booking_data->customer_id ) ) ) {
-				$this->recipient = $customer->user_email;
+				if ( ! $preview ) {
+					$this->recipient = $customer->user_email;
+				}
 			}
 		}
 
@@ -140,7 +148,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->item_booking_time;
 		}
 
-		if ( $this->objbooking_dataect->resource_title ) {
+		if ( $this->booking_data->resource_title ) {
 			$key = array_search( '{booking_resource}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -148,6 +156,16 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			}
 			$this->find[]    = '{booking_resource}';
 			$this->replace[] = $this->booking_data->resource_title;
+		}
+
+		if ( $this->booking_data->person_data ) {
+			$key = array_search( '{booking_persons}', $this->find );
+			if ( false !== $key ) {
+				unset( $this->find[ $key ] );
+				unset( $this->replace[ $key ] );
+			}
+			$this->find[]    = '{booking_persons}';
+			$this->replace[] = $this->booking_data->person_data;
 		}
 
 		if ( $this->booking_data->zoom_meeting ) {
@@ -160,43 +178,48 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->zoom_meeting;
 		}
 
+		/* Customer Display Name */
+		$key = array_search( '{customer_name}', $this->find );
+		if ( false !== $key ) {
+			unset( $this->find[ $key ] );
+			unset( $this->replace[ $key ] );
+		}
+
 		if ( $this->booking_data->customer_id ) {
-			$key = array_search( '{customer_name}', $this->find );
-			if ( false !== $key ) {
-				unset( $this->find[ $key ] );
-				unset( $this->replace[ $key ] );
-			}
 			$customer = get_user_by( 'id', $this->booking_data->customer_id );
 
 			if ( $customer ) {
 				$display_name = $customer->display_name;
 				$first_name   = $customer->first_name;
 				$last_name    = $customer->last_name;
-			} else {
-				$order        = wc_get_order( $this->booking_data->order_id );
-				$first_name   = $order->get_billing_first_name();
-				$last_name    = $order->get_billing_last_name();
-				$display_name = $first_name . ' ' . $last_name;
 			}
-			$this->find[]    = '{customer_name}';
-			$this->replace[] = $display_name;
-
-			$key = array_search( '{customer_first_name}', $this->find );
-			if ( false !== $key ) {
-				unset( $this->find[ $key ] );
-				unset( $this->replace[ $key ] );
-			}
-			$this->find[]    = '{customer_first_name}';
-			$this->replace[] = $first_name;
-
-			$key = array_search( '{customer_last_name}', $this->find );
-			if ( false !== $key ) {
-				unset( $this->find[ $key ] );
-				unset( $this->replace[ $key ] );
-			}
-			$this->find[]    = '{customer_last_name}';
-			$this->replace[] = $last_name;
+		} else {
+			$order        = wc_get_order( $this->booking_data->order_id );
+			$first_name   = $order->get_billing_first_name();
+			$last_name    = $order->get_billing_last_name();
+			$display_name = $first_name . ' ' . $last_name;
 		}
+
+		$this->find[]    = '{customer_name}';
+		$this->replace[] = $display_name;
+
+		/* Customer First Name */
+		$key = array_search( '{customer_first_name}', $this->find );
+		if ( false !== $key ) {
+			unset( $this->find[ $key ] );
+			unset( $this->replace[ $key ] );
+		}
+		$this->find[]    = '{customer_first_name}';
+		$this->replace[] = $first_name;
+
+		/* Customer Last Name */
+		$key = array_search( '{customer_last_name}', $this->find );
+		if ( false !== $key ) {
+			unset( $this->find[ $key ] );
+			unset( $this->replace[ $key ] );
+		}
+		$this->find[]    = '{customer_last_name}';
+		$this->replace[] = $last_name;
 
 		if ( $this->booking_data->booking_id ) {
 			$key = array_search( '{booking_id}', $this->find );
@@ -208,17 +231,18 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->booking_id;
 		}
 
-		if ( ! $this->get_recipient() ) {
-			return;
-		}
-
 		if ( $subject !== '' || $message !== '' ) {
-			$this->heading = str_replace( $this->find, $this->replace, $subject );
+			$heading = ( '' === $heading ) ? $subject : $heading;
+			$this->heading = str_replace( $this->find, $this->replace, $heading );
 			$this->subject = str_replace( $this->find, $this->replace, $subject );
 			$this->message = str_replace( $this->find, $this->replace, $message );
 		} else {
 			$this->message = '';
 			$this->subject = $this->get_subject();
+		}
+
+		if ( ! $this->get_recipient() ) {
+			return;
 		}
 
 		$this->send( $this->get_recipient(), $this->subject, stripslashes( $this->get_content() ), $this->get_headers(), $this->get_attachments() );

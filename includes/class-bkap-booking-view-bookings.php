@@ -242,7 +242,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			unset( $existing_columns['comments'], $existing_columns['title'], $existing_columns['date'] );
 
 			$columns                      = array();
-			$columns['bkap_status']       = '<span class="status_head tips" data-tip="' . esc_attr__( 'Status', 'woocommerce-booking' ) . '"></span>';
+			$columns['bkap_status']       = '<span class="status_head tips help_tip" data-tip="' . esc_attr__( 'Status', 'woocommerce-booking' ) . '"></span>';
 			$columns['bkap_id']           = __( 'Booking ID', 'woocommerce-booking' );
 			$columns['bkap_product']      = __( 'Booked Product', 'woocommerce-booking' );
 			$columns['bkap_customer']     = __( 'Booked By', 'woocommerce-booking' );
@@ -281,16 +281,16 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					$status           = $booking->status;
 					$booking_statuses = bkap_common::get_bkap_booking_statuses();
 					$status_label     = ( array_key_exists( $status, $booking_statuses ) ) ? $booking_statuses[ $status ] : ucwords( $status );
-					echo '<span class="status-' . esc_attr( $status ) . ' tips" date-tip="' . esc_attr( $status_label ) . '">' . esc_html( $status_label ) . '</span>';
+					echo '<span class="status-' . esc_attr( $status ) . ' help_tip" data-tip="' . esc_attr( $status_label ) . '">' . esc_html( $status_label ) . '</span>';
 					break;
 				case 'bkap_id':
 					printf( '<a href="%s">' . __( '#%d', 'woocommerce-booking' ) . '</a>', admin_url( 'post.php?post=' . $post->ID . '&action=edit' ), $post->ID );
 					break;
 				case 'bkap_customer':
-					$customer = $booking->get_customer();
 
-					if ( $customer->email && $customer->name ) {
-						echo esc_html( $customer->name );
+					$customer = self::customer_name_data( $booking );
+					if ( '' != $customer ) {
+						echo $customer;
 					} else {
 						echo '-';
 					}
@@ -396,7 +396,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					$actions = apply_filters( 'bkap_view_bookings_actions', $actions, $booking );
 
 					foreach ( $actions as $action ) {
-						printf( '<a class="button tips %s" href="%s" data-tip="%s">%s</a>', esc_attr( $action['action'] ), esc_url( $action['url'] ), esc_attr( $action['name'] ), esc_attr( $action['name'] ) );
+						printf( '<a class="button tips help_tip %s" href="%s" data-tip="%s">%s</a>', esc_attr( $action['action'] ), esc_url( $action['url'] ), esc_attr( $action['name'] ), esc_attr( $action['name'] ) );
 					}
 					echo '</p>';
 					break;
@@ -1241,21 +1241,12 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		public static function bkap_download_print_file( $report, $table = false, $col_data = false, $row_data = false ) {
 
 			$global_settings = bkap_global_setting();
+			$cols            = self::bkap_get_csv_cols();
 
 			$print_data_columns  = '<tr>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Status', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'ID', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Booked Product', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Booked By', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Order', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Start Date', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'End Date', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Persons', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Quantity', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Order Date', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Amount', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . __( 'Zoom Meeting', 'woocommerce-booking' ) . '</th>';
-			$print_data_columns .= '</tr>';
+			foreach ( $cols as $col ) {
+				$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . $col . '</th>';
+			}
 			$print_data_columns  = apply_filters( 'bkap_view_bookings_print_columns', $print_data_columns );
 
 			if ( $col_data ) {
@@ -1276,23 +1267,43 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				$end_date     = self::end_date_data( $booking, $global_settings ); // End Date.
 				$order_date   = $booking->get_date_created(); // Order Date.
 				$quantity     = $booking->get_quantity();
-				$persons     = $booking->get_persons_info();
+				$persons      = $booking->get_persons_info();
 				$final_amt    = self::final_amount_data( $booking, $quantity, $currency, $phpversion );
 				$meeting_link = $booking->get_zoom_meeting_link();
 
+				$data = array(
+					'booking_id'   => $booking_id,
+					'order_id'     => $order_id,
+					'status'       => $status,
+					'product_name' => $product_name,
+					'booked_by'    => $booked_by,
+					'start_date'   => $start_date,
+					'end_date'     => $end_date,
+					'order_date'   => $order_date,
+					'quantity'     => $quantity,
+					'persons'      => $persons,
+					'final_amt'    => $final_amt,
+					'meeting_link' => $meeting_link,
+				);
+
+				$print_data_row_data_td  = '';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $status . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->id . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $product_name . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booked_by . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->order_id . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $start_date . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $end_date . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $persons . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $quantity . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $order_date . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $final_amt . '</td>';
+				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;"><small>' . $meeting_link . '</small></td>';
+				$print_data_row_data_td  = apply_filters( 'bkap_view_bookings_print_individual_row_data', $print_data_row_data_td, $booking, $booking_id, $data );
+
 				$print_data_row_data .= '<tr>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $status . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $booking->id . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $product_name . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $booked_by . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $booking->order_id . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $start_date . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $end_date . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $persons . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $quantity . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $order_date . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;">' . $final_amt . '</td>';
-				$print_data_row_data .= '<td style="border:1px solid black;padding:5px;"><small>' . $meeting_link . '</small></td>';
+				$print_data_row_data .= $print_data_row_data_td;
+				$print_data_row_data  = apply_filters( 'bkap_view_bookings_print_individual_row', $print_data_row_data, $booking, $booking_id );
 				$print_data_row_data .= '</tr>';
 			}
 
@@ -1369,7 +1380,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		 */
 		public static function customer_name_data( $booking ) {
 			$customer = $booking->get_customer();
-			return $customer->name;
+			return apply_filters( 'bkap_customer_name_on_view_booking', $customer->name, $customer, $booking );
 		}
 
 		/**
@@ -1461,8 +1472,12 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 			$csv = '';
 			if ( $column ) {
-				// Column Names.
-				$csv  = 'Status,ID,Booked Product,Booked By,Order ID,Start Date,End Date,Persons,Quantity,Order Date,Amount,Zoom Meeting';
+				$cols = self::bkap_get_csv_cols();
+				foreach ( $cols as $col ) {
+					$csv .= $col . ',';
+				}
+				$csv  = substr( $csv, 0, -1 );
+				$csv  = apply_filters( 'bkap_bookings_csv_columns_data', $csv );
 				$csv .= "\n";
 			}
 
@@ -1486,8 +1501,28 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				$final_amt    = wp_strip_all_tags( html_entity_decode( $final_amt ) );
 				$meeting_link = $booking->get_zoom_meeting_link();
 
+				$data = array(
+					'booking_id'   => $booking_id,
+					'order_id'     => $order_id,
+					'status'       => $status,
+					'product_name' => $product_name,
+					'booked_by'    => $booked_by,
+					'start_date'   => $start_date,
+					'end_date'     => $end_date,
+					'order_date'   => $order_date,
+					'persons'      => $persons,
+					'quantity'     => $quantity,
+					'final_amt'    => $final_amt,
+					'meeting_link' => $meeting_link,
+				);
+
 				// Create the data row.
-				$csv .= $status . ',' . $booking_id . ',"' . $product_name . '",' . $booked_by . ',' . $order_id . ',"' . $start_date . '","' . $end_date . '","' . $persons . '",' . $quantity . ',' . $order_date . ',"' . $final_amt . '",' . $meeting_link;
+				$row = $status . ',' . $booking_id . ',"' . $product_name . '",' . $booked_by . ',' . $order_id . ',"' . $start_date . '","' . $end_date . '","' . $persons . '",' . $quantity . ',' . $order_date . ',"' . $final_amt . '",' . $meeting_link;
+				$row = apply_filters( 'bkap_bookings_csv_individual_row_data', $row, $booking, $booking_id, $data );
+
+				$csv .= $row;
+
+				$csv  = apply_filters( 'bkap_bookings_csv_individual_data', $csv, $booking, $booking_id, $data, $row );
 				$csv .= "\n";
 			}
 			$csv = apply_filters( 'bkap_bookings_csv_data', $csv, $data );
@@ -1633,7 +1668,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		 *
 		 * @since 5.2.1
 		 */
-		public function bkap_get_csv_cols() {
+		public static function bkap_get_csv_cols() {
 			$cols = array(
 				'status'         => __( 'Status', 'woocommerce-booking' ),
 				'id'             => __( 'ID', 'woocommerce-booking' ),

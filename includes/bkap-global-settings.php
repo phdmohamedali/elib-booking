@@ -447,9 +447,20 @@ class bkap_global_settings {
 		if ( isset( $saved_settings->booking_global_selection ) && $saved_settings->booking_global_selection == 'on' ) {
 			$global_selection = 'checked';
 		}
+
+		$same_bookings_in_cart = '';
+		if ( isset( $saved_settings->same_bookings_in_cart ) && $saved_settings->same_bookings_in_cart == 'on' ) {
+			$same_bookings_in_cart = 'checked';
+		}
+		$same_bookings_in_cart_desc = __( 'Enable this option to force the same booking details for all the bookable products in the cart.', 'woocommerce-booking' );
+
 		echo '<input type="checkbox" id="booking_global_selection" name="woocommerce_booking_global_settings[booking_global_selection]" ' . $global_selection . '/>';
 		$html = '<label for="booking_global_selection"> ' . $args[0] . '</label>';
+		$html  = '<label for="booking_global_selection"> ' . $args[0] . '</label>';
+		$html .= '<br><input type="checkbox" id="same_bookings_in_cart" name="woocommerce_booking_global_settings[same_bookings_in_cart]" ' . $same_bookings_in_cart . '/>';
+		$html .= '<label for="same_bookings_in_cart"> ' . $same_bookings_in_cart_desc . '</label>';
 		echo $html;
+		
 	}
 
 	/**

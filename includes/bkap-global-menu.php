@@ -80,15 +80,6 @@ if ( ! class_exists( 'Global_Menu' ) ) {
 
 			$page = add_submenu_page(
 				'edit.php?post_type=bkap_booking',
-				__( 'Reminder Settings', 'woocommerce-booking' ),
-				__( 'Send Reminder', 'woocommerce-booking' ),
-				'manage_woocommerce',
-				'booking_reminder_page',
-				array( 'Bkap_Send_Reminder', 'bkap_add_reminder_page' )
-			);
-
-			$page = add_submenu_page(
-				'edit.php?post_type=bkap_booking',
 				__( 'Settings', 'woocommerce-booking' ),
 				__( 'Settings', 'woocommerce-booking' ),
 				'manage_woocommerce',

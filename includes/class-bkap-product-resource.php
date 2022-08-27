@@ -41,7 +41,6 @@ class Class_Bkap_Product_Resource {
 			$this->$product_id = $product_id;
 		}
 
-		
 		// Resource Post - Save the changes in resource details meta box.
 		add_action( 'save_post', array( $this, 'bkap_meta_box_save_resource_details' ), 10, 2 );
 		// add the Resource tab in the Booking meta box.
@@ -78,6 +77,57 @@ class Class_Bkap_Product_Resource {
 
 		add_filter( 'bkap_get_number_of_slots', array( &$this, 'bkap_get_slots_based_on_resource_availability' ), 19, 3 );
 
+		add_filter( 'bkap_get_resource_costs', array( &$this, 'bkap_sorting_resource_data' ), 10, 2 );
+
+	}
+
+	public function bkap_sorting_resource_data( $resource_data, $product_id ) {
+
+		$sorting_type = self::bkap_product_resource_sorting( $product_id );
+
+		switch ( $sorting_type ) {
+			case 'menu_order':
+				$sorted_resources = array();
+				$new_array              = array();
+				foreach ( $resource_data as $key => $value ) {
+					$menu_order                                    = get_post_field( 'menu_order', $key );
+					$sorted_resources[ $key ]['resource_id'] = $key;
+					$sorted_resources[ $key ]['menu_order']  = $menu_order;
+				}
+
+				$sorted_resources = bkap_array_orderby_array_key( $sorted_resources, 'menu_order', SORT_ASC );
+
+				foreach ( $sorted_resources as $r_key => $r_value ) {
+					$new_array[ $r_value['resource_id'] ] = $resource_data[ $r_value['resource_id'] ];
+				}
+
+				$resource_data = $new_array;
+				break;
+			case 'ascending':
+				foreach ( $resource_data as $key => $value ) {
+					$title                   = get_the_title( $key );
+					$resource_titles[ $key ] = $title;
+				}
+			
+				asort( $resource_titles );
+			
+				foreach ( $resource_titles as $r_key => $r_title ) {
+					$resource_titles[ $r_key ] = $resource_data[ $r_key ];
+				}
+			
+				$resource_data = $resource_titles;
+				break;
+			
+			case 'price_low':
+				asort( $resource_data );
+				break;
+			case 'price_high':
+				arsort( $resource_data );
+				break;
+			default:
+		}
+
+		return $resource_data;
 	}
 
 	/**
@@ -130,7 +180,7 @@ class Class_Bkap_Product_Resource {
 	 *
 	 * @todo Change the function name to meaningful
 	 */
-	public static function bkap_meta_box_save_resource_details( $post_id, $post ) {
+	public function bkap_meta_box_save_resource_details( $post_id, $post ) {
 
 		if ( 'bkap_resource' == get_post_type() ) {
 
@@ -138,6 +188,7 @@ class Class_Bkap_Product_Resource {
 
 			$meta_args = array(
 				'_bkap_resource_qty'          => $resource_data['bkap_resource_qty'],
+				'_bkap_resource_menu_order'   => $resource_data['bkap_resource_menu_order'],
 				'_bkap_resource_availability' => $resource_data['bkap_resource_availability'],
 				'_bkap_resource_meeting_host' => $resource_data['bkap_resource_meeting_host'],
 			);
@@ -146,6 +197,16 @@ class Class_Bkap_Product_Resource {
 			foreach ( $meta_args as $key => $value ) {
 				update_post_meta( $post_id, $key, $value );
 			}
+
+			// Reference : https://stackoverflow.com/questions/21717159/get-custom-fields-values-in-filter-on-wp-insert-post-data
+			// unhook this function so it doesn't loop infinitely
+			remove_action( 'save_post', array( $this, 'bkap_meta_box_save_resource_details' ) );
+
+			// update the post, which calls save_post again
+			wp_update_post( array( 'ID' => $post_id, 'menu_order' => $resource_data['bkap_resource_menu_order'] ) );
+
+			// re-hook this function
+			add_action( 'save_post', array( $this, 'bkap_meta_box_save_resource_details' ) );
 		}
 	}
 
@@ -1121,6 +1182,19 @@ class Class_Bkap_Product_Resource {
 		$bkap_product_resource_selection = get_post_meta( $product_id, '_bkap_product_resource_max_booking', true );
 
 		return $bkap_product_resource_selection;
+	}
+
+	/**
+	 * Get sorting method for resource on the front end.
+	 *
+	 * @param integer $product_id - Product ID.
+	 * @return string
+	 * @since 4.6.0
+	 */
+	public static function bkap_product_resource_sorting( $product_id ) {
+		$bkap_product_resource_sorting = get_post_meta( $product_id, '_bkap_product_resource_sorting', true );
+
+		return $bkap_product_resource_sorting;
 	}
 
 	/**

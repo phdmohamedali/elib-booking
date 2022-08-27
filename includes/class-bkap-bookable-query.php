@@ -193,6 +193,8 @@ class BKAP_Bookable_Query {
 			$offset                = bkap_get_offset_from_date( strtotime( $current_date ), $store_timezone_string );
 		}
 
+		$last_event_date = array();
+
 		foreach ( $bookables as $bookable ) {
 
 			// Initial settings.
@@ -218,6 +220,8 @@ class BKAP_Bookable_Query {
 				$end_date = calback_bkap_max_date( $current_date, $bookable->_bkap_max_bookable_days, $bookable->woocommerce_booking_settings );/* '2020-07-30'; */
 				$end_date = date( 'Y-m-d H:i:s', strtotime( $end_date . '23.59' ) );
 			}
+
+			$last_event_date[] = $end_date;
 
 			$start     = gmdate( 'Y-m-d', strtotime( $min_date ) );
 			$frequency = 'daily';
@@ -490,6 +494,13 @@ class BKAP_Bookable_Query {
 				array_push( $events, $bookable_item );
 			}
 		}
+
+		// For issue 5026.
+		$l_event_date = max( $last_event_date );
+		$events       = array_map( function( $arr ) use ( $l_event_date ) {
+			return $arr + array( 'last_event_date' => $l_event_date );
+		}, $events );
+
 		return $events;
 	}
 }

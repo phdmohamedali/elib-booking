@@ -50,6 +50,7 @@ class bkap_wc_vendors {
 
 		add_filter( 'bkap_after_successful_manual_booking', array( $this, 'bkap_wcv_modify_manual_booking_redirect_url' ), 11, 2 );
 
+		add_action( 'bkap_after_reminder_settings', array( &$this, 'bkap_after_reminder_settings' ) );
 	}
 
 	/**
@@ -65,8 +66,7 @@ class bkap_wc_vendors {
 		global $wp;
 
 		$base_url = isset( $_SERVER['REQUEST_URI'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( '/' . $wp->request . '/' );
-		
-		if ( false !== strpos( $base_url, 'bkap-create-booking' ) ) {
+		if ( false !== strpos( $base_url, 'bkap-create-booking' ) || false !== strpos( $base_url, 'bkap-calendar' ) ) {
 			$redirect_url = WCVendors_Pro_Dashboard::get_dashboard_page_url( 'order' );
 		}
 
@@ -329,6 +329,46 @@ class bkap_wc_vendors {
 
 		if ( current_user_can( 'vendor' ) && ! is_multisite() ) {
 			remove_menu_page( 'edit.php?post_type=bkap_booking' );
+		}
+	}
+
+	/**
+	 * Adding script on the reminders page.
+	 *
+	 * @since 5.14.0
+	 */
+	function bkap_after_reminder_settings() {
+
+		if ( ! is_admin() ) {
+
+			$ajax_url = get_admin_url() . 'admin-ajax.php';
+
+			wp_register_script(
+				'bkap-wcv',
+				bkap_load_scripts_class::bkap_asset_url( '/assets/js/vendors/wc-vendors/product.js', BKAP_FILE ),
+				'',
+				BKAP_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'bkap-wcv',
+				'bkap_wcv_params',
+				array(
+					'ajax_url' => $ajax_url,
+					'post_id'  => 0,
+				)
+			);
+
+			wp_enqueue_script( 'bkap-wcv' );
+
+			wp_enqueue_style(
+				'bkap-wcv-products',
+				bkap_load_scripts_class::bkap_asset_url( '/assets/css/vendors/wc-vendors/bkap-wcv-products.css', BKAP_FILE ),
+				'',
+				BKAP_VERSION,
+				false
+			);
 		}
 	}
 } // end of class

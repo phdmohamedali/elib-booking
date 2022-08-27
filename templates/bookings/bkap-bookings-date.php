@@ -93,7 +93,7 @@ if ( $display_start ) {
 			<?php
 				$bkap_start_date_label = get_option( 'book_date-label', __( 'Start Date', 'woocommerce-booking' ) );
 				$bkap_start_date_label = apply_filters( 'bkap_change_start_date_label', $bkap_start_date_label, $booking_settings, $product_id );
-				echo $bkap_start_date_label;
+				echo __( $bkap_start_date_label, 'woocommerce-booking' );
 			?>
 		</label>
 
@@ -134,7 +134,7 @@ if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $book
 				<?php
 				$bkap_end_date_label = get_option( 'checkout_date-label', __( 'End Date', 'woocommerce-booking' ) );
 				$bkap_end_date_label = apply_filters( 'bkap_change_end_date_label', $bkap_end_date_label, $booking_settings, $product_id );
-				echo $bkap_end_date_label;
+				echo __( $bkap_end_date_label, 'woocommerce-booking' );
 				?>
 				 
 			</label>
@@ -181,7 +181,7 @@ if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $book
 			<?php
 				$bkap_book_time_label = get_option( 'book_time-label', __( 'Booking Time', 'woocommerce-booking' ) );
 				$bkap_book_time_label = apply_filters( 'bkap_change_book_time_label', $bkap_book_time_label, $booking_settings, $product_id );
-				echo $bkap_book_time_label;
+				echo __( $bkap_book_time_label, 'woocommerce-booking' );
 			?>
 				</label><br/>
 				<?php

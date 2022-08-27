@@ -50,6 +50,9 @@ if ( ! class_exists( 'Bkap_Ajax' ) ) {
 				add_action( 'wp_ajax_nopriv_bkap_booking_calender_content', array( 'Bkap_Calendar_View', 'bkap_booking_calender_content' ) );
 				add_action( 'wp_ajax_nopriv_bkap_purchase_wo_date_price', array( 'bkap_booking_process', 'bkap_purchase_wo_date_price' ) );
 				add_action( 'wp_ajax_nopriv_bkap_send_reminder_action', array( 'Bkap_Send_Reminder', 'bkap_send_reminder_action' ) );
+				add_action( 'wp_ajax_nopriv_bkap_delete_reminder', array( 'Bkap_Send_Reminder', 'bkap_delete_reminder' ) );
+				add_action( 'wp_ajax_nopriv_bkap_reminder_test', array( 'Bkap_Send_Reminder', 'bkap_reminder_test' ) );
+				add_action( 'wp_ajax_nopriv_bkap_preview_reminder', array( 'Bkap_Send_Reminder', 'bkap_preview_reminder' ) );
 				add_action( 'wp_ajax_nopriv_bkap_save_reminder_message', array( 'Bkap_Send_Reminder', 'bkap_save_reminder_message' ) );
 			} else {
 				add_action( 'wp_ajax_bkap_get_per_night_price', array( 'bkap_booking_process', 'bkap_get_per_night_price' ) );
@@ -64,6 +67,9 @@ if ( ! class_exists( 'Bkap_Ajax' ) ) {
 				add_action( 'wp_ajax_bkap_booking_calender_content', array( 'Bkap_Calendar_View', 'bkap_booking_calender_content' ) );
 				add_action( 'wp_ajax_bkap_purchase_wo_date_price', array( 'bkap_booking_process', 'bkap_purchase_wo_date_price' ) );
 				add_action( 'wp_ajax_bkap_send_reminder_action', array( 'Bkap_Send_Reminder', 'bkap_send_reminder_action' ) );
+				add_action( 'wp_ajax_bkap_reminder_test', array( 'Bkap_Send_Reminder', 'bkap_reminder_test' ) );
+				add_action( 'wp_ajax_bkap_preview_reminder', array( 'Bkap_Send_Reminder', 'bkap_preview_reminder' ) );
+				add_action( 'wp_ajax_bkap_delete_reminder', array( 'Bkap_Send_Reminder', 'bkap_delete_reminder' ) );
 				add_action( 'wp_ajax_bkap_save_reminder_message', array( 'Bkap_Send_Reminder', 'bkap_save_reminder_message' ) );
 			}
 

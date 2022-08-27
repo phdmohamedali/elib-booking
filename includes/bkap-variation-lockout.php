@@ -699,6 +699,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 			$date_checkin    = $_POST['booking_date'];
 			$date_checkout   = $_POST['booking_checkout'];
 			$quantity_booked = $_POST['quantity'];
+			$cart_item_key   = $_POST['cart_item_key'];
 
 			if ( ! isset( $_POST['validation_status'] ) ) {
 				$validation_completed = 'NO';
@@ -811,17 +812,33 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						}
 					}
 
+					// cart quantity check.
+					$cart_dates = array();
+					foreach ( WC()->cart->get_cart() as $cart_key => $values ) {
+						if ( isset( $values['bkap_booking'] ) && $cart_key !== $cart_item_key ) {
+							$cart_booking = $values['bkap_booking'][0];
+							if ( isset( $cart_booking['hidden_date_checkout'] ) && isset( $values['variation_id'] ) && $values['variation_id'] == $variation_id ) {
+								$cart_date_range = bkap_common::bkap_get_betweendays( $cart_booking['hidden_date'], $cart_booking['hidden_date_checkout'] );
+								foreach ( $cart_date_range as $key => $value ) {
+									if ( isset( $list_dates[ $value ] ) ) {
+										$list_dates[ $value ] += $values['quantity'];
+									} else {
+										$list_dates[ $value ] = $values['quantity'];
+									}
+								}
+							}
+						}
+					}
+
 					// create/edit a final array which contains each date once and the value is the qty for which the order has been placed for this date
 					if ( isset( $list_dates ) && is_array( $list_dates ) && count( $list_dates ) > 0 ) {
 						foreach ( $list_dates as $date_key => $qty_value ) {
 							// check if the date is already present in the array, if yes, then edit the qty
-							if ( array_key_exists( $date_key, $total_bookings ) ) {
+							if ( isset( $total_bookings[ $date_key ] ) ) {
 								$qty_present                 = $total_bookings[ $date_key ];
 								$new_qty                     = $qty_present + $qty_value;
 								$total_bookings[ $date_key ] = $new_qty;
-							}
-							// else create a new entry in the array
-							else {
+							} else {
 								$total_bookings[ $date_key ] = $qty_value;
 							}
 						}
@@ -851,11 +868,58 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 					$date_availablity = array();
 					$check            = 'pass';
 
+					$list_dates = array();
+					// cart quantity check.
+					$cart_dates = array();
+					if ( count( WC()->cart->get_cart() ) > 0 ) {
+						foreach ( WC()->cart->get_cart() as $cart_key => $values ) {
+							if ( isset( $values['bkap_booking'] ) && $cart_key !== $cart_item_key ) {
+								$cart_booking = $values['bkap_booking'][0];
+								if ( isset( $cart_booking['hidden_date_checkout'] ) && isset( $values['variation_id'] ) && $values['variation_id'] == $variation_id ) {
+									$cart_date_range = bkap_common::bkap_get_betweendays( $cart_booking['hidden_date'], $cart_booking['hidden_date_checkout'] );
+									foreach ( $cart_date_range as $key => $value ) {
+										if ( isset( $list_dates[ $value ] ) ) {
+											$list_dates[ $value ] += $values['quantity'];
+										} else {
+											$list_dates[ $value ] = $values['quantity'];
+										}
+									}
+								}
+							}
+						}
+
+						$total_bookings = array();
+
+						if ( isset( $list_dates ) && is_array( $list_dates ) && count( $list_dates ) > 0 ) {
+							foreach ( $list_dates as $date_key => $qty_value ) {
+								// check if the date is already present in the array, if yes, then edit the qty
+								if ( array_key_exists( $date_key, $total_bookings ) ) {
+									$qty_present                 = $total_bookings[ $date_key ];
+									$new_qty                     = $qty_present + $qty_value;
+									$total_bookings[ $date_key ] = $new_qty;
+								}
+								// else create a new entry in the array
+								else {
+									$total_bookings[ $date_key ] = $qty_value;
+								}
+							}
+						}
+					}
+
 					foreach ( $order_dates as $k => $v ) {
 						$date_availablity[ $v ] = $variation_lockout;
-						if ( $variation_lockout > 0 && $variation_lockout < $quantity_booked ) {
-							$available_tickets = $variation_lockout;
-							$check             = 'failed';
+						$final_qty              = $quantity_booked;
+						if ( array_key_exists( $v, $total_bookings ) ) {
+							$final_qty += $total_bookings[ $v ];
+						}
+						if ( $variation_lockout > 0 && $variation_lockout < $final_qty ) {
+							if ( is_array( $total_bookings ) && isset( $total_bookings[ $v ] ) ) {
+								$available_tickets = $variation_lockout - $total_bookings[ $v ];
+							} else {
+								$available_tickets = $variation_lockout;
+							}
+							$date_availablity[ $v ] = $available_tickets;
+							$check                  = 'failed';
 						}
 					}
 				}
@@ -912,6 +976,8 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 			$booking_date    = $_POST['booking_date'];
 			$quantity_booked = $_POST['quantity'];
 			$booking_date    = date( 'j-n-Y', strtotime( $booking_date ) );
+			$item_key        = $_POST['cart_item_key'];
+
 			global $wpdb;
 
 			if ( ! isset( $_POST['validation_status'] ) ) {
@@ -1029,6 +1095,23 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						wc_add_notice( $message, $notice_type = 'error' );
 					}
 				} else {
+
+					$cart_qty = 0;
+					foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
+
+						if ( isset( $values['bkap_booking'] ) && $cart_item_key !== $item_key ) {
+							$cart_booking = $values['bkap_booking'][0];
+
+							if ( isset( $values['variation_id'] ) && $values['variation_id'] == $variation_id ) {
+								if ( strtotime( $booking_date ) == strtotime( $cart_booking['hidden_date'] ) ) {
+									$cart_qty += $values['quantity'];
+								}
+							}
+						}
+					}
+
+					$quantity_booked += $cart_qty;
+
 
 					if ( $variation_lockout > 0 && $variation_lockout < $quantity_booked ) {
 						$available_tickets = $variation_lockout;

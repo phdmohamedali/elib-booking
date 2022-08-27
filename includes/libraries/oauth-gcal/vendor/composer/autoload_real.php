@@ -67,6 +67,12 @@ class ComposerAutoloaderInit8178541f110b049550bbc7afbc9a52f2
 
 function composerRequire8178541f110b049550bbc7afbc9a52f2($fileIdentifier, $file)
 {
+
+    // Compatibility with Google Listing Ads.
+    if ( 'tyche_bkap_a8d3953fd9959404dd22d3dfcd0a79f0' === $fileIdentifier && isset( $GLOBALS['__composer_autoload_files']['a8d3953fd9959404dd22d3dfcd0a79f0'] ) ) {
+        return;
+    }
+    
     if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
         require $file;
 

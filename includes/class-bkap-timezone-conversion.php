@@ -28,7 +28,6 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		 */
 		public function __construct() {
 
-			add_action( 'init', array( $this, 'start_session' ) );
 			add_action( 'wp_footer', array( $this, 'bkap_wp_footer' ), 1 );
 			add_action( 'bkap_before_booking_form', array( $this, 'bkap_display_user_timezone' ), 3, 3 );
 			
@@ -298,10 +297,6 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		 */
 		public static function bkap_set_user_timezone() {
 
-			if ( is_admin() ) {
-				return;
-			}
-
 			/**
 			 * Link: http://www.onlineaspect.com/2007/06/08/auto-detect-a-time-zone-with-javascript/
 			 * Link:  https://stackoverflow.com/questions/9772955/how-can-i-get-the-timezone-name-in-javascript
@@ -309,10 +304,10 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 
 			$global_settings = bkap_global_setting();
 			$timezone_check  = bkap_timezone_check( $global_settings );
-			$nonce           = wp_create_nonce( 'bkap_set_user_timezone' );
-			$ajaxurl         = admin_url( 'admin-ajax.php' );
 
-			if ( $timezone_check ) {
+			if ( $timezone_check && '' === self::get_timezone_var( 'bkap_timezone_name' ) ) {
+				$nonce   = wp_create_nonce( 'bkap_set_user_timezone' );
+				$ajaxurl = admin_url( 'admin-ajax.php' );
 				?>
 				<script type="text/javascript">
 
@@ -380,19 +375,6 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		}
 
 		/**
-		 * This function ensures that the session is started. Sessions will be used as fallback incase cookies have been disabled.
-		 *
-		 * @since 5.12.0
-		 */
-		public static function start_session() {
-
-			if ( 'BkapTimezoneSession' !== session_id() ) {
-				session_id( 'BkapTimezoneSession' );
-				session_start();
-			}
-		}
-
-		/**
 		 * This function sets the timezone using SESSION.
 		 *
 		 * @since 5.12.0
@@ -403,16 +385,14 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 				return;
 			}
 
-			self::start_session();
-
 			$bkap_offset        = isset( $_POST['bkap_offset'] ) ? wp_unslash( $_POST['bkap_offset'] ) : ''; //phpcs:ignore
 			$bkap_timezone_name = isset( $_POST['bkap_timezone_name'] ) ? wp_unslash( $_POST['bkap_timezone_name'] ) : ''; //phpcs:ignore
 
-			if ( '' !== $bkap_offset ) {
+			if ( '' !== $bkap_offset && isset( $_SESSION ) ) {
 				$_SESSION['bkap']['timezone']['bkap_offset'] = $bkap_offset;
 			}
 
-			if ( '' !== $bkap_timezone_name ) {
+			if ( '' !== $bkap_timezone_name && isset( $_SESSION ) ) {
 				$_SESSION['bkap']['timezone']['bkap_timezone_name'] = $bkap_timezone_name;
 			}
 
@@ -427,8 +407,6 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		 * @since 5.12.0
 		 */
 		public static function get_timezone_var( $timezone_var ) {
-
-			self::start_session();
 
 			if ( isset( $_COOKIE[ $timezone_var ] ) && ! empty( $_COOKIE[ $timezone_var ] ) && '' !== $_COOKIE[ $timezone_var ] ) {
 				return wp_unslash( $_COOKIE[ $timezone_var ] );

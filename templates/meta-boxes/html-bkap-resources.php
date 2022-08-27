@@ -33,6 +33,7 @@ $all_resources_link = apply_filters( 'bkap_all_resources_link', admin_url( 'edit
 			$resource_label       = bkap_get_post_meta_data( $product_id, '_bkap_product_resource_lable', $default_booking_settings, $defaults );
 			$resource_selection   = bkap_get_post_meta_data( $product_id, '_bkap_product_resource_selection', $default_booking_settings, $defaults );
 			$resource_max_booking = bkap_get_post_meta_data( $product_id, '_bkap_product_resource_max_booking', $default_booking_settings, $defaults );
+			$resource_menu_order  = bkap_get_post_meta_data( $product_id, '_bkap_product_resource_sorting', $default_booking_settings, $defaults );
 
 			?>
 
@@ -86,6 +87,38 @@ $all_resources_link = apply_filters( 'bkap_all_resources_link', admin_url( 'edit
 		</td>
 		<td>
 			<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will override the Product\'s Max Booking over Resource\'s Available Quantity.', 'woocommerce-booking' ); ?>" src="<?php echo esc_attr( plugins_url() ); ?>/woocommerce/assets/images/help.png"/>
+		</td>
+	</tr>
+
+	<tr>
+		<th>
+			<label for="bkap_product_resource_sorting">
+				<?php esc_html_e( 'Sort Resources by:', 'woocommerce-booking' ); ?>
+			</label>
+		</th>
+		<?php
+
+		$resource_sorting_options = array(
+			''           => array( 'label' => __( 'Default', 'woocommerce-booking' ), 'title' => __( 'Resources will appear as it appears in the below table.', 'woocommerce-booking' ) ),
+			'ascending'  => array( 'label' => __( 'Ascending', 'woocommerce-booking' ), 'title' => __( 'Resources will be sorted by Ascending order.', 'woocommerce-booking' ) ),
+			'menu_order' => array( 'label' => __( 'Menu Order', 'woocommerce-booking' ), 'title' => __( 'Resources will be sorted by the value set in Menu Order of Resource.', 'woocommerce-booking' ) ),
+			'price_low'  => array( 'label' => __( 'Price - Low to High', 'woocommerce-booking' ), 'title' => __( 'Resources will be sorted by price low to high.', 'woocommerce-booking' ) ),
+			'price_high' => array( 'label' => __( 'Price - High to Low', 'woocommerce-booking' ), 'title' => __( 'Resources will be sorted by price high to low.', 'woocommerce-booking' ) ),
+		);
+
+		?>
+		<td>
+			<select id="bkap_product_resource_sorting" name= "bkap_product_resource_sorting">
+			<?php 
+			foreach ( $resource_sorting_options as $key => $value ) {
+				$selected = ( $resource_menu_order == $key ) ? ' selected="selected"' : '';
+				printf( '<option value="%s" title="%s" %s>%s</option>', $key, $value['title'], $selected, $value['label'] );
+			}
+			?>
+			</select>
+		</td>
+		<td>
+			<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will sort the resources by menu order on the front end.', 'woocommerce-booking' ); ?>" src="<?php echo esc_attr( plugins_url() ); ?>/woocommerce/assets/images/help.png"/>
 		</td>
 	</tr>
 </table>

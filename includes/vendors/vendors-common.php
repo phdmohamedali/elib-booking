@@ -101,6 +101,7 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 						'bkap_reminder_params',
 						array(
 							'ajax_url' => $ajax_url,
+							'moved_to_trash' => __( 'Moved to trash', 'woocommerce-booking' ),
 						)
 					);
 					break;
@@ -207,7 +208,30 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 			$posts_count = count( get_posts( $args ) );
 
 			return $posts_count;
+		}
 
+		/**
+		 * Return the count of reminders present for the given vendor
+		 *
+		 * @param string|int $user_id Vendor ID
+		 * @return int Post Count
+		 * @since 5.14.0
+		 */
+		public static function get_reminder_count( $user_id, $additional_args = array() ) {
+
+			$args = array(
+				'post_type'   => 'bkap_reminder',
+				'numberposts' => -1,
+				'post_status' => array( 'bkap-active', 'bkap-inactive' ),
+				/* 'meta_key'    => '_bkap_vendor_id',
+				'meta_value'  => $user_id, */
+			);
+
+			$args = array_merge( $args, $additional_args );
+
+			$posts_count = count( get_posts( $args ) );
+
+			return $posts_count;
 		}
 
 		/**
@@ -231,6 +255,31 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 			$args = array_merge( $args, $additional_args );
 
 			$args = apply_filters( 'bkap_vendor_resource_data_args', $args, $user_id, $start, $limit );
+
+			return get_posts( $args );
+		}
+
+		/**
+		 * This function is to fetch all Reminders.
+		 *
+		 * @todo Fetching the resource data based on the vendor is still pending.
+		 *
+		 * @since 5.10.0
+		 */
+		public static function get_reminder_data( $user_id, $start, $limit, $additional_args = array() ) {
+			$args = array(
+				'post_type'   => 'bkap_reminder',
+				'numberposts' => $limit,
+				'post_status' => array( 'bkap-active', 'bkap-inactive' ),
+				/* 'meta_key'    => '_bkap_vendor_id',
+				'meta_value'  => $user_id, */
+				'author'      => $user_id,
+				'paged'       => $start,
+			);
+
+			$args = array_merge( $args, $additional_args );
+
+			$args = apply_filters( 'bkap_vendor_reminder_data_args', $args, $user_id, $start, $limit );
 
 			return get_posts( $args );
 		}
@@ -261,7 +310,7 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 					$resource_id    = wp_insert_post(
 						array(
 							'post_title'   => $resource_title,
-							'menu_order'   => 0,
+							'menu_order'   => wc_clean( $_POST['_bkap_resource_menu_order'] ),
 							'post_content' => '',
 							'post_status'  => 'publish',
 							'post_author'  => get_current_user_id(),
@@ -275,6 +324,7 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 
 					$meta_args = array(
 						'_bkap_resource_qty'          => wc_clean( $_POST['_bkap_booking_qty'] ),
+						'_bkap_resource_menu_order'   => wc_clean( $_POST['_bkap_resource_menu_order'] ),
 						'_bkap_resource_availability' => bkap_get_posted_availability(),
 						'_bkap_resource_meeting_host' => bkap_get_posted_meeting_host(),
 					);
@@ -286,6 +336,44 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 
 					$resource_created_url = $_POST['bkap_resource_url'] . '?bkap-resource=' . $resource_id;
 					wp_safe_redirect( $resource_created_url );
+					exit();
+				}
+			}
+
+			if ( isset( $_POST['bkap_reminder_manager'] ) && '' !== $_POST['bkap_reminder_manager'] ) {
+				$reminder_title = sanitize_text_field( $_POST['bkap_reminder_title'] );
+
+				if ( isset( $_POST['bkap_reminder_id'] ) && '' !== $_POST['bkap_reminder_id'] ) {
+
+					$reminder_id = (int) $_POST['bkap_reminder_id'];
+					wp_update_post(
+						array(
+							'ID'          => $reminder_id,
+							'post_title'  => $reminder_title,
+							'post_status' => wc_clean( $_POST['bkap_reminder_action'] ),
+						)
+					);
+
+				} else {
+					$reminder_title = sanitize_text_field( $_POST['bkap_reminder_title'] );
+					$reminder_id    = wp_insert_post(
+						array(
+							'post_title'   => $reminder_title,
+							'post_content' => wc_clean( $_POST['bkap_email_content'] ),
+							'post_status'  => wc_clean( $_POST['bkap_reminder_action'] ),
+							'post_author'  => get_current_user_id(),
+							'post_type'    => 'bkap_reminder',
+						),
+						true
+					);
+				}
+
+				if ( $reminder_id && ! is_wp_error( $reminder_id ) ) {
+
+					bkap_reminder_save_data( $reminder_id );
+
+					$reminder_created_url = $_POST['bkap_reminder_url'] . '?bkap-reminder=' . $reminder_id;
+					wp_safe_redirect( $reminder_created_url );
 					exit();
 				}
 			}
@@ -338,6 +426,9 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 					break;
 				case 'bkap_resource':
 					$total_count = $this->get_resources_count( $user_id, $args );
+					break;
+				case 'bkap_reminder':
+					$total_count = $this->get_reminder_count( $user_id, $args );
 					break;
 			}
 
@@ -955,8 +1046,33 @@ if ( ! class_exists( 'BKAP_Vendors' ) ) {
 			foreach ( $option_names as $key => $value ) {
 				$value_option_explode              = explode( '_', $value['option_name'] );
 				$unserialized                      = unserialize( $value['option_value'] );
+				$from       = '';
+				$acc_id     = '';
+				$auth_token = '';
+				$body       = '';
+
+				if ( isset( $unserialized['from'] ) && '' !== $unserialized['from'] ) {
+					$from = $unserialized['from'];
+				}
+				if ( isset( $unserialized['account_sid'] ) && '' !== $unserialized['account_sid'] ) {
+					$acc_id = $unserialized['account_sid'];
+				}
+				if ( isset( $unserialized['auth_token'] ) && '' !== $unserialized['auth_token'] ) {
+					$auth_token = $unserialized['auth_token'];
+				}
+
+				if ( isset( $unserialized['body'] ) && '' !== $unserialized['body'] ) {
+					$body = $unserialized['body'];
+				}
+
+				$twilio_details = array(
+					'sid'        => $acc_id,
+					'token'      => $auth_token,
+					'from'       => $from,
+					'body'       => $body,
+				);
 				$vendor_id                         = $value_option_explode[4];
-				$vendor_sms_settings[ $vendor_id ] = $unserialized;
+				$vendor_sms_settings[ $vendor_id ] = $twilio_details;
 			}
 
 			return $vendor_sms_settings;

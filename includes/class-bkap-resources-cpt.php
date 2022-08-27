@@ -143,6 +143,24 @@ class BKAP_Product_Resource {
 	}
 
 	/**
+	 * Return the menu order of resource
+	 *
+	 * @return integer Menu order of the resource.
+	 *
+	 * @since 5.14.0
+	 */
+	public function get_resource_menu_order() {
+
+		$bkap_resource_menu_order = get_post_meta( $this->get_id(), '_bkap_resource_menu_order', true );
+
+		if ( '' === $bkap_resource_menu_order ) {
+			$bkap_resource_menu_order = 0;
+		}
+
+		return $bkap_resource_menu_order;
+	}
+
+	/**
 	 * Return the zoom host.
 	 *
 	 * @return string Zoom Host ID
@@ -190,12 +208,19 @@ class BKAP_Product_Resource {
 		if ( $id && ! is_wp_error( $id ) ) {
 
 			update_post_meta( $id, '_bkap_resource_qty', 1 );
+			update_post_meta( $id, '_bkap_resource_menu_order', 0 );
 			update_post_meta( $id, '_bkap_resource_availability', array() );
 
 			return $id;
 		}
 	}
 
+	/**
+	 * Create Custom post for the Resource.
+	 *
+	 * @return integer ID of the resource created.
+	 * @since 4.6.0
+	 */
 	public static function bkap_resource_assigned( $product_id ) {
 
 		$bkap_resource_assigned = get_post_meta( $product_id, '_bkap_product_resource_selection', true );

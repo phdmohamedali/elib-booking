@@ -65,6 +65,7 @@ class BKAP_Resource_Details_Meta_Box {
 	 * Constructor.
 	 */
 	public function __construct() {
+
 		$this->id         = 'bkap-resource-data';
 		$this->title      = __( 'Resource details', 'woocommerce-booking' );
 		$this->context    = 'normal';
@@ -92,6 +93,7 @@ class BKAP_Resource_Details_Meta_Box {
 
 		if ( '' === $post ) {
 			$resource_qty          = 1;
+			$resource_menu_order   = 0;
 			$resource_availability = array();
 			$zoom_host_id          = '';
 		} else {
@@ -101,8 +103,9 @@ class BKAP_Resource_Details_Meta_Box {
 			if ( '' === $resource_qty ) {
 				$resource_qty = 1;
 			}
+			$resource_menu_order   = $resource->get_resource_menu_order();
 			$resource_availability = $resource->get_resource_availability();
-			$zoom_host_id = $resource->get_resource_host();
+			$zoom_host_id          = $resource->get_resource_host();
 		}
 
 		/* Resource Details */
@@ -111,6 +114,7 @@ class BKAP_Resource_Details_Meta_Box {
 			array(
 				'post'                  => $post,
 				'resource_qty'          => $resource_qty,
+				'resource_menu_order'   => $resource_menu_order,
 				'resource_availability' => $resource_availability,
 				'response'              => $response,
 				'bkap_intervals'        => $bkap_intervals,

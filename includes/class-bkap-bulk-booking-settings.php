@@ -19,7 +19,23 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 	/**
 	 * Class for Bulk Booking Settings.
 	 */
-	class Bkap_Bulk_Booking_Settings {
+	class Bkap_Bulk_Booking_Settings extends BKAP_Background_Process {
+
+		/**
+		 * Initializes the Bkap_Bulk_Booking_Settings() class.
+		 *
+		 * @since 5.13.0
+		 */
+		public static function init() {
+
+			static $instance = false;
+
+			if ( ! $instance ) {
+				$instance = new Bkap_Bulk_Booking_Settings();
+			}
+
+			return $instance;
+		}
 
 		/**
 		 * Constructor.
@@ -29,6 +45,12 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 		public function __construct() {
 			add_action( 'bulk_booking_settings_section', array( $this, 'bulk_booking_settings_section_callback' ) );
 			add_action( 'bkap_meta_box_bulk_booking', array( $this, 'bkap_meta_box_bulk_booking_callback' ) );
+			add_action( 'admin_notices', array( $this, 'background_notice_running' ) );
+			add_action( 'admin_notices', array( $this, 'background_notice_completed' ) );
+			add_action( 'admin_notices', array( $this, 'background_notice_error' ) );
+			add_action( 'admin_init', array( $this, 'cancel_process' ) );
+
+			parent::__construct( 'bulk_booking_settings' );
 		}
 
 		/**
@@ -1113,7 +1135,7 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 
 			$products = get_posts( $args );
 
-			$description     = __( 'Add booking settings for multiple products together. Selected settings will be shown on the selected edit product place.', 'woocommerce-booking' );
+			$description     = __( 'Add booking settings for multiple products. To avoid excess system resouce comsumption, Bulk Booking Settings will be processed in the background for product count greater than 50.', 'woocommerce-booking' );
 			$pro_desc        = __( 'Select the product for which you want to add the booking settings. You can also select a Product Category to add booking settings to all the products in the selected category.', 'woocommerce-booking' );
 			$pro_placeholder = __( 'Select a Product', 'woocommerce-booking' );
 
@@ -1143,7 +1165,7 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 										<optgroup label="<?php esc_attr_e( 'Select by Product Category', 'woocommerce-booking' ); ?>">
 										<?php
 										// Display all prodct categories.
-										foreach ( $categories as $key => $category ) { 
+										foreach ( $categories as $key => $category ) {
 											$category_text = ( 'uncategorized' === $category->slug ) ? 'Uncategorized Products' : 'Products in ' . $category->cat_name . ' Category';
 											$option_value  = 'cat_' . $category->slug;
 											?>
@@ -1186,7 +1208,7 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 					<div style="width:100%;margin-bottom: 20px;">
 						<p>
 							<input type="checkbox" name="bkap_default_booking_option" id="bkap_default_booking_option">
-							<label for="bkap_default_booking_option"><?php echo esc_html( __( 'Enable this to save selected options as default options.', 'woocommerce-booking' )); ?></label>
+							<label for="bkap_default_booking_option"><?php echo esc_html( __( 'Enable this to save selected options as default options.', 'woocommerce-booking' ) ); ?></label>
 							<?php if ( $default_booking_options ) : ?>
 							<a id="bkap_clear_defaults" class="button" title="<?php echo __( 'Clicking on this button will clear the default booking options that were saved earlier.', 'woocommerce-booking' ); ?>"><?php echo __( 'Clear defaults', 'woocommerce-booking' ); ?></a>
 							<?php endif; ?>
@@ -1368,7 +1390,209 @@ if ( ! class_exists( 'Bkap_Bulk_Booking_Settings' ) ) {
 			bkap_load_scripts_class::bkap_common_admin_scripts_js( $bkap_version );
 			bkap_load_scripts_class::bkap_load_product_scripts_js( $bkap_version, $ajax_url, 'bulk' );
 		}
-	} // end of class
-	$bkap_bulk_booking_settings = new Bkap_Bulk_Booking_Settings();
-} // end if
-?>
+
+		/**
+		 * Adds a notice showing status for background process that are running.
+		 *
+		 * @since 5.13.0
+		 */
+		public static function background_notice_running() {
+
+			$screen = get_current_screen();
+
+			if ( 'bkap_booking_page_woocommerce_booking_page' !== $screen->id ) {
+				return;
+			}
+
+			$process_count = get_transient( 'bkap_bulk_booking_settings_background_process_running' );
+
+			if ( false === $process_count ) {
+				return;
+			}
+
+			$running = $process_count;
+			$status  = 'info';
+
+			// translators: %1$s = Number of products that have booking setting shave been apllied to.
+			$message  = '<p>' . sprintf( _n( 'Bulk Booking Settings: %1$s product has been updated. (refresh to view progress)', 'Bulk Booking Settings: %1$s products have been updated. (refresh to view progress)', $running, 'woocommerce-booking' ), $running );
+			$message .= ' <em> - (' . date_i18n( get_option( 'date_format' ) ) . ' @ ' . date_i18n( get_option( 'time_format' ) ) . ') </em></p>';
+
+			$action = '<a class="wp-core-ui button" href="' . wp_nonce_url( admin_url( 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page&action=bulk_booking_settings&bulk_booking_settings_action=cancel_process' ), 'bulk_booking_settings_cancel_process' ) . '">' . __( 'Stop Bulk Booking Update', 'woocommerce-booking' ) . '</a>';
+
+			BKAP_Background_Process::display_notice(
+				array(
+					'status'      => $status,
+					'message'     => $message,
+					'dismissible' => 'notice-bulk-booking-settings-running',
+					'action'      => $action,
+				)
+			);
+		}
+
+		/**
+		 * Adds a notice showing status for background process that are running.
+		 *
+		 * @since 5.13.0
+		 */
+		public static function background_notice_completed() {
+
+			$screen = get_current_screen();
+
+			if ( 'bkap_booking_page_woocommerce_booking_page' !== $screen->id ) {
+				return;
+			}
+
+			$check = get_transient( 'bkap_bulk_booking_settings_background_process_complete' );
+
+			if ( false === $check ) {
+				return;
+			}
+
+			$check_timestamp = get_transient( 'bkap_bulk_booking_settings_background_process_complete_time' );
+
+			if ( false === $check_timestamp ) {
+				return;
+			}
+
+			delete_transient( 'bkap_bulk_booking_settings_background_process_complete' );
+			delete_transient( 'bkap_bulk_booking_settings_background_process_complete_time' );
+
+			// translators: %1$d is the number of products that bulk booking settings have been applied to.
+			$message  = sprintf( _n( 'Bulk Booking Settings has been completed and applied to %1$d product.', 'Bulk Booking Settings have been completed and applied to %1$d products.', $check, 'woocommerce-booking' ), $check );
+			$message .= ' <em> (' . $check_timestamp . ') </em>';
+
+			BKAP_Background_Process::display_notice(
+				array(
+					'message' => $message,
+				)
+			);
+		}
+
+		/**
+		 * Adds a notice showing error messages.
+		 *
+		 * @since 5.13.0
+		 */
+		public static function background_notice_error() {
+
+			$screen = get_current_screen();
+
+			if ( 'bkap_booking_page_woocommerce_booking_page' !== $screen->id ) {
+				return;
+			}
+
+			$error_message = get_transient( 'bkap_bulk_booking_settings_background_process_error' );
+
+			if ( false === $error_message ) {
+				return;
+			}
+
+			delete_transient( 'bkap_bulk_booking_settings_background_process_error' );
+
+			$status = 'error';
+
+			BKAP_Background_Process::display_notice(
+				array(
+					'status'      => $status,
+					'message'     => $error_message,
+					'dismissible' => 'notice-bulk-booking-settings-running',
+				)
+			);
+		}
+
+		/**
+		 * Process task action: Saves Bulk Booking Setting for Product.
+		 *
+		 * @param integer $task Array of Product Settings.
+		 *
+		 * @since 5.13.0
+		 */
+		public function process( $task ) {
+
+			if ( ! is_array( $task ) && ( ! isset( $task['product_id'] ) || ! isset( $task['product_settings'] ) ) ) { // phpcs:ignore
+				return false;
+			}
+
+			$product_id       = $task['product_id'];
+			$product_settings = $task['product_settings'];
+
+			bkap_booking_box_class::bkap_inactive_old_records_for_product( $product_id );
+
+			// Add Product Settings to POST variable.
+			foreach ( $product_settings as $key => $setting ) {
+				$_POST[ $key ] = $setting;
+			}
+
+			bkap_booking_box_class::bkap_save_settingss( $product_id );
+			$transient_name = 'bkap_bulk_booking_settings_background_process_running';
+			$count          = get_transient( $transient_name );
+			set_transient( $transient_name, $count + 1 );
+
+			// A  little pause before we continue.
+			usleep( 500000 );
+
+			return true;
+		}
+
+		/**
+		 * Runs when background process batch job is complete.
+		 *
+		 * @since 5.13.0
+		 */
+		public function complete() {
+			$count = get_transient( 'bkap_bulk_booking_settings_background_process_running' );
+
+			set_transient( 'bkap_bulk_booking_settings_background_process_complete', $count );
+			set_transient( 'bkap_bulk_booking_settings_background_process_complete_time', date_i18n( get_option( 'date_format' ) ) . ' @ ' . date_i18n( get_option( 'time_format' ) ) );
+			delete_transient( 'bkap_bulk_booking_settings_background_process_running' );
+
+			parent::complete();
+		}
+
+		/**
+		 * Dispatches the batch job. We need to exposed the protected function via this function.
+		 *
+		 * @since 5.13.0
+		 */
+		public function dispatch() {
+
+			parent::dispatch();
+		}
+
+		/**
+		 * Cancels the current process batch job.
+		 *
+		 * @since 5.13.0
+		 */
+		public function cancel_process() {
+
+			$is_error     = false;
+			$redirect_url = admin_url( 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page&action=bulk_booking_settings' );
+
+			if ( ! isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && 'bulk_booking_settings' !== wp_unslash( $_GET['action'] ) ) || ! isset( $_GET['bulk_booking_settings_action'] ) || ( isset( $_GET['bulk_booking_settings_action'] ) && 'cancel_process' !== wp_unslash( $_GET['bulk_booking_settings_action'] ) ) ) { // phpcs:ignore
+				return;
+			}
+
+			if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'bulk_booking_settings_cancel_process' ) ) {
+				$is_error = true;
+			}
+
+			if ( $is_error ) {
+				set_transient( 'bkap_bulk_booking_settings_background_process_error', __( 'Bulk Booking Settings Process could not be cancelled due to some errors.', 'woocommerce-booking' ) );
+				wp_safe_redirect( $redirect_url );
+				die();
+			}
+
+			parent::cancel_process();
+			delete_transient( 'bkap_bulk_booking_settings_background_process_running' );
+			wp_safe_redirect( $redirect_url );
+			die();
+		}
+	}
+}
+
+function bkap_bulk_booking_settings() {
+	return Bkap_Bulk_Booking_Settings::init();
+}
+
+bkap_bulk_booking_settings();

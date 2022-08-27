@@ -213,7 +213,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 			}
 
 			wp_enqueue_script( 'bkap-booking-reminder', self::bkap_asset_url( '/assets/js/bkap-send-reminder.js', BKAP_FILE ), '', '', false );
-			wp_localize_script( 'bkap-booking-reminder', 'bkap_reminder_params', array( 'ajax_url' => $ajax_url ) );
+			wp_localize_script( 'bkap-booking-reminder', 'bkap_reminder_params', array( 'ajax_url' => $ajax_url, 'moved_to_trash' => __( 'Moved to trash', 'woocommerce-booking'  ) ) );
 
 			/*
 			 * Including JS & CSS file for Booking Resources.
