@@ -78,6 +78,12 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				array( array( $this, 'create_booking' ), WC_API_SERVER::CREATABLE | WC_API_Server::ACCEPT_DATA ),
 			);
 
+			// GET Update start date for products
+			// Atif
+			$routes[ $this->get_bookings_endpoint() . '/updatestartdate' ] = array(
+					array( array( $this, 'update_start_date' ), WC_API_Server::READABLE | WC_API_Server::ACCEPT_DATA ),
+			);
+
 			// GET /bookings/count.
 			$routes[ $this->get_bookings_endpoint() . '/count' ] = array(
 				array( array( $this, 'get_bookings_count' ), WC_API_Server::READABLE | WC_API_Server::ACCEPT_DATA ),
@@ -1114,6 +1120,111 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 			}
 		}
 
+		/**
+		 * ATIF Update startdate
+		 */
+		public function update_start_date( $data = array() ) {
+			$products_long_rent =  self::get_products_from_category_by_ID('rent-area-7-days-and-more');
+			//return $products_long_rent;	
+			foreach ( $products_long_rent as $id ) {
+				self::bkap_update_metadata_next_available_date($id,7);
+			}
+			//return $products_long_rent;
+			$products_events = self::get_products_from_category_by_ID('events');
+			foreach ( $products_events as $id ) {
+				self::bkap_update_metadata_next_available_date($id, 3);
+			 }
+			 return 'done';
+		}
+
+		public function get_me_last_found_date($start_date, $all_dates, $diff_days=3){
+  			$begin = new DateTime( $start_date );
+  			$end = new DateTime( $start_date );
+  			$end = $end->modify( '+'. $diff_days .'day' );
+
+  			$interval = new DateInterval('P1D');
+  			$daterange = new DatePeriod($begin, $interval ,$end);
+
+  			$is_found = 'nooo';
+  			foreach($daterange as $date){
+     				 $date_str = $date->format("Y-m-d");
+      				if(strpos($all_dates, $date_str) !== false){
+         				$is_found = $date_str;
+      				} 
+ 		 	}	
+
+  			return  $is_found;
+		}
+		
+		public function bkap_update_metadata_next_available_date($product_id,$min_no_days = 7){
+                            $next_first_available = bkap_booking_process::bkap_localize_process_script( $product_id );
+			    $all_dates = explode( ',', $next_first_available['additional_data']['wapbk_hidden_booked_dates'] ) ;
+			    if(is_array($all_dates)){
+				$all_dates_str = '';
+			    	for ($i = 0; $i < count($all_dates); $i++) {
+					$date = str_replace("\"", "",trim($all_dates[$i]));
+					$date = "".$date."";
+					//str_replace('"', "", $date);
+					$sdate = explode("-", $date);
+					//$year_part = $sdata[2];
+					$month_part = $sdate[1];
+					$day_part = $sdate[0];
+					if(strlen($month_part)==1)
+					{
+						$month_part = "0".$month_part;
+					}
+					if(strlen($day_part)==1)
+					{
+						$day_part = "0".$day_part;
+					}
+					$final_date = $sdate[2]."-".$month_part."-".$day_part;
+					if($final_date == "--")
+						break;
+					   if ($i < count($all_dates) - 1){
+						   $all_dates_str .= $final_date. ",";
+					   }else{
+						   $all_dates_str .= $final_date;
+					   }
+
+				}
+				update_post_meta($product_id, '_bkap_lockout_dates', $all_dates_str);
+			    }
+
+			    $start_date = DateTime::createFromFormat('d-m-Y', $next_first_available['additional_data']['default_date']);
+			    $start_date = $start_date->format('Y-m-d');
+			    //logic for new start date
+			    $last_date_found =  self::get_me_last_found_date($start_date, $all_dates_str, $min_no_days);
+			    //echo $last_date_found;
+		           		
+			    while($last_date_found != 'nooo'){
+    				$last_date_plus_one = new DateTime( $last_date_found );
+    				$last_date_plus_one = $last_date_plus_one->modify( '+1 day' );
+   			        $start_date = $last_date_plus_one->format("Y-m-d");
+    				$last_date_found =  self::get_me_last_found_date($start_date, $all_dates_str, $min_no_days);
+			    }
+
+			    update_post_meta($product_id, '_bkap_first_availabe_slot', $start_date);
+		}		
+ 
+		public function get_products_from_category_by_ID($category){
+			$products = new WP_Query( array(
+				'post_type'   => 'product',
+				'post_status' => 'publish',
+				'posts_per_page' => -1,
+				//'product_cat' => 'Buy for cheap',
+				'fields'      => 'ids',
+				'tax_query'   => array(
+					'relation' => 'AND',
+					array(
+						'taxonomy' => 'product_cat',
+						'field'    => 'slug',
+						'terms'    => $category,
+					)
+				),
+		
+			) );
+			return $products->posts;
+		}
 		/**
 		 * Get availability for bookings.
 		 *
