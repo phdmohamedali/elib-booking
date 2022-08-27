@@ -1,0 +1,35 @@
+<wpml-config>
+
+<admin-texts>
+	<key name="book_time-select-option"/>
+	<key name="book_time-label"/>
+	<key name="book_date-label"/>
+	<key name="checkout_date-label"/>
+
+	<key name="book_item-cart-date"/>
+	<key name="checkout_item-cart-date"/>
+	<key name="book_item-cart-time"/>
+
+	<key name="book_item-meta-date"/>
+	<key name="checkout_item-meta-date"/>
+	<key name="book_item-meta-time"/>
+	<key name="book_ics-file-name"/>
+
+	<key name="book_price-label"/>
+	<key name="book_fixed-block-label"/>
+	
+	<key name="book_stock-total"/>
+	<key name="book_available-stock-date"/>
+	<key name="book_available-stock-time"/>
+	<key name="book_available-stock-date-attr"/>
+	<key name="book_available-stock-time-attr"/>
+	
+	<key name="book_limited-booking-msg-date"/>
+	<key name="book_no-booking-msg-date"/>
+	<key name="book_limited-booking-msg-time"/>
+	<key name="book_no-booking-msg-time"/>
+	<key name="book_limited-booking-msg-date-attr"/>
+	<key name="book_limited-booking-msg-time-attr"/>
+</admin-texts>
+
+</wpml-config>

@@ -1,0 +1,134 @@
+@keyframes bounce {
+	0%   { transform: translateY(0); }
+	50%  { transform: translateY(-50px); }
+	100% { transform: translateY(0); }
+}
+
+.bkap_list_booking {
+	position: relative;
+
+	.fc-list-view {
+		z-index: 5;
+	}
+
+	.tyche_loader {
+		position: absolute;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		z-index: 2;
+		background-color: #ffffffc7;
+	}
+
+	.fc-event{
+		background-color: #ebf8ff;
+		border-color:#bee3f8;
+		color: #2b6cb0;
+	}
+
+	.bkap_greyOut {
+		cursor: default;
+		background-color: #edf2f7;
+		border-color:#e2e8f0;
+		color: #a0aec0;
+	}
+
+	.bkap-meta {
+		display: block;
+		font-size: 14px;;
+	}
+
+	a{
+		text-decoration: none !important;
+		&:focus{
+			outline: none;
+		}
+	}
+
+	.fc-list-item {
+		td{
+			vertical-align: middle;
+
+			&.fc-list-item-title {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+		}
+
+		.bkap-list-form{
+			margin: 0;
+			display: inherit;
+		}
+
+		.bkap-list-qty{
+			width: 60px;
+		}
+
+		.bkap-list-add-to-cart {
+			margin-left: 10px;
+		}
+
+		.bkap-list-add-to-cart,
+		.bkap-select-options,
+		.bkap-sold-out {
+			background-color: #eeeeee;
+			border-color: #eeeeee;
+			color: #333333;
+			border: 0;
+			border-radius: 0;
+			cursor: pointer;
+			padding: 0.6180469716em 1.41575em;
+			text-decoration: none;
+			font-weight: 600;
+			text-shadow: none;
+			display: inline-block;
+			-webkit-appearance: none;
+			width: 120px;
+			text-align: center;
+			font-size: 1em;
+		}
+
+		.bkap-sold-out {
+			cursor: default;
+			background-color: #edf2f7;
+			border-color:#e2e8f0;
+			color: #a0aec0;
+		}
+
+		a.added_to_cart{
+			color:#ffffff;
+		}		
+	}
+
+	.fc-list-item.fc-has-url {
+		cursor: default !important;
+		/* whole row will be clickable */
+	}
+}
+
+.display-z-index-higher-priority {
+	z-index:100!important;
+}
+
+$breakpoint-tablet: 600px;
+@media ( max-width: $breakpoint-tablet ) {
+	.bkap_list_booking{
+		.fc-list-view .fc-list-item-time, .fc-list-item-marker{
+			width: 100% !important;
+		}
+		.fc-list-view .fc-list-item-marker{
+			display: none !important;
+		}
+		.fc-list-view .fc-widget-content {
+			display: block !important;
+			width: -webkit-fill-available;
+		}
+		.fc-list-view .fc-list-item td.fc-list-item-title{
+			display:block;
+		}
+	}
+}
