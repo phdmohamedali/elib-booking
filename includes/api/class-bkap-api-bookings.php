@@ -197,7 +197,6 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 
 				if ( $this->check_if_exists( 'start_date', $filter ) ) {
 					// Check Start Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] );
 					if ( false === DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
