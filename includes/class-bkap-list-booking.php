@@ -28,16 +28,16 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 		 * @since 5.0.0
 		 */
 		public function __construct() {
-			add_action( 'init', [ $this, 'register_block' ] );
-			add_action( 'init', [ $this, 'events_json' ] );
-			add_action( 'bkap_booking_after_add_to_cart_end', [ $this, 'register_assets' ], 50 );
-			add_filter( 'register_taxonomy_args', [ $this, 'enable_taxonomy_api' ], 10, 2 );
-			add_filter( 'rest_product_query', [ $this, 'enable_product_metaquery' ], 10, 2 );
-			add_shortcode( 'tyche-bookings', [ $this, 'shortcode' ] );
-			add_action( 'init', [ $this, 'bkap_set_script_translations' ] );
+			add_action( 'init', array( $this, 'register_block' ) );
+			add_action( 'init', array( $this, 'events_json' ) );
+			add_action( 'bkap_booking_after_add_to_cart_end', array( $this, 'register_assets' ), 50 );
+			add_filter( 'register_taxonomy_args', array( $this, 'enable_taxonomy_api' ), 10, 2 );
+			add_filter( 'rest_product_query', array( $this, 'enable_product_metaquery' ), 10, 2 );
+			add_shortcode( 'tyche-bookings', array( $this, 'shortcode' ) );
+			add_action( 'init', array( $this, 'bkap_set_script_translations' ) );
 
 			// Adding Price info to front end view.
-			add_filter( 'bkap_date_lockout_data', [ $this, 'bkap_date_lockout_data_callback' ], 10, 6 );			
+			add_filter( 'bkap_date_lockout_data', array( $this, 'bkap_date_lockout_data_callback' ), 10, 6 );
 			add_action( 'wp_enqueue_scripts', array( &$this, 'bkap_front_end_block_assets' ), 10 );
 		}
 
@@ -55,25 +55,25 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 
 				if ( isset( $_POST['timeslot_value'] ) ) { // 'Fixed Time'
 					$_POST['special_booking_price'] = bkap_special_booking_price::get_price( $product_id, $date_check_in );
-					$price = bkap_timeslot_price::get_price( $product_id, $variation_id, $product_type, $date_check_in, $_POST['timeslot_value'], 'product', $global_settings );
+					$price                          = bkap_timeslot_price::get_price( $product_id, $variation_id, $product_type, $date_check_in, $_POST['timeslot_value'], 'product', $global_settings );
 				} else { // 'Single Day'
 					$price = bkap_special_booking_price::get_price( $product_id, $date_check_in );
-					if ( '' == $price ) {						
-						$price        = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type, $date_check_in );
+					if ( '' == $price ) {
+						$price = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type, $date_check_in );
 					}
 				}
 
 				if ( $resource_id != 0 ) {
-					$resource        = new BKAP_Product_Resource( $resource_id, $product_id );
-					$resource_price  = $resource->get_base_cost();
-					$price          += $resource_price;
+					$resource       = new BKAP_Product_Resource( $resource_id, $product_id );
+					$resource_price = $resource->get_base_cost();
+					$price         += $resource_price;
 				}
 				$data['price'] = $price;
 			}
 
 			return $data;
 		}
-		
+
 		/**
 		 * Tells WordPress that JavaScript contains translations
 		 *
@@ -82,7 +82,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 		public function bkap_set_script_translations() {
 
 			global $wp_version;
-			
+
 			if ( version_compare( $wp_version, '5.0', '>=' ) ) {
 				// WordPress version is greater than equals to 5.0
 				wp_set_script_translations( 'tyche-bookable-listing', 'woocommerce-booking' );
@@ -98,76 +98,80 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 		public function register_block() {
 
 			// Attributes.
-			$block_attributes = [
-				'view'                => [
+			$block_attributes = array(
+				'view'                => array(
 					'type'    => 'string',
 					'default' => 'list',
-				],
-				'filter'              => [
+				),
+				'filter'              => array(
 					'type'    => 'object',
-					'default' => [
+					'default' => array(
 						'value' => 'all',
 						'label' => 'All Products',
-					],
-				],
-				'type'                => [
+					),
+				),
+				'type'                => array(
 					'type'    => 'string',
-					'default' => 'day'
-				],
-				'dayType'             => [
+					'default' => 'day',
+				),
+				'dayType'             => array(
 					'type'    => 'string',
-					'default' => 'only_day'
-				],
-				'timeType'            => [
+					'default' => 'only_day',
+				),
+				'timeType'            => array(
 					'type'    => 'string',
-					'default' => 'date_time'
-				],
-				'products'            => [
-					'type' => 'array',
+					'default' => 'date_time',
+				),
+				'multipleType'        => array(
+					'type'    => 'string',
+					'default' => 'multidates',
+				),
+				'products'            => array(
+					'type'  => 'array',
 					'items' => array( 'type' => 'object' ),
-				],
-				'categories'          => [
-					'type' => 'array',
+				),
+				'categories'          => array(
+					'type'  => 'array',
 					'items' => array( 'type' => 'object' ),
-				],
-				'resources'           => [
-					'type' => 'array',
+				),
+				'resources'           => array(
+					'type'  => 'array',
 					'items' => array( 'type' => 'object' ),
-				],
-				'duration'            => [
+				),
+				'duration'            => array(
 					'type'    => 'string',
-					'default' => 'month'
-				],
-				'showQuantity'        => [
+					'default' => 'month',
+				),
+				'showQuantity'        => array(
 					'type'    => 'boolean',
 					'default' => true,
-				],
-				'showTimes'           => [
+				),
+				'showTimes'           => array(
 					'type'    => 'boolean',
 					'default' => false,
-				],
-				'showNavigation'      => [
+				),
+				'showNavigation'      => array(
 					'type'    => 'boolean',
 					'default' => true,
-				],
-				'sortingSingleEvents' => [
+				),
+				'sortingSingleEvents' => array(
 					'type'    => 'boolean',
 					'default' => true,
-				],
-				'greyOutBooked'       => [
+				),
+				'greyOutBooked'       => array(
 					'type'    => 'boolean',
 					'default' => false,
-				],
-			];
+				),
+			);
 
 			$this->bkap_block_assets();
 
 			// Block.
 			if ( function_exists( 'register_block_type' ) ) {
-				$tyche_styles = [
-					'render_callback' => [ $this, 'render' ],
+				$tyche_styles = array(
+					'render_callback' => array( $this, 'render' ),
 					'attributes'      => $block_attributes,
-				];
+				);
 
 				if ( is_admin() ) {
 					$tyche_styles['script']        = 'tyche-bookable-listing';
@@ -187,7 +191,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 		 *
 		 * @return void
 		 */
-		public function bkap_block_assets(){
+		public function bkap_block_assets() {
 
 			if ( ! bkap_check_woo_installed() ) {
 				return;
@@ -213,7 +217,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 			wp_register_script(
 				'tyche-rrule',
 				bkap_load_scripts_class::bkap_asset_url( '/assets/js/rrule.min.js', BKAP_FILE ),
-				[],
+				array(),
 				$asset_file['version'],
 				false
 			);
@@ -445,18 +449,17 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 			$view          = ( 'list' === $attributes['view'] ? 'list' : 'dayGrid' );
 			$view_duration = ucfirst( $attributes['duration'] );
 			$default_view  = "${view}${view_duration}";
-			$with_nav      = [
+			$with_nav      = array(
 				'left'   => 'title',
 				'center' => '',
 				'right'  => 'prev,next',
-			];
-			$no_nav        = [
+			);
+			$no_nav        = array(
 				'left'   => 'title',
 				'center' => '',
 				'right'  => '',
-			];
-			$header      = $attributes['showNavigation'] ? $with_nav : $no_nav;
-			
+			);
+			$header        = $attributes['showNavigation'] ? $with_nav : $no_nav;
 
 			// Note: Fix for fullcalendar extraParams not passing object properly.
 			$attributes['filter']     = ! empty( $attributes['filter'] ) ? bkap_common::get_attribute_value( $attributes['filter'] ) : '';
@@ -484,7 +487,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 			// Assets.
 			wp_enqueue_script( 'tyche-bookable-listing' );
 			wp_enqueue_style( 'tyche-list-booking' );
-			
+
 			// Below checks are for adding value in respective camelcase. This need to be removed after improvement in future release.
 			if ( isset( $attributes['daytype'] ) ) {
 				$attributes['dayType'] = $attributes['daytype'];
@@ -494,6 +497,11 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 			if ( isset( $attributes['timetype'] ) ) {
 				$attributes['timeType'] = $attributes['timetype'];
 				unset( $attributes['timetype'] );
+			}
+
+			if ( isset( $attributes['multipletype'] ) ) {
+				$attributes['multipleType'] = $attributes['multipletype'];
+				unset( $attributes['multipletype'] );
 			}
 
 			if ( isset( $attributes['showquantity'] ) ) {
@@ -523,12 +531,13 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 
 			// Attributes.
 			$attributes = shortcode_atts(
-				[
+				array(
 					'view'                => 'list',
 					'filter'              => 'all',
 					'type'                => 'day',
 					'dayType'             => 'only_day',
 					'timeType'            => 'date_time',
+					'multipleType'        => 'multidates',
 					'products'            => '',
 					'categories'          => '',
 					'resources'           => '',
@@ -538,7 +547,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 					'showNavigation'      => 'true',
 					'sortingSingleEvents' => 'true',
 					'greyOutBooked'       => 'true',
-				],
+				),
 				$attributes,
 				'tyche-bookings'
 			);

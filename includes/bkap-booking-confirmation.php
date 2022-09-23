@@ -458,12 +458,12 @@ if ( ! class_exists( 'bkap_booking_confirmation' ) ) {
 				if ( 'cancelled' == $_status ) {
 					$wc_email = WC_Emails::instance();
 					$email    = $wc_email->emails['BKAP_Email_Booking_Cancelled'];
-					$email->trigger( $item_id );
+					$email->trigger( $item_id, $booking_id );
 					do_action( 'bkap_booking_is_cancelled', $booking_id );
 				} elseif ( 'confirmed' == $_status ) {
 					$wc_email = WC_Emails::instance();
 					$email    = $wc_email->emails['BKAP_Email_Booking_Confirmed'];
-					$email->trigger( $item_id );
+					$email->trigger( $item_id, $booking_id );
 					do_action( 'bkap_booking_is_confirmed', $booking_id );
 				}
 

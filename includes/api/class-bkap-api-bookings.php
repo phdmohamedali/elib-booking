@@ -198,15 +198,14 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				if ( $this->check_if_exists( 'start_date', $filter ) ) {
 					// Check Start Date is in correct format.
 					$date = DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				}
 
 				if ( $this->check_if_exists( 'end_date', $filter ) ) {
 					// Check End Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $filter['end_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $filter['end_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'Please provide the End Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				}
@@ -758,14 +757,20 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$booking_data['order_id'] = $order_id;
 				}
 
-				$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
+				$booking_type                   = get_post_meta( $product_id, '_bkap_booking_type', true );
+				$booking_type_is_multiple_dates = ( 'multidates' === $booking_type || 'multidates_fixedtime' === $booking_type );
+
+				if ( $booking_type_is_multiple_dates ) {
+					// Add fake data for start_date and end_date in order to pass validation checks. Don't worry, we'll remove them later :).
+					$data['start_date'] = gmdate( 'Y-m-d' );
+					$data['end_date']   = gmdate( 'Y-m-d' );
+				}
 
 				// Booking Start Date is required for all Booking Types.
 				if ( $this->is_data_set( 'start_date', $data ) ) {
 
 					// Check Start Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $data['start_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $data['start_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_start_date', __( 'Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				} else {
@@ -778,8 +783,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				if ( $this->is_data_set( 'end_date', $data ) ) {
 
 					// Check End Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $data['end_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $data['end_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_end_date', __( 'Please provide the End Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				} else {
@@ -795,8 +799,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					if ( $this->is_data_set( 'start_time', $data ) ) {
 
 						// Check Start Time is in correct format.
-						$date = DateTime::createFromFormat( 'H:i', $data['start_time'] );
-						if ( false === $date ) {
+						if ( false === DateTime::createFromFormat( 'H:i', $data['start_time'] ) ) {
 							throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_start_time', __( 'Please provide the Start Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
 						}
 					} else {
@@ -807,15 +810,14 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$booking_data['start'] = strtotime( $start_date_time );
 				}
 
-				// End Time is required only for date_btime Booking Type.
+				// End Time is required only for date_time Booking Type.
 				if ( 'date_time' === $booking_type ) {
 
 					// Booking End Time.
 					if ( $this->is_data_set( 'end_time', $data ) ) {
 
 						// Check Start Time is in correct format.
-						$date = DateTime::createFromFormat( 'H:i', $data['end_time'] );
-						if ( false === $date ) {
+						if ( false === DateTime::createFromFormat( 'H:i', $data['end_time'] ) ) {
 							throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_end_time', __( 'Please provide the End Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
 						}
 					} else {
@@ -838,6 +840,156 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					} else {
 						throw new WC_API_Exception( 'bkap_api_booking_empty_booking_duration', __( 'Please provide the Duration for the BOoking', 'woocommerce-booking' ), 400 );
 					}
+				}
+
+				if ( $booking_type_is_multiple_dates ) {
+
+					$selection_type = get_post_meta( $product_id, '_bkap_multidates_type', true );
+					if ( 'fixed' !== $selection_type && 'range' !== $selection_type ) {
+						throw new WC_API_Exception( 'bkap_api_booking_invalid_selection_type', __( 'Could not retrieve a valid Selecion Type for the provided product.', 'woocommerce-booking' ), 400 );
+					}
+
+					unset( $data['start_date'] );
+					unset( $data['end_date'] );
+
+					$booking_data['start']          = '';
+					$booking_data['end']            = '';
+					$booking_data['quantity']       = 1;
+					$booking_data['has_multidates'] = true;
+					$multiple_dates_has_time        = ( 'multidates_fixedtime' === $booking_type );
+					$multidates_booking             = array();
+
+					// We will be expecting an array of dates.
+					if ( $this->is_data_set( 'dates', $data ) ) {
+						if ( ! is_array( $data['dates'] ) ) {
+							throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_dates', __( 'Please provide the Multiple Booking Dates in an array.', 'woocommerce-booking' ), 400 );
+						}
+					} else {
+						throw new WC_API_Exception( 'bkap_api_booking_empty_booking_dates', __( 'Please provide the Booking Dates.', 'woocommerce-booking' ), 400 );
+					}
+
+					$booking_dates   = $data['dates'];
+					$number_of_dates = count( $booking_dates );
+					$min_dates       = 0;
+					$max_dates       = 0;
+
+					if ( 'fixed' === $selection_type ) {
+						$min_dates = (int) get_post_meta( $product_id, '_bkap_multidates_fixed_number', true );
+						$max_dates = $min_dates;
+					}
+
+					if ( 'range' === $selection_type ) {
+						$min_dates = (int) get_post_meta( $product_id, '_bkap_multidates_range_min', true );
+						$max_dates = (int) get_post_meta( $product_id, '_bkap_multidates_range_max', true );
+					}
+
+					if ( $number_of_dates < $min_dates ) {
+						throw new WC_API_Exception(
+							'bkap_api_booking_invalid_date_count',
+							sprintf(
+							/* translators: %d Minimum Dates */
+								__( 'Booking Dates Invalid. A minimum of %d must be provided.', 'woocommerce-booking' ),
+								$min_dates
+							),
+							400
+						);
+					}
+
+					if ( $number_of_dates > $max_dates ) {
+						throw new WC_API_Exception(
+							'bkap_api_booking_invalid_date_count',
+							sprintf(
+							/* translators: %d Maximum Dates */
+								__( 'Booking Dates Invalid. A maximum of %d must be provided.', 'woocommerce-booking' ),
+								$max_dates
+							),
+							400
+						);
+					}
+
+					// We loop through each date and check that they are in the correct format.
+					foreach ( $booking_dates as $_data ) {
+
+						if ( $multiple_dates_has_time ) {
+
+							// $_data must be an array.
+							if ( ! is_array( $_data ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_dates', __( 'Please provide the Booking date and timeslots in an array.', 'woocommerce-booking' ), 400 );
+							}
+
+							// We expect an array of date and timeslots.
+							if ( ! $this->is_data_set( 'date', $_data ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_missing_date_parameter', __( 'Date Parameter must be set for Multiple Dates Product having Timeslots.', 'woocommerce-booking' ), 400 );
+							}
+
+							if ( false === DateTime::createFromFormat( 'Y-m-d', $_data['date'] ) ) {
+								throw new WC_API_Exception(
+									'bkap_api_booking_invalid_booking_date',
+									sprintf(
+									/* translators: %s Date */
+										__( 'Invalid Date: %s. Please provide this Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ),
+										$_data['date']
+									),
+									400
+								);
+							}
+
+							if ( ! $this->is_data_set( 'start_time', $_data ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_missing_time_parameter', __( 'Start Time Parameter must be set for Multiple Dates Product having Timeslots.', 'woocommerce-booking' ), 400 );
+							}
+
+							// Check Start Time is in correct format.
+							if ( false === DateTime::createFromFormat( 'H:i', $_data['start_time'] ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_start_time', __( 'Please provide the Start Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
+							}
+
+							if ( ! $this->is_data_set( 'end_time', $_data ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_missing_time_parameter', __( 'End Time Parameter must be set for Multiple Dates Product having Timeslots.', 'woocommerce-booking' ), 400 );
+							}
+
+							// Check End Time is in correct format.
+							if ( false === DateTime::createFromFormat( 'H:i', $_data['end_time'] ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_end_time', __( 'Please provide the End Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
+							}
+
+							$multidates_booking[] = array(
+								'date'                 => gmdate( 'd/m/y', strtotime( $_data['date'] ) ),
+								'hidden_date'          => gmdate( 'j-n-Y', strtotime( $_data['date'] ) ),
+								'hidden_date_checkout' => '',
+								'time_slot'            => gmdate( 'h:i A', strtotime( $_data['start_time'] ) ) . ' - ' . gmdate( 'h:i A', strtotime( $_data['end_time'] ) ),
+								'price_charged'        => $booking_data['price'],
+							);
+						}
+
+						if ( ! $multiple_dates_has_time ) {
+
+							// $_data must NOT be an array.
+							if ( is_array( $_data ) ) {
+								throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_dates', __( 'Please provide the Booking date as a single value.', 'woocommerce-booking' ), 400 );
+							}
+
+							if ( false === DateTime::createFromFormat( 'Y-m-d', $_data ) ) {
+								throw new WC_API_Exception(
+									'bkap_api_booking_invalid_booking_date',
+									sprintf(
+									/* translators: %s Date */
+										__( 'Invalid Date: %s. Please provide this Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ),
+										$_data
+									),
+									400
+								);
+							}
+
+							$multidates_booking[] = array(
+								'date'                 => gmdate( 'd/m/y', strtotime( $_data ) ),
+								'hidden_date'          => gmdate( 'j-n-Y', strtotime( $_data ) ),
+								'hidden_date_checkout' => '',
+								'price_charged'        => $booking_data['price'],
+							);
+						}
+					}
+
+					$booking_data['multidates_booking'] = $multidates_booking;
 				}
 
 				if ( $this->is_data_set( 'resource_id', $data ) ) {
@@ -976,8 +1128,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				if ( $this->is_data_set( 'start_date', $data ) ) {
 
 					// Check Start Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $data['start_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $data['start_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_start_date', __( 'Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 					$booking_data['start_date'] = gmdate( 'd-n-Y', strtotime( $data['start_date'] ) );
@@ -986,8 +1137,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				if ( $this->is_data_set( 'start_time', $data ) ) {
 
 					// Check Start Time is in correct format.
-					$date = DateTime::createFromFormat( 'H:i', $data['start_time'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'H:i', $data['start_time'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_start_time', __( 'Please provide the Start Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
 					}
 					$booking_data['start_time'] = $data['start_time'];
@@ -996,8 +1146,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				if ( $this->is_data_set( 'end_time', $data ) ) {
 
 					// Check Start Time is in correct format.
-					$date = DateTime::createFromFormat( 'H:i', $data['end_time'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'H:i', $data['end_time'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_booking_end_time', __( 'Please provide the End Time in the H:i format. Ex: 23:15', 'woocommerce-booking' ), 400 );
 					}
 					$booking_data['end_time'] = $data['end_time'];
@@ -1205,7 +1354,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 
 			    update_post_meta($product_id, '_bkap_first_availabe_slot', $start_date);
 		}		
- 
+		//END ATIF
 		public function get_products_from_category_by_ID($category){
 			$products = new WP_Query( array(
 				'post_type'   => 'product',
@@ -1272,16 +1421,14 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 
 				if ( $this->check_if_exists( 'start_date', $filter ) ) {
 					// Check Start Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $filter['start_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				}
 
 				if ( $this->check_if_exists( 'end_date', $filter ) ) {
 					// Check End Date is in correct format.
-					$date = DateTime::createFromFormat( 'Y-m-d', $filter['end_date'] );
-					if ( false === $date ) {
+					if ( false === DateTime::createFromFormat( 'Y-m-d', $filter['end_date'] ) ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'Please provide the End Date in the Y-m-d format. Ex: 2021-09-11', 'woocommerce-booking' ), 400 );
 					}
 				}

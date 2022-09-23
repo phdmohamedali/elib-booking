@@ -815,6 +815,8 @@ class Class_Bkap_Product_Resource {
 
 				<select id="bkap_front_resource_selection" name="bkap_front_resource_selection" style="width:100%;">
 					<?php
+
+					$options = apply_filters( 'bkap_default_resource_option_value', '' );
 					foreach ( $resource_costs as $key => $value ) {
 						if ( get_post_status( $key ) ) {
 
@@ -825,9 +827,10 @@ class Class_Bkap_Product_Resource {
 							}
 							$formatted_price = ' - ( + ' . wc_price( $value ) . ' )';
 							$resource_price  = apply_filters( 'bkap_resource_price_in_dropdown', $formatted_price, $value, $product_id );
-							echo '<option value="' . esc_attr( $key ) . '">' . esc_html( get_the_title( $key1 ) ) . $resource_price . ' </option>';
+							$options        .= '<option value="' . esc_attr( $key ) . '">' . esc_html( get_the_title( $key1 ) ) . $resource_price . ' </option>';
 						}
 					}
+					echo $options;
 					?>
 
 				</select>

@@ -43,7 +43,7 @@ class import_bookings {
 			$resource_status = Class_Bkap_Product_Resource::bkap_resource_status( $product_id );
 			if ( $resource_status ) {
 				$resource_ids = Class_Bkap_Product_Resource::bkap_get_product_resources( $product_id );
-				foreach ( $resource_ids as $key => $value) {
+				foreach ( $resource_ids as $key => $value ) {
 					$booking_details['bkap_resource_id'] = $value;
 					break;
 				}
@@ -137,29 +137,22 @@ class import_bookings {
 
 		global $bkap_date_formats;
 
-		$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
+		$booking_date_to_display        = '';
+		$checkout_date_to_display       = '';
+		$booking_from_time              = '';
+		$booking_to_time                = '';
+		$global_settings                = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
+		$date_format_to_display         = $global_settings->booking_date_format;
+		$time_format_to_display         = $global_settings->booking_time_format;
+		$order_created                  = false;
+		$product_id                     = $booking_details['product_id'];
+		$booking_type_is_multiple_dates = isset( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0;
+		$tdif                           = ! current_time( 'timestamp' ) ? 0 : current_time( 'timestamp' ) - time();
+		$qty                            = 1;
 
-		$date_format_to_display = $global_settings->booking_date_format;
-		$time_format_to_display = $global_settings->booking_time_format;
+		if ( '' !== $booking_details['end'] && '' !== $booking_details['start'] ) {
 
-		$order_created = false;
-		$product_id    = $booking_details['product_id'];
-
-		// default the variables
-		$booking_date_to_display  = '';
-		$checkout_date_to_display = '';
-		$booking_from_time        = '';
-		$booking_to_time          = '';
-
-		if ( ! current_time( 'timestamp' ) ) {
-			$tdif = 0;
-		} else {
-			$tdif = current_time( 'timestamp' ) - time();
-		}
-
-		if ( $booking_details['end'] != '' && $booking_details['start'] != '' ) {
-
-			// admin bookings passes time as per WP timezone
+			// admin bookings passes time as per WP timezone.
 			$event_start = $booking_details['start'];
 			$event_end   = $booking_details['end'];
 
@@ -170,8 +163,8 @@ class import_bookings {
 			$event_end_time   = $event_end;
 
 			if ( $gcal ) { // GCAL passes UTC
-				$event_start_time = strtotime( bkap_convert_date_from_timezone_to_timezone( date( 'Y-m-d H:i', $event_start ), 'UTC', bkap_booking_get_timezone_string(), 'Y-m-d H:i' ) );
-				$event_end_time   = strtotime( bkap_convert_date_from_timezone_to_timezone( date( 'Y-m-d H:i', $event_end ), 'UTC', bkap_booking_get_timezone_string(), 'Y-m-d H:i' ) );
+				$event_start_time         = strtotime( bkap_convert_date_from_timezone_to_timezone( date( 'Y-m-d H:i', $event_start ), 'UTC', bkap_booking_get_timezone_string(), 'Y-m-d H:i' ) );
+				$event_end_time           = strtotime( bkap_convert_date_from_timezone_to_timezone( date( 'Y-m-d H:i', $event_end ), 'UTC', bkap_booking_get_timezone_string(), 'Y-m-d H:i' ) );
 				$booking_details['start'] = $event_start_time;
 				$booking_details['end']   = $event_end_time;
 				$event_start              = $booking_details['start'];
@@ -210,7 +203,7 @@ class import_bookings {
 		if ( isset( $booking_details['bkap_resource_id'] ) && $booking_details['bkap_resource_id'] != '' ) {
 			$resource_id = $booking_details['bkap_resource_id'];
 		}
-		
+
 		$persons = array();
 		if ( isset( $booking_details['persons'] ) && $booking_details['persons'] != '' ) {
 			$persons = $booking_details['persons'];
@@ -226,45 +219,52 @@ class import_bookings {
 			$bkap_duration = $booking_details['duration'];
 		}
 
-		$sanity_check['start']      = $event_start;
-		$sanity_check['end']        = ( isset( $event_end ) ) ? $event_end : '';
-		$sanity_check['product_id'] = $product_id;
-		$sanity_check['quantity']   = 1;
+		$backdated_event  = 0;
+		$validation_check = 0;
+		$grouped_product  = 0;
+		$quantity         = $qty;
+		$lockout_quantity = $qty;
+		$parent_id        = $product_id;
+		$variation_id     = 0;
+		$variationsArray  = array();
 
-		if ( isset( $booking_details['quantity'] ) && $booking_details['quantity'] != '' ) {
-			$sanity_check['quantity'] = $booking_details['quantity'];
+		if ( ! $booking_type_is_multiple_dates ) {
+			$sanity_check               = array();
+			$sanity_check['start']      = ( isset( $event_start ) ) ? $event_start : '';
+			$sanity_check['end']        = ( isset( $event_end ) ) ? $event_end : '';
+			$sanity_check['product_id'] = $product_id;
+			$sanity_check['quantity']   = $qty;
+
+			if ( isset( $booking_details['quantity'] ) && $booking_details['quantity'] != '' ) {
+				$sanity_check['quantity'] = $booking_details['quantity'];
+			}
+
+			$sanity_return    = self::bkap_sanity_check( $sanity_check, $gcal );
+			$backdated_event  = ( isset( $sanity_return['backdated_event'] ) ) ? $sanity_return['backdated_event'] : 0;
+			$validation_check = ( isset( $sanity_return['validation_check'] ) ) ? $sanity_return['validation_check'] : 0;
+			$grouped_product  = ( isset( $sanity_check['grouped_event'] ) ) ? $sanity_check['grouped_event'] : 0;
+
+			$quantity_return  = self::bkap_quantity_setup( $sanity_check, $sanity_return );
+			$quantity         = $quantity_return['quantity'];
+			$lockout_quantity = $quantity_return['lockout_qty'];
+			$parent_id        = $quantity_return['parent_id'];
+			$variation_id     = $quantity_return['variation_id'];
+			$variationsArray  = $quantity_return['variationsArray'];
 		}
 
-		$sanity_return = self::bkap_sanity_check( $sanity_check, $gcal );
-
-		$backdated_event  = ( isset( $sanity_return['backdated_event'] ) ) ? $sanity_return['backdated_event'] : 0;
-		$validation_check = ( isset( $sanity_return['validation_check'] ) ) ? $sanity_return['validation_check'] : 0;
-		$grouped_product  = ( isset( $sanity_check['grouped_event'] ) ) ? $sanity_check['grouped_event'] : 0;
-
-		$quantity_return = self::bkap_quantity_setup( $sanity_check, $sanity_return );
-
-		$quantity         = $quantity_return['quantity'];
-		$lockout_quantity = $quantity_return['lockout_qty'];
-		$parent_id        = $quantity_return['parent_id'];
-		$variation_id     = $quantity_return['variation_id'];
-		$variationsArray  = $quantity_return['variationsArray'];
-
 		/* Validate the booking details. Check if the product is available in the desired quantity for the given date and time */
-		$_product = wc_get_product( $product_id );
-
-		$hidden_date = date( 'Y-m-d', $event_start );
-
+		$_product         = wc_get_product( $product_id );
 		$booking_settings = get_post_meta( $parent_id, 'woocommerce_booking_settings', true );
+		$product_type     = $_product->get_type();
 
 		if ( 'variation' == $_product->get_type() ) {
 			$product_type = 'variable';
-		} else {
-			$product_type = $_product->get_type();
 		}
 
 		$totals = 0;
 
 		if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' == $booking_settings['booking_enable_multiple_day'] ) {
+			$hidden_date          = date( 'Y-m-d', $event_start );
 			$booking_date         = new DateTime( $hidden_date );
 			$hidden_checkout_date = date( 'Y-m-d', $event_end );
 			$checkout_date        = new DateTime( $hidden_checkout_date );
@@ -279,10 +279,11 @@ class import_bookings {
 			}
 		} elseif ( isset( $booking_settings['booking_enable_time'] ) && 'on' == $booking_settings['booking_enable_time'] ) {
 
-			$from_hrs = date( 'H:i', strtotime( $booking_from_time ) );
-			$to_hrs   = date( 'H:i', strtotime( $booking_to_time ) );
+			$hidden_date = date( 'Y-m-d', $event_start );
+			$from_hrs    = date( 'H:i', strtotime( $booking_from_time ) );
+			$to_hrs      = date( 'H:i', strtotime( $booking_to_time ) );
 
-			if ( 1 != $validation_check ) {
+			if ( 1 !== $validation_check ) {
 
 				$timeslot = "$from_hrs - $to_hrs";
 
@@ -292,14 +293,16 @@ class import_bookings {
 			}
 		} elseif ( isset( $booking_settings['booking_enable_time'] ) && 'duration_time' == $booking_settings['booking_enable_time'] ) {
 
+			$hidden_date = date( 'Y-m-d', $event_start );
+
 			if ( ! isset( $booking_details['duration'] ) ) {
 
 				$validation_check   = 0;
 				$d_setting          = get_post_meta( $parent_id, '_bkap_duration_settings', true );
 				$d_type             = $d_setting['duration_type'];         // mins
 				$d_hours            = (int) $d_setting['duration']; // 180
-				$d_gap_type             = $d_setting['duration_gap_type'];         // mins
-				$d_gap            = (int) $d_setting['duration_gap']; // 180
+				$d_gap_type         = $d_setting['duration_gap_type'];         // mins
+				$d_gap              = (int) $d_setting['duration_gap']; // 180
 				$d_min              = (int) $d_setting['duration_min']; // 1
 				$d_max              = (int) $d_setting['duration_max']; // 1
 				$duration_with_type = '';
@@ -359,26 +362,21 @@ class import_bookings {
 			} else {
 				$totals = $booking_details['price'];
 			}
+		} elseif ( isset( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
+			$totals = 0;
+
+			foreach ( $booking_details['multidates_booking'] as $_booking_detail ) {
+				$totals += $_booking_detail['price_charged'];
+			}
 		} else {
-			// Single Day
+			$hidden_date = date( 'Y-m-d', $event_start );
+
+			// Single Day.
 			if ( $gcal ) {
 				$totals = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type, $hidden_date );
 			} else {
 				$totals = $booking_details['price'];
 			}
-		}
-
-		if ( isset ( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
-
-			$totals = 0;
-
-			foreach( $booking_details['multidates_booking'] as $_booking_detail ) {
-				$totals += $_booking_detail['price_charged'];
-			}
-			
-			$backdated_event  = 0; 
-			$validation_check = 0; 
-			$grouped_product  = 0;			
 		}
 
 		$variationsArray['totals'] = array(
@@ -388,9 +386,10 @@ class import_bookings {
 			'tax'          => 0,
 		);
 
-		if ( 0 == $backdated_event && 0 == $validation_check && 0 == $grouped_product ) {
+		if ( 0 === $backdated_event && 0 === $validation_check && 0 === $grouped_product ) {
 			$order_created = true;
-			// create an order
+
+			// create an order.
 
 			if ( $gcal ) {
 
@@ -407,7 +406,7 @@ class import_bookings {
 					'customer_id' => $booking_details['customer_id'],
 				);
 
-				// Create the billing address array to be added to the order
+				// Create the billing address array to be added to the order.
 				if ( $booking_details['customer_id'] > 0 ) {
 					$user_meta = array_map(
 						function( $a ) {
@@ -449,15 +448,15 @@ class import_bookings {
 				$order->add_order_note( 'Reserved by GCal' );
 			} else {
 				$order->add_order_note( 'Manual Booking' );
-				// Add the Billing Address
+				// Add the Billing Address.
 				$order->set_address( $addr_args, 'billing' );
 			}
-			// add the product to the order
+			// add the product to the order.
 
 			$item_id = $order->add_product( $_product, $quantity, $variationsArray );
 
 			if ( $gcal ) {
-				// insert records to ensure we're aware the item has been imported
+				// insert records to ensure we're aware the item has been imported.
 				$event_items = get_option( 'bkap_event_item_ids' );
 				if ( $event_items == '' || $event_items == '{}' || $event_items == '[]' || $event_items == 'null' ) {
 					$event_items = array();
@@ -466,7 +465,7 @@ class import_bookings {
 				update_option( 'bkap_event_item_ids', $event_items );
 			}
 
-			// calculate order totals
+			// calculate order totals.
 			$order->calculate_totals();
 
 			if ( isset( $parent_id ) && 0 != $parent_id ) {
@@ -475,32 +474,33 @@ class import_bookings {
 				$meta_update_id = $product_id;
 			}
 
-			if ( isset ( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
-	
-				foreach( $booking_details['multidates_booking'] as $_booking_detail ) {
+			$order_obj = wc_get_order( $order_id ); // this needs to be done to ensure the booking details are displayed in Woo emails.
+			if ( $booking_type_is_multiple_dates ) {
+
+				foreach ( $booking_details['multidates_booking'] as $_booking_detail ) {
 
 					$booking = $_booking_detail;
 
 					$booking['price'] = $booking['price_charged'];
 
-					$quantity = ( isset ( $booking[ 'quantity' ] ) ) ? $booking['quantity' ] : 1;
+					$quantity = ( isset( $booking['quantity'] ) ) ? $booking['quantity'] : 1;
 
 					bkap_common::bkap_update_order_item_meta( $item_id, $product_id, $booking, true );
 
-					// adjust lockout
+					// adjust lockout.
 					$product = wc_get_product( $product_id );
 
-					// for grouped products
-					$parent_id = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $product->get_parent() : bkap_common::bkap_get_parent_id( $$product_id );
+					// for grouped products.
+					$parent_id = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $product->get_parent() : bkap_common::bkap_get_parent_id( $product_id );
 
-					// Add the booking as a post
+					// Add the booking as a post.
 					$booking['gcal_uid'] = ( $gcal ) ? $booking_details['uid'] : false;
 
 					bkap_checkout::bkap_create_booking_post( $item_id, $product_id, $quantity, $booking, $variation_id );
 
 					$details = bkap_checkout::bkap_update_lockout( $order_id, $product_id, $parent_id, $quantity, $booking );
 
-					// update the global time slot lockout
+					// update the global time slot lockout.
 					if ( isset( $booking['time_slot'] ) && '' != $booking['time_slot'] ) {
 						bkap_checkout::bkap_update_global_lockout( $product_id, $quantity, $details, $booking );
 					}
@@ -581,7 +581,6 @@ class import_bookings {
 				}
 
 				// update the order status to processing.
-				$order_obj    = wc_get_order( $order_id ); // this needs to be done to ensure the booking details are displayed in Woo emails.
 				$order_status = apply_filters( 'bkap_manual_gcal_booking_order_status', 'processing' );
 				$order_obj->update_status( $order_status );
 			}
@@ -597,7 +596,7 @@ class import_bookings {
 				if ( isset( $user->ID ) ) {
 					$admin_id = $user->ID;
 				} else {
-					// get the list of administrators
+					// get the list of administrators.
 					$args  = array(
 						'role'   => 'administrator',
 						'fields' => array( 'ID' ),
@@ -610,7 +609,7 @@ class import_bookings {
 
 				$booking_settings = get_post_meta( $meta_update_id, 'woocommerce_booking_settings', true );
 
-				// check the booking status, if pending confirmation, then do not insert event in the calendar
+				// check the booking status, if pending confirmation, then do not insert event in the calendar.
 				$booking_status = wc_get_order_item_meta( $item_id, '_wapbk_booking_status' );
 
 				if ( ( isset( $booking_status ) && 'pending-confirmation' != $booking_status ) || ( ! isset( $booking_status ) ) ) {
@@ -648,23 +647,23 @@ class import_bookings {
 
 							$start_date = $booking['hidden_date'];
 							$time       = $booking['duration_time_slot'];
-				
+
 							$selected_duration = explode( '-', $booking['selected_duration'] );
-				
+
 							$hour   = $selected_duration[0];
 							$d_type = $selected_duration[1];
-				
+
 							$end_str  = bkap_common::bkap_add_hour_to_date( $start_date, $time, $hour, $meta_update_id, $d_type ); // return end date timestamp
 							$end_date = date( 'j-n-Y', $end_str ); // Date in j-n-Y format to compate and store in end date order meta
-				
+
 							// updating end date.
 							if ( $start_date != $end_date ) {
 								$event_details['hidden_checkout_date'] = $end_date;
 							}
-				
+
 							$endtime        = date( 'H:i', $end_str );// getend time in H:i format
 							$back_time_slot = $time . ' - ' . $endtime; // to store time sting in the _wapbk_time_slot key of order item meta
-				
+
 							$event_details['duration_time_slot'] = $back_time_slot;
 						}
 
@@ -683,10 +682,10 @@ class import_bookings {
 						$event_details['order_comments']     = '';
 						$event_details['product_name']       = $_product->get_title();
 
-						if( 0 < $variation_id ) {
+						if ( 0 < $variation_id ) {
 							$variation_obj                 = new WC_Product_Variation( $variation_id );
 							$variation_attr_cnt            = count( $variation_obj->get_variation_attributes() );
-							$product_variations            = implode( ", ", $variation_obj->get_variation_attributes() );
+							$product_variations            = implode( ', ', $variation_obj->get_variation_attributes() );
 							$event_details['product_name'] = $event_details['product_name'] . ' - ' . $product_variations;
 						}
 
@@ -738,32 +737,25 @@ class import_bookings {
 
 		global $bkap_date_formats;
 
-		$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
+		$booking_date_to_display        = '';
+		$checkout_date_to_display       = '';
+		$booking_from_time              = '';
+		$booking_to_time                = '';
+		$global_settings                = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
+		$date_format_to_display         = $global_settings->booking_date_format;
+		$time_format_to_display         = $global_settings->booking_time_format;
+		$item_added                     = false;
+		$product_id                     = $booking_details['product_id'];
+		$booking_type_is_multiple_dates = isset( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0;
+		$tdif                           = ! current_time( 'timestamp' ) ? 0 : current_time( 'timestamp' ) - time();
+		$qty                            = 1;
 
-		$date_format_to_display = $global_settings->booking_date_format;
-		$time_format_to_display = $global_settings->booking_time_format;
+		if ( '' !== $booking_details['end'] && '' !== $booking_details['start'] ) {
 
-		$item_added = false;
-		$product_id = $booking_details['product_id'];
-
-		// default the variables
-		$booking_date_to_display  = '';
-		$checkout_date_to_display = '';
-		$booking_from_time        = '';
-		$booking_to_time          = '';
-
-		if ( ! current_time( 'timestamp' ) ) {
-			$tdif = 0;
-		} else {
-			$tdif = current_time( 'timestamp' ) - time();
-		}
-
-		if ( $booking_details['end'] != '' && $booking_details['start'] != '' ) {
-
-			if ( $gcal ) { // GCAL passes UTC
+			if ( $gcal ) { // GCAL passes UTC.
 				$event_start = $booking_details['start '] + $tdif;
 				$event_end   = $booking_details['end'] + $tdif;
-			} else { // admin bookings passes time as per WP timezone
+			} else { // admin bookings passes time as per WP timezone.
 				$event_start = $booking_details['start'];
 				$event_end   = $booking_details['end'];
 			}
@@ -790,45 +782,56 @@ class import_bookings {
 			}
 		}
 
-		$sanity_check['start']      = $event_start;
-		$sanity_check['end']        = ( isset( $event_end ) ) ? $event_end : '';
-		$sanity_check['product_id'] = $product_id;
-		$sanity_check['quantity']   = 1;
+		$backdated_event  = 0;
+		$validation_check = 0;
+		$grouped_product  = 0;
+		$quantity         = $qty;
+		$lockout_quantity = $qty;
+		$parent_id        = $product_id;
+		$variation_id     = 0;
+		$variationsArray  = array();
 
-		if ( isset( $booking_details['quantity'] ) && $booking_details['quantity'] != '' ) {
-			$sanity_check['quantity'] = $booking_details['quantity'];
+		if ( ! $booking_type_is_multiple_dates ) {
+
+			$sanity_check               = array();
+			$sanity_check['start']      = $event_start;
+			$sanity_check['end']        = ( isset( $event_end ) ) ? $event_end : '';
+			$sanity_check['product_id'] = $product_id;
+			$sanity_check['quantity']   = 1;
+
+			if ( isset( $booking_details['quantity'] ) && $booking_details['quantity'] != '' ) {
+				$sanity_check['quantity'] = $booking_details['quantity'];
+			}
+
+			$sanity_return    = self::bkap_sanity_check( $sanity_check, $gcal );
+			$backdated_event  = ( isset( $sanity_return['backdated_event'] ) ) ? $sanity_return['backdated_event'] : 0;
+			$validation_check = ( isset( $sanity_return['validation_check'] ) ) ? $sanity_return['validation_check'] : 0;
+			$grouped_product  = ( isset( $sanity_check['grouped_event'] ) ) ? $sanity_check['grouped_event'] : 0;
+
+			$quantity_return  = self::bkap_quantity_setup( $sanity_check, $sanity_return );
+			$quantity         = $quantity_return['quantity'];
+			$lockout_quantity = $quantity_return['lockout_qty'];
+			$parent_id        = $quantity_return['parent_id'];
+			$variation_id     = $quantity_return['variation_id'];
+			$variationsArray  = $quantity_return['variationsArray'];
 		}
 
-		$sanity_return = self::bkap_sanity_check( $sanity_check, $gcal );
+		$totals = $booking_details['price'];
 
-		$backdated_event  = ( isset( $sanity_return['backdated_event'] ) ) ? $sanity_return['backdated_event'] : 0;
-		$validation_check = ( isset( $sanity_return['validation_check'] ) ) ? $sanity_return['validation_check'] : 0;
-		$grouped_product  = ( isset( $sanity_check['grouped_event'] ) ) ? $sanity_check['grouped_event'] : 0;
-
-		$quantity_return = self::bkap_quantity_setup( $sanity_check, $sanity_return );
-
-		$quantity         = $quantity_return['quantity'];
-		$lockout_quantity = $quantity_return['lockout_qty'];
-		$parent_id        = $quantity_return['parent_id'];
-		$variation_id     = $quantity_return['variation_id'];
-		$variationsArray  = $quantity_return['variationsArray'];
-
-		if ( isset ( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {		
-			$backdated_event  = 0; 
-			$validation_check = 0; 
-			$grouped_product  = 0;			
+		if ( $booking_type_is_multiple_dates ) {
+			foreach ( $booking_details['multidates_booking'] as $_booking_detail ) {
+				$totals += $_booking_detail['price_charged'];
+			}
 		}
 
 		if ( 0 == $backdated_event && 0 == $validation_check && 0 == $grouped_product ) {
-			$order      = new WC_Order( $booking_details['order_id'] );
-			$item_added = true;
-
+			$order         = new WC_Order( $booking_details['order_id'] );
+			$item_added    = true;
 			$order_id      = $booking_details['order_id'];
 			$_product      = wc_get_product( $product_id );
 			$product_title = $_product->get_name();
 
-			// set the price
-			$totals                    = $booking_details['price'];
+			// set the price.
 			$variationsArray['totals'] = array(
 				'subtotal'     => $totals,
 				'total'        => $totals,
@@ -836,28 +839,12 @@ class import_bookings {
 				'tax'          => 0,
 			);
 
-			if ( isset ( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
-
-				$totals = $booking_details['price'];
-	
-				foreach( $booking_details['multidates_booking'] as $_booking_detail ) {
-					$totals += $_booking_detail['price_charged'];
-				}
-				
-				$variationsArray['totals'] = array(
-					'subtotal'     => $totals,
-					'total'        => $totals,
-					'subtotal_tax' => 0,
-					'tax'          => 0,
-				);		
-			}
-
 			$order->add_order_note( "Added $product_title manually." );
 
-			// add the product to the order
+			// add the product to the order.
 			$item_id = $order->add_product( $_product, $quantity, $variationsArray );
 
-			// calculate order totals
+			// calculate order totals.
 			$order->calculate_totals();
 
 			if ( isset( $parent_id ) && 0 !== $parent_id ) {
@@ -866,15 +853,15 @@ class import_bookings {
 				$meta_update_id = $product_id;
 			}
 
-			if ( isset ( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
-	
-				foreach( $booking_details['multidates_booking'] as $_booking_detail ) {
+			if ( isset( $booking_details['has_multidates'] ) && count( $booking_details['multidates_booking'] ) > 0 ) {
+
+				foreach ( $booking_details['multidates_booking'] as $_booking_detail ) {
 
 					$booking = $_booking_detail;
 
 					$booking['price'] = $booking['price_charged'];
 
-					$quantity = ( isset ( $booking[ 'quantity' ] ) ) ? $booking['quantity' ] : 1;
+					$quantity = ( isset( $booking['quantity'] ) ) ? $booking['quantity'] : 1;
 
 					bkap_common::bkap_update_order_item_meta( $item_id, $meta_update_id, $booking, true );
 
@@ -883,7 +870,7 @@ class import_bookings {
 
 					// for grouped products.
 					$parent_id = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $product->get_parent() : bkap_common::bkap_get_parent_id( $meta_update_id );
-					
+
 					// Add the booking as a post.
 					$booking['gcal_uid'] = false;
 					bkap_checkout::bkap_create_booking_post( $item_id, $meta_update_id, $quantity, $booking, $variation_id );
@@ -930,17 +917,17 @@ class import_bookings {
 
 				bkap_common::bkap_update_order_item_meta( $item_id, $meta_update_id, $booking, true );
 
-				// adjust lockout
+				// adjust lockout.
 				$product = wc_get_product( $meta_update_id );
-				// for grouped products
+				// for grouped products.
 				$parent_id = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $product->get_parent() : bkap_common::bkap_get_parent_id( $meta_update_id );
-				// Add the booking as a post
+				// Add the booking as a post.
 				$booking['gcal_uid'] = false;
 				bkap_checkout::bkap_create_booking_post( $item_id, $meta_update_id, $lockout_quantity, $booking, $variation_id );
 
 				$details = bkap_checkout::bkap_update_lockout( $order_id, $meta_update_id, $parent_id, $lockout_quantity, $booking );
 
-				// update the global time slot lockout
+				// update the global time slot lockout.
 				if ( isset( $booking['time_slot'] ) && '' != $booking['time_slot'] ) {
 					bkap_checkout::bkap_update_global_lockout( $meta_update_id, $lockout_quantity, $details, $booking );
 				}
@@ -951,7 +938,7 @@ class import_bookings {
 				$g_cal    = new BKAP_Gcal();
 				$admin_id = bkap_get_user_id();
 
-				//if ( in_array( $g_cal->get_api_mode( $admin_id, $meta_update_id ), array( 'directly', 'oauth' ), true ) ) {
+				// if ( in_array( $g_cal->get_api_mode( $admin_id, $meta_update_id ), array( 'directly', 'oauth' ), true ) ) {
 
 				$booking_settings = get_post_meta( $meta_update_id, 'woocommerce_booking_settings', true );
 				$booking_status   = wc_get_order_item_meta( $item_id, '_wapbk_booking_status' );
@@ -980,7 +967,7 @@ class import_bookings {
 						}
 
 						if ( isset( $booking['time_slot'] ) && '' != $booking['time_slot'] ) {
-							$event_details['time_slot'] = $booking['time_slot' ];
+							$event_details['time_slot'] = $booking['time_slot'];
 						}
 
 						$event_details['billing_email']      = $order->get_billing_email();
@@ -994,10 +981,10 @@ class import_bookings {
 						$event_details['order_comments']     = '';
 						$event_details['product_name']       = $product->get_title();
 
-						if( 0 < $variation_id ) {
+						if ( 0 < $variation_id ) {
 							$variation_obj                 = new WC_Product_Variation( $variation_id );
 							$variation_attr_cnt            = count( $variation_obj->get_variation_attributes() );
-							$product_variations            = implode( ", ", $variation_obj->get_variation_attributes() );
+							$product_variations            = implode( ', ', $variation_obj->get_variation_attributes() );
 							$event_details['product_name'] = $event_details['product_name'] . ' - ' . $product_variations;
 						}
 
@@ -1011,7 +998,7 @@ class import_bookings {
 						}
 
 						if ( in_array( $g_cal->get_api_mode( $admin_id, $meta_update_id ), array( 'directly', 'oauth' ), true ) ) {
-							if ( ( ! isset( $booking_settings['product_sync_integration_mode'] ) ) || ( isset( $booking_settings[ 'product_sync_integration_mode' ] ) && 'disabled' == $booking_settings['product_sync_integration_mode'] ) ) {
+							if ( ( ! isset( $booking_settings['product_sync_integration_mode'] ) ) || ( isset( $booking_settings['product_sync_integration_mode'] ) && 'disabled' == $booking_settings['product_sync_integration_mode'] ) ) {
 								$meta_update_id = 0;
 							}
 							$g_cal->insert_event( $event_details, $item_id, $booking_details['customer_id'], $meta_update_id, false );
@@ -1020,7 +1007,7 @@ class import_bookings {
 						do_action( 'bkap_create_booking_event', $item_id, $product_id, $order_id, $order, $event_details );
 					}
 				}
-				//}
+				// }
 			}
 		}
 
@@ -1216,16 +1203,17 @@ class import_bookings {
 				$availability = bkap_booking_process::bkap_get_date_availability( $parent_id, $variation_id, $hidden_date, $booking_date_to_display, $bookings_placed, $attr_bookings_placed, $hidden_checkout_date, false );
 
 				$unlimited_lang = __( 'Unlimited', 'woocommerce-booking' );
-
-				if ( $availability > 0 || trim( $availability ) == $unlimited_lang ) {
+				if ( ! trim( $availability ) == $unlimited_lang ) {
 					if ( $availability > 0 ) {
-						$new_availability = $availability - $lockout_quantity;
-						if ( $new_availability < 0 ) {
-							$validation_check = 1; // product is unavailable for the desired quantity
+						if ( $availability > 0 ) {
+							$new_availability = $availability - $lockout_quantity;
+							if ( $new_availability < 0 ) {
+								$validation_check = 1; // product is unavailable for the desired quantity
+							}
 						}
+					} else {
+						$validation_check = 1; // product is not available
 					}
-				} else {
-					$validation_check = 1; // product is not available
 				}
 			}
 		} else {

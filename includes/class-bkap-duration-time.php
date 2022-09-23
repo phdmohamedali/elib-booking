@@ -323,6 +323,22 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 				}
 			}
 
+			if ( isset( $_POST['bkap_page'] ) && 'view-order' == $_POST['bkap_page'] ) {
+
+				if ( isset( $_POST['view_item_id'] ) && '' != $_POST['view_item_id'] ) {
+					$booking_id = bkap_common::get_booking_id( $_POST['view_item_id'] );
+
+					if ( is_array( $booking_id ) ) {
+
+						foreach ( $booking_id as $key => $id ) {
+							$blocks = self::bkap_add_time_slot_on_bookingpage_or_vieworder( $blocks, $_POST['post_id'], $id, $_POST['current_date'] );
+						}
+					} else {
+						$blocks = self::bkap_add_time_slot_on_bookingpage_or_vieworder( $blocks, $_POST['post_id'], $booking_id, $_POST['current_date'] );
+					}
+				}
+			}
+
 			if ( $called_for == 'backend' ) {
 				return array(
 					'blocks'          => $blocks,
@@ -332,6 +348,30 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 				$block_html = self::bkap_display_durations( $blocks, $duration_booked, $d_max_booking );
 				return $block_html;
 			}
+		}
+
+		/**
+		 * This function will add block to the list if not available. This helps to see the booked duration incase if max booking is set to 1.
+		 *
+		 * @param array  $blocks - Array of available timestamps based on the duration for selected date.
+		 * @param int    $product_id - Product ID.
+		 * @param int    $booking_id - Booking ID.
+		 * @param string $current_date - Selected Date.
+		 *
+		 * @since 5.15.0
+		 */
+		public function bkap_add_time_slot_on_bookingpage_or_vieworder( $blocks, $product_id, $booking_id, $current_date ) {
+
+			$booking         = new BKAP_Booking( $booking_id );
+			$times_selected  = explode( '-', $booking->get_time() );
+			$strtotime       = strtotime( $current_date .  ' ' . $times_selected[0] );
+
+			if ( ! in_array( $strtotime, $blocks ) ) {
+				array_push( $blocks, $strtotime );
+				sort( $blocks );
+			}
+
+			return $blocks;
 		}
 
 		/**

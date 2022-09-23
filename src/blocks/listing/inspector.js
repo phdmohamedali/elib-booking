@@ -33,6 +33,7 @@ const Inspector = ( { attributes, setAttributes, bookables, bookableResources, p
 		type,
 		dayType,
 		timeType,
+		multipleType,
 		products,
 		categories,
 		resources,
@@ -144,6 +145,28 @@ const Inspector = ( { attributes, setAttributes, bookables, bookableResources, p
 					</BaseControl>
 				}
 
+{
+					'type' === filter.value && 'multiple' === type &&
+					<BaseControl id="multiple-type" label="Multiple Type">
+						<ButtonGroup aria-label="Multiple Type">
+							{
+								wooBookingOptions.multipleTypes.map( ( mType ) => {
+									return (
+										<Button
+											key={ mType.label }
+											isLarge
+											isPrimary={ multipleType === mType.value }
+											aria-pressed={ multipleType === mType.value }
+											onClick={ () => saveAttribute( 'multipleType', mType.value ) }>
+											{ mType.label }
+										</Button>
+									);
+								} )
+							}
+						</ButtonGroup>
+					</BaseControl>
+				}
+
 				{
 					'products' === filter.value &&
 					<BaseControl id="booking-products" label="Products" className="wrapper-react-select">
@@ -181,6 +204,7 @@ const Inspector = ( { attributes, setAttributes, bookables, bookableResources, p
 				}
 
 			</PanelBody>
+			
 			<PanelBody className="bkap_settings" title="Display Settings">
 				<BaseControl id="display-type" label="Style">
 					<ButtonGroup aria-label="Display Type">

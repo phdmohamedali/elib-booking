@@ -34,21 +34,21 @@ class BKAP_Bookable_Query {
 	 *
 	 * @var array
 	 */
-	private static $meta_query = [
+	private static $meta_query = array(
 		'relation' => 'AND',
-		[
+		array(
 			'key'     => '_bkap_enable_booking',
 			'value'   => 'on',
 			'compare' => '=',
-		],
-	];
+		),
+	);
 
 	/**
 	 * Valid post status for bookable
 	 *
 	 * @var array
 	 */
-	private static $bookable_status = [
+	private static $bookable_status = array(
 		'publish',
 		'pending',
 		'draft',
@@ -56,7 +56,7 @@ class BKAP_Bookable_Query {
 		'future',
 		'private',
 		'inherit',
-	];
+	);
 
 	/**
 	 * Get query args
@@ -70,12 +70,12 @@ class BKAP_Bookable_Query {
 		$filter   = bkap_common::get_attribute_value( $filter );
 		$tax_args = self::get_tax_query_args( $args );
 
-		$query_args = [
+		$query_args = array(
 			'post_type'   => self::$posttype,
 			'status'      => self::$bookable_status,
 			'numberposts' => ! empty( $args['numberposts'] ) ? $args['numberposts'] : self::$numberpost,
 			'meta_query'  => self::get_meta_query_args( $args ),
-		];
+		);
 
 		if ( ! empty( $tax_args ) ) {
 			$query_args['tax_query'] = $tax_args;
@@ -105,10 +105,10 @@ class BKAP_Bookable_Query {
 		if ( 'type' === $filter && ! empty( $args['type'] ) ) {
 				$type          = $args['type'];
 				$bookable_type = $args[ $type . 'Type' ];
-				$meta_query[]  = [
+				$meta_query[]  = array(
 					'key'   => '_bkap_booking_type',
 					'value' => $bookable_type,
-				];
+				);
 		}
 
 		// Get bookable products by resources.
@@ -116,14 +116,14 @@ class BKAP_Bookable_Query {
 			$resources = explode( ',', bkap_common::get_attribute_value( $args['resources'] ) );
 			// Add each resource to meta query.
 			foreach ( $resources as $id ) {
-				$resource_args[] = [
+				$resource_args[] = array(
 					'key'     => '_bkap_product_resources',
 					'value'   => $id,
 					'compare' => 'LIKE',
-				];
+				);
 			}
 
-			$meta_query[] = array_merge( [ 'relation' => 'OR' ], $resource_args );
+			$meta_query[] = array_merge( array( 'relation' => 'OR' ), $resource_args );
 		}
 
 		return $meta_query;
@@ -139,17 +139,17 @@ class BKAP_Bookable_Query {
 
 		$filter    = isset( $args['filter'] ) ? $args['filter'] : '';
 		$filter    = bkap_common::get_attribute_value( $filter );
-		$tax_query = [];
+		$tax_query = array();
 
 		// Get bookables based on categories.
 		if ( 'categories' === $filter && ! empty( $args['categories'] ) ) {
 			$categories = bkap_common::get_attribute_value( $args['categories'] );
-			$tax_query  = [
-				[
+			$tax_query  = array(
+				array(
 					'taxonomy' => 'product_cat',
 					'terms'    => $categories,
-				],
-			];
+				),
+			);
 		}
 
 		return $tax_query;
@@ -198,15 +198,15 @@ class BKAP_Bookable_Query {
 		foreach ( $bookables as $bookable ) {
 
 			// Initial settings.
-			$booking_type = $bookable->_bkap_booking_type;
-			$custom_range = $bookable->_bkap_custom_ranges;
-			$holidays     = is_array( $bookable->_bkap_product_holidays ) ? array_keys( $bookable->_bkap_product_holidays ) : array();
-			$holidays     = array_merge( $holidays, $global_holidays );
-			$product_id   = $bookable->ID;
-			$_product     = wc_get_product( $product_id );
-			$product_type = $_product->get_type();
-			$resources    = bkap_common::get_bookable_resources( $product_id );
-			$price        = $_product->get_price();
+			$booking_type     = $bookable->_bkap_booking_type;
+			$custom_range     = $bookable->_bkap_custom_ranges;
+			$holidays         = is_array( $bookable->_bkap_product_holidays ) ? array_keys( $bookable->_bkap_product_holidays ) : array();
+			$holidays         = array_merge( $holidays, $global_holidays );
+			$product_id       = $bookable->ID;
+			$_product         = wc_get_product( $product_id );
+			$product_type     = $_product->get_type();
+			$resources        = bkap_common::get_bookable_resources( $product_id );
+			$price            = $_product->get_price();
 			$booking_settings = $bookable->woocommerce_booking_settings;
 
 			// Calculation for setting min and max date for product.
@@ -216,7 +216,7 @@ class BKAP_Bookable_Query {
 				$end_date           = $min_max_dates[1];
 				$custom_range_dates = $min_max_dates[2];
 			} else {
-				$min_date = bkap_common::bkap_min_date_based_on_AdvanceBookingPeriod( $bookable->ID, $current_time );				
+				$min_date = bkap_common::bkap_min_date_based_on_AdvanceBookingPeriod( $bookable->ID, $current_time );
 				$end_date = calback_bkap_max_date( $current_date, $bookable->_bkap_max_bookable_days, $bookable->woocommerce_booking_settings );/* '2020-07-30'; */
 				$end_date = date( 'Y-m-d H:i:s', strtotime( $end_date . '23.59' ) );
 			}
@@ -229,7 +229,7 @@ class BKAP_Bookable_Query {
 			$allday    = ( $show_times ? false : true );
 
 			// Structure data.
-			$bookable_item = [
+			$bookable_item = array(
 				'id'            => $bookable->ID,
 				'title'         => $bookable->post_title,
 				'url'           => esc_url( get_permalink( $bookable ) ),
@@ -252,7 +252,7 @@ class BKAP_Bookable_Query {
 					'start'         => $start,
 					'end'           => $end_date,
 				),
-			];
+			);
 
 			if ( isset( $custom_range_dates ) ) {
 				$bookable_item['extendedProps']['custom_range_dates'] = $custom_range_dates;
@@ -338,7 +338,8 @@ class BKAP_Bookable_Query {
 					$bookable_item['rrule']['dtstart'] = date( 'Y-m-d H:i:s', ( $current_time + ( $bookable->_bkap_abp * 3600 ) ) );
 
 					// Need some help in setting frequency and interval so look at it later.
-					/* $bookable_item['rrule']['freq']      = 'RRule.DAILY';
+					/*
+					 $bookable_item['rrule']['freq']      = 'RRule.DAILY';
 					$bookable_item['rrule']['interval']  = 5; */
 
 					$bookable_item['rrule']['byhour']   = array( $first_explode[0] );
@@ -380,9 +381,9 @@ class BKAP_Bookable_Query {
 						$to         = $time_data['to_slot_hrs'] . ':' . $time_data['to_slot_min'];
 						if ( '0:00' == $to ) {
 							$open_ended = true;
-							$to = '23:59';
+							$to         = '23:59';
 						}
-						$newtimedata[ $i ]['extendedProps']['actual_timeslot_value'] = $from . ' - ' . $to; 
+						$newtimedata[ $i ]['extendedProps']['actual_timeslot_value'] = $from . ' - ' . $to;
 
 						$booking_time = apply_filters( 'bkap_change_date_comparison_for_abp', $current_date . $from, $min_date, $from, $to, $product_id, $bookable->woocommerce_booking_settings );
 						$date2        = new DateTime( $booking_time );
@@ -390,7 +391,7 @@ class BKAP_Bookable_Query {
 						$start_date   = new DateTime( $from );
 						$end_date     = new DateTime( $to );
 						$interval     = $start_date->diff( $end_date );
-						$hours        = $interval->format( '%H' ); 
+						$hours        = $interval->format( '%H' );
 						$minutes      = $interval->format( '%i' );
 						$minutes      = ( $minutes < 10 ) ? '0' . $minutes : $minutes;
 
@@ -399,7 +400,7 @@ class BKAP_Bookable_Query {
 							if ( ! $include ) {
 								$newtimedata[ $i ]['rrule']['dtstart'] = date( 'Y-m-d H:i:s', ( $current_time + ( $bookable->_bkap_abp * 3600 ) ) );
 							}
-							$newtimedata[ $i ]['rrule']['byweekday'] = array( $w ); 
+							$newtimedata[ $i ]['rrule']['byweekday'] = array( $w );
 							$newtimedata[ $i ]['rrule']['byhour']    = array( $time_data['from_slot_hrs'] );/* $hours_from; */
 							$newtimedata[ $i ]['rrule']['byminute']  = array( $time_data['from_slot_min'] );/* $hours_from; */
 						} else {
@@ -416,9 +417,9 @@ class BKAP_Bookable_Query {
 
 						if ( $timezone && ! is_admin() ) {
 							date_default_timezone_set( $store_timezone_string );
-							$fromtime                               = strtotime( $from );
-							$from                                   = date( 'H:i', $offset + $fromtime );
-							$from_exp                               = explode( ':', $from );
+							$fromtime = strtotime( $from );
+							$from     = date( 'H:i', $offset + $fromtime );
+							$from_exp = explode( ':', $from );
 							if ( $weekday_cal ) {
 								$newtimedata[ $i ]['rrule']['byhour']   = array( $from_exp[0] );
 								$newtimedata[ $i ]['rrule']['byminute'] = array( $from_exp[1] );
@@ -436,7 +437,7 @@ class BKAP_Bookable_Query {
 							date_default_timezone_set( 'UTC' );
 						}
 
-						$newtimedata[ $i ]['extendedProps']['timeslot_value'] = ( $open_ended ) ? $from : $from . " - " . $to;
+						$newtimedata[ $i ]['extendedProps']['timeslot_value'] = ( $open_ended ) ? $from : $from . ' - ' . $to;
 
 						if ( $mta_check ) {
 							$manage_time_availability_data = $booking_settings['bkap_manage_time_availability'];
@@ -451,7 +452,7 @@ class BKAP_Bookable_Query {
 					}
 				}
 
-				$bookable_item = $newtimedata;				
+				$bookable_item = $newtimedata;
 			}
 
 			if ( isset( $resources ) && is_array( $resources ) ) { // saparating when product having resource.
@@ -466,7 +467,7 @@ class BKAP_Bookable_Query {
 				foreach ( $resources as $res => $resource ) {
 					if ( in_array( $res, $arg_resource ) || 'resources' !== $filter ) {
 						if ( $push ) { // date.
-							$bookable_item['extendedProps']['resources'] = $res . '=>' .$resource;
+							$bookable_item['extendedProps']['resources'] = $res . '=>' . $resource;
 							array_push( $events, $bookable_item );
 							$resource_push = true;
 						} else { // time.
@@ -474,8 +475,8 @@ class BKAP_Bookable_Query {
 
 								$consider = apply_filters( 'bkap_resource_event_based_on_availability_data', true, $res, $bookable->ID, $b_i );
 								if ( $consider ) {
-									$newresourcedata[ $i ] = $b_i;
-									$newresourcedata[ $i ]['extendedProps']['resources'] = $res . '=>' .$resource;
+									$newresourcedata[ $i ]                               = $b_i;
+									$newresourcedata[ $i ]['extendedProps']['resources'] = $res . '=>' . $resource;
 									array_push( $events, $newresourcedata[ $i ] );
 									$resource_push = true;
 									$i++;
@@ -496,10 +497,15 @@ class BKAP_Bookable_Query {
 		}
 
 		// For issue 5026.
-		$l_event_date = max( $last_event_date );
-		$events       = array_map( function( $arr ) use ( $l_event_date ) {
-			return $arr + array( 'last_event_date' => $l_event_date );
-		}, $events );
+		if ( count( $last_event_date ) > 0 ) {
+			$l_event_date = max( $last_event_date );
+			$events       = array_map(
+				function( $arr ) use ( $l_event_date ) {
+					return $arr + array( 'last_event_date' => $l_event_date );
+				},
+				$events
+			);
+		}
 
 		return $events;
 	}

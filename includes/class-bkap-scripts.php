@@ -539,6 +539,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 					'multiple_nights_text'         => __( 'Use this for hotel bookings, rentals, etc. Checkout date is not included in the booking period.', 'woocommerce-booking' ),
 					'multiple_nights_price_text'   => __( 'Please enter the per night price in the Regular or Sale Price box in the Product meta box as needed. In case if you wish to charge special prices for a weekday, please enter them above.', 'woocommerce-booking' ),
 					'confirm_delete_all_timeslots' => __( 'Are you sure you want to delete all the timeslots?', 'woocommerce-booking' ),
+					'confirm_delete_timeslots'     => __( 'Are you sure you want to delete the timeslot?', 'woocommerce-booking' ),
 					'success_delete_all_timeslots' => __( 'All the timeslots have been deleted successfully.', 'woocommerce-booking' ),
 					'no_timeslots_available'       => __( 'There are no timeslots added for the product.', 'woocommerce-booking' ),
 					'resource_update_msg'          => __( 'Resource settings have been saved.', 'woocommerce-booking' ),
@@ -548,7 +549,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 						'duration_range_validation'   => __( 'The START range must be less than the END range.', 'woocommerce-booking' ),
 						'weekday_timeslot_validation' => __( 'The FROM Weekday timeslot must be less than the TO timeslot.', 'woocommerce-booking' ),
 						'validation_alert_message'    => __( 'One or more fields have incorrect START/END or FROM/TO values.', 'woocommerce-booking' ),
-					)
+					),
 				)
 			);
 

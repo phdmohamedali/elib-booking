@@ -204,9 +204,17 @@ if ( ! class_exists( 'bkap_dokan_orders_class' ) ) {
 		 */
 		public function bkap_dokan_change_status() {
 
-			$item_id = $_POST['item_id'];
-			$status  = $_POST['status'];
-			bkap_booking_confirmation::bkap_save_booking_status( $item_id, $status );
+			$item_id     = $_POST['item_id'];
+			$booking_ids = bkap_common::get_booking_id( $item_id );
+			$status      = $_POST['status'];
+
+			if ( is_array( $booking_ids ) ) {
+				foreach ( $booking_ids as $booking_id ) {
+					bkap_booking_confirmation::bkap_save_booking_status( $item_id, $status, $booking_id );
+				}
+			} else {
+				bkap_booking_confirmation::bkap_save_booking_status( $item_id, $status, $booking_ids );
+			}
 			die();
 		}
 

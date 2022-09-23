@@ -30,7 +30,7 @@ if ( $has_bookings ) :
 		<table class="bkap-cancel-booking-table shop_table shop_table_responsive">
 			<thead>
 				<tr>
-					<?php  foreach ( $bkap_get_account_endpoint_columns as $column_id => $column_name ) : ?>
+					<?php foreach ( $bkap_get_account_endpoint_columns as $column_id => $column_name ) : ?>
 						<th><?php echo esc_html( $column_name ); ?></th>
 					<?php endforeach; ?>
 				</tr>
@@ -40,20 +40,21 @@ if ( $has_bookings ) :
 				<?php
 				foreach ( $booking_group as $_booking ) {
 
-					$booking_id                 = $_booking->id;
-					$booking                    = new BKAP_Booking( $booking_id );
-					$product_id                 = $booking->get_product_id();
-					$product_url                = get_permalink( $product_id );
-					$product_name               = get_the_title( $product_id );
-					$order_id                   = $booking->get_order_id();
-					$_order                     = wc_get_order( $order_id );
-					$booking_status             = ucwords( $booking->get_status() );
-					$booking_start_date         = $booking->get_start_date() . ' ' . $booking->get_start_time();
-					$booking_end_date           = $booking->get_end_date() . ' ' . $booking->get_end_time();
-					$order_url                  = $_order->get_view_order_url();
-					$order_number               = $_order->get_order_number();
-					$zoom_meeting_link          = Bkap_Cancel_Booking::bkap_get_zoom_meeting_link( $booking_id );
-					$bkap_cancel_booking_action = ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) ) ? Bkap_Cancel_Booking::bkap_cancel_booking_action( $booking_id ) : '';
+					$booking_id                     = $_booking->id;
+					$booking                        = new BKAP_Booking( $booking_id );
+					$product_id                     = $booking->get_product_id();
+					$product_url                    = get_permalink( $product_id );
+					$product_name                   = get_the_title( $product_id );
+					$order_id                       = $booking->get_order_id();
+					$_order                         = wc_get_order( $order_id );
+					$booking_status                 = ucwords( $booking->get_status() );
+					$booking_start_date             = $booking->get_start_date() . ' ' . $booking->get_start_time();
+					$booking_end_date               = $booking->get_end_date() . ' ' . $booking->get_end_time();
+					$order_url                      = $_order->get_view_order_url();
+					$order_number                   = $_order->get_order_number();
+					$zoom_meeting_link              = Bkap_Cancel_Booking::bkap_get_zoom_meeting_link( $booking_id );
+					$bkap_cancel_booking_action     = ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) ) ? Bkap_Cancel_Booking::bkap_cancel_booking_action( $booking_id ) : '';
+					$bkap_reschedule_booking_action = ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) ) ? Bkap_Cancel_Booking::bkap_reschedule_booking_action( $booking_id ) : '';
 					?>
 
 					<tr class="bkap-cancel-booking-table__row">
@@ -86,8 +87,8 @@ if ( $has_bookings ) :
 									<?php echo wp_kses_post( $zoom_meeting_link ); ?>
 
 								<?php elseif ( 'booking-action' === $column_id ) : ?>
-									<?php echo wp_kses_post( $bkap_cancel_booking_action ); ?>
-
+									<?php echo $bkap_cancel_booking_action; // phpcs:ignore ?>
+									<?php echo $bkap_reschedule_booking_action; // phpcs:ignore ?>
 								<?php endif; ?>
 							</td>
 						<?php endforeach; ?>

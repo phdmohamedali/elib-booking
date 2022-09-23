@@ -1152,15 +1152,6 @@ Select this if you want to hide the Booking Price on Product page until the time
 				array( __( 'Show Add to Calendar button on My account page for the customers.', 'woocommerce-booking' ) )
 			);
 
-			add_settings_field(
-				'bkap_calendar_in_same_window',
-				__( 'Open Calendar in Same Window', 'woocommerce-booking' ),
-				array( 'bkap_gcal_sync_settings', 'bkap_calendar_in_same_window_callback' ),
-				'bkap_gcal_sync_settings_page',
-				'bkap_calendar_sync_customer_settings_section',
-				array( __( 'As default, the Calendar is opened in a new tab or window. If you check this option, user will be redirected to the Calendar from the same page, without opening a new tab or window.', 'woocommerce-booking' ) )
-			);
-
 			add_settings_section(
 				'bkap_notice_for_use_product_gcalsync',
 				'',
@@ -1174,15 +1165,6 @@ Select this if you want to hide the Booking Price on Product page until the time
 				__( 'Admin Calendar Sync Settings', 'woocommerce-booking' ),
 				array( 'bkap_gcal_sync_settings', 'bkap_calendar_sync_admin_settings_section_callback' ),
 				'bkap_gcal_sync_settings_page'
-			);
-
-			add_settings_field(
-				'bkap_allow_tour_operator_gcal_api',
-				__( 'Allow Tour Operators for Google Calendar API Integration', 'woocommerce-booking' ),
-				array( 'bkap_gcal_sync_settings', 'bkap_allow_tour_operator_gcal_api_callback' ),
-				'bkap_gcal_sync_settings_page',
-				'bkap_calendar_sync_admin_settings_section',
-				array( __( '<br>Whether you let your tour operators to integrate with their own Google Calendar account using their profile page. Note: Each of them will need to set up their accounts following the steps as listed in Instructions below (will also be shown in their profile pages) and you will need to upload their key files yourself using FTP.', 'woocommerce-booking' ) )
 			);
 
 			add_settings_field(
@@ -1330,16 +1312,6 @@ Select this if you want to hide the Booking Price on Product page until the time
 			register_setting(
 				'bkap_gcal_sync_settings',
 				'bkap_add_to_calendar_my_account_page'
-			);
-
-			register_setting(
-				'bkap_gcal_sync_settings',
-				'bkap_calendar_in_same_window'
-			);
-
-			register_setting(
-				'bkap_gcal_sync_settings',
-				'bkap_allow_tour_operator_gcal_api'
 			);
 
 			register_setting(

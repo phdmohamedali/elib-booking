@@ -42,6 +42,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			add_filter( 'woocommerce_account_menu_items', array( &$this, 'bkap_save_booking_endpoint' ), 10, 1 ); // Save booking endpoint.
 			add_action( 'woocommerce_account_' . self::$endpoint . '_endpoint', array( &$this, 'bkap_endpoint_content' ) ); // Load endpoint template and render view.
 			add_filter( 'the_title', array( &$this, 'bkap_endpoint_title' ) ); // Set endpoint title in the header.
+			add_filter( 'bkap_display_multiple_modals', array( &$this, 'enable_modal_display' ), 10, 1 );
 		}
 
 		/**
@@ -68,6 +69,9 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 					'previous_text' => __( 'Previous', 'woocommerce-booking' ),
 				)
 			);
+
+			wp_register_style( 'bkap-reschedule-booking', bkap_load_scripts_class::bkap_asset_url( '/assets/css/bkap-edit-booking.css', BKAP_FILE ), null, BKAP_VERSION );
+			wp_register_script( 'bkap-reschedule-booking', bkap_load_scripts_class::bkap_asset_url( '/assets/js/bkap-edit-booking.js', BKAP_FILE ), null, BKAP_VERSION, true );
 		}
 
 		/**
@@ -77,9 +81,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 *
 		 * @hook wp_enqueue_scripts
 		 */
-		public function bkap_enqueue_scripts() {
-
-			global $wp;
+		public static function bkap_enqueue_scripts() {
 
 			// Enqueue scripts only on account page.
 			if ( is_user_logged_in() && is_account_page() && ! is_wc_endpoint_url() ) {
@@ -87,14 +89,39 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 				wp_enqueue_style( 'dashicons' ); // Use Dashicons (the default set used in the WP backend) in Frontned.
 			}
 
-			// Load jquery.dataTable scripts only on the Boookings Page contained in the My Account Page.
-			$url_from_request = home_url( add_query_arg( array(), $wp->request ) );
-			$endpoint_url     = get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . self::$endpoint;
+			if ( self::is_booking_page() ) {
 
-			if ( is_user_logged_in() && is_account_page() && ( $url_from_request === $endpoint_url ) ) {
+				// Load jquery.dataTable scripts only on the Boookings Page contained in the My Account Page.
 				wp_enqueue_style( 'bkap-cancel-booking-datatable' );
 				wp_enqueue_script( 'bkap-cancel-booking-datatable', array( 'jquery' ) );
 				wp_enqueue_script( 'bkap-cancel-booking' );
+
+				// Load static files for Reschedule Bookings - on the Boookings Page only.
+				$fetch_bookings    = self::fetch_bookings();
+				$upcoming_bookings = $fetch_bookings['Upcoming Bookings'];
+
+				foreach ( $upcoming_bookings as $booking ) {
+
+					$booking_id              = $booking->id;
+					$reschedule_booking_data = self::reschedule_booking_data( $booking_id );
+
+					$localized_array = array(
+						'bkap_booking_params' => $reschedule_booking_data['bkap_booking'],
+						'bkap_cart_item'      => $reschedule_booking_data['item'],
+						'bkap_cart_item_key'  => $reschedule_booking_data['item_id'],
+						'bkap_order_id'       => $reschedule_booking_data['order_id'],
+						'bkap_page_type'      => 'view-order',
+					);
+
+					wp_localize_script(
+						'bkap-reschedule-booking',
+						'bkap_edit_params_' . $reschedule_booking_data['item_id'],
+						$localized_array
+					);
+				}
+
+				wp_enqueue_style( 'bkap-reschedule-booking' );
+				wp_enqueue_script( 'bkap-reschedule-booking' );
 			}
 		}
 
@@ -165,7 +192,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 *
 		 * @since 5.9.1
 		 */
-		public function fetch_bookings() {
+		public static function fetch_bookings() {
 
 			$bookings          = array();
 			$return_data       = array();
@@ -275,9 +302,9 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 		 *
 		 * @since 5.9.1
 		 */
-		public function bkap_endpoint_content() {
+		public static function bkap_endpoint_content() {
 
-			$bookings = $this->fetch_bookings();
+			$bookings = self::fetch_bookings();
 
 			wc_get_template(
 				'bookings/bkap-cancel-booking.php',
@@ -348,7 +375,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$is_cancel_enabled_for_booking = false;
 
 			$booking_cancel_url        = self::bkap_cancel_booking_url( $booking_id, $called_from );
-			$booking_cancel_url_button = '<a href="' . esc_url( $booking_cancel_url ) . '" class="woocommerce-button button bkap-cancel-booking-cancel-button">' . __( 'Cancel', 'woocommerce-booking' ) . '</a>';
+			$booking_cancel_url_button = '<a href="' . esc_url( $booking_cancel_url ) . '" class="woocommerce - button button bkap - cancel - booking - cancel - button">' . __( 'Cancel', 'woocommerce-booking' ) . '</a>';
 
 			$booking = new BKAP_Booking( $booking_id );
 
@@ -481,7 +508,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 					$is_cancel_valid_for_booking = ( '' !== self::bkap_cancel_booking_action( $booking_id ) );
 
 					if ( $is_cancel_valid_for_booking ) {
-						bkap_booking_confirmation::bkap_save_booking_status( $item_id, 'cancelled' );
+						bkap_booking_confirmation::bkap_save_booking_status( $item_id, 'cancelled', $booking_id );
 
 						// Add note about Booking cancellation in the order.
 						$_order        = wc_get_order( $order_id );
@@ -509,9 +536,160 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 						$cancel_redirect_url = wc_get_endpoint_url( self::$endpoint );
 					}
 
-					print( '<script type="text/javascript">location.href="' . esc_url( $cancel_redirect_url ) . '";</script>' );
+					print( '<script type="text / javascript">location.href="' . esc_url( $cancel_redirect_url ) . '";</script>' );
 				}
 			}
+		}
+
+		/**
+		 * Reschedule Booking Actions.
+		 *
+		 * This function returns the button for Reschedule Booking.
+		 *
+		 * @param int $booking_id Booking ID.
+		 * @since 5.14.0
+		 */
+		public static function bkap_reschedule_booking_action( $booking_id ) {
+
+			global $edit_booking_class;
+
+			$booking                          = new BKAP_Booking( $booking_id );
+			$product_id                       = $booking->get_product_id();
+			$is_reshedule_enabled_for_booking = false;
+			$order                            = $booking->get_order();
+			$order_status                     = $order->get_status();
+			$invalid_order_status             = array( 'cancelled', 'refunded', 'trash', 'failed', 'auto-draft' );
+			$item_id                          = $booking->get_item_id();
+
+			$booking_reschedule_url_button = sprintf( '<input type="button" class="woocommerce-button button bkap-reschedule-booking-reschedule-button" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,%s)" value="%s">', $product_id, $item_id, __( 'Reschedule', 'woocommerce-booking' ) );
+
+			if ( isset( $order_status ) && '' !== $order_status && ! in_array( $order_status, $invalid_order_status, true ) ) {
+
+				$booking_date = wc_get_order_item_meta( $item_id, '_wapbk_booking_date', true );
+				$booking_date = explode( '-', $booking_date );
+				$booking_date = $booking_date[2] . '-' . $booking_date[1] . '-' . $booking_date[0];
+				$booking_time = wc_get_order_item_meta( $item_id, '_wapbk_time_slot', true );
+
+				if ( '' !== $booking_time ) {
+					$booking_time_explode = explode( ' - ', $booking_time );
+					$booking_date        .= ' ' . $booking_time_explode[0];
+				}
+
+				$global_settings               = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
+				$diff_from_booked_date         = (int) ( (int) strtotime( $booking_date ) - current_time( 'timestamp' ) );
+				$reschedule_hours              = isset( $edit_booking_class ) && $edit_booking_class instanceof bkap_edit_bookings_class ? $edit_booking_class->bkap_update_booking_reschedule_day_to_hour() : 0;
+				$bkap_rescheduled_booking_time = (int) $reschedule_hours * 60 * 60;
+
+				if (
+						( isset( $global_settings->bkap_enable_booking_reschedule ) &&
+						isset( $global_settings->bkap_booking_reschedule_hours ) &&
+						$diff_from_booked_date >= $bkap_rescheduled_booking_time &&
+						'on' === $global_settings->bkap_enable_booking_reschedule &&
+						'' !== $booking_date &&
+						! in_array( bkap_type( $product_id ), array( 'multidates', 'multidates_fixedtime' ), true )
+						) ||
+						( isset( $global_settings->bkap_enable_booking_without_date ) &&
+							'on' === $global_settings->bkap_enable_booking_without_date &&
+							'on' === $bkap_setting['booking_purchase_without_date']
+						)
+					) {
+					$is_reshedule_enabled_for_booking = true;
+				}
+
+				if ( $is_reshedule_enabled_for_booking ) {
+
+					$reschedule_booking_data = self::reschedule_booking_data( $booking_id );
+
+					wc_get_template(
+						'bkap-edit-booking-modal.php',
+						array(
+							'bkap_booking'       => $reschedule_booking_data['bkap_booking'],
+							'product_obj'        => $reschedule_booking_data['product'],
+							'bkap_order_id'      => $reschedule_booking_data['order_id'],
+							'product_id'         => $reschedule_booking_data['product_id'],
+							'variation_id'       => $reschedule_booking_data['variation_id'],
+							'bkap_cart_item_key' => $reschedule_booking_data['item_id'],
+							'bkap_addon_data'    => $reschedule_booking_data['addon_data'],
+						),
+						'woocommerce-booking/',
+						BKAP_BOOKINGS_TEMPLATE_PATH
+					);
+				}
+			}
+
+			return $is_reshedule_enabled_for_booking ? $booking_reschedule_url_button : '';
+		}
+
+		/**
+		 * Booking Data.
+		 *
+		 * This function returns booking data needed for the Reschedule Booking feature.
+		 *
+		 * @param int $booking_id Booking ID.
+		 * @since 5.14.0
+		 */
+		public static function reschedule_booking_data( $booking_id ) {
+
+			$booking     = new BKAP_Booking( $booking_id );
+			$product_id  = $booking->get_product_id();
+			$order       = $booking->get_order();
+			$order_id    = $booking->get_order_id();
+			$item_id     = $booking->get_item_id();
+			$order_items = $order->get_items();
+			$item        = $order_items[ $item_id ];
+
+			$additional_addon_data   = bkap_common::bkap_get_order_item_addon_data( $item );
+			$book_item_meta_date     = ( '' == get_option( 'book_item-meta-date' ) ) ? __( 'Start Date', 'woocommerce-booking' ) : get_option( 'book_item-meta-date' );
+			$checkout_item_meta_date = ( '' == get_option( 'checkout_item-meta-date' ) ) ? __( 'End Date', 'woocommerce-booking' ) : get_option( 'checkout_item-meta-date' );
+			$book_item_meta_time     = ( '' == get_option( 'book_item-meta-time' ) ) ? __( 'Booking Time', 'woocommerce-booking' ) : get_option( 'book_item-meta-time' );
+
+			$bkap_booking = array(
+				'date'                 => wc_get_order_item_meta( $item_id, $book_item_meta_date, true ),
+				'hidden_date'          => wc_get_order_item_meta( $item_id, '_wapbk_booking_date', true ),
+				'date_checkout'        => wc_get_order_item_meta( $item_id, $checkout_item_meta_date, true ),
+				'hidden_date_checkout' => wc_get_order_item_meta( $item_id, '_wapbk_checkout_date', true ),
+				'time_slot'            => wc_get_order_item_meta( $item_id, $book_item_meta_time, true ),
+				'resource_id'          => wc_get_order_item_meta( $item_id, '_resource_id', true ),
+				'booking_status'       => wc_get_order_item_meta( $item_id, '_wapbk_booking_status', true ),
+				'persons'              => wc_get_order_item_meta( $item_id, '_person_ids', true ),
+			);
+
+			return array(
+				'bkap_booking' => array_filter( $bkap_booking ),
+				'product'      => $booking->get_product(),
+				'order_id'     => $order_id,
+				'product_id'   => $product_id,
+				'variation_id' => $item->get_variation_id( 'view' ),
+				'item'         => $item,
+				'item_id'      => $item_id,
+				'addon_data'   => $additional_addon_data,
+			);
+		}
+
+		/**
+		 * Checks if currentpage is My Account -> Bookings Page.
+		 *
+		 * @since 5.14.0
+		 */
+		public static function is_booking_page() {
+			global $wp;
+
+			$url_from_request = home_url( add_query_arg( array(), $wp->request ) );
+			$endpoint_url     = get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . self::$endpoint;
+
+			return is_user_logged_in() && is_account_page() && $url_from_request === $endpoint_url;
+		}
+
+		/**
+		 * Enable modal display.
+		 *
+		 * This function ensures that the modals for editing the Bookings are enabled.
+		 *
+		 * @param bool $display Booking Display condition - true: displayed, false: hidden.
+		 * @since 5.14.0
+		 */
+		public static function enable_modal_display( $display ) {
+			return self::is_booking_page() ? true : $display;
 		}
 	}
 	$bkap_cancel_booking = new Bkap_Cancel_Booking();

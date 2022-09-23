@@ -1,0 +1,41 @@
+.bkap_settings {
+	.components-button-group {
+		margin-left: 15px;
+	}
+
+	.wrapper-react-select {
+		position: relative;
+		z-index: 2;
+	}
+
+	.wrs-z-3 {
+		z-index: 3;
+	}
+}
+
+.bkap_list_booking {
+	.fc-content-skeleton,
+	.fc-view-container {
+		.fc-list-item-title a{
+			color: #6d6d6d;
+		}
+
+		.fc-list-item-title a.bkap-select-options {
+			color: #333333 !important;
+		}
+
+		.fc-event-container {
+			padding: initial;
+		}
+	}
+	.fc-list-item {
+		cursor: default;
+		pointer-events: none;
+
+		.bkap-list-qty {
+			width: 35px;
+			border-radius: 0;
+			padding: 0 5px;
+		}
+	}
+}

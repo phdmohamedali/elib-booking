@@ -355,7 +355,17 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 * @since 5.11.0
 		 */
 		public static function bkap_api_zapier_get_create_booking_trigger_product_hook( $product_id ) {
-			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_create_booking', 'hook' );
+			return self::bkap_api_zapier_get_zapier_hook_url( 'booking_create', 'trigger_create_booking', $product_id );
+		}
+
+		/**
+		 * Gets Label for Create Booking Trigger for a Product.
+		 *
+		 * @param int $product_id Product ID.
+		 * @since 5.14.0
+		 */
+		public static function bkap_api_zapier_get_create_booking_trigger_product_label( $product_id ) {
+			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_create_booking', 'label' );
 		}
 
 		/**
@@ -394,7 +404,17 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 * @since 5.11.0
 		 */
 		public static function bkap_api_zapier_get_update_booking_trigger_product_hook( $product_id ) {
-			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_update_booking', 'hook' );
+			return self::bkap_api_zapier_get_zapier_hook_url( 'booking_update', 'trigger_update_booking', $product_id );
+		}
+
+		/**
+		 * Gets Label for Update Booking Trigger for a Product.
+		 *
+		 * @param int $product_id Product ID.
+		 * @since 5.11.0
+		 */
+		public static function bkap_api_zapier_get_update_booking_trigger_product_label( $product_id ) {
+			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_update_booking', 'label' );
 		}
 
 		/**
@@ -433,7 +453,17 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 * @since 5.11.0
 		 */
 		public static function bkap_api_zapier_get_delete_booking_trigger_product_hook( $product_id ) {
-			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_delete_booking', 'hook' );
+			return self::bkap_api_zapier_get_zapier_hook_url( 'booking_delete', 'trigger_delete_booking', $product_id );
+		}
+
+		/**
+		 * Gets Label for Delete Booking Trigger for a Product.
+		 *
+		 * @param int $product_id Product ID.
+		 * @since 5.11.0
+		 */
+		public static function bkap_api_zapier_get_delete_booking_trigger_product_label( $product_id ) {
+			return self::bkap_api_zapier_get_product_trigger_setting( $product_id, 'trigger_delete_booking', 'label' );
 		}
 
 		/**
@@ -544,6 +574,27 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 							if ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) {
 
 								if ( is_array( $settings[ $key ] ) ) {
+
+									if ( $option_key === self::$subscription_key ) {
+
+										// Remove all former values of hook action and label, thereby to allow for unique value.
+										$__settings = $settings[ $key ];
+										foreach ( $__settings as $index => $setting ) {
+
+											if ( isset( $setting['action'] ) && isset( $record['action'] ) && isset( $record['label'] ) ) {
+												if ( $setting['label'] === $record['label'] && $setting['action'] === $record['action'] ) {
+													unset( $__settings[ $index ] );
+												}
+											} elseif ( ! isset( $setting['action'] ) && isset( $record['action'] ) && isset( $record['label'] ) ) {
+												if ( $setting['label'] === $record['label'] ) {
+													unset( $__settings[ $index ] );
+												}
+											}
+										}
+
+										$settings[ $key ] = $__settings;
+									}
+
 									$settings[ $key ][] = $record;
 								} else {
 									$_settings[ $key ][] = $settings[ $key ];
@@ -773,9 +824,9 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 										<option><?php esc_html_e( 'Select Trigger', 'woocommerce-booking' ); ?></option>
 										<?php
 										foreach ( $hooks as $hook ) {
-											$selected_value = ( self::bkap_api_zapier_get_create_booking_trigger_product_hook( $product_id ) === $hook->url ) ? ' selected' : '';
+											$selected_value = ( self::bkap_api_zapier_get_create_booking_trigger_product_label( $product_id ) === $hook->label ) ? ' selected' : '';
 											?>
-											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-url="<?php echo esc_url( $hook->url ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
+											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-label="<?php echo esc_attr( $hook->label ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
 											<?php
 										}
 										?>
@@ -852,9 +903,9 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 										<option><?php esc_html_e( 'Select Trigger', 'woocommerce-booking' ); ?></option>
 										<?php
 										foreach ( $hooks as $hook ) {
-											$selected_value = ( self::bkap_api_zapier_get_update_booking_trigger_product_hook( $product_id ) === $hook->url ) ? ' selected' : '';
+											$selected_value = ( self::bkap_api_zapier_get_update_booking_trigger_product_label( $product_id ) === $hook->label ) ? ' selected' : '';
 											?>
-											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-url="<?php echo esc_url( $hook->url ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
+											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-label="<?php echo esc_attr( $hook->label ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
 											<?php
 										}
 										?>
@@ -931,9 +982,9 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 										<option><?php esc_html_e( 'Select Trigger', 'woocommerce-booking' ); ?></option>
 										<?php
 										foreach ( $hooks as $hook ) {
-											$selected_value = ( self::bkap_api_zapier_get_delete_booking_trigger_product_hook( $product_id ) === $hook->url ) ? ' selected' : '';
+											$selected_value = ( self::bkap_api_zapier_get_delete_booking_trigger_product_label( $product_id ) === $hook->label ) ? ' selected' : '';
 											?>
-											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-url="<?php echo esc_url( $hook->url ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
+											<option value="<?php echo esc_attr( $hook->id ); ?>"<?php echo esc_attr( $selected_value ); ?> data-zapier-hook-label="<?php echo esc_attr( $hook->label ); ?>"><?php echo esc_attr( $hook->label ); ?></option>
 											<?php
 										}
 										?>
@@ -1005,6 +1056,7 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 * @param int   $product_id Product ID.
 		 * @param obj   $integration_data Data returned from bkap_additional_integration_data JS function.
 		 * @since 5.11.0
+		 * @since Updated 5.14.0
 		 */
 		public function bkap_api_zapier_integration_data( $booking_data, $product_id, $integration_data ) {
 
@@ -1012,17 +1064,17 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 
 			$booking_data[ $key ]['trigger_create_booking'] = array(
 				'status' => ( isset( $integration_data->bkap_zapier_create_booking_trigger ) && '' !== $integration_data->bkap_zapier_create_booking_trigger ) ? 'on' : 'off',
-				'hook'   => ( isset( $integration_data->bkap_zapier_create_booking_trigger ) && '' !== $integration_data->bkap_zapier_create_booking_trigger ) ? $integration_data->bkap_zapier_create_booking_trigger : '',
+				'label'  => ( isset( $integration_data->bkap_zapier_create_booking_trigger ) && '' !== $integration_data->bkap_zapier_create_booking_trigger ) ? $integration_data->bkap_zapier_create_booking_trigger : '',
 			);
 
 			$booking_data[ $key ]['trigger_update_booking'] = array(
 				'status' => ( isset( $integration_data->bkap_zapier_update_booking_trigger ) && '' !== $integration_data->bkap_zapier_update_booking_trigger ) ? 'on' : 'off',
-				'hook'   => ( isset( $integration_data->bkap_zapier_update_booking_trigger ) && '' !== $integration_data->bkap_zapier_update_booking_trigger ) ? $integration_data->bkap_zapier_update_booking_trigger : '',
+				'label'  => ( isset( $integration_data->bkap_zapier_update_booking_trigger ) && '' !== $integration_data->bkap_zapier_update_booking_trigger ) ? $integration_data->bkap_zapier_update_booking_trigger : '',
 			);
 
 			$booking_data[ $key ]['trigger_delete_booking'] = array(
 				'status' => ( isset( $integration_data->bkap_zapier_delete_booking_trigger ) && '' !== $integration_data->bkap_zapier_delete_booking_trigger ) ? 'on' : 'off',
-				'hook'   => ( isset( $integration_data->bkap_zapier_delete_booking_trigger ) && '' !== $integration_data->bkap_zapier_delete_booking_trigger ) ? $integration_data->bkap_zapier_delete_booking_trigger : '',
+				'label'  => ( isset( $integration_data->bkap_zapier_delete_booking_trigger ) && '' !== $integration_data->bkap_zapier_delete_booking_trigger ) ? $integration_data->bkap_zapier_delete_booking_trigger : '',
 			);
 
 			return $booking_data;
@@ -1120,7 +1172,18 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 					);
 				}
 
-				// Check if booking requires confirmation. If it does, do not proceed is booking status is not confirmed.
+				if ( '' === $hook ) {
+					throw new Exception(
+						sprintf(
+							/* translators: %s Trigger Label */
+							__( 'Invalid or missing Zap Label for the Zapier API %s Trigger. Please check that the Zap is enabled and active on Zapier. Alternatively, you can switch the Zap off and back on.', 'woocommerce-booking' ),
+							$trigger_label
+						),
+						400
+					);
+				}
+
+				// Check if booking requires confirmation. If it does, do not proceed as booking status is not confirmed.
 				if ( bkap_common::bkap_product_requires_confirmation( $product_id ) ) {
 
 					$booking = new BKAP_Booking( $booking_id );
@@ -1155,7 +1218,6 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		public function bkap_api_zapier_create_booking_trigger( $booking_id, $data ) {
 
 			$this->bkap_api_zapier_do_booking_trigger( $booking_id, 'create_booking_trigger' );
-
 		}
 
 		/**
@@ -1168,7 +1230,6 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		public function bkap_api_zapier_update_booking_trigger( $booking_id, $data ) {
 
 			$this->bkap_api_zapier_do_booking_trigger( $booking_id, 'update_booking_trigger' );
-
 		}
 
 		/**
@@ -1181,7 +1242,6 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		public function bkap_api_zapier_delete_booking_trigger( $booking_id, $data ) {
 
 			$this->bkap_api_zapier_do_booking_trigger( $booking_id, 'delete_booking_trigger' );
-
 		}
 
 		/**
@@ -1251,6 +1311,58 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 				'total_amount'           => ! $for_sample_data ? (float) $amount : 500,
 			);
 		}
+
+		/**
+		 * Gets the Zapier Hook URL.
+		 *
+		 * @since 5.14.0
+		 * @param string $action Hook Action.
+		 * @param string $hook Hook.
+		 * @param int    $product_id Product ID.
+		 * @param array  $data Data of information needed to retrieve Hook URL.
+		 */
+		public static function bkap_api_zapier_get_zapier_hook_url( $action, $hook, $product_id ) {
+
+			$_hook = self::bkap_api_zapier_get_product_trigger_setting( $product_id, $hook, 'hook' );
+			$label = self::bkap_api_zapier_get_product_trigger_setting( $product_id, $hook, 'label' );
+
+			if ( '' === $label && '' !== $_hook ) {
+				// Before we started using label as key.
+				$hook_data = self::bkap_api_zapier_fetch_subscription_information( $action, 'url', $_hook );
+				$label     = isset( $hook_data->label ) ? $hook_data->label : '';
+			}
+
+			$label_data = self::bkap_api_zapier_fetch_subscription_information( $action, 'label', $label );
+			return isset( $label_data->url ) ? $label_data->url : '';
+		}
+
+		/**
+		 * Fetch Zapier Subscription information.
+		 *
+		 * @since 5.14.0
+		 * @param string $action Hook Action
+		 * @param string $key Subscription Key.
+		 * @param string $value Subscription Value.
+		 */
+		public static function bkap_api_zapier_fetch_subscription_information( $action, $key, $value ) {
+
+			$subscriptions = self::bkap_api_zapier_get_subscriptions( $action );
+
+			if ( '' !== $subscriptions && is_array( $subscriptions ) && count( $subscriptions ) > 0 ) {
+
+				// Reverse array to have most recent items at the top.
+				$subscriptions = array_reverse( $subscriptions );
+
+				foreach ( $subscriptions as $subscription ) {
+					if ( $subscription->{$key} === $value && $action === $subscription->action ) {
+						return $subscription;
+					}
+				}
+			}
+
+			return '';
+		}
 	}
+
 	$bkap_api_zapier_settings = new BKAP_API_Zapier_Settings();
 }

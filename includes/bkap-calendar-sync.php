@@ -726,18 +726,12 @@ class bkap_calendar_sync {
 		$href                = $gcal->gcal( $bkap, $user_type );
 		$other_calendar_href = $gcal->other_cal( $bkap, $user_type );
 
-		$target = '_blank';
-
-		if ( 'on' === get_option( 'bkap_calendar_in_same_window' ) ) {
-			$target = '_self';
-		}
-
 		?>
 		<p>
-			<a style="padding: 4px;border: 1px solid #524c4c;text-decoration: none;background-color: #eee;border-radius: 2px;color: #000;" href="<?php echo $href; ?>" target= "<?php echo $target; ?>" id="add_to_google_calendar" ><?php _e( 'Add to Google Calendar', 'woocommerce-booking' ); ?></a>
+			<a style="padding: 4px;border: 1px solid #524c4c;text-decoration: none;background-color: #eee;border-radius: 2px;color: #000;" href="<?php echo $href; ?>" target= "_blank" id="add_to_google_calendar" ><?php _e( 'Add to Google Calendar', 'woocommerce-booking' ); ?></a>
 		</p>
 		<p>
-			<a style="padding: 4px;border: 1px solid #524c4c;text-decoration: none;background-color: #eee;border-radius: 2px;color: #000;" href="<?php echo $other_calendar_href; ?>" target="<?php echo $target; ?>" id="add_to_other_calendar" ><?php _e( 'Add to other Calendar', 'woocommerce-booking' ); ?></a>
+			<a style="padding: 4px;border: 1px solid #524c4c;text-decoration: none;background-color: #eee;border-radius: 2px;color: #000;" href="<?php echo $other_calendar_href; ?>" target="_blank" id="add_to_other_calendar" ><?php _e( 'Add to other Calendar', 'woocommerce-booking' ); ?></a>
 		</p>
 		<?php
 	}
@@ -754,20 +748,12 @@ class bkap_calendar_sync {
 		$href                = $gcal->gcal( $bkap, 'customer' );
 		$other_calendar_href = $gcal->other_cal( $bkap, 'customer' );
 
-		$target = '_blank';
-
-		if ( get_option( 'bkap_calendar_in_same_window' ) == 'on' ) {
-			$target = '_self';
-		} else {
-			$target = '_blank';
-		}
-
 		?>
 		<div class="add_to_calendar">
 			<button onclick="myFunction( <?php echo $bkap->item_id; ?> )" class="dropbtn"><?php _e( 'Add To Calendar', 'woocommerce-booking' ); ?><i class="claret"></i></button>
 			<div id="add_to_calendar_menu_<?php echo $bkap->item_id; ?>" class="add_to_calendar-content">
-				<a href="<?php echo $href; ?>" target= "<?php echo $target; ?>" id="add_to_google_calendar" ><img class="icon" src="<?php echo plugins_url(); ?>/woocommerce-booking/assets/images/google-icon.jpg"><?php _e( 'Add to Google Calendar', 'woocommerce-booking' ); ?></a>
-				<a href="<?php echo $other_calendar_href; ?>" target="<?php echo $target; ?>" id="add_to_other_calendar" ><img class="icon" src="<?php echo plugins_url(); ?>/woocommerce-booking/assets/images/calendar-icon.jpg"><?php _e( 'Add to other Calendar', 'woocommerce-booking' ); ?></a>
+				<a href="<?php echo $href; ?>" target= "_blank" id="add_to_google_calendar" ><img class="icon" src="<?php echo plugins_url(); ?>/woocommerce-booking/assets/images/google-icon.jpg"><?php _e( 'Add to Google Calendar', 'woocommerce-booking' ); ?></a>
+				<a href="<?php echo $other_calendar_href; ?>" target="_blank" id="add_to_other_calendar" ><img class="icon" src="<?php echo plugins_url(); ?>/woocommerce-booking/assets/images/calendar-icon.jpg"><?php _e( 'Add to other Calendar', 'woocommerce-booking' ); ?></a>
 			</div>
 		</div>
 

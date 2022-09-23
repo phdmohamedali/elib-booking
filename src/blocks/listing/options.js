@@ -23,6 +23,7 @@ wooBookingOptions.filters = [
 wooBookingOptions.types = [
 	{ value: 'day', label: __( 'Day', 'woocommerce-booking' ) },
 	{ value: 'time', label: __( 'Time', 'woocommerce-booking' ) },
+	{ value: 'multiple', label: __( 'Multiple', 'woocommerce-booking' ) },
 ];
 
 wooBookingOptions.dayTypes = [
@@ -33,6 +34,11 @@ wooBookingOptions.dayTypes = [
 wooBookingOptions.timeTypes = [
 	{ value: 'date_time', label: __( 'Fixed', 'woocommerce-booking' ) },
 	{ value: 'duration_time', label: __( 'Duration', 'woocommerce-booking' ) },
+];
+
+wooBookingOptions.multipleTypes = [
+	{ value: 'multidates', label: __( 'Dates', 'woocommerce-booking' ) },
+	{ value: 'multidates_fixedtime', label: __( 'Dates & Fixed Time', 'woocommerce-booking' ) },
 ];
 
 // Duration

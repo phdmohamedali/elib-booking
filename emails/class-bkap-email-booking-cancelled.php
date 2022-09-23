@@ -48,7 +48,7 @@ class BKAP_Email_Booking_Cancelled extends WC_Email {
 		}
 
 		// Triggers for this email.
-		add_action( 'bkap_booking_pending-confirmation_to_cancelled_notification', array( $this, 'trigger' ) );
+		add_action( 'bkap_booking_pending-confirmation_to_cancelled_notification', array( $this, 'trigger' ), 10, 2 );
 
 		// Call parent constructor.
 		parent::__construct();
@@ -63,13 +63,24 @@ class BKAP_Email_Booking_Cancelled extends WC_Email {
 	 * @param int $item_id Order Item ID.
 	 * @since 2.5
 	 */
-	public function trigger( $item_id ) {
+	public function trigger( $item_id, $booking_id ) {
 
 		$enabled = $this->is_enabled();
 
 		if ( $item_id && $enabled ) {
 
-			$this->booking_data = bkap_common::get_bkap_booking( $item_id );
+			$key         = 0;
+			$booking_ids = bkap_common::get_booking_id( $item_id );
+			if ( is_array( $booking_ids ) ) {
+				foreach ( $booking_ids as $k => $id ) {
+
+					if ( $booking_id == $id ) {
+						$key = $k;
+					}
+				}
+			}
+
+			$this->booking_data = bkap_common::get_bkap_booking( $item_id, $key );
 			$this->object       = $this->booking_data;
 			// confirm the booking status.
 			if ( 'cancelled' !== $this->booking_data->item_booking_status ) {

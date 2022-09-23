@@ -4124,11 +4124,13 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$ts_lists_arr    = bkap_sort_time_in_chronological( $ts_lists_arr );
 					$ts_lists_arr    = apply_filters( 'bkap_time_slot_filter_after_chronological', $ts_lists_arr, $extra_information );
 
+					$time_selected   = $time_slots_cnt == 1 ? ' active_slot' : '';
+
 					$time_slot_lists .= '<input type="hidden" name="time_slot" id="time_slot" value="" />';
 					$time_slot_lists .= '<ul class="timeslot-lists ts-grid-container">';
 					foreach ( $ts_lists_arr as $key => $ts_val ) {
 						if ( $ts_val != '' ) {
-							$time_slot_lists .= '<li class="ts-grid-item">' .
+							$time_slot_lists .= '<li class="ts-grid-item ' . $time_selected . '">' .
 								'<a href="#" data-value="' . $ts_val . '">' .
 								'<input type="radio" name="time_slots" value="' . $ts_val . '" class="time_slot" />' . 
 								$ts_val . 

@@ -43,7 +43,7 @@ class BKAP_Email_Booking_Pending extends WC_Email {
 
 		// Triggers for this email.
 		add_action( 'bkap_pending_booking_notification', array( $this, 'bkap_customer_pending_notification' ), 11, 1 );
-		add_action( 'bkap_customer_new_booking_notification', array( $this, 'bkap_customer_unconfirmed_notification' ), 10, 2 );
+		add_action( 'bkap_customer_new_booking_notification', array( $this, 'bkap_customer_unconfirmed_notification' ), 10, 3 );
 
 		// Call parent constructor.
 		parent::__construct();
@@ -65,7 +65,15 @@ class BKAP_Email_Booking_Pending extends WC_Email {
 		$customer_email = $order->get_billing_email(); 
 		$items          = $order->get_items();
 		foreach ( $items as $item_key => $item_value ) {
-			do_action( 'bkap_customer_new_booking_notification', $item_key, $customer_email );
+
+			$booking_ids = bkap_common::get_booking_id( $item_key );
+			if ( is_array( $booking_ids ) ) {
+				foreach ( $booking_ids as $key => $booking_id ) {
+					do_action( 'bkap_customer_new_booking_notification', $item_key, $customer_email, $key );
+				}
+			} else {
+				do_action( 'bkap_customer_new_booking_notification', $item_key, $customer_email, 0 );
+			}
 		}
 	}
 
@@ -77,10 +85,11 @@ class BKAP_Email_Booking_Pending extends WC_Email {
 	 *
 	 * @since 5.2.2
 	 */
-	public function bkap_customer_unconfirmed_notification( $item_id, $customer_email ) {
+	public function bkap_customer_unconfirmed_notification( $item_id, $customer_email, $key = 0 ) {
 
-		$this->booking_data = bkap_common::get_bkap_booking( $item_id );
+		$this->booking_data = bkap_common::get_bkap_booking( $item_id, $key );
 		$this->object       = $this->booking_data;
+
 		if ( 'pending-confirmation' === $this->booking_data->item_booking_status ) {
 			$key = array_search( '{product_title}', $this->find );
 			if ( false !== $key ) {

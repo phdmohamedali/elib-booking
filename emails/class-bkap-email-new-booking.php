@@ -47,7 +47,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 		// Triggers for this email.
 		add_action( 'bkap_pending_booking_notification', array( $this, 'queue_notification' ) );
 		add_action( 'bkap_new_booking_notification', array( $this, 'trigger' ) );
-		add_action( 'bkap_admin_new_booking_notification', array( $this, 'trigger' ) );
+		add_action( 'bkap_admin_new_booking_notification', array( $this, 'trigger' ), 10, 2 );
 
 		// Call parent constructor.
 		parent::__construct();
@@ -68,7 +68,16 @@ class BKAP_Email_New_Booking extends WC_Email {
 		$order = new WC_order( $order_id );
 		$items = $order->get_items();
 		foreach ( $items as $item_key => $item_value ) {
-			do_action( 'bkap_admin_new_booking_notification', $item_key );
+
+			$booking_ids = bkap_common::get_booking_id( $item_key );
+
+			if ( is_array( $booking_ids ) ) {
+				foreach ( $booking_ids as $key => $booking_id ) {
+					do_action( 'bkap_admin_new_booking_notification', $item_key, $key );
+				}
+			} else {
+				do_action( 'bkap_admin_new_booking_notification', $item_key, 0 );
+			}
 		}
 	}
 
@@ -81,7 +90,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 	 * @since 2.5
 	 * @return string
 	 */
-	public function trigger( $item_id ) {
+	public function trigger( $item_id, $key ) {
 
 		$send_email = true;
 
@@ -98,7 +107,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 
 		if ( $item_id && $send_email && $enabled ) {
 
-			$this->booking_data = bkap_common::get_bkap_booking( $item_id );
+			$this->booking_data = bkap_common::get_bkap_booking( $item_id, $key );
 			$this->object       = $this->booking_data;
 
 			if ( 'pending-confirmation' === $this->booking_data->item_booking_status ) {

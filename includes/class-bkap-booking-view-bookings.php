@@ -1093,7 +1093,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 						bkap_cancel_order::bkap_delete_booking( $post_id );
 					} else {
 						$item_id = get_post_meta( $post_id, '_bkap_order_item_id', true );
-						bkap_booking_confirmation::bkap_save_booking_status( $item_id, $new_status );
+						bkap_booking_confirmation::bkap_save_booking_status( $item_id, $new_status, $post_id );
 					}
 					$changed++;
 				}
@@ -1158,7 +1158,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				$item_id = get_post_meta( $booking_id, '_bkap_order_item_id', true );
 
 				do_action( 'bkap_booking_confirmed_using_icon' );
-				bkap_booking_confirmation::bkap_save_booking_status( $item_id, 'confirmed' );
+				bkap_booking_confirmation::bkap_save_booking_status( $item_id, 'confirmed', $booking_id );
 				wp_safe_redirect( wp_get_referer() );
 			}
 		}

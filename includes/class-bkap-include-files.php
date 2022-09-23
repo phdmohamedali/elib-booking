@@ -116,6 +116,7 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				'/includes/api/zapier/class-bkap-api-zapier-settings.php',
 				'/includes/api/zapier/class-bkap-api-zapier-log.php',
 				'/includes/class-bkap-coupons.php',
+				'/includes/class-bkap-import-export-bookable-products.php',
 			);
 
 			foreach ( $include_files as $include_file ) {

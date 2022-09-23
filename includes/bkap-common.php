@@ -149,8 +149,6 @@ class bkap_common {
 			'bkap_add_to_calendar_order_received_page' => get_option( 'bkap_add_to_calendar_order_received_page', '' ),
 			'bkap_add_to_calendar_customer_email'      => get_option( 'bkap_add_to_calendar_customer_email', '' ),
 			'bkap_add_to_calendar_my_account_page'     => get_option( 'bkap_add_to_calendar_my_account_page', '' ),
-			'bkap_calendar_in_same_window'             => get_option( 'bkap_calendar_in_same_window', '' ),
-			'bkap_allow_tour_operator_gcal_api'        => get_option( 'bkap_allow_tour_operator_gcal_api', '' ),
 			'bkap_calendar_sync_integration_mode'      => get_option( 'bkap_calendar_sync_integration_mode', '' ),
 			'bkap_cron_time_duration'                  => get_option( 'bkap_cron_time_duration', '' ),
 			'bkap_ics_feed_urls'                       => get_option( 'bkap_ics_feed_urls', '' ),
@@ -1921,10 +1919,10 @@ class bkap_common {
 
 		if ( $d_type == 'hours' ) {
 
-			$hidden_end_with_time = $hidden_date_with_time + ( $hour * 3600 );
+			$hidden_end_with_time = $hidden_date_with_time + ( (int) $hour * 3600 );
 			// $hidden_end_with_time = $hidden_date_with_time + ( 2 * 3600 );
 		} else {
-			$hidden_end_with_time = $hidden_date_with_time + ( $hour * 60 );
+			$hidden_end_with_time = $hidden_date_with_time + ( (int) $hour * 60 );
 		}
 
 		// $end_date = date( 'YmdHis', $hidden_end_with_time );

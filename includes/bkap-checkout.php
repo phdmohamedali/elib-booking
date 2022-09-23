@@ -894,6 +894,11 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 				$order_id         = $results[0]->order_id;
 				$order_obj        = new WC_order( $order_id );
 
+				$is_multidates = false;
+				if ( count( $values['bkap_booking'] ) > 1 ) {
+					$is_multidates   = true;
+				}
+
 				for ( $i = 0; $i < $booking_count; $i++ ) {
 
 					if ( isset( $values['bkap_booking'][ $i ]['hidden_date'] ) ) {
@@ -907,7 +912,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 					 */
 					$type_of_slot = apply_filters( 'bkap_slot_type', $post_id );
 
-					if ( $type_of_slot === 'multiple' ) {
+					if ( $type_of_slot === 'multiple' && ! $is_multidates ) {
 
 						if ( isset( $booking['time_slot'] ) && '' !== $booking['time_slot'] ) {
 

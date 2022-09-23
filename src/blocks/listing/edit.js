@@ -45,6 +45,7 @@ const ListingEdit = ( props ) => {
 		type: attributes.type,
 		dayType: attributes.dayType,
 		timeType: attributes.timeType,
+		multipleType: attributes.multipleType,
 		products: attributes.products && getAttributeValues( attributes.products ),
 		categories: attributes.categories && getAttributeValues( attributes.categories ),
 		resources: attributes.resources && getAttributeValues( attributes.resources ),

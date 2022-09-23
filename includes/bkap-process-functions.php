@@ -2800,7 +2800,7 @@ function bkap_grouped_child_ids( $post_id, $_product ) {
  */
 
 function bkap_get_page() {
-	$bkap_page = '';
+	$bkap_page = 'view-order';
 
 	if ( is_product() ) {
 		$bkap_page = 'product';

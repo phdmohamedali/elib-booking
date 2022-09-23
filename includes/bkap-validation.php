@@ -418,6 +418,13 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 			if ( isset( $_POST['bkap_front_resource_selection'] ) ) { // Resource validation start here.
 
+				if ( '' == $_POST['bkap_front_resource_selection'] ) {
+					$message = __( 'Please select the resource to add the product to cart.', 'woocommerce-booking' );
+					wc_add_notice( $message, $notice_type = 'error' );
+
+					return 'no';
+				}
+
 				$resource_id                = (int) $_POST['bkap_front_resource_selection'];
 				$resource_name              = get_the_title( $resource_id );
 				$resource_validation_result = array(

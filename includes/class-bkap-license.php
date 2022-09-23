@@ -43,18 +43,32 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		public static $license_status = '';
 
 		/**
+		 * License Key.
+		 *
+		 * @var string
+		 */
+		public static $plugin_name = 'Booking & Appointment Plugin for WooCommerce';
+
+		/**
 		 * General License Error Message.
 		 *
 		 * @var string
 		 */
-		public static $license_error_message = 'You are on the %1$s License. This feature is available only on the %2$s License.';
+		public static $license_error_message;
+
+		/**
+		 * Plugin License Activate Error Message.
+		 *
+		 * @var string
+		 */
+		public static $plugin_activate_error_message;
 
 		/**
 		 * Plugin License Error Message.
 		 *
 		 * @var string
 		 */
-		public static $plugin_license_error_message = 'You have activated the %1$s Plugin. Your current license ( %2$s ) does not offer support for Vendor Plugins. Please upgrade to the %3$s License.';
+		public static $plugin_license_error_message;
 
 		/**
 		 * Initializes the BKAP_License() class. Checks for an existing instance and if it doesn't find one, it then creates it.
@@ -92,6 +106,13 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		 * @since 5.12.0
 		 */
 		public static function load_license_data() {
+
+			$license_page_url = 'edit.php?post_type=bkap_booking&page=booking_license_page';
+
+			self::$license_error_message         = __( 'You are on the %1$s License. This feature is available only on the %2$s License.', 'woocommerce-booking' );
+			self::$plugin_license_error_message  = __( 'You have activated the %1$s Plugin. Your current license ( %2$s ) does not offer support for Vendor Plugins. Please upgrade to the %3$s License.', 'woocommerce-booking' );
+			self::$plugin_activate_error_message = __( 'We have noticed that the license for <b>' . self::$plugin_name . '</b> plugin is not active. To receive automatic updates & support, please activate the license <a href= "' . $license_page_url . '"> here </a>.', 'woocommerce-booking' );
+
 			self::$license_key    = get_option( 'edd_sample_license_key', '' );
 			self::$license_type   = get_option( 'edd_sample_license_type', '' );
 			self::$license_status = get_option( 'edd_sample_license_status', '' );
@@ -105,7 +126,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		public static function display_license_page() {
 			?>
 
-		   <div class="wrap">
+			<div class="wrap">
 				<h2>
 					<?php esc_html_e( 'Plugin License Options', 'woocommerce-booking' ); ?>
 				</h2>
@@ -121,7 +142,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 					self::display_error_notice( $notice );
 				}
 				?>
-							
+
 				<form method="post" action="options.php">
 
 				<?php settings_fields( 'bkap_edd_sample_license' ); ?>
@@ -319,8 +340,12 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			$license_data = self::fetch_license();
 
 			if ( $license_data && isset( $license_data->license ) && '' !== $license_data->license && 'invalid' !== $license_data->license ) {
-				self::$license_type = self::get_license_type( strval( $license_data->price_id ) );
-				update_option( 'edd_sample_license_type', self::$license_type );
+				$license_type   = self::get_license_type( strval( $license_data->price_id ) );
+				$license_status = get_option( 'edd_sample_license_status', '' );
+				if ( '' !== $license_status ) {
+					self::$license_type = $license_type;
+					update_option( 'edd_sample_license_type', self::$license_type );
+				}
 			}
 		}
 
@@ -393,12 +418,19 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		 */
 		public static function license_error_message( $expected_plan ) {
 			self::check_license_type();
-			return sprintf(
-				/* translators: %1$s: Current Plan, %2$s: Expected Plan */
-				__( self::$license_error_message, 'woocommerce-booking' ), //phpcs:ignore
-				ucwords( self::$license_type ),
-				ucwords( $expected_plan )
-			);
+
+			if ( '' == self::$license_status ) {
+				return sprintf(
+					self::$plugin_activate_error_message
+				);
+			} else {
+				return sprintf(
+					/* translators: %1$s: Current Plan, %2$s: Expected Plan */
+					__( self::$license_error_message, 'woocommerce-booking' ), //phpcs:ignore
+					ucwords( self::$license_type ),
+					ucwords( $expected_plan )
+				);
+			}
 		}
 
 		/**
@@ -525,7 +557,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		public static function remove_wp_actions() {
 
 			// Outlook Calendar Addon.
-			if ( class_exists( 'Bkap_Outlook_Calendar' ) ) {
+			if ( class_exists( 'Bkap_Outlook_Calendar' ) && ! self::enterprise_license() ) {
 
 				$did_remove = self::remove_wp_action( 'bkap_global_integration_settings', 'bkap_outlook_calendar_options', 10 );
 

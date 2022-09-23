@@ -959,7 +959,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			foreach ( $new_booking_data as $data ) {
 				$updated_meeting_data = Bkap_Zoom_Meeting_Settings::bkap_create_zoom_meeting( $booking_id, $data, 'update' );
 
-				if ( count( $updated_meeting_data ) > 0 ) {
+				if ( isset( $updated_meeting_data ) && is_array( $updated_meeting_data ) && count( $updated_meeting_data ) > 0 ) {
 					/* translators: %s: Booking ID and Meeting Link. */
 					$order_note = sprintf( __( 'Updated Zoom Meeting Link for Booking #%1$s - %2$s', 'woocommerce-booking' ), $booking_id, $updated_meeting_data['meeting_link'] );
 					$order_obj->add_order_note( $order_note, 1, false );
@@ -1369,5 +1369,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			<?php
 		}
 	}
+
+	global $edit_booking_class;
 	$edit_booking_class = new bkap_edit_bookings_class();
 }

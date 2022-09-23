@@ -94,6 +94,7 @@ if ( ! class_exists( 'Bkap_Ajax' ) ) {
 			add_action( 'wp_ajax_bkap_delete_all_date_time', array( 'bkap_booking_box_class', 'bkap_delete_all_date_time' ) );
 			add_action( 'wp_ajax_bkap_delete_specific_range', array( 'bkap_booking_box_class', 'bkap_delete_specific_range' ) );
 			add_action( 'wp_ajax_bkap_delete_booking', array( 'bkap_cancel_order', 'bkap_trash_booking' ) );
+			add_action( 'wp_ajax_bkap_add_zoom_meeting', array( 'Bkap_Zoom_Meeting_Settings', 'bkap_add_zoom_meeting' ) );
 			add_action( 'wp_ajax_bkap_load_time_slots', array( 'bkap_booking_box_class', 'bkap_load_time_slots' ) );
 			add_action( 'wp_ajax_bkap_test_sms', array( 'Bkap_SMS_settings', 'bkap_send_test_sms' ) );
 		}

@@ -254,7 +254,7 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 		 * @param string $action default is blank - 'update' can be passed for update operation.
 		 * @since 5.2.0
 		 */
-		public static function bkap_create_zoom_meeting( $booking_id, $booking_data, $action = '' ) {
+		public static function bkap_create_zoom_meeting( $booking_id, $booking_data, $action = '', $paid_check = true ) {
 
 			$booking_obj = new BKAP_Booking( $booking_id );
 
@@ -269,7 +269,7 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 				return;
 			}
 
-			if ( ! $order_obj->get_date_paid() ) {
+			if ( ! $order_obj->get_date_paid() && $paid_check ) {
 				return;
 			}
 
@@ -471,6 +471,20 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 				<label for="_bkap_zoom_meeting"><?php echo $meeting_label; ?> - <a href="<?php echo $meeting_link; ?>" target="_blank"><?php echo $meeting_text; // phpcs:ignore ?></a></label>
 			</p>
 				<?php
+			} else {
+				$product_id    = $booking->get_product_id();
+				$zoom_enabled  = bkap_zoom_meeting_enable( $product_id );
+				$meeting_label = bkap_zoom_join_meeting_label( $product_id );
+
+				if ( $zoom_enabled ) {
+					?>
+					<p class="form-field form-field-wide">
+						<label for="bkap_add_zoom_meeting"><?php echo $meeting_label; ?> - <a href="javascript:void(0)" id="bkap_add_zoom_meeting" ><?php echo __( 'Add zoom meeting', 'woocommerce-booking' ); // phpcs:ignore ?></a></label>
+						<input type="text" name="bkap_manual_zoom_meeting" id="bkap_manual_zoom_meeting" placeholder="<?php echo __( 'Add meeting link here', 'woocommerce-booking' ); ?>">
+						<i id="bkap_manual_zoom_meeting_info"><?php echo __( 'Keeping above field blank will generate new meeting link.', 'woocommerce-booking' ); ?></i>
+					</p>
+					<?php
+				}
 			}
 		}
 
@@ -611,6 +625,72 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 				}
 			}
 			return $order_array;
+		}
+
+		/**
+		 * Manually adding the meeting link to the booking.
+		 *
+		 * @param array $order_array Array of Order data.
+		 * @since 5.15.0
+		 */
+		public static function bkap_add_zoom_meeting() {
+
+			$booking_id   = $_POST['booking_id'];
+			$meeting_link = $_POST['meeting_link'];
+
+			if ( $meeting_link == '' ) {
+				$booking_data = bkap_get_meta_data( $booking_id );
+
+				foreach ( $booking_data as $data ) {
+					$meeting_info = Bkap_Zoom_Meeting_Settings::bkap_create_zoom_meeting( $booking_id, $data, 'add', false );
+					$meeting_link = $meeting_info['meeting_link'];
+				}
+			} else {
+
+				$meeting_link_data  = wp_parse_url( $meeting_link );
+				$meeting_explode    = explode( '/', $meeting_link_data['path'] );
+				$meeting_id         = $meeting_explode[2];
+				$meeting_id_explode = explode( '?', $meeting_id );
+				$meeting_id         = $meeting_id_explode[0];
+
+				if ( $meeting_id != '' ) {
+					$meeting      = json_decode( bkap_zoom_connection()->bkap_get_meeting_info( $meeting_id ) );
+					$booking_data = bkap_get_meta_data( $booking_id );
+
+					extract( $booking_data[0] );
+					if ( isset( $meeting->join_url ) ) {
+
+						$meeting_label      = bkap_zoom_join_meeting_label( $product_id );
+						$meeting_text       = bkap_zoom_join_meeting_text( $product_id );
+						$meeting_link       = $meeting->join_url;
+						$order_meeting_link = $meeting_link;
+						$meeting_data       = $meeting;
+	
+						update_post_meta( $booking_id, '_bkap_zoom_meeting_link', $meeting_link );
+						update_post_meta( $booking_id, '_bkap_zoom_meeting_data', $meeting_data );
+						$meeting_link = sprintf( '<a href="%s">%s</a>', $meeting->join_url, $meeting_text );
+						wc_add_order_item_meta( $order_item_id, $meeting_label, $meeting_link );
+	
+						$meeting_info['meeting_link'] = $meeting_link;
+						$meeting_info['meeting_data'] = $meeting_data;
+	
+						// Save Zoom Meeting Information to Order Note.
+						$order_meeting_link = sprintf( '<a href="%s">%s</a>', $order_meeting_link, $order_meeting_link );
+						$order_meeting_link = sprintf( __( $meeting_label . ': %s', 'woocommerce-booking' ), $order_meeting_link );
+						bkap_common::save_booking_information_to_order_note( '', $parent_id, $order_meeting_link );
+					} else {
+						$meeting_link = $meeting->message;
+						$order_obj                     = wc_get_order( $parent_id );
+						/* translators: %s: Booking ID and Meeting link. */
+						$meeting_msg = sprintf( __( 'Zoom Meeting Error for Booking #%1$s - %2$s', 'woocommerce-booking' ), $booking_id, $meeting->message );
+						$order_obj->add_order_note( $meeting_msg );
+					}
+				} else {
+					$meeting_link = __( 'Invalid meeting link.', 'woocommerce-booking' );
+				}
+			}
+
+			wp_send_json( array( 'meeting_link' => $meeting_link ) );
 		}
 	}
 	Bkap_Zoom_Meeting_Settings::instance();

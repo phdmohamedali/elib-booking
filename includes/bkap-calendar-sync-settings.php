@@ -113,23 +113,6 @@ class bkap_gcal_sync_settings {
 	}
 
 	/**
-	 * Callback function for Booking->Settings->Google Calendar Sync->Open Calendar in Same Window
-	 *
-	 * @param array $args - Setting Label Array
-	 * @since 2.6
-	 */
-	public static function bkap_calendar_in_same_window_callback( $args ) {
-		$google_calendar_same_window = '';
-		if ( get_option( 'bkap_calendar_in_same_window' ) == 'on' ) {
-			$google_calendar_same_window = 'checked';
-		}
-
-		echo '<input type="checkbox" name="bkap_calendar_in_same_window" id="bkap_calendar_in_same_window" class="day-checkbox" value="on" ' . $google_calendar_same_window . ' />';
-		$html = '<label for="bkap_calendar_in_same_window"> ' . $args[0] . '</label>';
-		echo $html;
-	}
-
-	/**
 	 * Callback function for Booking->Settings->Google Calendar Sync->Export Bookings header
 	 *
 	 * @param array $args - Setting Label Array
@@ -155,32 +138,6 @@ class bkap_gcal_sync_settings {
 
 		printf( '<br/><div class="%1$s"><p style="font-size:medium;"><b>%2$s</b></p></div>', esc_attr( $class ), $message );
 
-	}
-
-	/**
-	 * Callback function for Booking->Settings->Google Calendar Sync->Allow Tour Operators for Google Calendar API Integration
-	 *
-	 * @param array $args - Setting Label Array
-	 * @since 2.6
-	 */
-	public static function bkap_allow_tour_operator_gcal_api_callback( $args ) {
-		$tour_operator_gcal_api_yes = '';
-		$tour_operator_gcal_api_no  = 'selected';
-
-		if ( 'yes' == get_option( 'bkap_allow_tour_operator_gcal_api' ) ) {
-			$tour_operator_gcal_api_yes = 'selected';
-			$tour_operator_gcal_api_no  = '';
-		} elseif ( 'no' == get_option( 'bkap_allow_tour_operator_gcal_api' ) ) {
-			$tour_operator_gcal_api_no = 'selected';
-		}
-
-		echo '<select id="bkap_allow_tour_operator_gcal_api" name="bkap_allow_tour_operator_gcal_api" >
-                <option value="yes" ' . $tour_operator_gcal_api_yes . '>YES</option>
-                <option value="no" ' . $tour_operator_gcal_api_no . '>NO</option>
-            </select>';
-
-		$html = '<label for="bkap_allow_tour_operator_gcal_api"> ' . $args[0] . '</label>';
-		echo $html;
 	}
 
 	/**
