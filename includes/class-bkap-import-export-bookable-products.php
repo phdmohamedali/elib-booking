@@ -875,10 +875,12 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 			}
 
 			$post_titles = array();
-
-			if ( count( $post_ids ) > 0 ) {
-				foreach ( $post_ids as $post_id ) {
-					$post_titles[ $post_id ] = get_the_title( $post_id );
+			if($post_ids)
+			{
+				if ( count( $post_ids ) > 0 ) {
+					foreach ( $post_ids as $post_id ) {
+						$post_titles[ $post_id ] = get_the_title( $post_id );
+					}
 				}
 			}
 
