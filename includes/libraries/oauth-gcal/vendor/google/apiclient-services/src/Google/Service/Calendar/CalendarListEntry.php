@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_CalendarListEntry extends Google_Collection
+class Google_Service_Calendar_CalendarListEntry extends BKAPGoogle_Collection
 {
   protected $collection_key = 'defaultReminders';
   public $accessRole;

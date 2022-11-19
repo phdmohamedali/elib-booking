@@ -191,7 +191,10 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 			$resource_id
 		) {
 
-			$price_array  = array( 'special_booking_price' => '', 'grouped_raw_price' => '' );
+			$price_array = array(
+				'special_booking_price' => '',
+				'grouped_raw_price'     => '',
+			);
 
 			if ( $product_type == 'grouped' ) {
 				$special_price_present = 'NO';
@@ -262,9 +265,9 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 					$special_booking_price = $price_str;
 					if ( $special_price_present == 'YES' ) {
 						$price_array['special_booking_price'] = $special_booking_price;
-						$price_array['grouped_raw_price'] = $raw_price_str;
-						$_POST['special_booking_price'] = $special_booking_price;
-						$_POST['grouped_raw_price']     = $raw_price_str;
+						$price_array['grouped_raw_price']     = $raw_price_str;
+						$_POST['special_booking_price']       = $special_booking_price;
+						$_POST['grouped_raw_price']           = $raw_price_str;
 					}
 				}
 			} else {
@@ -272,7 +275,7 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 
 				if ( isset( $special_booking_price ) && $special_booking_price != '' ) {
 					$price_array['special_booking_price'] = $special_booking_price;
-					$_POST['special_booking_price'] = $special_booking_price;
+					$_POST['special_booking_price']       = $special_booking_price;
 				}
 			}
 
@@ -352,15 +355,15 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 				$currency_selected
 			) {
 
-			$global_settings    = bkap_global_setting();
-			$number_count       = $number;
-			$product_type       = $product_obj->get_type();
-			$special_pricing    = false;
-			$quantity           = ( isset( $_POST['quantity'] ) && $_POST['quantity'] > 0 ) ? $_POST['quantity'] : 1;
-			$product            = wc_get_product( $product_id );
-			$number             = apply_filters( 'bkap_selected_days_value', $number, $checkin_date, $checkout_date, $product_id, $booking_settings );
-			$selected_days_msg  = apply_filters( 'bkap_selected_days_full_text', $number . '<br>', $number, $checkin_date, $checkout_date, $product_id, $booking_settings );
-			$wp_send_json       = array();
+			$global_settings   = bkap_global_setting();
+			$number_count      = $number;
+			$product_type      = $product_obj->get_type();
+			$special_pricing   = false;
+			$quantity          = ( isset( $_POST['quantity'] ) && $_POST['quantity'] > 0 ) ? $_POST['quantity'] : 1;
+			$product           = wc_get_product( $product_id );
+			$number            = apply_filters( 'bkap_selected_days_value', $number, $checkin_date, $checkout_date, $product_id, $booking_settings );
+			$selected_days_msg = apply_filters( 'bkap_selected_days_full_text', $number . '<br>', $number, $checkin_date, $checkout_date, $product_id, $booking_settings );
+			$wp_send_json      = array();
 
 			$wp_send_json['bkap_no_of_days'] = $selected_days_msg;
 
@@ -464,8 +467,6 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 				$special_multiple_day_booking_price = $price;
 			}
 
-			$resource_price = 0;
-
 			if ( ( function_exists( 'is_bkap_deposits_active' ) && is_bkap_deposits_active() )
 				|| ( function_exists( 'is_bkap_seasonal_active' ) && is_bkap_seasonal_active() && 'yes' == $booking_settings['booking_seasonal_pricing_enable'] )
 			) {
@@ -487,21 +488,31 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 				$special_multiple_day_booking_price = $special_multiple_day_booking_price * (int) $quantity;
 				$special_multiple_day_booking_price = number_format( $special_multiple_day_booking_price, wc_get_price_decimals(), '.', '' );
 
-				// Calculating resource price and adding it to the final price.
-				if ( $resource_id > 0 ) {
+				// Calculate resource price and add to final price.
+				if ( '' !== $resource_id ) {
 
-					$resource       = new BKAP_Product_Resource( $resource_id, $product_id );
-					$resource_price = $resource->get_base_cost();
+					$resource_id    = explode( ',', $resource_id );
+					$resource_price = 0;
 
-					if ( isset( $global_settings->resource_price_per_day ) && $global_settings->resource_price_per_day == 'on' ) {
-						$resource_price = $resource_price * $number_count;
+					if ( count( $resource_id ) > 0 ) {
+						foreach ( $resource_id as $id ) {
+							$resource = new BKAP_Product_Resource( $id, $product_id );
+							$_price   = $resource->get_base_cost();
+
+							if ( isset( $global_settings->resource_price_per_day ) && 'on' === $global_settings->resource_price_per_day ) {
+								$_price = $_price * $number_count;
+							}
+
+							if ( isset( $_POST['quantity'] ) && (int) $_POST['quantity'] > 0 ) {
+								$_price = $_price * $_POST['quantity'];
+							}
+
+							$resource_price += $_price;
+						}
 					}
-					if ( isset( $_POST['quantity'] ) && $_POST['quantity'] > 0 ) {
-						$resource_price = $resource_price * $_POST['quantity'];
-					}
+
+					$special_multiple_day_booking_price += $resource_price;
 				}
-
-				$special_multiple_day_booking_price += $resource_price;
 
 				/* Person Price Calculations */
 				$person_price = 0;
@@ -626,4 +637,3 @@ if ( ! class_exists( 'bkap_special_booking_price' ) ) {
 	}
 }
 $bkap_special_booking_price = new bkap_special_booking_price();
-

@@ -874,7 +874,7 @@ if ( ! class_exists( 'BKAP_API_Zapier' ) ) {
 					throw new WC_API_Exception( 'bkap_api_zapier_subscription_invalid_hook_action', __( 'Hook Action is required to delete a Subscription', 'woocommerce-booking' ), 400 );
 				}
 
-				$subscriptions                = BKAP_API_Zapier_Settings::bkap_api_zapier_get_subscriptions();
+				$subscriptions                = (array) BKAP_API_Zapier_Settings::bkap_api_zapier_get_subscriptions();
 				$subscription_for_hook_action = isset( $subscriptions->{$hook_action} ) ? $subscriptions->{$hook_action} : '';
 				$is_subscription_key_found    = false;
 

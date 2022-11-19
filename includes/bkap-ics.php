@@ -65,7 +65,7 @@ if ( ! class_exists( 'Bkap_Ics' ) ) {
 
 			if ( isset( $order_id ) && 0 !== $order_id ) {
 
-				$order_obj   = new WC_Order( $order_id );
+				$order_obj   = wc_get_order( $order_id );
 				$order_items = $order_obj->get_items();
 
 				$results_date = $wpdb->get_results(

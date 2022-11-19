@@ -15,7 +15,7 @@
  * the License.
  */
 
-namespace Google\Task;
+namespace BKAPGoogle\Task;
 
 use Composer\Script\Event;
 use Symfony\Component\Filesystem\Filesystem;

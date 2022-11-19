@@ -47,7 +47,7 @@ use LogicException;
  * The Google API Client
  * https://github.com/google/google-api-php-client
  */
-class Client
+class BKAPClient
 {
   const LIBVER = "2.9.1";
   const USER_AGENT_SUFFIX = "google-api-php-client/";

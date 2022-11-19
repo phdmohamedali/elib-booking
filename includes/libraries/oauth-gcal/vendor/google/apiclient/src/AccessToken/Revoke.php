@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-namespace Google\AccessToken;
+namespace BKAPGoogle\AccessToken;
 
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Client;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Client;
 use BKAPGuzzleHttp\ClientInterface;
 use BKAPGuzzleHttp\Psr7;
 use BKAPGuzzleHttp\Psr7\Request;

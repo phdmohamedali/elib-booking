@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventReminder extends Google_Model
+class Google_Service_Calendar_EventReminder extends BKAPGoogle_Model
 {
   public $method;
   public $minutes;

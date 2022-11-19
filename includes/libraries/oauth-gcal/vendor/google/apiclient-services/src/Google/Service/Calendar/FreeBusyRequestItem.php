@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_FreeBusyRequestItem extends Google_Model
+class Google_Service_Calendar_FreeBusyRequestItem extends BKAPGoogle_Model
 {
   public $id;
 

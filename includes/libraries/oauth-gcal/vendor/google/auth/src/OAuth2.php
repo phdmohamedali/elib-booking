@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
-use Google\Auth\HttpHandler\HttpClientCache;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Auth\HttpHandler\HttpClientCache;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
 use BKAPGuzzleHttp\Psr7;
 use BKAPGuzzleHttp\Psr7\Utils;
 use BKAPGuzzleHttp\Psr7\Query;

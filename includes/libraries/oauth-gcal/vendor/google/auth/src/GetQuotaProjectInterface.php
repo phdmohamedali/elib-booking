@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
 /**
  * An interface implemented by objects that can get quota projects.

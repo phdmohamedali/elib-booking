@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
 use DateTime;
 use Exception;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
-use Google\Auth\Cache\MemoryCacheItemPool;
-use Google\Auth\HttpHandler\HttpClientCache;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Auth\Cache\MemoryCacheItemPool;
+use BKAPGoogle\Auth\HttpHandler\HttpClientCache;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
 use BKAPGuzzleHttp\Psr7;
 use BKAPGuzzleHttp\Psr7\Request;
 use InvalidArgumentException;

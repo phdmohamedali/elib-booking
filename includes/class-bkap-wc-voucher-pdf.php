@@ -25,7 +25,7 @@ if ( ! class_exists( 'Booking_Information_In_Voucher_Template' ) ) {
 		public function __construct() {
 
 			// Add filter to replace voucher template shortcodes in download pdf
-			add_filter( 'woo_vou_pdf_template_inner_html', array( &$this, 'woo_vou_pdf_template_replace_shortcodes' ), 10, 6 );
+			add_filter( 'woo_vou_pdf_template_inner_html', array( &$this, 'woo_vou_pdf_template_replace_shortcodes' ), 10, 7 );
 		}
 
 		/**
@@ -42,9 +42,9 @@ if ( ! class_exists( 'Booking_Information_In_Voucher_Template' ) ) {
 		 * @hook woo_vou_pdf_template_inner_html
 		 * @since 4.8.0
 		 */
-		public static function woo_vou_pdf_template_replace_shortcodes( $voucher_template_html, $orderid, $item_key, $items, $voucodes, $productid ) {
+		public static function woo_vou_pdf_template_replace_shortcodes( $voucher_template_html, $orderid, $item_key, $items, $voucodes, $productid, $woo_vou_details ) {
 
-			$order          = new WC_Order( $orderid );
+			$order          = wc_get_order( $orderid );
 			$order_items    = $order->get_items();
 			$buyerstartdate = $buyerenddate = $buyertime = '';
 

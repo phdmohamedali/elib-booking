@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Colors extends Google_Model
+class Google_Service_Calendar_Colors extends BKAPGoogle_Model
 {
   protected $calendarType = 'Google_Service_Calendar_ColorDefinition';
   protected $calendarDataType = 'map';

@@ -170,7 +170,7 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 				return;
 			}
 
-			$client = new Google_Client();
+			$client = new BKAPGoogle_Client();
 			$client->addScope( Google_Service_Calendar::CALENDAR );
 			$client->setAccessType( 'offline' );
 			$client->setRedirectUri( $this->bkap_get_redirect_uri() /*'http://localhost/hotel/wp-admin/edit.php?post_type=bkap_booking&page=woocommerce_booking_page'*/ );
@@ -407,7 +407,7 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 		 * @since 5.9.1
 		 */
 		public function bkap_check_gcal_vendor_files() {
-			return class_exists( Google_Client::class ) && class_exists( Google_Service_Calendar::class );
+			return class_exists( BKApGoogle_Client::class ) && class_exists( Google_Service_Calendar::class );
 		}
 
 		/**

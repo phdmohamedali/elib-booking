@@ -5,7 +5,7 @@
 
 echo '= ' . $email_heading . " =\n\n";
 
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 
 echo sprintf( __( 'You have a booking for %s. Your order is as follows: ', 'woocommerce-booking' ), $booking->product_title ) . "\n\n";
 

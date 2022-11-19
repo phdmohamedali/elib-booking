@@ -27,12 +27,7 @@
 			header: <?php echo wp_json_encode( $header ); ?>,
 			defaultView: '<?php echo $default_view; ?>',
 			loading: function (isLoading) {
-				//bkapListing.loading( isLoading, bkap_data.is_admin );
-
-				if ( 0 !== jQuery( '.tyche_loader').length ) {
-					jQuery( '.tyche_loader' ).css( 'display', '' );
-					jQuery( '.tyche_loader' ).addClass( 'display-z-index-higher-priority' );
-				}
+				bkapListing.loading( isLoading, bkap_data.is_admin );
 			},
 			events: {
 				url: '?bkap_events_feed=json&bkap_view=<?php echo $view; ?>',
@@ -73,13 +68,6 @@
 					} else {
 						$( ".fc-next-button" ).removeClass( 'fc-state-disabled' );
 						$( ".fc-next-button" ).prop( 'disabled', false );
-					}
-
-					if ( 0 !== jQuery( '.tyche_loader' ).length ) {
-						if ( jQuery( '.tyche_loader' ).hasClass( 'display-z-index-higher-priority' ) ) {
-							jQuery( '.tyche_loader' ).removeClass( 'display-z-index-higher-priority' );
-						}
-						jQuery( '.tyche_loader' ).css( "display", "none" );
 					}
 				}, 5000 );
 			},

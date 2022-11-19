@@ -240,7 +240,7 @@ if ( ! class_exists( 'bkap_admin_bookings' ) ) {
 						}
 					}
 
-					$redirect_url = admin_url( 'post.php?post=' . ( $order_id ) . '&action=edit' );
+					$redirect_url = bkap_order_url( $order_id );
 					$redirect_url = apply_filters( 'bkap_after_successful_manual_booking', $redirect_url, $order_id );
 
 					if ( isset( $status['new_order'] ) && $status['new_order'] ) {
@@ -335,8 +335,7 @@ if ( ! class_exists( 'bkap_admin_bookings' ) ) {
 					if ( 'existing' === $booking_order ) {
 						$order_id      = absint( $_POST['bkap_order_id'] );
 						$booking_order = $order_id;
-
-						if ( ! $booking_order || get_post_type( $booking_order ) !== 'shop_order' ) {
+						if ( wc_get_order( $order_id ) ) {
 							throw new Exception( __( 'Invalid order ID provided', 'woocommerce-booking' ) );
 						}
 					}
@@ -346,7 +345,6 @@ if ( ! class_exists( 'bkap_admin_bookings' ) ) {
 					$bkap_data['order_id']    = $booking_order;
 					$bkap_data['bkap_order']  = $_POST['bkap_order'];
 					$step++;
-
 				}
 			} catch ( Exception $e ) {
 				$bkap_admin_bookings           = new bkap_admin_bookings();

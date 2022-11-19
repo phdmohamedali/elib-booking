@@ -53,8 +53,15 @@ if ( $has_bookings ) :
 					$order_url                      = $_order->get_view_order_url();
 					$order_number                   = $_order->get_order_number();
 					$zoom_meeting_link              = Bkap_Cancel_Booking::bkap_get_zoom_meeting_link( $booking_id );
-					$bkap_cancel_booking_action     = ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) ) ? Bkap_Cancel_Booking::bkap_cancel_booking_action( $booking_id ) : '';
-					$bkap_reschedule_booking_action = ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) ) ? Bkap_Cancel_Booking::bkap_reschedule_booking_action( $booking_id ) : '';
+					$bkap_cancel_booking_action     = '';
+					$bkap_reschedule_booking_action = '';
+					$resource_title                 = $booking->get_resource_title();
+
+					// Show action buttons for valid bookings.
+					if ( isset( $bkap_get_account_endpoint_columns['booking-action'] ) && in_array( $booking->get_status(), array( 'confirmed', 'paid' ) ) ) {
+						$bkap_cancel_booking_action     = Bkap_Cancel_Booking::bkap_cancel_booking_action( $booking_id );
+						$bkap_reschedule_booking_action = Bkap_Cancel_Booking::bkap_reschedule_booking_action( $booking_id );
+					}
 					?>
 
 					<tr class="bkap-cancel-booking-table__row">
@@ -68,6 +75,11 @@ if ( $has_bookings ) :
 									<a href="<?php echo esc_url( $product_url ); ?>">
 										<?php echo esc_html( $product_name ); ?>
 									</a>
+
+									<?php if ( '' !== $resource_title ) : ?>
+										<br/>
+										( <?php echo esc_html( $resource_title ); ?> )
+									<?php endif; ?>
 
 								<?php elseif ( 'order-id' === $column_id ) : ?>
 									<a href="<?php echo esc_url( $order_url ); ?>">

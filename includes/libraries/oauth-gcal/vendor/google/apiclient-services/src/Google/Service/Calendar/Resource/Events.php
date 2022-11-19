@@ -23,7 +23,7 @@
  *   $events = $calendarService->events;
  *  </code>
  */
-class Google_Service_Calendar_Resource_Events extends Google_Service_Resource
+class Google_Service_Calendar_Resource_Events extends BKAPGoogle_Service_Resource
 {
   /**
    * Deletes an event. (events.delete)

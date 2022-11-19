@@ -181,8 +181,7 @@ class BKAP_Product_Resource {
 	 */
 
 	public function get_resource_title() {
-
-		return get_the_title( $this->get_id() );
+		return Class_Bkap_Product_Resource::get_resource_name( $this->get_id() );
 	}
 
 	/**
@@ -227,5 +226,16 @@ class BKAP_Product_Resource {
 
 		return $bkap_resource_assigned;
 
+	}
+
+	/**
+	 * Returns resource selection type.
+	 *
+	 * @return integer $product_id Product ID.
+	 * @since 5.15.0
+	 */
+	public static function get_resource_selection_type( $product_id ) {
+		$resource_selection_type = get_post_meta( $product_id, '_bkap_product_resource_selection_type', true );
+		return ( '' === $resource_selection_type ) ? 'single' : $resource_selection_type;
 	}
 }

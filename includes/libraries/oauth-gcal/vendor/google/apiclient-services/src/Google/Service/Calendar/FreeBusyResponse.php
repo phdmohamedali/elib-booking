@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_FreeBusyResponse extends Google_Model
+class Google_Service_Calendar_FreeBusyResponse extends BKAPGoogle_Model
 {
   protected $calendarsType = 'Google_Service_Calendar_FreeBusyCalendar';
   protected $calendarsDataType = 'map';

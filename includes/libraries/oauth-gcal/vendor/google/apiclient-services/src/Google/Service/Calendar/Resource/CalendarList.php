@@ -23,7 +23,7 @@
  *   $calendarList = $calendarService->calendarList;
  *  </code>
  */
-class Google_Service_Calendar_Resource_CalendarList extends Google_Service_Resource
+class Google_Service_Calendar_Resource_CalendarList extends BKAPGoogle_Service_Resource
 {
   /**
    * Removes a calendar from the user's calendar list. (calendarList.delete)

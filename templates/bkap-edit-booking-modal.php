@@ -25,26 +25,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="bkap-booking-header">
 			<?php
-				if ( ! empty( $bkap_order_id ) ) {
-					$order             = wc_get_order( $bkap_order_id );
-					$is_coupon_applied =  count( $order->get_coupon_codes() );
-				} else {
-					$is_coupon_applied = 0;
-				}
+			if ( ! empty( $bkap_order_id ) ) {
+				$order             = wc_get_order( $bkap_order_id );
+				$is_coupon_applied = count( $order->get_coupon_codes() );
+			} else {
+				$is_coupon_applied = 0;
+			}
 			?>
 			<div class="bkap-header-title">
 				<h1 class="product_title entry-title">
 					<?php $edit_booking_label = apply_filters( 'bkap_edit_booking_label', 'Edit Bookings' ); ?>
 					<?php echo $product_obj->get_name() . ' - ' . __( $edit_booking_label, 'woocommerce-booking' ); ?>
 				</h1>
-				<?php 
-					if ( $is_coupon_applied ) {
-						$reschedule_notification = apply_filters(
-							'bkap_reschedule_notification',
-							__( 'Any coupon codes associated with this order will be applied once you click on Confirm Bookings', 'woocommerce-booking' )
-						);
-						echo '<p class="bkap-reschedule-notification">' . $reschedule_notification . '</p>';
-					}
+				<?php
+				if ( $is_coupon_applied ) {
+					$reschedule_notification = apply_filters(
+						'bkap_reschedule_notification',
+						__( 'Any coupon codes associated with this order will be applied once you click on Confirm Bookings', 'woocommerce-booking' )
+					);
+					echo '<p class="bkap-reschedule-notification">' . $reschedule_notification . '</p>';
+				}
 				?>
 			</div>
 			<div class="bkap-header-close" onclick='bkap_edit_booking_class.bkap_close_popup(<?php echo $product_id; ?>, "<?php echo $bkap_cart_item_key; ?>")'>&times;</div>
@@ -63,9 +63,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$duplicate_of = bkap_common::bkap_get_product_id( $product_id );
 				$bookable     = bkap_common::bkap_get_bookable_status( $duplicate_of );
 
-			if ( ! $bookable ) {
-				return;
-			}
+				if ( ! $bookable ) {
+					return;
+				}
 
 				$booking_settings     = get_post_meta( $duplicate_of, 'woocommerce_booking_settings', true );
 				$booking_settings_new = bkap_get_post_meta( $duplicate_of );
@@ -76,9 +76,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				$hidden_dates['hidden_date'] = date( 'j-n-Y', strtotime( $bkap_booking['hidden_date'] ) );
 
-			if ( isset( $bkap_booking['hidden_date_checkout'] ) ) {
-				$hidden_dates['hidden_checkout'] = $bkap_booking['hidden_date_checkout'];
-			}
+				if ( isset( $bkap_booking['hidden_date_checkout'] ) ) {
+					$hidden_dates['hidden_checkout'] = $bkap_booking['hidden_date_checkout'];
+				}
 
 				wc_get_template(
 					'bookings/bkap-bookings-box.php',
@@ -97,10 +97,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<input type="hidden" class="variation_id" value="<?php echo $variation_id; ?>" />
 			
 			<!-- When Editing Bookings with Resource -->
-			<?php if ( isset( $bkap_booking['resource_id'] ) && $bkap_booking['resource_id'] != 0 ) : ?>
+			<?php
+			if ( isset( $bkap_booking['resource_id'] ) ) :
+				$resource_id = $bkap_booking['resource_id'];
+
+				if ( is_array( $resource_id ) ) {
+					$resource_id = implode( ',', $resource_id );
+				}
+				?>
 
 				<div class="resource_id_container">
-					<input type="hidden" name="chosen_resource_id" id="chosen_resource_id" class="rform_hidden" value="<?php echo $bkap_booking['resource_id']; ?>">
+					<input type="hidden" name="chosen_resource_id" id="chosen_resource_id" class="rform_hidden" value="<?php echo $resource_id; ?>">
 				</div>
 
 			<?php endif; ?>
@@ -112,7 +119,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					if ( isset( $bkap_booking['persons'][0] ) ) {
 						?>
 						<input type="hidden" name="chosen_person" id="chosen_person" class="rform_hidden" value="<?php echo $bkap_booking['persons'][0]; ?>">
-						<?php						
+						<?php
 					} else {
 						foreach ( $bkap_booking['persons'] as $p_key => $p_value ) {
 							?>

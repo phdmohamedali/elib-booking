@@ -379,11 +379,16 @@ class import_bookings {
 			}
 		}
 
-		$variationsArray['totals'] = array(
-			'subtotal'     => $totals,
-			'total'        => $totals,
-			'subtotal_tax' => 0,
-			'tax'          => 0,
+		$variationsArray['totals'] = apply_filters(
+			'bkap_before_creating_manual_order',
+			array(
+				'subtotal'     => $totals,
+				'total'        => $totals,
+				'subtotal_tax' => 0,
+				'tax'          => 0,
+			),
+			$booking_details,
+			$gcal
 		);
 
 		if ( 0 === $backdated_event && 0 === $validation_check && 0 === $grouped_product ) {
@@ -825,7 +830,7 @@ class import_bookings {
 		}
 
 		if ( 0 == $backdated_event && 0 == $validation_check && 0 == $grouped_product ) {
-			$order         = new WC_Order( $booking_details['order_id'] );
+			$order         = wc_get_order( $booking_details['order_id'] );
 			$item_added    = true;
 			$order_id      = $booking_details['order_id'];
 			$_product      = wc_get_product( $product_id );

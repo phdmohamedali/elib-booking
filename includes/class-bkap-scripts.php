@@ -213,7 +213,17 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 			}
 
 			wp_enqueue_script( 'bkap-booking-reminder', self::bkap_asset_url( '/assets/js/bkap-send-reminder.js', BKAP_FILE ), '', '', false );
-			wp_localize_script( 'bkap-booking-reminder', 'bkap_reminder_params', array( 'ajax_url' => $ajax_url, 'moved_to_trash' => __( 'Moved to trash', 'woocommerce-booking'  ) ) );
+			wp_localize_script(
+				'bkap-booking-reminder',
+				'bkap_reminder_params',
+				array(
+					'ajax_url'       => $ajax_url,
+					'moved_to_trash' => __(
+						'Moved to trash',
+						'woocommerce-booking'
+					),
+				)
+			);
 
 			/*
 			 * Including JS & CSS file for Booking Resources.
@@ -283,7 +293,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 
 				wp_enqueue_script( 'selectWoo', WC()->plugin_url() . '/assets/js/selectWoo/selectWoo.full.js', array( 'jquery' ), '1.0.6' );
 
-				$custom_inline_style = '.post-type-bkap_booking .tablenav .select2-selection--single{height:32px;}	
+				$custom_inline_style = '.post-type-bkap_booking .tablenav .select2-selection--single{height:32px;}
 				.post-type-bkap_booking .tablenav .select2-selection--single .select2-selection__rendered{line-height:29px;} .post-type-bkap_booking .tablenav .select2-selection--single .select2-selection__arrow{height:30px;} .post-type-bkap_booking .tablenav .select2-container{float:left;width:240px!important;font-size:14px;vertical-align:middle;margin:1px 6px 4px 1px;}';
 
 				wp_add_inline_style( 'woocommerce_admin_styles', $custom_inline_style );
@@ -319,7 +329,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 
 			if ( ( isset( $_GET['post_type'] ) && 'bkap_booking' === $_GET['post_type'] ) && in_array( $gcal->get_api_mode( $user_id ), array( 'directly', 'oauth' ), true ) && 'on' === $display_button_setting ) {
 
-				$total_bookings_to_export = bkap_common::bkap_get_total_bookings_to_export( $user_id );
+				$total_bookings_to_export                              = bkap_common::bkap_get_total_bookings_to_export( $user_id );
 				$bkap_view_booking['labels']['add_to_google_calendar'] = __( 'Add to Google Calendar', 'woocommerce-booking' );
 				$bkap_view_booking['total_bookings_to_export']         = count( $total_bookings_to_export );
 				$bkap_view_booking['user_id']                          = $user_id;
@@ -386,7 +396,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 
 			if ( isset( $_GET['page'] ) && $_GET['page'] == 'woocommerce_booking_page' ) {
 				// this is used for displying the settings with new CSS styles.
-				wp_enqueue_style( 'bkap-global-settings-css', self::bkap_asset_url( '/assets/css/global-booking-settings.css', BKAP_FILE ), array() );
+				wp_enqueue_style( 'bkap-global-settings-css', self::bkap_asset_url( '/assets/css/global-booking-settings.css', BKAP_FILE ), null, BKAP_VERSION );
 				add_action( 'bkap_settings_tab_content', array( 'Global_Menu', 'bkap_add_review_note' ) );
 
 			}
@@ -398,8 +408,8 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 				self::bkap_load_calendar_styles( $plugin_version_number );
 			}
 
-			if ( $post_id > 0 && 'bkap_booking' === get_post_type( $post_id ) ) {
-				wp_enqueue_style( 'bkap-edit-bookings', self::bkap_asset_url( '/assets/css/edit-booking.css', BKAP_FILE ) );
+			if ( $post_id > 0 && 'bkap_booking' === get_post_type( $post_id ) && ! wp_style_is( 'bkap-edit-bookings-css' ) ) {
+				wp_enqueue_style( 'bkap-edit-bookings', self::bkap_asset_url( '/assets/css/edit-booking.css', BKAP_FILE ), null, BKAP_VERSION );
 			}
 		}
 
@@ -418,7 +428,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 				<script type="text/javascript">
 				jQuery( document ).ready( function ($) {
 					$('.tstab-content').wrapInner('<div class="tstab-content-inner"></div>');
-                	$(document).on('click', '.tstab-tab', function(){
+					$(document).on('click', '.tstab-tab', function(){
 						data_link = $(this).data("link");
 						cur_data_link = $('.tstab-tab.tstab-active').data("link");
 						if ( cur_data_link !== data_link ) {
@@ -529,6 +539,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 					'availability_update_msg'      => __( 'Booking Availability settings have been saved.', 'woocommerce-booking' ),
 					'error_input_field_msg'        => __( 'Make sure you have filled Weekday and From fields in Set Weekdays/Dates And It\'s Timeslots section of Availability tab to save settings.', 'woocommerce-booking' ),
 					'gcal_update_msg'              => __( 'Settings have been saved.', 'woocommerce-booking' ),
+					'rental_update_msg'            => __( 'Rental settings have been saved.', 'woocommerce-booking' ),
 					'only_day_text'                => __( 'Use this for full day bookings or bookings spanning multiple nights.', 'woocommerce-booking' ),
 					'date_time_text'               => __( 'Use this if you wish to take bookings for time slots. For e.g. coaching classes, appointments, ground on rent etc.', 'woocommerce-booking' ),
 					'fixed_time_text'              => __( 'Use this if you have fixed time slots for bookings. For e.g. coaching classes, appointments etc.', 'woocommerce-booking' ),
@@ -643,7 +654,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 
 			$global_settings = bkap_global_setting();
 
-			wp_register_script( 
+			wp_register_script(
 				'bkap-dokan-calendar-view',
 				self::bkap_asset_url( '/assets/js/vendors/dokan/bkap_view_booking.js', BKAP_FILE ),
 				'',
@@ -735,9 +746,9 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 				'delete_resource_conf'     => __( 'Are you sure you want to delete this resource?', 'woocommerce-booking' ),
 				'delete_resource_conf_all' => __( 'Are you sure you want to delete all resources?', 'woocommerce-booking' ),
 				'delete_resource'          => __( 'Resource have been deleted.', 'woocommerce-booking' ),
-				'delete_person_conf'     => __( 'Are you sure you want to delete this person?', 'woocommerce-booking' ),
-				'delete_person_conf_all' => __( 'Are you sure you want to delete all persons?', 'woocommerce-booking' ),
-				'delete_person'          => __( 'Person have been deleted.', 'woocommerce-booking' ),
+				'delete_person_conf'       => __( 'Are you sure you want to delete this person?', 'woocommerce-booking' ),
+				'delete_person_conf_all'   => __( 'Are you sure you want to delete all persons?', 'woocommerce-booking' ),
+				'delete_person'            => __( 'Person have been deleted.', 'woocommerce-booking' ),
 			);
 
 			wp_localize_script( 'bkap-resource', 'bkap_resource_params', $args );
@@ -777,7 +788,8 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 				false
 			);
 
-			/* wp_register_script(
+			/*
+			 wp_register_script(
 				'moment-js',
 				self::bkap_asset_url( '/assets/js/fullcalendar/lib/moment.min.js', BKAP_FILE, true )
 			); */
@@ -936,7 +948,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 			wp_enqueue_style( 'bkap-fullcalendar-css', self::bkap_asset_url( '/assets/css/fullcalendar.css', BKAP_FILE ) );
 
 			// this is for displying the full calender view.
-			//wp_enqueue_style( 'full-css', self::bkap_asset_url( '/assets/js/fullcalendar/fullcalendar.css', BKAP_FILE, true ) );
+			// wp_enqueue_style( 'full-css', self::bkap_asset_url( '/assets/js/fullcalendar/fullcalendar.css', BKAP_FILE, true ) );
 
 			// this is used for displying the hover effect in calendar view.
 			wp_enqueue_style( 'bkap-qtip-css', self::bkap_asset_url( '/assets/css/jquery.qtip.min.css', BKAP_FILE ), array() );
@@ -1020,7 +1032,7 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 		 *
 		 * @param string $path Path to the asset file.
 		 * @param string $plugin The plugin file path to be relative to. Blank string if no plugin is specified.
-		 * @param bool $use_cdn Use CDN path.
+		 * @param bool   $use_cdn Use CDN path.
 		 * @since 5.6.1
 		 */
 		public static function bkap_asset_url( $path, $plugin = '', $use_cdn = false, $do_minification = true ) {

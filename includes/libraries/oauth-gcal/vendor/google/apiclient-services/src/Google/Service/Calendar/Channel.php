@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Channel extends Google_Model
+class Google_Service_Calendar_Channel extends BKAPGoogle_Model
 {
   public $address;
   public $expiration;

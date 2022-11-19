@@ -28,7 +28,7 @@
  *
  * @author Google, Inc.
  */
-class Google_Service_Calendar extends Google_Service
+class Google_Service_Calendar extends BKAPGoogle_Service
 {
   /** See, edit, share, and permanently delete all the calendars you can access using Google Calendar. */
   const CALENDAR =
@@ -61,7 +61,7 @@ class Google_Service_Calendar extends Google_Service
    * @param Google_Client $client The client used to deliver requests.
    * @param string $rootUrl The root URL used for requests to the service.
    */
-  public function __construct(Google_Client $client, $rootUrl = null)
+  public function __construct(BKAPGoogle_Client $client, $rootUrl = null)
   {
     parent::__construct($client);
     $this->rootUrl = $rootUrl ?: 'https://www.googleapis.com/';

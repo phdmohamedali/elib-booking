@@ -276,12 +276,17 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 */
 		public static function bkap_api_zapier_get_trigger_hooks( $user_id, $type ) {
 
-			$hooks = self::bkap_api_zapier_get_subscriptions( $type );
+			$hooks = (array) self::bkap_api_zapier_get_subscriptions( $type );
 
 			if ( '' !== $user_id && is_array( $hooks ) ) {
 				foreach ( $hooks as $key => $hook ) {
 
 					// Remove hooks not created/meant for the current user.
+					if ( is_string( $hook ) ) {
+						unset( $hooks[ $key ] );
+						continue;
+					}
+
 					if ( (int) $user_id !== (int) $hook->created_by ) {
 						unset( $hooks[ $key ] );
 					}
@@ -1346,7 +1351,7 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 		 */
 		public static function bkap_api_zapier_fetch_subscription_information( $action, $key, $value ) {
 
-			$subscriptions = self::bkap_api_zapier_get_subscriptions( $action );
+			$subscriptions = (array) self::bkap_api_zapier_get_subscriptions( $action );
 
 			if ( '' !== $subscriptions && is_array( $subscriptions ) && count( $subscriptions ) > 0 ) {
 

@@ -71,10 +71,10 @@ function bkap_fluentcrm_get_contact_data( $booking_id, $booking ) {
 		'email'      => '',
 		'phone'      => '',
 	);
-	$order_id      = $booking['parent_id'];
+	$order_id = $booking['parent_id'];
+	$order    = wc_get_order( $order_id );
 
-	if ( false !== get_post_status( $order_id ) ) {
-		$order                           = wc_get_order( $order_id );
+	if ( $order ) {
 		$customer_data['email']          = $order->get_billing_email();
 		$customer_data['first_name']     = $order->get_billing_first_name();
 		$customer_data['last_name']      = $order->get_billing_last_name();

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-namespace Google\AccessToken;
+namespace BKAPGoogle\AccessToken;
 
 use Firebase\JWT\ExpiredException as ExpiredExceptionV3;
 use Firebase\JWT\SignatureInvalidException;
@@ -25,8 +25,8 @@ use BKAPGuzzleHttp\ClientInterface;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA\PublicKey;
 use Psr\Cache\CacheItemPoolInterface;
-use Google\Auth\Cache\MemoryCacheItemPool;
-use Google\Exception as GoogleException;
+use BKAPGoogle\Auth\Cache\MemoryCacheItemPool;
+use BKAPGoogle\Exception as GoogleException;
 use Stash\Driver\FileSystem;
 use Stash\Pool;
 use DateTime;

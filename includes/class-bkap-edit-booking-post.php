@@ -37,11 +37,14 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 		 * @param WP_Post $post Post Object.
 		 * @return mixed post_data if post is invalid else update the meta information.
 		 * @since 4.1.0
+		 * @since Updated 5.15.0 Multiple Resources
 		 *
 		 * @global mixed $wpdb global variable
 		 * @global array Booking Date Formats Array
 		 */
 		public function bkap_meta_box_save_booking_details( $post_data, $post ) {
+
+			global $wpdb, $bkap_date_formats;
 
 			if ( 'bkap_booking' !== $post['post_type'] ) {
 				return $post_data;
@@ -58,9 +61,8 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 				return $post_data;
 			}
 
-			global $wpdb;
-
-			global $bkap_date_formats;
+			$product_id              = wc_clean( $post['bkap_product_id'] );
+			$resource_selection_type = BKAP_Product_Resource::get_resource_selection_type( $product_id );
 
 			// Getting Date & Time Format Setting.
 			$global_settings        = bkap_global_setting();
@@ -77,14 +79,15 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 
 			// Get booking object.
 			$booking                     = new BKAP_Booking( $post_id );
-			$product_id                  = wc_clean( $post['bkap_product_id'] );
 			$bkap_setting                = bkap_setting( $product_id );
-			
 			$hidden_date                 = $post['wapbk_hidden_date'];
 			$booking_data['date']        = date( 'Y-m-d', strtotime( $hidden_date ) );
 			$booking_data['hidden_date'] = $hidden_date;
 			$booking_type                = get_post_meta( $product_id, '_bkap_booking_type', true );
 			$days                        = 1;
+			$old_end                     = '';
+			$old_time                    = '';
+			$new_time                    = '';
 
 			if ( 'multiple_days' === $booking_type ) {
 
@@ -123,6 +126,7 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 			$old_status = $booking->get_status();
 			$old_start  = bkap_date_as_format( $booking->get_start(), 'Y-m-d' );
 			$item_id    = get_post_meta( $post_id, '_bkap_order_item_id', true );
+			$order_id   = bkap_order_id_by_itemid( $item_id );
 
 			// default the variables.
 			$qty_update       = false;
@@ -200,11 +204,11 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 				$price_update = apply_filters( 'bkap_price_change_on_edit_booking', true, $booking );
 			}
 
-			/* Checking if the resource is changed */
+			/* Checking if the persons data has been changed */
 			$person_changed = false;
 			if ( isset( $post['bkap_field_persons'] ) ) {
 				$old_person_info = $booking->get_persons();
-				$new_person_info = array( (int)$post['bkap_field_persons'] );
+				$new_person_info = array( (int) $post['bkap_field_persons'] );
 
 				if ( $old_person_info !== $new_person_info ) {
 					$person_changed = true;
@@ -226,13 +230,44 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 				}
 			}
 
-			/* Person Calculations */
+			/* Resource */
+			$resource_id     = '';
+			$new_resource_id = '';
 
 			if ( isset( $post['bkap_front_resource_selection'] ) ) {
-				$old_resource_id = $booking->get_resource();
-				if ( $post['bkap_front_resource_selection'] != $old_resource_id ) {
-					$new_resource_id  = $post['bkap_front_resource_selection'];
-					$resource_changed = true;
+
+				$resource_id      = $post['bkap_front_resource_selection'];
+				$old_resource_id  = $booking->get_resource();
+				$resource_changed = false;
+
+				if ( 'multiple' === $resource_selection_type ) {
+
+					if ( ! is_array( $resource_id ) ) {
+						$temp        = $resource_id;
+						$resource_id = array( $temp );
+					}
+
+					// Fetch existing resource_ids from the Order.
+					$old_resource_id = wc_get_order_item_meta( $item_id, '_resource_id' );
+
+					if ( '' !== $old_resource_id && is_array( $old_resource_id ) ) {
+
+						$_old_resource_id = array_values( $old_resource_id );
+						sort( $_old_resource_id );
+
+						$_resource_id = array_values( $resource_id );
+						sort( $_resource_id );
+
+						if ( $_resource_id !== $_old_resource_id ) {
+							$new_resource_id  = $resource_id;
+							$resource_changed = true;
+						}
+					}
+				} else {
+					if ( $resource_id !== $old_resource_id ) {
+						$new_resource_id  = $resource_id;
+						$resource_changed = true;
+					}
 				}
 			}
 
@@ -266,12 +301,77 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 				return $post_data;
 			}
 
+			$bookings = array();
+
+			// When resource is changed, then update data in the respective places.
+			if ( '' !== $resource_id ) {
+
+				if ( 'single' === $resource_selection_type && $resource_changed ) {
+
+					$old_resource_title = get_the_title( $booking->get_resource() );
+					$resource_data      = wc_get_order_item_meta( $item_id, '_resource_id' );
+					$resource_title     = Class_Bkap_Product_Resource::get_resource_name( $new_resource_id );
+					$note               = "The resource for $product_title was modified from $old_resource_title to $resource_title by $current_user_name";
+
+					Class_Bkap_Product_Resource::update_order_item_meta( $product_id, $item_id, $new_resource_id );
+					update_post_meta( $post_id, '_bkap_resource_id', $new_resource_id );
+					$notes_array[] = $note;
+				}
+
+				if ( 'multiple' === $resource_selection_type ) {
+
+					$bookings = bkap_common::get_booking_id( $item_id, true );
+
+					// Ensure that the resources that have been set conform to the number of bookings.
+					try {
+						$new_bookings = Class_Bkap_Product_Resource::conform_bookings_with_resources( $bookings, $resource_id, $post_id );
+					} catch ( Exception $e ) {
+						update_post_meta( $post_id, '_bkap_update_errors', $e->getMessage() );
+						return $post_data;
+					}
+
+					foreach ( $new_bookings as $key => $id ) {
+
+						$resource_title = Class_Bkap_Product_Resource::get_resource_name( $resource_id[ $key ] );
+
+						// Create new bookings for new resources that have been added.
+						if ( 0 === $id ) {
+							$booking_data['price']       = $new_price_per_qty;
+							$booking_data['resource_id'] = $resource_id[ $key ];
+							$_booking                    = bkap_checkout::bkap_create_booking_post( $item_id, $product_id, $new_qty, $booking_data );
+							$notes_array[]               = 'Booking #' . $_booking->id . ' has been created for Resource ' . $resource_title . '.Product: ' . $product_title;
+							$new_bookings[ $key ]        = strval( $_booking->id );
+
+							unset( $booking_data['price'] );
+							unset( $booking_data['resource_id'] );
+						} else {
+							if ( $resource_changed ) {
+								update_post_meta( $id, '_bkap_resource_id', $resource_id[ $key ] );
+							}
+						}
+					}
+
+					$bookings = $new_bookings;
+
+					if ( $resource_changed ) {
+						Class_Bkap_Product_Resource::update_order_item_meta( $product_id, $item_id, $resource_id );
+					}
+				}
+			}
+
 			/* Checking if the booking status is changed */
 			if ( $old_status !== $new_status ) {
-				$_POST['item_id'] = $item_id;
-				$_POST['status']  = $new_status;
-				bkap_booking_confirmation::bkap_save_booking_status( $item_id, $new_status, $post_id );
+				$_POST['item_id']         = $item_id;
+				$_POST['status']          = $new_status;
 				$post_data['post_status'] = $new_status;
+
+				if ( 'single' === $resource_selection_type ) {
+					bkap_booking_confirmation::bkap_save_booking_status( $item_id, $new_status, $post_id );
+				} elseif ( 'multiple' === $resource_selection_type ) {
+					foreach ( $bookings as $id ) {
+						bkap_booking_confirmation::bkap_save_booking_status( $item_id, $new_status, $id );
+					}
+				}
 			}
 
 			if ( $qty_update || $date_update || $time_update || $resource_changed || $person_changed ) {
@@ -295,100 +395,34 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 				$order_id = bkap_order_id_by_itemid( $item_id );
 				if ( $order_id > 0 ) {
 
-					$order_obj   = new WC_Order( absint( $order_id ) );
-					$order_items = $order_obj->get_items();
+					$booking_ids_to_update = array();
 
-					foreach ( $order_items as $oid => $o_value ) {
-
-						if ( $oid == $item_id ) {
-							$item_value = $o_value;
-							break;
-						}
+					if ( 'single' === $resource_selection_type ) {
+						$booking_ids_to_update[] = $post_id;
+					} elseif ( 'multiple' === $resource_selection_type ) {
+						$booking_ids_to_update = $bookings;
 					}
 
-					if ( isset( $item_value ) ) {
+					foreach ( $booking_ids_to_update as $id ) {
 
-						$user_id         = get_current_user_id();
-						$get_booking_id  = 'SELECT booking_id FROM `' . $wpdb->prefix . 'booking_order_history` WHERE order_id = %d';
-						$results_booking = $wpdb->get_results( $wpdb->prepare( $get_booking_id, $order_id ) );
+						// Update the booking information in the booking tables.
+						bkap_edit_bookings_class::bkap_edit_bookings(
+							$id,
+							$item_key,
+							$order_id,
+							$item_id,
+							$old_start,
+							$old_end,
+							$old_time,
+							$product_id
+						);
 
-						foreach ( $results_booking as $id ) {
+						// add a new booking.
+						$details = bkap_checkout::bkap_update_lockout( $order_id, $product_id, 0, $new_qty, $booking_data );
 
-							$get_booking_details = 'SELECT post_id, start_date, end_date, from_time, to_time FROM `' . $wpdb->prefix . 'booking_history` WHERE id = %d';
-							$bkap_details        = $wpdb->get_results( $wpdb->prepare( $get_booking_details, $id->booking_id ) );
-
-							$matched = false;
-
-							if ( isset( $bkap_details[0] ) && $bkap_details[0]->post_id == $product_id ) {
-
-								switch ( $booking_type ) {
-									case 'only_day':
-									case 'multidates':
-										if ( strtotime( $old_start ) === strtotime( $bkap_details[0]->start_date ) ) {
-											$booking_id = $id->booking_id;
-											$matched    = true;
-										}
-										break;
-									case 'multiple_days':
-										if ( strtotime( $old_start ) === strtotime( $bkap_details[0]->start_date ) && strtotime( $old_end ) === strtotime( $bkap_details[0]->end_date ) ) {
-											$booking_id = $id->booking_id;
-											$matched    = true;
-										}
-										break;
-									case 'date_time':
-									case 'multidates_fixedtime':
-										$time_slot = date( 'H:i', strtotime( $bkap_details[0]->from_time ) );
-										if ( $bkap_details[0]->to_time !== '' ) {
-											$time_slot .= ' - ' . date( 'H:i', strtotime( $bkap_details[0]->to_time ) );
-										}
-										if ( strtotime( $old_start ) === strtotime( $bkap_details[0]->start_date ) && $old_time === $time_slot ) {
-											$booking_id = $id->booking_id;
-											$matched    = true;
-										}
-										break;
-									case 'duration_time':
-										$from_time_slot = date( 'H:i', strtotime( $bkap_details[0]->from_time ) );
-										$to_time_slot   = date( 'H:i', strtotime( $bkap_details[0]->to_time ) );
-										$old_from_time  = date( 'H:i', strtotime( get_post_meta( $post_id, '_bkap_end', true ) ) );
-										$d_setting      = get_post_meta( $product_id, '_bkap_duration_settings', true );
-
-										$selected_duration = $new_duration * $d_setting['duration'];
-
-										$data['selected_duration']         = $selected_duration . '-' . $d_setting['duration_type'];
-										$booking_data['selected_duration'] = $booking_data['selected_duration'] . '-' . $d_setting['duration_type'];
-										if ( strtotime( $old_start ) === strtotime( $bkap_details[0]->start_date ) && $old_time === $from_time_slot && $old_from_time == $to_time_slot ) {
-											$booking_id = $id->booking_id;
-											$matched    = true;
-										}
-
-										break;
-								}
-
-								if ( $matched ) {
-									break;
-								}
-							}
-						}
-
-						if ( isset( $booking_id ) && $booking_id > 0 ) {
-
-							// Deleting Zoom Meeting.
-							Bkap_Zoom_Meeting_Settings::bkap_delete_zoom_meeting( $post_id, $booking );
-
-							bkap_delete_event_from_gcal( $product_id, $item_id, $item_key );
-
-							// cancel the booking.
-							bkap_cancel_order::bkap_reallot_item( $item_value, $booking_id, $order_id );
-
-							// delete the order from booking order history.
-							if ( 'multiple_days' !== $booking_type ) {
-								$delete_order_history = 'DELETE FROM `' . $wpdb->prefix . 'booking_order_history`
-													 WHERE order_id = %d and booking_id = %d';
-								$wpdb->query( $wpdb->prepare( $delete_order_history, $order_id, $booking_id ) );
-							}
-
-							// add a new booking.
-							$details = bkap_checkout::bkap_update_lockout( $order_id, $product_id, 0, $new_qty, $booking_data );
+						// update the global time slot lockout.
+						if ( isset( $booking_data['time_slot'] ) && $booking_data['time_slot'] != '' ) {
+							bkap_checkout::bkap_update_global_lockout( $product_id, $new_qty, $details, $booking_data );
 						}
 					}
 
@@ -396,7 +430,7 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 					$display_start = date( $bkap_date_formats[ $date_format_to_display ], strtotime( $hidden_date ) );
 					if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
 						$item_bookings = bkap_common::get_booking_id( $item_id );
-						foreach( $item_bookings as $k => $v ) {
+						foreach ( $item_bookings as $k => $v ) {
 							if ( $v == $post_id ) {
 								$item_key = $k;
 							}
@@ -585,7 +619,6 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 							wc_update_order_item_meta( $item_id, '_wapbk_time_slot', $time_slot, '' );
 
 							$notes_array[] = "The booking details have been modified to $end_date_str, $time_slot by $current_user_name";
-
 							break;
 					}
 
@@ -594,32 +627,14 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 						wc_update_order_item_meta( $item_id, '_qty', $new_qty, '' );
 					}
 
-					if ( $resource_changed ) { // When resource is changed then update data in the respective places.
-
-						$old_resource_title = get_the_title( $booking->get_resource() );
-
-						wc_update_order_item_meta( $item_id, '_resource_id', $new_resource_id );
-
-						$resource_label = Class_Bkap_Product_Resource::bkap_get_resource_label( $product_id );
-
-						if ( $resource_label == '' ) {
-							$resource_label = __( 'Resource Type', 'wocommerce-booking' );
-						}
-
-						$resource_title = get_the_title( $new_resource_id );
-						$resource_title = apply_filters( 'bkap_change_resource_title_in_order_item_meta', $resource_title, $product_id );
-
-						wc_update_order_item_meta( $item_id, $resource_label, $resource_title );
-
-						update_post_meta( $post_id, '_bkap_resource_id', $new_resource_id );
-
-						$notes_array[] = "The resource for $product_title was modified from $old_resource_title to $resource_title by $current_user_name";
-					}
-
 					if ( $person_changed ) {
 
 						wc_update_order_item_meta( $item_id, '_persons', $new_person_info );
 						update_post_meta( $post_id, '_bkap_persons', $new_person_info );
+
+						if ( 'multiple' === $resource_selection_type ) {
+							Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_persons', $new_person_info );
+						}
 
 						if ( isset( $new_person_info[0] ) ) {
 							wc_update_order_item_meta( $item_id, Class_Bkap_Product_Person::bkap_get_person_label( $product_id ), $new_person_info[0] );
@@ -628,11 +643,15 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 								wc_update_order_item_meta( $item_id, get_the_title( $p_key ), $p_data );
 							}
 						}
-						$notes_array[] = sprintf( __( "The person data for %s was modified by %s" ), $product_title, $current_user_name );
+						$notes_array[] = sprintf( __( 'The person data for %1$s was modified by %2$s' ), $product_title, $current_user_name );
 					}
 
 					if ( isset( $post['block_option'] ) ) { // updating selected fixed block data.
 						update_post_meta( $post_id, '_bkap_fixed_block', $fixed_block );
+
+						if ( 'multiple' === $resource_selection_type ) {
+							Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_fixed_block', $fixed_block );
+						}
 					}
 
 					// update the post meta for the booking.
@@ -640,55 +659,30 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 					update_post_meta( $post_id, '_bkap_end', $meta_end );
 					update_post_meta( $post_id, '_bkap_qty', $new_qty );
 
+					if ( 'multiple' === $resource_selection_type ) {
+						Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_start', $meta_start );
+						Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_end', $meta_end );
+						Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_qty', $new_qty );
+					}
+
 					$new_order_obj = wc_get_order( $order_id );
 
 					if ( $price_update ) {
-
-						$item       = $new_order_obj->get_item( $item_id, false );
-						$amount_tax = 0;
-						// If the prices include tax, discounts should be taken off the tax inclusive prices like in the cart.
-						if ( $new_order_obj->get_prices_include_tax() && wc_tax_enabled() ) {
-
-							$amount_tax = WC_Tax::get_tax_total( WC_Tax::calc_tax( $new_price, WC_Tax::get_rates( $item->get_tax_class() ), true ) );
-							$new_price -= $amount_tax;
-							wc_update_order_item_meta( $item_id, '_line_subtotal_tax', $amount_tax );
-							wc_update_order_item_meta( $item_id, '_line_tax', $amount_tax );
-						}
-
-						if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
-							$get_subtotal = $item->get_subtotal();
-							$get_subtotal = $get_subtotal - $old_price;
-							$get_subtotal = $get_subtotal + $new_price;
-							// update the price for the item.
-							wc_update_order_item_meta( $item_id, '_line_subtotal', $get_subtotal );
-							wc_update_order_item_meta( $item_id, '_line_total', $get_subtotal );
-
-							$item->set_subtotal( $get_subtotal );
-							$item->set_subtotal_tax( $amount_tax );
-							$item->set_total( $get_subtotal );
-							$item->set_total_tax( $amount_tax );
-						} else {
-							// update the price for the item.
-							wc_update_order_item_meta( $item_id, '_line_subtotal', $new_price );
-							wc_update_order_item_meta( $item_id, '_line_total', $new_price );
-
-							$item->set_subtotal( $new_price );
-							$item->set_subtotal_tax( $amount_tax );
-							$item->set_total( $new_price );
-							$item->set_total_tax( $amount_tax );
-						}
-
-						$newprice      = $new_price + $amount_tax;
-						//$wc_price_args = bkap_common::get_currency_args();
-						//$newprice      = number_format( $newprice, $wc_price_args['decimals'], $wc_price_args['decimal_separator'], $wc_price_args['thousand_separator'] );
+						$newprice = bkap_common::compute_price_for_order_with_tax_for_edited_bookings( $product_id, $item_id, $order_id, $new_price );
+						// $wc_price_args = bkap_common::get_currency_args();
+						// $newprice      = number_format( $newprice, $wc_price_args['decimals'], $wc_price_args['decimal_separator'], $wc_price_args['thousand_separator'] );
 						update_post_meta( $post_id, '_bkap_cost', $newprice );
+
+						if ( 'multiple' === $resource_selection_type ) {
+							Class_Bkap_Product_Resource::update_data_for_related_bookings( $post_id, '_bkap_cost', $newprice );
+						}
 
 						// update the order total.
 						$old_total = $new_order_obj->get_total();
 						$new_total = round( $old_total - $old_price + $new_price, 2 );
 						// $new_order_obj->set_total( $new_total );
 
-						$order_currency    = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order_obj->get_order_currency() : $order_obj->get_currency();
+						$order_currency    = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $new_order_obj->get_order_currency() : $new_order_obj->get_currency();
 						$currency_symbol   = get_woocommerce_currency_symbol( $order_currency );
 						$display_old_price = $currency_symbol . $old_price;
 						$display_new_price = $currency_symbol . $newprice;
@@ -698,17 +692,7 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 					$new_order_obj->calculate_totals();
 
 					// Creating Zoom Meeting.
-					$new_booking_data = bkap_get_meta_data( $post_id );
-
-					foreach ( $new_booking_data as $data ) {
-						$updated_meeting_data = Bkap_Zoom_Meeting_Settings::bkap_create_zoom_meeting( $post_id, $data, 'update' );
-
-						if ( count( $updated_meeting_data ) > 0 && isset( $updated_meeting_data['meeting_link'] ) ) {
-							/* translators: %s: Booking ID and Meeting link. */
-							$meeting_msg = sprintf( __( 'Updated Zoom Meeting Link for Booking #%1$s - %2$s', 'woocommerce-booking' ), $post_id, $updated_meeting_data['meeting_link'] );
-							$new_order_obj->add_order_note( $meeting_msg, 1, false );
-						}
-					}
+					bkap_common::create_zoom_meetings_for_edited_bookings( $order_id, $post_id );
 
 					bkap_insert_event_to_gcal( $new_order_obj, $product_id, $item_id, $item_key );
 
@@ -718,7 +702,7 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 						}
 					}
 
-					do_action( 'bkap_after_update_booking_post', $post_id, $booking, $new_booking_data );
+					do_action( 'bkap_after_update_booking_post', $post_id, $booking, bkap_get_meta_data( $post_id ) );
 				}
 			}
 

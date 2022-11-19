@@ -61,7 +61,7 @@ class BKAP_Email_Booking_Pending extends WC_Email {
 	 */
 	public function bkap_customer_pending_notification( $order_id ) {
 
-		$order          = new WC_order( $order_id );
+		$order          = wc_get_order( $order_id );
 		$customer_email = $order->get_billing_email(); 
 		$items          = $order->get_items();
 		foreach ( $items as $item_key => $item_value ) {

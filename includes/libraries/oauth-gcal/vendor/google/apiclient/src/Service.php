@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google;
+namespace BKAPGoogle;
 
-use Google\Http\Batch;
+use BKAPGoogle\Http\Batch;
 use TypeError;
 
 class Service
@@ -32,10 +32,10 @@ class Service
 
   public function __construct($clientOrConfig = [])
   {
-    if ($clientOrConfig instanceof Client) {
+    if ($clientOrConfig instanceof BKAPClient) {
       $this->client = $clientOrConfig;
     } elseif (is_array($clientOrConfig)) {
-      $this->client = new Client($clientOrConfig ?: []);
+      $this->client = new BKAPClient($clientOrConfig ?: []);
     } else {
       $errorMessage = 'constructor must be array or instance of Google\Client';
       if (class_exists('TypeError')) {

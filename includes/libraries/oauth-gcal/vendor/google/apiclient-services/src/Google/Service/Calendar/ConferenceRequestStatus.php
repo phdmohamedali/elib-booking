@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_ConferenceRequestStatus extends Google_Model
+class Google_Service_Calendar_ConferenceRequestStatus extends BKAPGoogle_Model
 {
   public $statusCode;
 

@@ -31,7 +31,6 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 		public function __construct() {
 
 			add_filter( 'woocommerce_add_to_cart_validation', array( &$this, 'bkap_get_validate_add_cart_item' ), 8, 3 );
-
 			add_action( 'woocommerce_before_checkout_process', array( &$this, 'bkap_cart_checkout_quantity_check' ) );
 			add_action( 'woocommerce_check_cart_items', array( &$this, 'bkap_cart_checkout_quantity_check' ) );
 
@@ -149,7 +148,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 			$wc_cp_cart    = new WC_CP_Cart();
 			$configuration = $wc_cp_cart->get_posted_composite_configuration( $product_id );
-			$status = array();
+			$status        = array();
 			foreach ( $configuration as $cart_key => $cart_value ) {
 				if ( isset( $cart_value['product_id'] ) && '' !== $cart_value['product_id'] ) {
 					if ( isset( $cart_value['quantity'] ) && $cart_value['quantity'] > 0 ) {
@@ -228,7 +227,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 			$pass_fail_result_array = array();
 			$pass_fail_result       = true;
 
-			$query              = "SELECT *  FROM `" . $wpdb->prefix . "booking_history`
+			$query              = 'SELECT *  FROM `' . $wpdb->prefix . "booking_history`
                                         WHERE post_id = '" . $product_id . "' AND
                                         start_date = '" . $check_in_date . "' AND
                                         available_booking > 0  AND
@@ -292,9 +291,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 		/**
 		 * Based on the global timeslot option, this function adds up to the quantity to the selected quantity.
 		 *
-		 * @param int    $post_id Product ID.
-		 * @param array  $post $_POST.
-		 * @param int    $item_quantity Item Quantity.
+		 * @param int   $post_id Product ID.
+		 * @param array $post $_POST.
+		 * @param int   $item_quantity Item Quantity.
 		 * @since 5.6.1
 		 */
 		public static function bkap_validate_global_time_cart( $post_id, $post, $item_quantity ) {
@@ -386,7 +385,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 			if ( isset( $booking_settings['booking_product_holiday'] ) && ! empty( $booking_settings['booking_product_holiday'] ) ) {
 				foreach ( $date_checks as $key => $value ) {
 					if ( isset( $booking_settings['booking_product_holiday'][ $value ] ) ) {
-						$message                              = __( "$product_name cannot be booked for $booking_date due to holiday. Please choose some other date for booking.", 'woocommerce-booking' );
+						$message = __( "$product_name cannot be booked for $booking_date due to holiday. Please choose some other date for booking.", 'woocommerce-booking' );
 						if ( ! wc_has_notice( $message, 'error' ) ) {
 							wc_add_notice( $message, $notice_type = 'error' );
 						}
@@ -402,8 +401,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 			/* Person Calculations - Total Selected Persons should be considered with the selected quantity */
 			$total_person = 1;
 			if ( isset( $booking_settings['bkap_person'] ) && 'on' === $booking_settings['bkap_person'] && 'on' === $booking_settings['bkap_each_person_booking'] ) {
-				if ( isset( $_POST[ 'bkap_field_persons' ] ) ) {
-					$total_person = (int) $_POST[ 'bkap_field_persons' ];
+				if ( isset( $_POST['bkap_field_persons'] ) ) {
+					$total_person = (int) $_POST['bkap_field_persons'];
 				} else {
 					$person_data  = $booking_settings['bkap_person_data'];
 					$total_person = 0;
@@ -416,30 +415,31 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 				}
 			}
 
-			if ( isset( $_POST['bkap_front_resource_selection'] ) ) { // Resource validation start here.
+			// Resource validation.
+			if ( isset( $_POST['bkap_front_resource_selection'] ) ) {
 
-				if ( '' == $_POST['bkap_front_resource_selection'] ) {
+				if ( '' === $_POST['bkap_front_resource_selection'] ) {
 					$message = __( 'Please select the resource to add the product to cart.', 'woocommerce-booking' );
 					wc_add_notice( $message, $notice_type = 'error' );
-
 					return 'no';
 				}
 
-				$resource_id                = (int) $_POST['bkap_front_resource_selection'];
-				$resource_name              = get_the_title( $resource_id );
+				$resource_id                = $_POST['bkap_front_resource_selection'];
 				$resource_validation_result = array(
 					'quantity_check_pass'        => $quantity_check_pass,
 					'resource_booking_available' => '',
 				);
 				$resource_validation_result = apply_filters( 'bkap_resource_add_to_cart_validation', $_POST, $post_id, $booking_settings, $quantity_check_pass, $resource_validation_result );
+				$resource_name              = isset( $resource_validation_result['resource_name'] ) ? $resource_validation_result['resource_name'] : '';
+				$resource_booking_available = isset( $resource_validation_result['resource_booking_available'] ) ? $resource_validation_result['resource_booking_available'] : 0;
 
 				if ( 'no' === $resource_validation_result['quantity_check_pass'] ) {
 
-					if ( isset( $resource_validation_result['resource_booking_available'] ) && $resource_validation_result['resource_booking_available'] > 0 ) {
+					if ( $resource_booking_available > 0 ) {
 						if ( isset( $_POST['time_slot'] ) && '' !== $_POST['time_slot'] ) {
 							$message = sprintf(
 								'%s bookings are available for %s on date %s for %s timeslot',
-								$resource_validation_result['resource_booking_available'],
+								$resource_booking_available,
 								$resource_name,
 								$date_to_display,
 								$_POST['time_slot']
@@ -447,7 +447,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 						} else {
 							$message = sprintf(
 								'%s bookings are available for %s on date.',
-								$resource_validation_result['resource_booking_available'],
+								$resource_booking_available,
 								$resource_name,
 								$date_to_display
 							);
@@ -455,24 +455,24 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 					} else {
 						if ( isset( $_POST['time_slot'] ) && '' !== $_POST['time_slot'] ) {
 							$message = sprintf(
-								__( 'Available bookings for %s on date %s for %s timeslot are already added in the cart. You can add bookings for %s for a different date and time or place the order that is currently in the <a href="%s">%s</a>.', 'woocommerce-booking' ),
+								__( 'Available bookings for %1$s on date %2$s for %3$s timeslot are already added in the cart. You can add bookings for %4$s for a different date and time or place the order that is currently in the <a href="%5$s">%6$s</a>.', 'woocommerce-booking' ),
 								$resource_name,
 								$date_to_display,
 								$_POST['time_slot'],
 								$resource_name,
 								esc_url( wc_get_page_permalink( 'cart' ) ),
-								esc_html__( 'cart', 'woocommerce' )
+								esc_html__( 'cart', 'woocommerce-booking' )
 							);
 
 							$message = apply_filters( 'bkap_all_resource_datetime_availability_present_in_cart', $message, $resource_name, $date_to_display, $_POST['time_slot'] );
 						} else {
 							$message = sprintf(
-								__( 'Available bookings for %s for date %s are already added in the cart. You can add bookings for %s for a different date or place the order that is currently in the <a href="%s">%s</a>.', 'woocommerce-booking' ),
+								__( 'Available bookings for %1$s for date %2$s are already added in the cart. You can add bookings for %3$s for a different date or place the order that is currently in the <a href="%4$s">%5$s</a>.', 'woocommerce-booking' ),
 								$resource_name,
 								$date_to_display,
 								$resource_name,
 								esc_url( wc_get_page_permalink( 'cart' ) ),
-								esc_html__( 'cart', 'woocommerce' )
+								esc_html__( 'cart', 'woocommerce-booking' )
 							);
 							$message = apply_filters( 'bkap_all_resource_date_availability_present_in_cart', $message, $resource_name, $date_to_display );
 						}
@@ -499,9 +499,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 							$date_check_ymd = date( 'Y-m-d', strtotime( $date_check ) );
 
-							$query   = "SELECT total_booking, available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+							$query   = 'SELECT total_booking, available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 										WHERE post_id = %d
-										AND start_date = %s 
+										AND start_date = %s
 										AND status != 'inactive' ";
 							$results = $wpdb->get_results( $wpdb->prepare( $query, $post_id, $date_check_ymd ) );
 
@@ -521,45 +521,45 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 									$item_quantity[ $post_id ] = $item_quantity[ $post_id ] * $total_person;
 									if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $item_quantity[ $post_id ] ) {
 
-										$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-										$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
+										$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+										$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
 										if ( ! wc_has_notice( $message, 'error' ) ) {
 											wc_add_notice( $message, $notice_type = 'error' );
 										}
-										$quantity_check_pass                  = 'no';
+										$quantity_check_pass = 'no';
 
 									} elseif ( $results[0]->total_booking > 0 && $results[0]->available_booking == 0 ) {
 
-										$msg_text                             = __( get_option( 'book_no-booking-msg-date' ), 'woocommerce-booking' );
-										$message                              = str_replace( array( 'PRODUCT_NAME', 'DATE' ), array( $product_name, $date_to_display ), $msg_text );
+										$msg_text = __( get_option( 'book_no-booking-msg-date' ), 'woocommerce-booking' );
+										$message  = str_replace( array( 'PRODUCT_NAME', 'DATE' ), array( $product_name, $date_to_display ), $msg_text );
 										if ( ! wc_has_notice( $message, 'error' ) ) {
 											wc_add_notice( $message, $notice_type = 'error' );
 										}
-										$quantity_check_pass                  = 'no';
+										$quantity_check_pass = 'no';
 									}
 								} else {
 									$item_quantity = $item_quantity * $total_person;
 									if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $item_quantity ) {
 
-										$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-										$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
+										$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+										$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
 										if ( ! wc_has_notice( $message, 'error' ) ) {
 											wc_add_notice( $message, $notice_type = 'error' );
 										}
-										$quantity_check_pass                  = 'no';
+										$quantity_check_pass = 'no';
 
 									} elseif ( $results[0]->total_booking > 0 && $results[0]->available_booking == 0 ) {
 
-										$msg_text                             = __( get_option( 'book_no-booking-msg-date' ), 'woocommerce-booking' );
-										$message                              = str_replace( array( 'PRODUCT_NAME', 'DATE' ), array( $product_name, $date_to_display ), $msg_text );
+										$msg_text = __( get_option( 'book_no-booking-msg-date' ), 'woocommerce-booking' );
+										$message  = str_replace( array( 'PRODUCT_NAME', 'DATE' ), array( $product_name, $date_to_display ), $msg_text );
 										if ( ! wc_has_notice( $message, 'error' ) ) {
 											wc_add_notice( $message, $notice_type = 'error' );
 										}
-										$quantity_check_pass                  = 'no';
+										$quantity_check_pass = 'no';
 									}
 								}
 							}
-							
+
 							if ( 'yes' === $quantity_check_pass ) {
 
 								$total_quantity = 0;
@@ -572,9 +572,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 									}
 
 									$cart_total_person = 1;
-									if ( isset( $booking[0][ 'persons' ] ) ) {
+									if ( isset( $booking[0]['persons'] ) ) {
 										if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-											$cart_total_person = array_sum( $booking[0][ 'persons' ] );	
+											$cart_total_person = array_sum( $booking[0]['persons'] );
 										}
 									}
 
@@ -583,39 +583,40 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 									if ( $product_id == $post_id && isset( $booking[0]['hidden_date'] ) && $date_check && $booking[0]['hidden_date'] == $date_check ) {
 
-										//if ( isset( $parent_id ) && $parent_id != '' && is_array( $item_quantity ) ) {
-											//$item_quantity[ $post_id ] = $item_quantity[ $post_id ] * $total_person;
-											$total_quantity += /* $item_quantity[ $post_id ] + */ $quantity;
-										//} else {
-											/* $item_quantity  = ( $added ) ? 0 : $item_quantity * $total_person; */
-											//$total_quantity += /* $item_quantity + */ $quantity;
-										//}
+										// if ( isset( $parent_id ) && $parent_id != '' && is_array( $item_quantity ) ) {
+										// $item_quantity[ $post_id ] = $item_quantity[ $post_id ] * $total_person;
+										$total_quantity += /* $item_quantity[ $post_id ] + */ $quantity;
+										// } else {
+										/*
+										 $item_quantity  = ( $added ) ? 0 : $item_quantity * $total_person; */
+										// $total_quantity += /* $item_quantity + */ $quantity;
+										// }
 									}
 								}
 
 								if ( isset( $results ) && count( $results ) > 0 ) {
 
 									$date_to_display = date( $bkap_date_formats[ $date_format_to_display ], strtotime( $results[0]->start_date ) );
-									
+
 									if ( isset( $parent_id ) && $parent_id != '' && is_array( $item_quantity ) ) {
 										$total_quantity = $total_quantity + $item_quantity[ $post_id ];
 										if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $total_quantity ) {
-											$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-											$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
+											$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+											$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
 											if ( ! wc_has_notice( $message, 'error' ) ) {
 												wc_add_notice( $message, $notice_type = 'error' );
 											}
-											$quantity_check_pass                  = 'no';
+											$quantity_check_pass = 'no';
 										}
 									} else {
 										$total_quantity = $total_quantity + $item_quantity;
 										if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $total_quantity ) {
-											$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-											$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
+											$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+											$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $results[0]->available_booking, $date_to_display ), $msg_text );
 											if ( ! wc_has_notice( $message, 'error' ) ) {
 												wc_add_notice( $message, $notice_type = 'error' );
 											}
-											$quantity_check_pass                  = 'no';
+											$quantity_check_pass = 'no';
 										}
 									}
 								}
@@ -711,8 +712,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 									$check_out_to_display = date( $bkap_date_formats[ $date_format_to_display ], strtotime( $_POST['wapbk_hidden_date_checkout'] ) );
 									$date_range           = "$check_in_to_display to $check_out_to_display";
 
-									$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-									$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $least_availability, $date_range ), $msg_text );
+									$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+									$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $least_availability, $date_range ), $msg_text );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
@@ -734,9 +735,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								$product_id = $values['product_id'];
 
 								$cart_total_person = 1;
-								if ( isset( $booking[0][ 'persons' ] ) ) {
+								if ( isset( $booking[0]['persons'] ) ) {
 									if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-										$cart_total_person = array_sum( $booking[0][ 'persons' ] );
+										$cart_total_person = array_sum( $booking[0]['persons'] );
 									}
 								}
 
@@ -825,8 +826,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												$check_out_to_display = date( $bkap_date_formats[ $date_format_to_display ], strtotime( $_POST['wapbk_hidden_date_checkout'] ) );
 												$date_range           = "$check_in_to_display to $check_out_to_display";
 
-												$msg_text                             = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
-												$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $least_availability, $date_range ), $msg_text );
+												$msg_text = __( get_option( 'book_limited-booking-msg-date' ), 'woocommerce-booking' );
+												$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE' ), array( $product_name, $least_availability, $date_range ), $msg_text );
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
@@ -844,7 +845,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 				case 'multidates_fixedtime':
 					$type_of_slot = apply_filters( 'bkap_slot_type', $post_id );
 
-					if ( $type_of_slot == 'multiple' && ! isset( $_POST[ 'bkap_multidate_data' ] ) ) {
+					if ( $type_of_slot == 'multiple' && ! isset( $_POST['bkap_multidate_data'] ) ) {
 						$quantity_check_pass = apply_filters( 'bkap_validate_add_to_cart', $_POST, $post_id );
 					} else {
 
@@ -859,7 +860,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 							}
 
 							foreach ( $date_checks as $date_check_key => $date_check ) { // loop through each date.
-							// starts from here
+								// starts from here
 								$date_check_ymd = date( 'Y-m-d', strtotime( $date_check ) );
 
 								if ( isset( $time_slots[ $date_check_key ] ) ) {
@@ -913,7 +914,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										if ( ! wc_has_notice( $message, 'error' ) ) {
 											wc_add_notice( $message, $notice_type = 'error' );
 										}
-										$quantity_check_pass                  = 'no';
+										$quantity_check_pass = 'no';
 									}
 								}
 
@@ -922,7 +923,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								}
 
 								if ( $to_time != '' ) {
-									$query   = "SELECT total_booking, available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+									$query   = 'SELECT total_booking, available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 												WHERE post_id = %d
 												AND start_date = %s
 												AND from_time = %s
@@ -941,7 +942,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										$weekday         = date( 'w', strtotime( $date_check_ymd ) );
 										$booking_weekday = "booking_weekday_$weekday";
 
-										$query   = "SELECT total_booking, available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+										$query   = 'SELECT total_booking, available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d
 													AND weekday = %s
 													AND from_time = %s
@@ -950,7 +951,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										$results = $wpdb->get_results( $wpdb->prepare( $query, $post_id, $booking_weekday, $db_from_time, $db_to_time ) );
 									}
 								} else {
-									$query = "SELECT total_booking, available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+									$query = 'SELECT total_booking, available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d
 													AND start_date = %s
 													AND from_time = %s
@@ -969,7 +970,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										$weekday         = date( 'w', strtotime( $date_check_ymd ) );
 										$booking_weekday = "booking_weekday_$weekday";
 
-										$query   = "SELECT total_booking, available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+										$query   = 'SELECT total_booking, available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d
 													AND weekday = %s
 													AND ( from_time = %s
@@ -1000,54 +1001,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 											if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $item_quantity[ $post_id ] ) {
 
-												$msg_text                                 = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-												$message                                  = str_replace(
-													array(
-														'PRODUCT_NAME',
-														'AVAILABLE_SPOTS',
-														'DATE',
-														'TIME',
-													),
-													array(
-														$product_name,
-														$results[0]->available_booking,
-														$date_to_display,
-														$time_slot_to_display,
-													),
-													$msg_text
-												);
-												if ( ! wc_has_notice( $message, 'error' ) ) {
-													wc_add_notice( $message, $notice_type = 'error' );
-												}
-												$quantity_check_pass                  = 'no';
-											} elseif ( $results[0]->total_booking > 0 && $results[0]->available_booking == 0 ) {
-
-												$msg_text                             = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
-												$message                              = str_replace(
-													array(
-														'PRODUCT_NAME',
-														'DATE',
-														'TIME',
-													),
-													array(
-														$product_name,
-														$date_to_display,
-														$time_slot_to_display,
-													),
-													$msg_text
-												);
-												if ( ! wc_has_notice( $message, 'error' ) ) {
-													wc_add_notice( $message, $notice_type = 'error' );
-												}
-												$quantity_check_pass                  = 'no';
-											}
-										} else {
-											$item_quantity = $item_quantity * $total_person;
-
-											if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $item_quantity ) {
-
-												$msg_text                                 = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-												$message                                  = str_replace(
+												$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+												$message  = str_replace(
 													array(
 														'PRODUCT_NAME',
 														'AVAILABLE_SPOTS',
@@ -1068,8 +1023,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												$quantity_check_pass = 'no';
 											} elseif ( $results[0]->total_booking > 0 && $results[0]->available_booking == 0 ) {
 
-												$msg_text                             = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
-												$message                              = str_replace(
+												$msg_text = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
+												$message  = str_replace(
 													array(
 														'PRODUCT_NAME',
 														'DATE',
@@ -1085,16 +1040,62 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
-												$quantity_check_pass                  = 'no';
+												$quantity_check_pass = 'no';
+											}
+										} else {
+											$item_quantity = $item_quantity * $total_person;
+
+											if ( $results[0]->available_booking > 0 && $results[0]->available_booking < $item_quantity ) {
+
+												$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+												$message  = str_replace(
+													array(
+														'PRODUCT_NAME',
+														'AVAILABLE_SPOTS',
+														'DATE',
+														'TIME',
+													),
+													array(
+														$product_name,
+														$results[0]->available_booking,
+														$date_to_display,
+														$time_slot_to_display,
+													),
+													$msg_text
+												);
+												if ( ! wc_has_notice( $message, 'error' ) ) {
+													wc_add_notice( $message, $notice_type = 'error' );
+												}
+												$quantity_check_pass = 'no';
+											} elseif ( $results[0]->total_booking > 0 && $results[0]->available_booking == 0 ) {
+
+												$msg_text = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
+												$message  = str_replace(
+													array(
+														'PRODUCT_NAME',
+														'DATE',
+														'TIME',
+													),
+													array(
+														$product_name,
+														$date_to_display,
+														$time_slot_to_display,
+													),
+													$msg_text
+												);
+												if ( ! wc_has_notice( $message, 'error' ) ) {
+													wc_add_notice( $message, $notice_type = 'error' );
+												}
+												$quantity_check_pass = 'no';
 											}
 										}
 									}
 								} else {
-									$message                              = __( 'This product cannot be added to cart. Please contact Store Manager for further information', 'woocommerce-booking' );
+									$message = __( 'This product cannot be added to cart. Please contact Store Manager for further information', 'woocommerce-booking' );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
-									$quantity_check_pass                  = 'no';
+									$quantity_check_pass = 'no';
 								}
 
 								if ( $quantity_check_pass == 'yes' ) { // check if the same product has been added to the cart for the same dates
@@ -1106,27 +1107,27 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 											$product_id = $values['product_id'];
 
 											$cart_total_person = 1;
-											if ( isset( $booking[0][ 'persons' ] ) ) {
+											if ( isset( $booking[0]['persons'] ) ) {
 												if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-													$cart_total_person = array_sum( $booking[0][ 'persons' ] );
-													$quantity *= $cart_total_person;
+													$cart_total_person = array_sum( $booking[0]['persons'] );
+													$quantity         *= $cart_total_person;
 												}
 											}
 
 											if ( isset( $booking ) && count( $booking ) > 0 ) {
 
 												if ( $product_id == $post_id
-													&& $booking[0]['hidden_date'] == $date_check
-													&& isset( $booking[0]['time_slot'] )
-													&& isset( $time_slots[ $date_check_key ] )
-													&& ( $booking[0]['time_slot'] == $time_slots[ $date_check_key ] )
-													) {
+												&& $booking[0]['hidden_date'] == $date_check
+												&& isset( $booking[0]['time_slot'] )
+												&& isset( $time_slots[ $date_check_key ] )
+												&& ( $booking[0]['time_slot'] == $time_slots[ $date_check_key ] )
+												) {
 
-													//if ( isset( $parent_id ) && $parent_id != '' && is_array( $item_quantity ) ) {
-														$total_quantity += /* $item_quantity[ $post_id ] + */ $quantity;
-													//} else {
-														//$total_quantity += /* $item_quantity +  */$quantity;
-													//}
+													// if ( isset( $parent_id ) && $parent_id != '' && is_array( $item_quantity ) ) {
+													$total_quantity += /* $item_quantity[ $post_id ] + */ $quantity;
+													// } else {
+													// $total_quantity += /* $item_quantity +  */$quantity;
+													// }
 												}
 											}
 										}
@@ -1144,8 +1145,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										&& $results[0]->available_booking < $total_quantity
 										) {
 
-											$msg_text                             = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-											$message                              = str_replace(
+											$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+											$message  = str_replace(
 												array(
 													'PRODUCT_NAME',
 													'AVAILABLE_SPOTS',
@@ -1163,7 +1164,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 											if ( ! wc_has_notice( $message, 'error' ) ) {
 												wc_add_notice( $message, $notice_type = 'error' );
 											}
-											$quantity_check_pass                  = 'no';
+											$quantity_check_pass = 'no';
 										}
 									}
 								}
@@ -1174,12 +1175,11 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 					}
 					break;
 				case 'duration_time':
-
 					$duration_date     = $_POST['wapbk_hidden_date'];
 					$duration_time     = $_POST['duration_time_slot'];
 					$time_display      = bkap_common::bkap_get_formated_time( $duration_time, $global_settings );
 					$selected_duration = $_POST['bkap_duration_field']; // Entered value on front end : 1
-					$resource_id       = isset( $bkap_booking['resource_id'] ) ? $bkap_booking['resource_id'] : 0; // Id of selected Resource
+					$resource_id       = isset( $bkap_booking['resource_id'] ) ? $bkap_booking['resource_id'] : ''; // Id of selected Resource
 
 					// Duration Settings
 					$d_setting     = get_post_meta( $post_id, '_bkap_duration_settings', true );
@@ -1224,14 +1224,14 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								$available_duration = $duration_booked_blocks['duration_booked'][ $from ];
 
 								if ( $available_duration == '0' ) {
-									$msg_text                             = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
-									$message                              = str_replace( array( 'PRODUCT_NAME', 'DATE', 'TIME' ), array( $product_name, $date_to_display, $time_display ), $msg_text );
+									$msg_text = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
+									$message  = str_replace( array( 'PRODUCT_NAME', 'DATE', 'TIME' ), array( $product_name, $date_to_display, $time_display ), $msg_text );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
 								} else {
-									$msg_text                             = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-									$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $product_name, $available_duration, $date_to_display, $time_display ), $msg_text );
+									$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+									$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $product_name, $available_duration, $date_to_display, $time_display ), $msg_text );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
@@ -1244,38 +1244,39 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 						$item_quantity = isset( $_POST['quantity'] ) ? (int) $_POST['quantity'] : 1;
 						$item_quantity = $item_quantity * $total_person;
 						if ( ! empty( $duration_booked_blocks['duration_booked'] ) ) {
-	
+
 							if ( $duration_booked_blocks['duration_booked'][ $from ] < $item_quantity ) {
-	
+
 								$available_duration = $duration_booked_blocks['duration_booked'][ $from ];
-	
+
 								if ( $available_duration == '0' ) {
-									$msg_text                             = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
-									$message                              = str_replace( array( 'PRODUCT_NAME', 'DATE', 'TIME' ), array( $product_name, $date_to_display, $time_display ), $msg_text );
+									$msg_text = __( get_option( 'book_no-booking-msg-time' ), 'woocommerce-booking' );
+									$message  = str_replace( array( 'PRODUCT_NAME', 'DATE', 'TIME' ), array( $product_name, $date_to_display, $time_display ), $msg_text );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
 								} else {
-									$msg_text                             = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-									$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $product_name, $available_duration, $date_to_display, $time_display ), $msg_text );
+									$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+									$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $product_name, $available_duration, $date_to_display, $time_display ), $msg_text );
 									if ( ! wc_has_notice( $message, 'error' ) ) {
 										wc_add_notice( $message, $notice_type = 'error' );
 									}
 								}
-	
+
 								$quantity_check_pass = 'no';
 							}
-						} /* elseif ( $d_max_booking != '' && $d_max_booking != 0 ) {
-							
-							if ( ( $item_quantity * $total_person ) > ( $d_max_booking - $qty_check ) ) {
-								if ( $consider_person_qty ) {
-									$not_available = sprintf( __( 'There are a maximum of %s places remaining.', 'woocommerce-booking' ), ( $d_max_booking - $qty_check ) );
-								} else {
-									$not_available = __( 'Booking is not available for selected quantity', 'woocommerce-booking' );
-								}
-								$not_available = bkap_woocommerce_error_div( $not_available );
-								wp_send_json( array( 'message' => $not_available, 'error' => true ) );
+						} /*
+						elseif ( $d_max_booking != '' && $d_max_booking != 0 ) {
+
+						if ( ( $item_quantity * $total_person ) > ( $d_max_booking - $qty_check ) ) {
+							if ( $consider_person_qty ) {
+								$not_available = sprintf( __( 'There are a maximum of %s places remaining.', 'woocommerce-booking' ), ( $d_max_booking - $qty_check ) );
+							} else {
+								$not_available = __( 'Booking is not available for selected quantity', 'woocommerce-booking' );
 							}
+							$not_available = bkap_woocommerce_error_div( $not_available );
+							wp_send_json( array( 'message' => $not_available, 'error' => true ) );
+						}
 						} */
 					}
 					break;
@@ -1371,12 +1372,12 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 						$variation_id = isset( $value['variation_id'] ) ? $value['variation_id'] : '';
 
 						/* Persons Calculations */
-						$total_person = 1;
+						$total_person           = 1;
 						$selected_persons_total = 1;
-						if ( isset( $bkap_booking[ 'persons' ] ) ) {
-							$selected_persons_total = array_sum( $bkap_booking[ 'persons' ] );
+						if ( isset( $bkap_booking['persons'] ) ) {
+							$selected_persons_total = array_sum( $bkap_booking['persons'] );
 							if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-								$total_person = $selected_persons_total;	
+								$total_person = $selected_persons_total;
 							}
 						}
 
@@ -1385,10 +1386,16 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 							$bkap_persons = array();
 							if ( isset( $bkap_booking['persons'][0] ) ) {
-								$bkap_persons[] = array( 'person_id' => 1, 'person_val' => $bkap_booking['persons'][0] );
+								$bkap_persons[] = array(
+									'person_id'  => 1,
+									'person_val' => $bkap_booking['persons'][0],
+								);
 							} else {
-								foreach ($bkap_booking[ 'persons' ] as $pkey => $pvalue) {
-									$bkap_persons[] = array( 'person_id' => $pkey, 'person_val' => $pvalue );
+								foreach ( $bkap_booking['persons'] as $pkey => $pvalue ) {
+									$bkap_persons[] = array(
+										'person_id'  => $pkey,
+										'person_val' => $pvalue,
+									);
 								}
 							}
 
@@ -1409,253 +1416,64 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 						$_POST['quantity']      = ( $value['quantity'] * $total_person );
 						$_POST['cart_item_key'] = $key;
 
-						/* Resource checking start */
-						if ( isset( $bkap_booking['resource_id'] ) && $bkap_booking['resource_id'] > 0 ) {
+						/* Resource */
+						if ( isset( $bkap_booking['resource_id'] ) && '' !== $bkap_booking['resource_id'] ) {
 
-							$resource_id                = $bkap_booking['resource_id'];
-							$bkap_resource_availability = bkap_resource_max_booking( $resource_id, $date_check, $duplicate_of, $booking_settings );
-							$resource_qty               = 0;
-							$resource_booking_available = 0;
+							$post_data = array(
+								'source'                => 'bkap_cart_checkout_quantity_check',
+								'quantity'              => $_POST['quantity'],
+								'_resource_id'          => $bkap_booking['resource_id'],
+								'_wapbk_hidden_date'    => $date_check,
+								'_time_slot'            => isset( $bkap_booking['time_slot'] ) ? $bkap_booking['time_slot'] : '',
+								'_duration_time_slot'   => isset( $bkap_booking['duration_time_slot'] ) ? $bkap_booking['duration_time_slot'] : '',
+								'_hidden_date_checkout' => $date_checkout,
+								'_hidden_date'          => $bkap_booking['hidden_date'],
+							);
 
-							if ( 0 != $bkap_resource_availability ) {
+							if ( '' !== $post_data['_duration_time_slot'] ) {
+								$bkap_duration_field               = explode( '-', $bkap_booking['selected_duration'] );
+								$post_data['_bkap_duration_field'] = $bkap_duration_field[0];
+							}
 
-								$resource_booking_data      = Class_Bkap_Product_Resource::print_hidden_resource_data( array(), $booking_settings, $duplicate_of );
-								$resource_booked_for_date   = 0;
-								$selected_date              = $bkap_booking['hidden_date'];
+							$validation = Class_Bkap_Product_Resource::bkap_resource_add_to_cart_validation_callback( $post_data, $duplicate_of, $booking_settings, '', array() );
 
-								if ( isset( $bkap_booking['time_slot'] ) && '' != $bkap_booking['time_slot'] ) {
-									$resource_bookings_placed = $resource_booking_data['bkap_booked_resource_data'][ $resource_id ]['bkap_date_time_array'];
-									if ( isset( $resource_bookings_placed[ $selected_date ] ) ) {
-										if ( isset( $resource_bookings_placed[ $selected_date ][ $bkap_booking['time_slot'] ] ) ) {
-											$resource_booked_for_date = $resource_bookings_placed[ $selected_date ];
+							if ( 'no' === $validation['quantity_check_pass'] ) {
+
+								if ( isset( $validation['results'] ) && is_array( $validation['results'] ) ) {
+
+									$message          = '';
+									$seperator        = '';
+									$is_time_slot_set = isset( $bkap_booking['time_slot'] ) && '' !== $bkap_booking['time_slot'];
+
+									foreach ( $validation['results'] as $result ) {
+
+										$resource_name              = $result['resource_name'];
+										$resource_booking_available = $result['resource_booking_available'];
+										$values_to_be_replaced      = array(
+											$resource_name,
+											$resource_booking_available,
+											$date_to_display,
+										);
+
+										if ( $is_time_slot_set ) {
+											$values_to_be_replaced[] = $bkap_booking['time_slot'];
 										}
-									}
-								} elseif ( isset( $bkap_booking['duration_time_slot'] ) && $bkap_booking['duration_time_slot'] != '' ) {
 
-									$resource_bookings_placed = $resource_booking_data['bkap_booked_resource_data'][ $resource_id ]['bkap_date_time_array'];
-
-									$duration_time         = $bkap_booking['duration_time_slot'];
-									$duration_time_str     = strtotime( $duration_time );
-									$bkap_duration_field   = explode( '-', $bkap_booking['selected_duration'] );
-									$duration_end_time     = date( 'H:i', strtotime( "+$bkap_duration_field[0] hour", $duration_time_str ) );
-									$duration_end_time_str = strtotime( $duration_end_time );
-
-									if ( array_key_exists( $selected_date, $resource_bookings_placed ) ) {
-
-										foreach ( $resource_bookings_placed[ $selected_date ] as $dkey => $dvalue ) {
-
-											$explode = explode( ' - ', $dkey );
-
-											if ( $duration_time_str >= strtotime( $explode[0] ) && $duration_end_time_str < strtotime( $explode[1] ) ) {
-												// inside
-												$resource_booked_for_date += $resource_bookings_placed[ $selected_date ][ $dkey ];
-
-											} elseif ( $duration_time_str >= strtotime( $explode[0] ) && $duration_time_str < strtotime( $explode[1] ) ) {
-												// inside start time range
-												$resource_booked_for_date += $resource_bookings_placed[ $selected_date ][ $dkey ];
-											} elseif ( $duration_time_str < strtotime( $explode[0] ) && $duration_end_time_str > strtotime( $explode[1] ) ) {
-												// out side
-												$resource_booked_for_date += $resource_bookings_placed[ $selected_date ][ $dkey ];
-											} elseif ( $duration_end_time_str > strtotime( $explode[0] ) && $duration_end_time_str < strtotime( $explode[1] ) ) {
-												$resource_booked_for_date += $resource_bookings_placed[ $selected_date ][ $dkey ];
-											}
-										}
-									}
-								} else {
-									$resource_bookings_placed = $resource_booking_data['bkap_booked_resource_data'][ $resource_id ]['bkap_booking_placed'];
-
-									$resource_bookings_placed_list_dates = explode( ',', $resource_bookings_placed );
-									$resource_date_array                 = array();
-
-									foreach ( $resource_bookings_placed_list_dates as $list_key => $list_value ) {
-
-										$explode_date = explode( '=>', $list_value );
-
-										if ( isset( $explode_date[1] ) && $explode_date[1] != '' ) {
-											$date                         = substr( $explode_date[0], 1, -1 );
-											$resource_date_array[ $date ] = (int) $explode_date[1];
-										}
+										$replace_string = $is_time_slot_set ? 'book_limited-booking-msg-time' : 'book_limited-booking-msg-date';
+										$message       .= $seperator . bkap_str_replace( $replace_string, $values_to_be_replaced );
+										$seperator      = '<br/>';
 									}
 
-									if ( array_key_exists( $selected_date, $resource_date_array ) ) {
-										$resource_booked_for_date = $resource_date_array[ $selected_date ];
+									if ( ! wc_has_notice( $message, 'error' ) ) {
+										wc_add_notice( $message, $notice_type = 'error' );
 									}
-								}
 
-								$resource_booking_available = intval( $bkap_resource_availability ) - intval( $resource_booked_for_date );
-
-								foreach ( $wc_cart_object->cart->cart_contents as $cart_check_key => $cart_check_value ) {
-
-									if ( isset( $cart_check_value['bkap_booking'][0]['resource_id'] ) ) {
-
-										if ( $bkap_booking['resource_id'] == $cart_check_value['bkap_booking'][0]['resource_id'] ) {
-
-											// Calculation for resource qty for product parent foreach product is single day.
-											if ( ! isset( $bkap_booking['hidden_date_checkout'] ) ) {
-
-												// here we have to do the magic.
-
-												$booking_type_check = $booking_type;
-
-												$hidden_date_str = $hidden_date_checkout_str = $val_hidden_date_str = '';
-												$hidden_date_str = strtotime( $cart_check_value['bkap_booking'][0]['hidden_date'] );
-
-												if ( isset( $cart_check_value['bkap_booking'][0]['hidden_date_checkout'] ) && $cart_check_value['bkap_booking'][0]['hidden_date_checkout'] != '' ) {
-													$hidden_date_checkout_str = strtotime( $cart_check_value['bkap_booking'][0]['hidden_date_checkout'] );
-												}
-
-												$val_hidden_date_str = strtotime( $bkap_booking['hidden_date'] );
-
-												switch ( $booking_type_check ) {
-													case 'date_time':
-														if ( $hidden_date_checkout_str == '' ) {
-															if ( $bkap_booking['hidden_date'] == $cart_check_value['bkap_booking'][0]['hidden_date'] ) {
-
-																$time_check = false;
-																if ( isset( $cart_check_value['bkap_booking'][0]['time_slot'] ) ) {
-																	$time_check = true;
-																	if ( $bkap_booking['time_slot'] == $cart_check_value['bkap_booking'][0]['time_slot'] ) {
-																		$resource_qty += $cart_check_value['quantity'];
-																	}
-																}
-																if ( isset( $cart_check_value['bkap_booking'][0]['duration_time_slot'] ) ) {
-																	$time_check = true;
-
-																	$cartstart          = strtotime( $cart_check_value['bkap_booking'][0]['duration_time_slot'] );
-																	$d_explode          = explode( '-', $cart_check_value['bkap_booking'][0]['selected_duration'] );
-																	$d_explode_duration = $d_explode[0];
-																	$cartend            = strtotime( date( 'H:i', strtotime( "+$d_explode_duration hour", $cartstart ) ) );
-
-																	if ( $duration_time_str >= $cartstart && $duration_end_time_str < $cartend ) {
-																		// inside
-																		$resource_qty += $cart_check_value['quantity'];
-																	} elseif ( $duration_time_str >= $cartstart && $duration_time_str < $cartend ) {
-																		// inside start time range
-																		$resource_qty += $cart_check_value['quantity'];
-																	} elseif ( $duration_time_str < $cartstart && $duration_end_time_str > $cartend ) {
-																		// out side
-																		$resource_qty += $cart_check_value['quantity'];
-																	} elseif ( $duration_end_time_str > $cartstart && $duration_end_time_str < $cartend ) {
-																		$resource_qty += $cart_check_value['quantity'];
-																	}
-																}
-																if ( ! $time_check ) {
-																	$resource_qty += $cart_check_value['quantity'];
-																}
-															}
-														} else {
-															if ( $val_hidden_date_str >= $hidden_date_str && $val_hidden_date_str < $hidden_date_checkout_str ) {
-																$resource_qty += $cart_check_value['quantity'];
-															}
-														}
-
-														break;
-													case 'duration_time':
-														if ( $hidden_date_checkout_str == '' ) {
-															if ( $bkap_booking['hidden_date'] == $cart_check_value['bkap_booking'][0]['hidden_date'] ) {
-
-																$time_check = false;
-																if ( isset( $cart_check_value['bkap_booking'][0]['time_slot'] ) ) {
-																	$time_check = true;
-																	if ( $bkap_booking['time_slot'] == $cart_check_value['bkap_booking'][0]['time_slot'] ) {
-																		$resource_qty += $cart_check_value['quantity'];
-																	}
-																}
-																if ( isset( $cart_check_value['bkap_booking'][0]['duration_time_slot'] ) ) {
-																	$time_check = true;
-
-																	$cartstart          = strtotime( $cart_check_value['bkap_booking'][0]['duration_time_slot'] );
-																	$d_explode          = explode( '-', $cart_check_value['bkap_booking'][0]['selected_duration'] );
-																	$d_explode_duration = $d_explode[0];
-																	$cartend            = strtotime( date( 'H:i', strtotime( "+$d_explode_duration hour", $cartstart ) ) );
-
-																	if ( $duration_time_str >= $cartstart && $duration_end_time_str < $cartend ) {
-																		// inside
-																		$resource_qty += $cart_check_value['quantity'];
-
-																	} elseif ( $duration_time_str >= $cartstart && $duration_time_str < $cartend ) {
-																		// inside start time range
-																		$resource_qty += $cart_check_value['quantity'];
-																	} elseif ( $duration_time_str < $cartstart && $duration_end_time_str > $cartend ) {
-																		// out side
-																		$resource_qty += $cart_check_value['quantity'];
-																	} elseif ( $duration_end_time_str > $cartstart && $duration_end_time_str < $cartend ) {
-																		$resource_qty += $cart_check_value['quantity'];
-																	}
-																}
-																if ( ! $time_check ) {
-																	$resource_qty += $cart_check_value['quantity'];
-																}
-															}
-														} else {
-															if ( $val_hidden_date_str >= $hidden_date_str && $val_hidden_date_str < $hidden_date_checkout_str ) {
-																$resource_qty += $cart_check_value['quantity'];
-															}
-														}
-
-														break;
-													default:
-														if ( $hidden_date_checkout_str == '' ) {
-															if ( $bkap_booking['hidden_date'] == $cart_check_value['bkap_booking'][0]['hidden_date'] ) {
-																$resource_qty += $cart_check_value['quantity'];
-															}
-														} else {
-															if ( $val_hidden_date_str >= $hidden_date_str && $val_hidden_date_str < $hidden_date_checkout_str ) {
-																$resource_qty += $cart_check_value['quantity'];
-															}
-														}
-
-														break;
-												}
-												// switch end here
-
-											} else { // Calculation for resource qty for product parent foreach product is multiple nights.
-
-												$hidden_date_str = $hidden_date_checkout_str = $cart_check_hidden_date_str = '';
-												$hidden_date_str = strtotime( $bkap_booking['hidden_date'] );
-
-												if ( isset( $cart_check_value['bkap_booking'][0]['hidden_date_checkout'] ) && $cart_check_value['bkap_booking'][0]['hidden_date_checkout'] != '' ) {
-													$hidden_date_checkout_str = strtotime( $bkap_booking['hidden_date_checkout'] );
-												}
-
-												$cart_check_hidden_date_str = strtotime( $cart_check_value['bkap_booking'][0]['hidden_date'] );
-
-												if ( $cart_check_hidden_date_str >= $hidden_date_str && $cart_check_hidden_date_str <= $hidden_date_checkout_str ) {
-													$resource_qty += $cart_check_value['quantity'];
-												}
-											}
-										}
-									}
+									bkap_remove_proceed_to_checkout();
 								}
 							}
 
-							if ( $resource_qty > $resource_booking_available ) {
-
-								if ( isset( $bkap_booking['time_slot'] ) && '' != $bkap_booking['time_slot'] ) {
-									$values_tobe_replaced = array(
-										get_the_title( $resource_id ),
-										$resource_booking_available,
-										$date_to_display,
-										$bkap_booking['time_slot'],
-									);
-
-									$message = bkap_str_replace( 'book_limited-booking-msg-time', $values_tobe_replaced );
-								} else {
-									$values_tobe_replaced = array(
-										get_the_title( $resource_id ),
-										$resource_booking_available,
-										$date_to_display,
-									);
-									$message              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
-								}
-								if ( ! wc_has_notice( $message, 'error' ) ) {
-									wc_add_notice( $message, $notice_type = 'error' );
-								}
-								bkap_remove_proceed_to_checkout();
-							}
 							continue;
 						}
-						/* Resource checking end */
 
 						switch ( $booking_type ) {
 
@@ -1681,8 +1499,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										$main_timeslot = explode( ' - ', $bkap_booking['time_slot'] );
 										$m_from        = strtotime( $main_timeslot[0] );
 
-										if ( isset( $main_timeslot[1] ) ) {
-											$m_to = strtotime( $main_timeslot[1] );
+										if ( isset( $main_timeslot[0] ) ) {
+											$m_to = isset( $main_timeslot[1] ) ? strtotime( $main_timeslot[1] ) : '';
 
 											foreach ( $wc_cart_object->cart->cart_contents as $cart_check_key => $cart_check_value ) {
 
@@ -1690,11 +1508,11 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												&& $bkap_booking['hidden_date'] == $cart_check_value['bkap_booking'][0]['hidden_date']
 												&& $key != $cart_check_key ) {
 													if ( $bkap_booking['time_slot'] == $cart_check_value['bkap_booking'][0]['time_slot'] ) {
-														
+
 														$cart_total_person = 1;
 														if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 															if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-																$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+																$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 															}
 														}
 
@@ -1711,7 +1529,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 																$cart_total_person = 1;
 																if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 																	if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-																		$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+																		$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 																	}
 																}
 																$qty_check = ( $value['quantity'] * $total_person ) + ( $cart_check_value['quantity'] * $cart_total_person );
@@ -1719,18 +1537,18 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 															}
 														}
 													}
-												} else if (	isset( $bkap_booking['hidden_date'] )
+												} elseif ( isset( $bkap_booking['hidden_date'] )
 												&& isset( $cart_check_value['bkap_booking'] )
 												&& isset( $cart_check_value['bkap_booking'][0]['hidden_date'] )
 												&& ( $bkap_booking['hidden_date'] == $cart_check_value['bkap_booking'][0]['hidden_date'] )
 												&& $key != $cart_check_key
-												&& $bkap_booking['time_slot'] == $cart_check_value['bkap_booking'][0]['time_slot'] ) {
+												&& isset( $cart_check_value['time_slot'] ) && $bkap_booking['time_slot'] == $cart_check_value['bkap_booking'][0]['time_slot'] ) {
 													// Global check.
-													if ( isset( $global_settings->booking_global_timeslot ) && 'on' === $global_settings->booking_global_timeslot  ) {
+													if ( isset( $global_settings->booking_global_timeslot ) && 'on' === $global_settings->booking_global_timeslot ) {
 														$cart_total_person = 1;
 														if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 															if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-																$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+																$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 															}
 														}
 														$qty_check = ( $value['quantity'] * $total_person ) + ( $cart_check_value['quantity'] * $cart_total_person );
@@ -1752,9 +1570,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												$site_timezone     = bkap_booking_get_timezone_string();
 												$customer_timezone = Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' );
 
-												$db_from_time   = bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[0], $customer_timezone, $site_timezone, 'H:i' );
-												$db_to_time     = isset( $time_range[1] ) ?  bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[1], $customer_timezone, $site_timezone, 'H:i' ) : '';
-												$date_check     = bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[0], $customer_timezone, $site_timezone, 'Y-m-d' );
+												$db_from_time = bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[0], $customer_timezone, $site_timezone, 'H:i' );
+												$db_to_time   = isset( $time_range[1] ) ? bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[1], $customer_timezone, $site_timezone, 'H:i' ) : '';
+												$date_check   = bkap_convert_date_from_timezone_to_timezone( $date_check . ' ' . $time_range[0], $customer_timezone, $site_timezone, 'Y-m-d' );
 
 												// Converting booking date to store timezone for getting correct availability.
 											} else {
@@ -1770,7 +1588,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												$time_slot_to_display = $bkap_booking['time_slot'];
 
 												/* Person Calculations */
-												$bookings_data = get_bookings_for_range( $value['product_id'], $date_check, strtotime( $date_check . ' 23:59'  ) );
+												$bookings_data = get_bookings_for_range( $value['product_id'], $date_check, strtotime( $date_check . ' 23:59' ) );
 												if ( count( $bookings_data ) > 0 ) {
 													if ( isset( $bookings_data[ date( 'Ymd', strtotime( $date_check ) ) ] ) ) {
 														$db_to_time = ( '' === $db_to_time ) ? '00:00' : $db_to_time;
@@ -1801,12 +1619,12 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 												} elseif ( $results[0]->total_booking > 0 && $available_booking == 0 ) {
 
-													$values_tobe_replaced                 = array(
+													$values_tobe_replaced = array(
 														$post_title->post_title,
 														$date_to_display,
 														$time_slot_to_display,
 													);
-													$message = bkap_str_replace( 'book_no-booking-msg-time', $values_tobe_replaced );
+													$message              = bkap_str_replace( 'book_no-booking-msg-time', $values_tobe_replaced );
 													if ( ! wc_has_notice( $message, 'error' ) ) {
 														wc_add_notice( $message, $notice_type = 'error' );
 													}
@@ -1839,7 +1657,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 											$cart_total_person = 1;
 											if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 												if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-													$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+													$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 												}
 											}
 											$qty_check = ( $value['quantity'] * $total_person ) + ( $cart_check_value['quantity'] * $cart_total_person );
@@ -1882,8 +1700,8 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 											$available_duration = $duration_booked_blocks['duration_booked'][ $from ] + $qty_check;
 
-											$msg_text                             = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
-											$message                              = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $post_title->post_title, $available_duration, $date_to_display, $time_display ), $msg_text );
+											$msg_text = __( get_option( 'book_limited-booking-msg-time' ), 'woocommerce-booking' );
+											$message  = str_replace( array( 'PRODUCT_NAME', 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $post_title->post_title, $available_duration, $date_to_display, $time_display ), $msg_text );
 											if ( ! wc_has_notice( $message, 'error' ) ) {
 												wc_add_notice( $message, $notice_type = 'error' );
 											}
@@ -1910,7 +1728,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										$cart_total_person = 1;
 										if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 											if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-												$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+												$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 											}
 										}
 
@@ -1987,9 +1805,9 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 													}
 												}
 
-												$date_range                           = "$date_to_display to $check_out_to_display"; // setup the dates to be displayed
-												$values_tobe_replaced                 = array( $post_title->post_title, $least_availability, $date_range );
-												$message                              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
+												$date_range           = "$date_to_display to $check_out_to_display"; // setup the dates to be displayed
+												$values_tobe_replaced = array( $post_title->post_title, $least_availability, $date_range );
+												$message              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
@@ -2001,7 +1819,6 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								break;
 							case 'only_day':
 							case 'multidates':
-
 								do_action( 'bkap_single_days_cart_validation' );
 								$validation_completed = isset( $_POST['validation_status'] ) ? $_POST['validation_status'] : '';
 
@@ -2009,7 +1826,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 									$lockout = get_date_lockout( $value['product_id'], $date_check );
 									if ( 'unlimited' != $lockout ) {
-										$query   = "SELECT total_booking,available_booking, start_date FROM `" . $wpdb->prefix . "booking_history`
+										$query   = 'SELECT total_booking,available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 												WHERE post_id = %d
 												AND start_date = %s
 												AND status != 'inactive' ";
@@ -2026,7 +1843,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 												$cart_total_person = 1;
 												if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 													if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-														$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );	
+														$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 													}
 												}
 
@@ -2052,15 +1869,15 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										} else {
 											$available_tickets = isset( $available ) ? $available : $results[0]->available_booking;
 											if ( $available_tickets > 0 && $available_tickets < $qty_check ) {
-												$values_tobe_replaced                 = array( $post_title->post_title, $available_tickets, $date_to_display );
-												$message                              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
+												$values_tobe_replaced = array( $post_title->post_title, $available_tickets, $date_to_display );
+												$message              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
 												bkap_remove_proceed_to_checkout();
 											} elseif ( $results[0]->total_booking > 0 && $available_tickets == 0 ) {
-												$values_tobe_replaced                 = array( $post_title->post_title, $date_to_display );
-												$message                              = bkap_str_replace( 'book_no-booking-msg-date', $values_tobe_replaced );
+												$values_tobe_replaced = array( $post_title->post_title, $date_to_display );
+												$message              = bkap_str_replace( 'book_no-booking-msg-date', $values_tobe_replaced );
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
@@ -2112,7 +1929,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 							$prod_id = $prod_in_cart_value['product_id'];
 						}
 
-						$duplicate_of     = bkap_common::bkap_get_product_id( $prod_id );						
+						$duplicate_of     = bkap_common::bkap_get_product_id( $prod_id );
 						$booking_settings = bkap_setting( $duplicate_of );
 						$holiday_array    = isset( $booking_settings['booking_product_holiday'] ) ? $booking_settings['booking_product_holiday'] : array();
 
@@ -2146,7 +1963,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								if ( isset( $value['time_slot'] ) && $value['time_slot'] != '' ) {
 									$advance_booking_hrs  = bkap_advance_booking_hrs( $booking_settings, $duplicate_of );
 									$time_slot_to_display = $value['time_slot'];
-									
+
 									if ( strpos( $time_slot_to_display, '<br>' ) !== false ) {
 										$timeslots = explode( '<br>', $time_slot_to_display );
 									} else {
@@ -2155,14 +1972,14 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 									foreach ( $timeslots as $k => $v ) {
 										if ( '' !== $v ) {
-											$time_exploded        = explode( ' - ', $v );
-											$from_time            = $time_exploded[0];
-											$to_time              = isset( $time_exploded[1] ) ? $time_exploded[1] : '';
-											$dateymd              = date( 'Y-m-d', $date_strtotime );
-											$booking_time         = $dateymd . $from_time;
-											$booking_time         = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_time, $dateymd, $from_time, $to_time, $duplicate_of, $booking_settings );
-											$date2                = new DateTime( $booking_time );
-											$include              = bkap_dates_compare( $today, $date2, $advance_booking_hrs, $phpversion );
+											$time_exploded = explode( ' - ', $v );
+											$from_time     = $time_exploded[0];
+											$to_time       = isset( $time_exploded[1] ) ? $time_exploded[1] : '';
+											$dateymd       = date( 'Y-m-d', $date_strtotime );
+											$booking_time  = $dateymd . $from_time;
+											$booking_time  = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_time, $dateymd, $from_time, $to_time, $duplicate_of, $booking_settings );
+											$date2         = new DateTime( $booking_time );
+											$include       = bkap_dates_compare( $today, $date2, $advance_booking_hrs, $phpversion );
 											if ( ! $include ) {
 												break;
 											}
@@ -2216,12 +2033,12 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 						$variation     = wc_get_product( $_POST['variation_id'] );
 						$product_title = $variation->get_formatted_name();
 					} else {
-						$variation    = wc_get_product( $product_id );
+						$variation     = wc_get_product( $product_id );
 						$product_title = $product->get_name();
 					}
 
 					if ( $date !== $bkap_booking['hidden_date'] ) {
-						$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title ); 
+						$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
 						wc_add_notice( $message, $notice_type = 'error' );
 						return false;
 					}
@@ -2233,14 +2050,12 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 					switch ( $booking_type ) {
 
 						case 'multiple_days':
-
 							if ( '' != $end_date ) { // Check if the product being added to cart is havin end date or not.
 
 								if ( isset( $bkap_booking['hidden_date_checkout'] ) ) { // first product in cart having end date or not.
 
 									if ( $date !== $bkap_booking['hidden_date'] || $end_date !== $bkap_booking['hidden_date_checkout'] ) {
-
-										$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title ); 
+										$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
 										wc_add_notice( $message, $notice_type = 'error' );
 										$passed = false;
 									}
@@ -2254,15 +2069,14 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										if ( ! empty( $mbkap_booking ) ) {
 
 											if ( $date !== $mbkap_booking['hidden_date'] || $end_date !== $mbkap_booking['hidden_date_checkout'] ) {
-												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking['date_checkout'], $product_title ); 
+												$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking['date_checkout'], $product_title );
 												wc_add_notice( $message, $notice_type = 'error' );
 												$passed = false;
 											}
-
 										} else {
 
 											if ( $date !== $bkap_booking['hidden_date'] ) {
-												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
+												$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
 												wc_add_notice( $message, $notice_type = 'error' );
 												$passed = false;
 											}
@@ -2273,7 +2087,6 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 							break;
 						case 'date_time':
 						case 'duration_time':
-
 							$key = ( 'duration_time' == $booking_type ) ? 'duration_time_slot' : 'time_slot';
 							if ( isset( $_POST[ $key ] ) && '' !== $_POST[ $key ] ) {
 
@@ -2282,8 +2095,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								if ( isset( $bkap_booking[ $key ] ) ) { // first product in cart having end date or not.
 
 									if ( $time_slot !== $bkap_booking[ $key ] ) {
-
-										$message = sprintf( __( 'Please select %s and %s to book %s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking[$key], $product_title ); 
+										$message = sprintf( __( 'Please select %1$s and %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking[ $key ], $product_title );
 										wc_add_notice( $message, $notice_type = 'error' );
 										$passed = false;
 									}
@@ -2296,7 +2108,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 										if ( ! empty( $mbkap_booking ) ) {
 
 											if ( $time_slot !== $mbkap_booking[ $key ] ) {
-												$message = sprintf( __( 'Please select %s to %s to book %s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking[$key], $product_title ); 
+												$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $mbkap_booking['date'], $mbkap_booking[ $key ], $product_title );
 												wc_add_notice( $message, $notice_type = 'error' );
 												$passed = false;
 											}
@@ -2314,4 +2126,3 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 	}
 	$bkap_validation = new Bkap_Validation();
 }
-

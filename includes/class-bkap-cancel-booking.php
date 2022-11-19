@@ -104,18 +104,28 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 
 					$booking_id              = $booking->id;
 					$reschedule_booking_data = self::reschedule_booking_data( $booking_id );
+					$product_id = $booking->get_product_id();
+
+					$_item_id = $reschedule_booking_data['item_id'];
+
+					if ( 'multiple' === BKAP_Product_Resource::get_resource_selection_type( $product_id ) ) {
+
+						// Single Modals would be displayed for multiple resources for Order. Need to make moal unique as they would share the same item_id.
+						$_item_id = $reschedule_booking_data['item_id'] . '__' . $booking_id;
+					}
 
 					$localized_array = array(
 						'bkap_booking_params' => $reschedule_booking_data['bkap_booking'],
 						'bkap_cart_item'      => $reschedule_booking_data['item'],
-						'bkap_cart_item_key'  => $reschedule_booking_data['item_id'],
+						'bkap_cart_item_key'  => $_item_id,
 						'bkap_order_id'       => $reschedule_booking_data['order_id'],
 						'bkap_page_type'      => 'view-order',
+						'booking_id'          => $reschedule_booking_data['booking_id'],
 					);
 
 					wp_localize_script(
 						'bkap-reschedule-booking',
-						'bkap_edit_params_' . $reschedule_booking_data['item_id'],
+						'bkap_edit_params_' . $_item_id,
 						$localized_array
 					);
 				}
@@ -375,7 +385,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$is_cancel_enabled_for_booking = false;
 
 			$booking_cancel_url        = self::bkap_cancel_booking_url( $booking_id, $called_from );
-			$booking_cancel_url_button = '<a href="' . esc_url( $booking_cancel_url ) . '" class="woocommerce - button button bkap - cancel - booking - cancel - button">' . __( 'Cancel', 'woocommerce-booking' ) . '</a>';
+			$booking_cancel_url_button = '<a href="' . esc_url( $booking_cancel_url ) . '" class="woocommerce-button button bkap-cancel-booking-cancel-button">' . __( 'Cancel', 'woocommerce-booking' ) . '</a>';
 
 			$booking = new BKAP_Booking( $booking_id );
 
@@ -395,7 +405,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 				// Check if Cancel Booking has been set at global level only if product level check is false - since product level takes precedence over global level.
 
 				$global_settings                   = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
-				$is_cancel_enabled_at_global_level = ( isset( $global_settings->bkap_booking_minimum_hours_cancel ) && '' !== $global_settings->bkap_booking_minimum_hours_cancel );
+				$is_cancel_enabled_at_global_level = ( isset( $global_settings->bkap_booking_minimum_hours_cancel ) && '' !== $global_settings->bkap_booking_minimum_hours_cancel && '0' != $global_settings->bkap_booking_minimum_hours_cancel );
 
 				if ( ! $is_cancel_enabled_for_product ) {
 					$is_cancel_enabled_for_product = $is_cancel_enabled_at_global_level;
@@ -560,8 +570,15 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$order_status                     = $order->get_status();
 			$invalid_order_status             = array( 'cancelled', 'refunded', 'trash', 'failed', 'auto-draft' );
 			$item_id                          = $booking->get_item_id();
+			$product_resource_selection_type  = BKAP_Product_Resource::get_resource_selection_type( $product_id );
+			$_item_id                         = $item_id;
+			
+			if ( 'multiple' === $product_resource_selection_type ) {
+				// Single Modals would be displayed for multiple resources for Order. Need to make modal unique as they would share the same item_id.
+				$_item_id = $item_id . '__' . $booking_id;
+			}
 
-			$booking_reschedule_url_button = sprintf( '<input type="button" class="woocommerce-button button bkap-reschedule-booking-reschedule-button" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,%s)" value="%s">', $product_id, $item_id, __( 'Reschedule', 'woocommerce-booking' ) );
+			$booking_reschedule_url_button    = sprintf( '<input type="button" class="woocommerce-button button bkap-reschedule-booking-reschedule-button" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,\'%s\')" value="%s">', $product_id, $_item_id, __( 'Reschedule', 'woocommerce-booking' ) );
 
 			if ( isset( $order_status ) && '' !== $order_status && ! in_array( $order_status, $invalid_order_status, true ) ) {
 
@@ -608,7 +625,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 							'bkap_order_id'      => $reschedule_booking_data['order_id'],
 							'product_id'         => $reschedule_booking_data['product_id'],
 							'variation_id'       => $reschedule_booking_data['variation_id'],
-							'bkap_cart_item_key' => $reschedule_booking_data['item_id'],
+							'bkap_cart_item_key' => $_item_id,
 							'bkap_addon_data'    => $reschedule_booking_data['addon_data'],
 						),
 						'woocommerce-booking/',
@@ -642,6 +659,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$book_item_meta_date     = ( '' == get_option( 'book_item-meta-date' ) ) ? __( 'Start Date', 'woocommerce-booking' ) : get_option( 'book_item-meta-date' );
 			$checkout_item_meta_date = ( '' == get_option( 'checkout_item-meta-date' ) ) ? __( 'End Date', 'woocommerce-booking' ) : get_option( 'checkout_item-meta-date' );
 			$book_item_meta_time     = ( '' == get_option( 'book_item-meta-time' ) ) ? __( 'Booking Time', 'woocommerce-booking' ) : get_option( 'book_item-meta-time' );
+			$resource_id             = 'single' === BKAP_Product_Resource::get_resource_selection_type( $product_id ) ? $booking->get_resource() : wc_get_order_item_meta( $item_id, '_resource_id', true );
 
 			$bkap_booking = array(
 				'date'                 => wc_get_order_item_meta( $item_id, $book_item_meta_date, true ),
@@ -649,7 +667,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 				'date_checkout'        => wc_get_order_item_meta( $item_id, $checkout_item_meta_date, true ),
 				'hidden_date_checkout' => wc_get_order_item_meta( $item_id, '_wapbk_checkout_date', true ),
 				'time_slot'            => wc_get_order_item_meta( $item_id, $book_item_meta_time, true ),
-				'resource_id'          => wc_get_order_item_meta( $item_id, '_resource_id', true ),
+				'resource_id'          => $resource_id,
 				'booking_status'       => wc_get_order_item_meta( $item_id, '_wapbk_booking_status', true ),
 				'persons'              => wc_get_order_item_meta( $item_id, '_person_ids', true ),
 			);
@@ -663,6 +681,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 				'item'         => $item,
 				'item_id'      => $item_id,
 				'addon_data'   => $additional_addon_data,
+				'booking_id'   => $booking_id,
 			);
 		}
 

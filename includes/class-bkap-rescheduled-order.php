@@ -326,12 +326,11 @@ if ( ! class_exists( 'Bkap_Rescheduled_Order_Class' ) ) {
 			$new_remaining_order->calculate_totals();
 
 			$new_remaining_order_post = array(
-				'ID'          => $new_remaining_order->get_id(),
-				'post_date'   => date( 'Y-m-d H:i:s', current_time( 'timestamp' ) ),
-				'post_parent' => $original_order_id,
+				'order_id' => $new_remaining_order->get_id(),
+				'parent'   => $original_order_id,
 			);
 
-			wp_update_post( $new_remaining_order_post );
+			wc_update_order( $new_remaining_order_post );
 
 			return $new_remaining_order->get_id();
 		}
@@ -351,14 +350,16 @@ if ( ! class_exists( 'Bkap_Rescheduled_Order_Class' ) ) {
 		public function bkap_button_after_order_meta( $item_id, $item, $product ) {
 
 			if ( $item['_bkap_resch_rem_bal_order_id'] !== '' && $item['_bkap_resch_rem_bal_order_id'] !== null ) {
+				$order_url = bkap_order_url( $item['_bkap_resch_rem_bal_order_id'] );
 				?>
-					<a href="<?php echo esc_url( admin_url( 'post.php?post=' . $item['_bkap_resch_rem_bal_order_id'] . '&action=edit' ) ); ?>" class="button button-small">
+					<a href="<?php echo esc_url( $order_url ); ?>" class="button button-small">
 						<?php _e( 'Related Order', 'woocommerce-booking' ); ?>
 					</a>
 				<?php
 			} elseif ( $item['_bkap_resch_orig_order_id'] !== '' && $item['_bkap_resch_orig_order_id'] !== null ) {
+				$order_url = bkap_order_url( $item['_bkap_resch_orig_order_id'] );
 				?>
-					<a href="<?php echo esc_url( admin_url( 'post.php?post=' . $item['_bkap_resch_orig_order_id'] . '&action=edit' ) ); ?>" class="button button-small">
+					<a href="<?php echo esc_url( $order_url ); ?>" class="button button-small">
 						<?php _e( 'Parent Order', 'woocommerce-booking' ); ?>
 					</a>
 				<?php

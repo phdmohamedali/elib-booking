@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Calendar extends Google_Model
+class Google_Service_Calendar_Calendar extends BKAPGoogle_Model
 {
   protected $conferencePropertiesType = 'Google_Service_Calendar_ConferenceProperties';
   protected $conferencePropertiesDataType = '';

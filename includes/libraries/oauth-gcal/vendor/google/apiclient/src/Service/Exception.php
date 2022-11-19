@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google\Service;
+namespace BKAPGoogle\Service;
 
-use Google\Exception as GoogleException;
+use BKAPGoogle\Exception as GoogleException;
 
 class Exception extends GoogleException
 {

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Subscriber;
+namespace BKAPGoogle\Auth\Subscriber;
 
-use Google\Auth\CacheTrait;
+use BKAPGoogle\Auth\CacheTrait;
 use BKAPGuzzleHttp\Event\BeforeEvent;
 use BKAPGuzzleHttp\Event\RequestEvents;
 use BKAPGuzzleHttp\Event\SubscriberInterface;

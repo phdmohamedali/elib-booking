@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventAttachment extends Google_Model
+class Google_Service_Calendar_EventAttachment extends BKAPGoogle_Model
 {
   public $fileId;
   public $fileUrl;

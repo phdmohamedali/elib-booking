@@ -67,6 +67,13 @@ if ( '' !== $calendar_icon_file && 'none' !== $calendar_icon_file ) {
 
 $calendar_src = apply_filters( 'bkap_calendar_icon_file', $calendar_src, $product_id, $booking_settings );
 
+$disabled        = '';
+$disabled_status = apply_filters( 'bkap_disable_booking_fields', false, $product_id );
+if ( $disabled_status && '' != bkap_common::bkap_date_from_session_cookie( 'start_date' ) ) {
+	$disabled     = 'disabled="disabled"';
+	$calendar_src = '';
+}
+
 $bkap_inline = '';
 if ( 'bkap_post' !== bkap_get_page() && isset( $booking_settings['enable_inline_calendar'] ) && 'on' === $booking_settings['enable_inline_calendar'] ) {
 	$bkap_inline = 'on';
@@ -104,6 +111,7 @@ if ( $display_start ) {
 			class="booking_calender" 
 			style="cursor: text!important;" 
 			readonly
+			<?php echo $disabled; ?>
 		/>
 
 		<?php
@@ -145,6 +153,7 @@ if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $book
 				class="booking_calender" 
 				style="cursor: text!important;" 
 				readonly
+				<?php echo $disabled; ?>
 			/>
 			<?php
 			if ( '' === $bkap_inline ) :

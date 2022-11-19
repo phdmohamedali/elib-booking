@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
-use Google\Auth\Credentials\InsecureCredentials;
-use Google\Auth\Credentials\ServiceAccountCredentials;
-use Google\Auth\Credentials\UserRefreshCredentials;
+use BKAPGoogle\Auth\Credentials\InsecureCredentials;
+use BKAPGoogle\Auth\Credentials\ServiceAccountCredentials;
+use BKAPGoogle\Auth\Credentials\UserRefreshCredentials;
 use BKAPGuzzleHttp\ClientInterface;
 
 /**

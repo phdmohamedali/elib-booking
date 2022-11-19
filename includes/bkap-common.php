@@ -1287,7 +1287,7 @@ class bkap_common {
 		}
 
 		$booking_object->order_id = $order_id;
-		$order                    = new WC_order( $order_id );
+		$order                    = wc_get_order( $order_id );
 
 		if ( isset( $polylang ) ) { // fetching the booking details if the order is placed in different language.
 			$ord_lang         = pll_get_post_language( $order_id );
@@ -1296,9 +1296,15 @@ class bkap_common {
 			$time_label       = pll_translate_string( $time_label, $ord_lang );
 		}
 
-		// order date
-		$post_data                  = get_post( $order_id );
-		$booking_object->order_date = ( $post_data == null ) ? '' : $post_data->post_date;
+		// order date.
+		$post_data = wc_get_order( $order_id );
+		if ( $post_data ) {
+			$order_strtotime            = ! is_null( $post_data->get_date_created() ) ? $post_data->get_date_created()->getOffsetTimestamp() : '';
+			$order_date                 = date_i18n( 'Y-m-d H:i:s', $order_strtotime );
+			$booking_object->order_date = $order_date;
+		} else {
+			$booking_object->order_date = '';
+		}
 
 		$product_id                 = wc_get_order_item_meta( $item_id, '_product_id' ); // product ID
 		$booking_object->product_id = $product_id;
@@ -1423,8 +1429,7 @@ class bkap_common {
 		$booking_object->resource_label = '';
 
 		if ( isset( $booking_object->resource_id ) && '' !== $booking_object->resource_id ) {
-
-			$booking_object->resource_title = get_the_title( $booking_object->resource_id );
+			$booking_object->resource_title = Class_Bkap_Product_Resource::get_resource_name( $booking_object->resource_id );
 			$booking_object->resource_label = get_post_meta( $product_id, '_bkap_product_resource_lable', true );
 			if ( '' === $booking_object->resource_label ) {
 				$booking_object->resource_label = 'Resource Type';
@@ -1432,7 +1437,7 @@ class bkap_common {
 		}
 
 		$booking_object->person_label = '';
-		$booking_object->person_data = '';
+		$booking_object->person_data  = '';
 		if ( isset( $booking_object->person_ids ) && '' !== $booking_object->person_ids ) {
 
 			$booking_object->person_label = __( 'Persons', 'woocommerce-booking' );
@@ -1810,11 +1815,11 @@ class bkap_common {
 
 			$resource_label = Class_Bkap_Product_Resource::bkap_get_resource_label( $product_id );
 
-			if ( $resource_label == '' ) {
-				$resource_label = __( 'Resource Type', 'wocommerce-booking' );
+			if ( '' === $resource_label ) {
+				$resource_label = __( 'Resource Type', 'woocommerce-booking' );
 			}
 
-			$resource_title = get_the_title( $booking_data['resource_id'] );
+			$resource_title = Class_Bkap_Product_Resource::get_resource_name( $booking_data['resource_id'] );
 			$resource_title = apply_filters( 'bkap_change_resource_title_in_order_item_meta', $resource_title, $product_id );
 
 			wc_add_order_item_meta( $item_id, $resource_label, $resource_title );
@@ -1822,7 +1827,7 @@ class bkap_common {
 		}
 
 		/**
-		 * Storing Resource Information
+		 * Storing Persons Information
 		 */
 		if ( isset( $booking_data['persons'] ) && $booking_data['persons'] ) {
 			if ( isset( $booking_data['persons'][0] ) ) {
@@ -1841,8 +1846,8 @@ class bkap_common {
 
 		if ( isset( $booking_data['selected_duration'] ) && $booking_data['selected_duration'] != 0 ) {
 
-			$start_date = $booking_data['hidden_date'];
-			$time       = $booking_data['duration_time_slot'];
+			$start_date = isset( $booking_data['hidden_date'] ) ? $booking_data['hidden_date'] : '';
+			$time       = isset( $booking_data['duration_time_slot'] ) ? $booking_data['duration_time_slot'] : '';
 
 			$selected_duration = explode( '-', $booking_data['selected_duration'] );
 
@@ -1919,16 +1924,15 @@ class bkap_common {
 
 		if ( $d_type == 'hours' ) {
 
-			$hidden_end_with_time = $hidden_date_with_time + ( (int) $hour * 3600 );
+			$hidden_end_with_time = $hidden_date_with_time + ( ( (int) $hour ) * 3600 );
 			// $hidden_end_with_time = $hidden_date_with_time + ( 2 * 3600 );
 		} else {
-			$hidden_end_with_time = $hidden_date_with_time + ( (int) $hour * 60 );
+			$hidden_end_with_time = $hidden_date_with_time + ( ( (int) $hour ) * 60 );
 		}
 
 		// $end_date = date( 'YmdHis', $hidden_end_with_time );
 
 		return $hidden_end_with_time;
-
 	}
 	/**
 	 * Creates a list of orders that are not yet exported to GCal
@@ -2036,7 +2040,6 @@ class bkap_common {
 	 *
 	 * @since 2.9
 	 */
-
 	public static function bkap_add_notice() {
 		$product_id = $_POST['post_id'];
 
@@ -2062,7 +2065,6 @@ class bkap_common {
 	 *
 	 * @since 2.9
 	 */
-
 	public static function bkap_clear_notice() {
 		wc_clear_notices();
 		die;
@@ -2077,7 +2079,6 @@ class bkap_common {
 	 * @return object $result - contains difference details between 2 dates
 	 * @since 3.1
 	 */
-
 	public static function dateTimeDiff( $date1, $date2 ) {
 
 		$one = $date1->format( 'U' );
@@ -2127,7 +2128,6 @@ class bkap_common {
 	 * @return array $result
 	 * @since 3.1
 	 */
-
 	public static function _date_range_limit( $start, $end, $adj, $a, $b, $result ) {
 		$result = (array) $result;
 		if ( $result[ $a ] < $start ) {
@@ -2152,7 +2152,6 @@ class bkap_common {
 	 * @return object $result
 	 * @since 3.1
 	 */
-
 	public static function _date_range_limit_days( $base, $result ) {
 		$days_in_month_leap = array( 31, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
 		$days_in_month      = array( 31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
@@ -2203,7 +2202,6 @@ class bkap_common {
 	 * @return array $result
 	 * @since 3.1
 	 */
-
 	public static function _date_normalize( $base, $result ) {
 		$result = self::_date_range_limit( 0, 60, 60, 's', 'i', $result );
 		$result = self::_date_range_limit( 0, 60, 60, 'i', 'h', $result );
@@ -2225,7 +2223,6 @@ class bkap_common {
 	 * @return boolean $future_date_set
 	 * @since 2.6
 	 */
-
 	public static function bkap_check_date_set( $date ) {
 		$future_date_set = false;
 
@@ -2244,7 +2241,6 @@ class bkap_common {
 	 * @return boolean $contains_bookable
 	 * @since 2.5
 	 */
-
 	public static function bkap_cart_contains_bookable() {
 
 		$contains_bookable = false;
@@ -2272,7 +2268,6 @@ class bkap_common {
 	 * @return array $allowed_status - booking statuses
 	 * @since 4.0.0
 	 */
-
 	static function get_bkap_booking_statuses() {
 
 		$allowed_status = apply_filters(
@@ -2358,12 +2353,13 @@ class bkap_common {
 	/**
 	 * Fetches the Booking Post ID using the Item ID
 	 *
-	 * @param int $item_id - Item ID
+	 * @param int  $item_id - Item ID
+	 * @param bool $return_only_valid_bookings Valid Bookings
 	 * @return int booking ID from wp_post
 	 * @since 4.0.0
+	 * @since Updated 5.15.0
 	 */
-
-	static function get_booking_id( $item_id ) {
+	public static function get_booking_id( $item_id, $return_only_valid_bookings = false ) {
 		global $wpdb;
 
 		$query_posts = 'SELECT post_id FROM `' . $wpdb->prefix . 'postmeta`
@@ -2371,22 +2367,32 @@ class bkap_common {
                    AND meta_value = %d';
 
 		$get_posts = $wpdb->get_results( $wpdb->prepare( $query_posts, '_bkap_order_item_id', $item_id ) );
+		$count     = count( $get_posts );
 
-		$count = count( $get_posts );
+		if ( $count > 1 ) {
 
-		if ( count( $get_posts ) > 1 ) {
 			$bookingids = array();
 
 			foreach ( $get_posts as $key => $value ) {
-				array_push( $bookingids, $value->post_id );
+
+				$booking_id = $value->post_id;
+				$booking    = new BKAP_Booking( $booking_id );
+
+				if ( $return_only_valid_bookings && ! in_array( $booking->get_status(), array( 'confirmed', 'paid', 'pending-confirmation' ) ) ) {
+					continue;
+				}
+
+				array_push( $bookingids, $booking_id );
 			}
 
 			return $bookingids;
-		} elseif ( count( $get_posts ) > 0 ) {
+		} elseif ( $count > 0 ) {
 			return $get_posts[0]->post_id;
 		} else {
 			return false;
 		}
+
+		return false;
 	}
 
 	/**
@@ -2730,7 +2736,7 @@ class bkap_common {
 		if ( absint( $order_id ) > 0 ) {
 
 			global $wpdb;
-			if ( false !== get_post_status( $order_id ) ) {
+			if ( wc_get_order( $order_id ) ) {
 
 				$order_query = 'SELECT ID from `' . $wpdb->prefix . 'posts`
 	                           WHERE post_parent = %d && post_type = %s';
@@ -2942,7 +2948,7 @@ class bkap_common {
 		$current_date        = date( $format );
 
 		foreach ( $bookings as $booking ) {
-			//$booking         = new BKAP_Booking( $value->get_id() );
+			// $booking         = new BKAP_Booking( $value->get_id() );
 			$booking_product = $booking->get_product_id();
 			$start_date      = $booking->get_start_date();
 
@@ -3036,11 +3042,8 @@ class bkap_common {
 		$resource_list = array();
 
 		foreach ( $resource_ids as $id ) {
-			$resource_list[ $id ] = get_the_title( $id );
-			// array_push( $resource_list, get_the_title( $id ) );
+			$resource_list[ $id ] = Class_Bkap_Product_Resource::get_resource_name( $id );
 		}
-
-		// $resources = implode( ', ' ,$resource_list );
 
 		return $resource_list;
 	}
@@ -3109,5 +3112,158 @@ class bkap_common {
 			$order_note_id = $order->add_order_note( $note );
 			wc_add_order_item_meta( $item_id, '_wapbk_order_note_id', $order_note_id );
 		}
+	}
+
+	/**
+	 * Decodes the string that has been specially encoded on the front-end.
+	 *
+	 * @param string $encoded_string Encoded String.
+	 * @since 5.15.0
+	 */
+	public static function frontend_json_decode( $encoded_string ) {
+
+		if ( '' === $encoded_string ) {
+			return '';
+		}
+
+		$return_array    = array();
+		$first_character = substr( $encoded_string, 0, 1 );
+		$last_character  = substr( $encoded_string, -1, 1 );
+
+		// Specially encoded strings must start with ( and end with ).
+		if ( '(' === substr( $encoded_string, 0, 1 ) && ')' === substr( $encoded_string, -1, 1 ) ) {
+
+			// Remove ( and ).
+			$string = ltrim( rtrim( $encoded_string, ')' ), '(' );
+			$part_  = explode( ')(', $string );
+
+			foreach ( $part_ as $exp ) {
+				$part__ = explode( '<=>', $exp );
+				$key    = $part__[0];
+				$value  = $part__[1];
+
+				if ( '' !== $key && '' !== $value ) {
+					$return_array[ $key ] = $value;
+				}
+			}
+		}
+
+		return count( $return_array ) > 0 ? $return_array : $encoded_string;
+	}
+
+	/**
+	 * Returns unique uniform values from multiple array of values.
+	 *
+	 * @param array $array_values Single array containing some or all multiple array values.
+	 * @param int   $array_count Array count of parent array.
+	 * @return array
+	 * @since 5.15.0
+	 */
+	public static function return_unique_array_values( $array_values, $array_count ) {
+
+		$all_values = array();
+
+		if ( count( $array_values ) === count( $array_values, COUNT_RECURSIVE ) ) {
+			foreach ( $array_values as $value ) {
+				$all_values[] = $value;
+			}
+		} else {
+
+			array_walk(
+				$array_values,
+				function( $value, $key ) use ( &$all_values ) {
+					$all_values = array_merge( $all_values, $value );
+				}
+			);
+		}
+
+		$count_values   = array_count_values( $all_values );
+		$unique_values  = array_unique( $all_values );
+		$uniform_values = array();
+
+		foreach ( $unique_values as $_value ) {
+			if ( $count_values[ $_value ] >= $array_count ) {
+				$uniform_values[] = $_value;
+			}
+		}
+
+		return $uniform_values;
+	}
+
+	/**
+	 * Computes new price for the order including tax when order has been updated.
+	 *
+	 * @param int   $product_id Product ID.
+	 * @param int   $item_id Item ID.
+	 * @param int   $order_id Order ID.
+	 * @param float $price Price.
+	 * @since 5.15.0
+	 */
+	public static function compute_price_for_order_with_tax_for_edited_bookings( $product_id, $item_id, $order_id, $price ) {
+
+		$booking_type  = get_post_meta( $product_id, '_bkap_booking_type', true );
+		$new_order_obj = wc_get_order( $order_id );
+		$item          = $new_order_obj->get_item( $item_id, false );
+		$amount_tax    = 0;
+
+		// If the prices include tax, discounts should be taken off the tax inclusive prices like in the cart.
+		if ( $new_order_obj->get_prices_include_tax() && wc_tax_enabled() ) {
+
+			$amount_tax = WC_Tax::get_tax_total( WC_Tax::calc_tax( $price, WC_Tax::get_rates( $item->get_tax_class() ), true ) );
+			$price     -= $amount_tax;
+			wc_update_order_item_meta( $item_id, '_line_subtotal_tax', $amount_tax );
+			wc_update_order_item_meta( $item_id, '_line_tax', $amount_tax );
+		}
+
+		if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
+			$get_subtotal = $item->get_subtotal();
+			$get_subtotal = $get_subtotal - $old_price;
+			$get_subtotal = $get_subtotal + $price;
+			// update the price for the item.
+			wc_update_order_item_meta( $item_id, '_line_subtotal', $get_subtotal );
+			wc_update_order_item_meta( $item_id, '_line_total', $get_subtotal );
+
+			$item->set_subtotal( $get_subtotal );
+			$item->set_subtotal_tax( $amount_tax );
+			$item->set_total( $get_subtotal );
+			$item->set_total_tax( $amount_tax );
+		} else {
+			// update the price for the item.
+			wc_update_order_item_meta( $item_id, '_line_subtotal', $price );
+			wc_update_order_item_meta( $item_id, '_line_total', $price );
+
+			$item->set_subtotal( $price );
+			$item->set_subtotal_tax( $amount_tax );
+			$item->set_total( $price );
+			$item->set_total_tax( $amount_tax );
+		}
+
+		$new_order_obj->calculate_totals();
+
+		return $price + $amount_tax;
+	}
+
+	/**
+	 * Creates Zoom Meeting for Booking ID whe updated.
+	 *
+	 * @param int   $order_id Order ID.
+	 * @param float $booking_id Booking ID.
+	 * @since 5.15.0
+	 */
+	public static function create_zoom_meetings_for_edited_bookings( $order_id, $booking_id ) {
+
+		$order_obj        = wc_get_order( $order_id );
+		$new_booking_data = bkap_get_meta_data( $booking_id );
+
+		foreach ( $new_booking_data as $data ) {
+			$updated_meeting_data = Bkap_Zoom_Meeting_Settings::bkap_create_zoom_meeting( $booking_id, $data, 'update' );
+
+			if ( is_array( $updated_meeting_data ) && count( $updated_meeting_data ) > 0 && isset( $updated_meeting_data['meeting_link'] ) ) {
+				/* translators: %s: Booking ID and Meeting link. */
+				$meeting_msg = sprintf( __( 'Updated Zoom Meeting Link for Booking #%1$s - %2$s', 'woocommerce-booking' ), $booking_id, $updated_meeting_data['meeting_link'] );
+				$order_obj->add_order_note( $meeting_msg, 1, false );
+			}
+		}
+
 	}
 }

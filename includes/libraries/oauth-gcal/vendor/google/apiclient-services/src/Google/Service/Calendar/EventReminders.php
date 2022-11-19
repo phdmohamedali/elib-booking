@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventReminders extends Google_Collection
+class Google_Service_Calendar_EventReminders extends BKAPGoogle_Collection
 {
   protected $collection_key = 'overrides';
   protected $overridesType = 'Google_Service_Calendar_EventReminder';

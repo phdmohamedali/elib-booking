@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace Google\Auth\HttpHandler;
+namespace BKAPGoogle\Auth\HttpHandler;
 
 use BKAPGuzzleHttp\ClientInterface;
 use Psr\Http\Message\RequestInterface;

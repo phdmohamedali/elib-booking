@@ -148,8 +148,8 @@ if ( ! class_exists( 'BKAP_API_Resources' ) ) {
 						if ( $this->check_if_exists( 'product_id', $filter ) ) {
 							$resource_label = get_post_meta( $filter['product_id'], '_bkap_product_resource_lable', true );
 							$response       = $this->check_if_exists_and_set( 'resource_label', $resource_label, $response );
-
-							$selection = get_post_meta( $filter['product_id'], '_bkap_product_resource_selection', true );
+							$selection      = get_post_meta( $filter['product_id'], '_bkap_product_resource_selection', true );
+							$selection_type = get_post_meta( $filter['product_id'], '_bkap_product_resource_selection_type', true );
 
 							$resource_selection = '';
 
@@ -159,7 +159,16 @@ if ( ! class_exists( 'BKAP_API_Resources' ) ) {
 								$resource_selection = 'Automatically Assigned';
 							}
 
+							$resource_selection_type = '';
+
+							if ( 'single' === $selection_type ) {
+								$resource_selection_type = 'Single';
+							} elseif ( 'multiple' === $selection_type ) {
+								$resource_selection_type = 'Multiple';
+							}
+
 							$response = $this->check_if_exists_and_set( 'resource_selection', $resource_selection, $response );
+							$response = $this->check_if_exists_and_set( 'resource_selection_type', $resource_selection_type, $response );
 
 							$base_cost_resources = get_post_meta( $filter['product_id'], '_bkap_resource_base_costs', true );
 							$base_cost_resources = maybe_unserialize( $base_costs );
@@ -169,7 +178,7 @@ if ( ! class_exists( 'BKAP_API_Resources' ) ) {
 
 								foreach ( $base_cost_resources as $resource_id => $resource_cost ) {
 									$_response = array(
-										'resource_id'        => $resource_id,
+										'resource_id' => $resource_id,
 										'resource_base_cost' => $resource_cost,
 									);
 

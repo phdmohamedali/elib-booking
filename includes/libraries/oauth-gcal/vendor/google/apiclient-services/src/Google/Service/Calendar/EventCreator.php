@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventCreator extends Google_Model
+class Google_Service_Calendar_EventCreator extends BKAPGoogle_Model
 {
   public $displayName;
   public $email;

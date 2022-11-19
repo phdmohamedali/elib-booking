@@ -179,7 +179,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$order    = wc_get_order( $order_id );
 
 					// Ensure Order exists and is valid.
-					if ( ! is_object( $order ) || 'shop_order' !== get_post_type( $order_id ) ) {
+					if ( ! $order ) {
 						throw new WC_API_Exception( 'bkap_api_booking_invalid_parameter', __( 'No valid Order can be found for the Order ID provided', 'woocommerce-booking' ), 400 );
 					}
 				}
@@ -749,15 +749,16 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$order    = wc_get_order( $order_id );
 
 					// Ensure Order exists and is valid.
-					if ( ! is_object( $order ) || 'shop_order' !== get_post_type( $order_id ) ) {
+					if ( ! $order ) {
 						throw new WC_API_Exception( 'bkap_api_booking_user_invalid_order', __( 'The provided Order ID is invalid', 'woocommerce-booking' ), 400 );
 					}
 
 					$booking_data['order_id'] = $order_id;
 				}
 
-				$booking_type                   = get_post_meta( $product_id, '_bkap_booking_type', true );
-				$booking_type_is_multiple_dates = ( 'multidates' === $booking_type || 'multidates_fixedtime' === $booking_type );
+				$booking_type                                = get_post_meta( $product_id, '_bkap_booking_type', true );
+				$booking_type_is_multiple_dates              = ( 'multidates' === $booking_type || 'multidates_fixedtime' === $booking_type );
+				$is_booking_resource_selection_multiple_type = 'multiple' === BKAP_Product_Resource::get_resource_selection_type( $product_id );
 
 				if ( $booking_type_is_multiple_dates ) {
 					// Add fake data for start_date and end_date in order to pass validation checks. Don't worry, we'll remove them later :).
@@ -837,8 +838,44 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 						$booking_data['end']         = bkap_common::bkap_add_hour_to_date( $data['start_date'], $data['start_time'], $hour, $product_id, $duration_setting['duration_type'] );
 						$booking_details['duration'] = $hour . '-' . $duration_setting['duration_type'];
 					} else {
-						throw new WC_API_Exception( 'bkap_api_booking_empty_booking_duration', __( 'Please provide the Duration for the BOoking', 'woocommerce-booking' ), 400 );
+						throw new WC_API_Exception( 'bkap_api_booking_empty_booking_duration', __( 'Please provide the Duration for the Booking', 'woocommerce-booking' ), 400 );
 					}
+				}
+
+				// Resources.
+				if ( $this->is_data_set( 'resource_id', $data ) ) {
+
+					if ( $is_booking_resource_selection_multiple_type && ! is_array( $data['resource_id'] ) ) {
+						throw new WC_API_Exception( 'bkap_api_booking_invalid_resource_data_format', __( 'Please provide an array of Resource ID(s)', 'woocommerce-booking' ), 400 );
+					}
+
+					if ( ! $is_booking_resource_selection_multiple_type && is_array( $data['resource_id'] ) ) {
+						throw new WC_API_Exception( 'bkap_api_booking_invalid_resource_data_format', __( 'Please provide the Resource ID as a single item and not as an array', 'woocommerce-booking' ), 400 );
+					}
+
+					// Check that Resource ID or IDs provided are valid.
+					$resource_id            = is_array( $data['resource_id'] ) ? $data['resource_id'] : array( $data['resource_id'] );
+					$resource_ids_not_found = array();
+
+					foreach ( $resource_id as $id ) {
+						if ( false === get_post_status( $id ) ) {
+							$resource_ids_not_found[] = $id;
+						}
+					}
+
+					if ( count( $resource_ids_not_found ) > 0 ) {
+						throw new WC_API_Exception(
+							'bkap_api_booking_invalid_resource_id',
+							sprint_f(
+								/* translators: %s: Resource IDs. */
+								__( 'The following Resource ID(s) provided are invalid: %s ', 'woocommerce-booking' ),
+								implode( ', ', $resource_ids_not_found )
+							),
+							400
+						);
+					}
+
+					$booking_data['bkap_resource_id'] = $data['resource_id'];
 				}
 
 				if ( $booking_type_is_multiple_dates ) {
@@ -991,10 +1028,6 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$booking_data['multidates_booking'] = $multidates_booking;
 				}
 
-				if ( $this->is_data_set( 'resource_id', $data ) ) {
-					$booking_data['bkap_resource_id'] = $data['resource_id'];
-				}
-
 				if ( $this->is_data_set( 'fixed_block', $data ) ) {
 					$booking_data['fixed_block'] = $data['fixed_block'];
 				}
@@ -1007,9 +1040,9 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 					$status = import_bookings::bkap_create_order( $booking_data );
 				}
 
-				$is_booking_created_is_new_order = ( $status['new_order'] && isset( $status['order_id'] ) && '' !== $status['order_id'] );
+				$is_booking_created_is_new_order = ( isset( $status['new_order'] ) && '' !== $status['new_order'] && isset( $status['order_id'] ) && '' !== $status['order_id'] );
 
-				$is_booking_created_existing_order = ( $status['item_added'] && isset( $status['order_id'] ) && '' !== $status['order_id'] );
+				$is_booking_created_existing_order = ( isset( $status['item_added'] ) && '' !== $status['item_added'] && isset( $status['order_id'] ) && '' !== $status['order_id'] );
 
 				if ( $is_booking_created_is_new_order || $is_booking_created_existing_order ) {
 

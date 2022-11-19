@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\AuthHandler;
+namespace BKAPGoogle\AuthHandler;
 
 /**
 * This supports Guzzle 7

@@ -23,7 +23,7 @@
  *   $channels = $calendarService->channels;
  *  </code>
  */
-class Google_Service_Calendar_Resource_Channels extends Google_Service_Resource
+class Google_Service_Calendar_Resource_Channels extends BKAPGoogle_Service_Resource
 {
   /**
    * Stop watching resources through this channel (channels.stop)

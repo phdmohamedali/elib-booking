@@ -111,7 +111,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 				'_person_ids',
 				'_wapbk_timezone',
 				'_wapbk_timeoffset',
-				'_wapbk_order_note_id'
+				'_wapbk_order_note_id',
 			);
 
 			foreach ( $bkap_order_items as $bkap_order_item ) {
@@ -204,7 +204,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 					if ( $query_to_time != '' ) {
 
-						$query              = "SELECT from_time, to_time  FROM `" . $wpdb->prefix . "booking_history`
+						$query              = 'SELECT from_time, to_time  FROM `' . $wpdb->prefix . "booking_history`
 											WHERE post_id = '" . $post_id . "' AND
 											start_date = '" . $date_query . "' AND
 											status !=  'inactive' ";
@@ -215,7 +215,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 							$weekday = bkap_weekday_string( $date_query );
 
-							$base_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+							$base_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										WHERE post_id = %d
 										AND weekday = %s
 										AND start_date = '0000-00-00'
@@ -283,7 +283,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							$wpdb->query( $query );
 						}
 
-						$select         = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+						$select         = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d AND
 													start_date = %s AND
 													TIME_FORMAT( from_time, '%H:%i' ) = %s AND
@@ -308,7 +308,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						if ( 0 == $updated ) {
 								$weekday = bkap_weekday_string( $date_query );
 
-								$base_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+								$base_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 									   WHERE post_id = %d
 									   AND weekday = %s
 									   AND start_date = '0000-00-00'
@@ -347,7 +347,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							$wpdb->query( $query );
 						}
 
-								$select         = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+								$select         = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										WHERE post_id =  %d AND
 										start_date = %s AND
 										from_time = %s AND
@@ -378,7 +378,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 					for ( $i = 0; $i < $quantity; $i++ ) {
 
-						$query = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+						$query = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 													 (post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
 													 VALUES (
 													 '" . $post_id . "',
@@ -426,7 +426,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						$weekday = date( 'w', strtotime( $date_query ) );
 						$weekday = 'booking_weekday_' . $weekday;
 
-						$base_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+						$base_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										   WHERE post_id = %d
 										   AND weekday = %s
 										   AND start_date = '0000-00-00'
@@ -438,7 +438,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						if ( isset( $get_base ) && count( $get_base ) > 0 ) {
 							foreach ( $get_base as $key => $value ) {
 								$new_availability = $value->available_booking - $quantity;
-								$insert_records   = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+								$insert_records   = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 														(post_id,weekday,start_date,total_booking,available_booking)
 														VALUES (
 													   '" . $post_id . "',
@@ -451,7 +451,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 								if ( isset( $parent_id ) && $parent_id != '' ) {
 
-									$insert_parent_records = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+									$insert_parent_records = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 														(post_id,weekday,start_date,total_booking,available_booking)
 														VALUES (
 													   '" . $parent_id . "',
@@ -467,7 +467,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						} else {
 							// this might happen when gcal is being used and the date has unlimited booking lockout.
 
-							$unlimited_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+							$unlimited_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										   WHERE post_id = %d
 										   AND start_date = %s
 										   AND status != 'inactive'
@@ -478,7 +478,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							if ( isset( $unlimited_results ) && count( $unlimited_results ) > 0 ) {
 							} else {
 
-								$base_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+								$base_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										   WHERE post_id = %d
 										   AND weekday = %s
 										   AND start_date = '0000-00-00'
@@ -489,7 +489,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 								if ( isset( $get_base ) && count( $get_base ) > 0 ) {
 									foreach ( $get_base as $base_key => $value ) {
-										$insert_records = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+										$insert_records = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 														(post_id,weekday,start_date,total_booking,available_booking)
 														VALUES (
 													   '" . $post_id . "',
@@ -502,7 +502,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 										if ( isset( $parent_id ) && $parent_id != '' ) {
 
-											$insert_parent_records = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+											$insert_parent_records = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 															(post_id,weekday,start_date,total_booking,available_booking)
 															VALUES (
 														   '" . $parent_id . "',
@@ -541,7 +541,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						&& ( isset( $booking_data['date'] ) || isset( $booking_data['booking_date'] ) )
 						) {
 							if ( isset( $query_to_time ) && $query_to_time != '' ) {
-								$order_select_query = "SELECT id FROM `" . $wpdb->prefix . "booking_history`
+								$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 														WHERE post_id = %d AND
 														start_date = %s AND
 														TIME_FORMAT( from_time,'%H:%i' ) = %s AND
@@ -549,7 +549,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 														status = ''";
 								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, $from_hi, $to_hi ) );
 							} else {
-								$order_select_query = "SELECT id FROM `" . $wpdb->prefix . "booking_history`
+								$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d AND
 													start_date = %s AND
 													TIME_FORMAT( from_time,'%H:%i' ) = %s AND
@@ -557,7 +557,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, $from_hi ) );
 							}
 						} else {
-							$order_select_query = "SELECT id FROM `" . $wpdb->prefix . "booking_history`
+							$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 												WHERE post_id = %d AND
 												start_date = %s AND
 												status = ''";
@@ -603,13 +603,13 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 			}
 
 			if ( isset( $query ) && 'update' == $query ) {
-				$order_query = "UPDATE `" . $wpdb->prefix . "booking_order_history`
+				$order_query = 'UPDATE `' . $wpdb->prefix . "booking_order_history`
 						   SET booking_id = '" . $booking_id . "'
 						   WHERE order_id = '" . $order_id . "'";
 				$result      = $wpdb->query( $order_query );
 
 				if ( $result == 0 ) {
-					$order_query = "INSERT INTO `" . $wpdb->prefix . "booking_order_history`
+					$order_query = 'INSERT INTO `' . $wpdb->prefix . "booking_order_history`
 											  (order_id,booking_id)
 											  VALUES (
 											  '" . $order_id . "',
@@ -617,7 +617,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 					$wpdb->query( $order_query );
 				}
 			} else {
-				$order_query = "INSERT INTO `" . $wpdb->prefix . "booking_order_history`
+				$order_query = 'INSERT INTO `' . $wpdb->prefix . "booking_order_history`
 											  (order_id,booking_id)
 											  VALUES (
 											  '" . $order_id . "',
@@ -789,10 +789,12 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 				$timezone_offset = $booking_details['timezone_offset'];
 			}
 
+			$order = wc_get_order( $order_id );
+
 			$new_booking_data['start']           = $start_date . $start_time;
 			$new_booking_data['end']             = $end_date . $end_time;
 			$new_booking_data['cost']            = $booking_price;
-			$new_booking_data['user_id']         = get_post_meta( $order_id, '_customer_user', true );
+			$new_booking_data['user_id']         = $order->get_customer_id();
 			$new_booking_data['all_day']         = $all_day;
 			$new_booking_data['parent_id']       = $order_id;
 			$new_booking_data['gcal_event_uid']  = $event_uid;
@@ -805,14 +807,29 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 			$status = wc_get_order_item_meta( $item_id, '_wapbk_booking_status' );
 
-			// Create it
-			$new_booking = self::get_bkap_booking( $new_booking_data );
-			$new_booking->create( $status );
+			// Create booking.
+			if ( '' !== $resource_id && is_array( $resource_id ) && count( $resource_id ) > 0 ) {
 
-			do_action( 'bkap_update_booking_post_meta', $new_booking->id, $new_booking_data );
+				// If multiple resources have been set, then create multiple bookings.
+				foreach ( $resource_id as $id ) {
+					$new_booking_data['resource_id'] = $id;
+
+					/*
+					$resource_obj             = new BKAP_Product_Resource( $id, $product_id );
+					$new_booking_data['cost'] = $resource_obj->get_base_cost() * $qty;
+					*/
+
+					$new_booking = self::get_bkap_booking( $new_booking_data );
+					$new_booking->create( $status );
+					do_action( 'bkap_update_booking_post_meta', $new_booking->id, $new_booking_data );
+				}
+			} else {
+				$new_booking = self::get_bkap_booking( $new_booking_data );
+				$new_booking->create( $status );
+				do_action( 'bkap_update_booking_post_meta', $new_booking->id, $new_booking_data );
+			}
 
 			return $new_booking;
-
 		}
 
 		/**
@@ -852,7 +869,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 			$ticket_content       = array();
 			$wc_version_compare   = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 );
 
-			foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {				
+			foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
 				$_product     = $values['data'];
 				$parent_id    = $wc_version_compare ? $_product->get_parent() : bkap_common::bkap_get_parent_id( $values['product_id'] );
@@ -892,11 +909,11 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 				$order_item_ids[] = $results[0]->order_item_id;
 				$order_id         = $results[0]->order_id;
-				$order_obj        = new WC_order( $order_id );
+				$order_obj        = wc_get_order( $order_id );
 
 				$is_multidates = false;
 				if ( count( $values['bkap_booking'] ) > 1 ) {
-					$is_multidates   = true;
+					$is_multidates = true;
 				}
 
 				for ( $i = 0; $i < $booking_count; $i++ ) {
@@ -1068,7 +1085,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 						if ( array_key_exists( $attr_name, $order_attr ) && $order_attr[ $attr_name ] != 0 ) {
 							$is_attr_lockout = true;
-							$attr_qty        += $order_attr[ $attr_name ];
+							$attr_qty       += $order_attr[ $attr_name ];
 						}
 					}
 				}
@@ -1082,7 +1099,10 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 				$quantity = $attr_qty;
 			}
 
-			return array( 'is_attribute_lockout' => $is_attr_lockout, 'quantity' => $quantity );
+			return array(
+				'is_attribute_lockout' => $is_attr_lockout,
+				'quantity'             => $quantity,
+			);
 		}
 
 		/**
@@ -1204,7 +1224,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 									$insert = 'NO';
 
-									$query              = "SELECT *  FROM `" . $wpdb->prefix . "booking_history`
+									$query              = 'SELECT *  FROM `' . $wpdb->prefix . "booking_history`
 															WHERE post_id = '" . $duplicate_of . "' AND
 															start_date = '" . $start_date . "' AND
 															status !=  'inactive' ";
@@ -1212,7 +1232,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 									if ( ! $get_all_time_slots ) {
 										$insert             = 'YES';
-										$query              = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+										$query              = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 																WHERE post_id = %d
 																AND weekday = %s
 																AND start_date = '0000-00-00'
@@ -1224,7 +1244,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 										if ( 'YES' == $insert ) {
 
-											$query_insert = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+											$query_insert = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 																(post_id,weekday,start_date,from_time,to_time,total_booking,available_booking)
 																VALUES (
 																'" . $duplicate_of . "',
@@ -1263,7 +1283,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 									$to_hi = date( 'H:i', strtotime( $to_time ) );
 
-									$check_record = "SELECT id FROM `" . $wpdb->prefix . "booking_history`
+									$check_record = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 												   WHERE post_id = %d
 												   AND start_date = %s
 												   AND TIME_FORMAT( from_time, '%H:%i' ) = %s
@@ -1292,7 +1312,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 										}
 
 										$results = array();
-										$query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+										$query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 													  WHERE post_id = %s
 													  AND weekday = %s
 													  AND start_date = '0000-00-00'
@@ -1308,7 +1328,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 												if ( $from_time == $r_val->from_time && $to_time == $r_val->to_time ) {
 													$available_booking = ( $r_val->total_booking > 0 ) ? $r_val->available_booking - $quantity : $r_val->available_booking;
-													$query_insert      = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+													$query_insert      = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 																			(post_id,weekday,start_date,from_time,to_time,total_booking,available_booking)
 																			VALUES (
 																			'" . $duplicate_of . "',
@@ -1352,7 +1372,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 													foreach ( $lockout_settings as $l_key => $l_value ) {
 
 														if ( $l_value['from_slot_hrs'] == $from_hours && $l_value['from_slot_min'] == $from_minute && $l_value['to_slot_hrs'] == $to_hours && $l_value['to_slot_min'] == $to_minute ) {
-															$query_insert = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+															$query_insert = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 																				 (post_id,weekday,start_date,from_time,to_time,total_booking,available_booking)
 																				 VALUES (
 																				 '" . $duplicate_of . "',
@@ -1371,7 +1391,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 									}
 								} else {
 
-									$check_record = "SELECT id FROM `" . $wpdb->prefix . "booking_history`
+									$check_record = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 												   WHERE post_id = %d
 												   AND start_date = %s
 												   AND TIME_FORMAT( from_time, '%H:%i' ) = %s
@@ -1400,7 +1420,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 										}
 
 										$results = array();
-										$query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+										$query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 													  WHERE post_id = %d
 													  AND weekday = %s
 													  AND start_date = '0000-00-00'
@@ -1415,7 +1435,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 												if ( $from_time == $r_val->from_time ) {
 													$available_booking = ( $r_val->total_booking > 0 ) ? $r_val->available_booking - $quantity : $r_val->available_booking;
-													$query_insert      = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+													$query_insert      = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 																				(post_id,weekday,start_date,from_time,total_booking,available_booking)
 																				VALUES (
 																				'" . $duplicate_of . "',
@@ -1439,7 +1459,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 													foreach ( $lockout_settings as $l_key => $l_value ) {
 
 														if ( $l_value['from_slot_hrs'] == $from_hours && $l_value['from_slot_min'] == $from_minute ) {
-															$query_insert = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+															$query_insert = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 																				(post_id,weekday,start_date,from_time,total_booking,available_booking)
 																				VALUES (
 																				'" . $duplicate_of . "',
@@ -1490,4 +1510,3 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 	}
 	$bkap_checkout = new bkap_checkout();
 }
-

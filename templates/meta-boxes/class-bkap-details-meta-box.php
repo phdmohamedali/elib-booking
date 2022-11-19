@@ -108,7 +108,7 @@ class BKAP_Details_Meta_Box {
 		$update_errors = get_post_meta( $post->ID, '_bkap_update_errors' );
 		if ( is_array( $update_errors ) && count( $update_errors ) > 0 ) {
 			foreach ( $update_errors as $msg ) {
-				echo '<div class="error"><p>' . __( $msg[0], 'woocommerce-booking' ) . '</p></div>';
+				echo '<div class="error"><p>' . __( $msg, 'woocommerce-booking' ) . '</p></div>';
 			}
 			delete_post_meta( $post->ID, '_bkap_update_errors' );
 		}
@@ -138,12 +138,12 @@ class BKAP_Details_Meta_Box {
 
 		bkap_load_scripts_class::inlcude_frontend_scripts_css( $product_id );
 
-		$customer_id       = $booking->get_customer_id();
-		$product           = $booking->get_product( $product_id );
-		$customer          = $booking->get_customer();
-		$resource          = $booking->get_resource();
-		$persons           = $booking->get_persons();
-		
+		$customer_id = $booking->get_customer_id();
+		$product     = $booking->get_product( $product_id );
+		$customer    = $booking->get_customer();
+		$resource    = $booking->get_resource();
+		$persons     = $booking->get_persons();
+
 		$bkap_common       = new bkap_common();
 		$statuses          = $bkap_common->get_bkap_booking_statuses();
 		$bookable_products = array( '' => __( 'N/A', 'woocommerce-booking' ) );
@@ -231,7 +231,7 @@ class BKAP_Details_Meta_Box {
 				<p class="bkap_number">
 				<?php
 				if ( $order ) {
-					printf( ' ' . __( 'Linked to order %s.', 'woocommerce-booking' ), '<a href="' . admin_url( 'post.php?post=' . absint( ( is_callable( array( $order, 'get_id' ) ) ? $order->get_id() : $order->id ) ) . '&action=edit' ) . '">#' . esc_html( $order->get_order_number() ) . '</a>' );
+					printf( ' ' . __( 'Linked to order %s.', 'woocommerce-booking' ), '<a href="' . bkap_order_url( $order->get_id() ) . '">#' . esc_html( $order->get_order_number() ) . '</a>' );
 				}
 
 				?>
@@ -336,13 +336,13 @@ class BKAP_Details_Meta_Box {
 						
 						<?php
 						$product_type = $product->get_type();
+						$item_id      = $booking->get_item_id();
 
 						if ( $product_type === 'variable' ) {
 							?>
 							<input type="hidden" name="variation_id" class="variation_id" value="<?php echo $variation_id; ?>" />
 							<?php
 							$attributes = get_post_meta( $duplicate_of, '_product_attributes', true );
-							$item_id    = $booking->get_item_id();
 
 							if ( is_array( $attributes ) && count( $attributes ) > 0 ) {
 								foreach ( $attributes as $a_name => $a_details ) {
@@ -354,13 +354,22 @@ class BKAP_Details_Meta_Box {
 						}
 
 						$_product = wc_get_product( $product_id );
-						// JS scripts
 						bkap_load_scripts_class::include_frontend_scripts_js( $product_id );
-						// localize the scripts
-						$hidden_data = bkap_booking_process::bkap_localize_process_script( $product_id, true );
-						// print the hidden fields
-						// print the booking form
+						$hidden_data      = bkap_booking_process::bkap_localize_process_script( $product_id, true );
 						$booking_settings = get_post_meta( $duplicate_of, 'woocommerce_booking_settings', true );
+
+						// Add Resource Information to booking settings.
+						$resource_ids = wc_get_order_item_meta( $item_id, '_resource_id' );
+
+						if ( '' !== $resource_ids ) {
+
+							if ( ! is_array( $resource_ids ) ) {
+								$temp         = $resource_ids;
+								$resource_ids = array( $temp );
+							}
+
+							$booking_settings['extra_params']['resource_id'] = $resource_ids;
+						}
 
 						wc_get_template(
 							'bookings/bkap-bookings-box.php',
@@ -388,7 +397,7 @@ class BKAP_Details_Meta_Box {
 		<?php
 		$plugin_version_number = get_option( 'woocommerce_booking_db_version' );
 
-		$order_url = get_admin_url() . 'post.php?post=' . $order_id . '&action=edit';
+		$order_url = bkap_order_url( $order_id );
 		$ajax_url  = get_admin_url() . 'admin-ajax.php';
 
 		// if fixed blocks is enabled for multiple days, pass the block details.
@@ -423,7 +432,7 @@ class BKAP_Details_Meta_Box {
 				'variation_id'    => $booking->get_variation_id(),
 				'block_value'     => $block_value,
 				'resource'        => $resource,
-				'persons'         => $persons
+				'persons'         => $persons,
 			)
 		);
 		wp_enqueue_script( 'bkap-edit-post' );

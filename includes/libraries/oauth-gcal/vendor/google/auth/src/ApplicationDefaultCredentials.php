@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
 use DomainException;
-use Google\Auth\Credentials\AppIdentityCredentials;
-use Google\Auth\Credentials\GCECredentials;
-use Google\Auth\Credentials\ServiceAccountCredentials;
-use Google\Auth\HttpHandler\HttpClientCache;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Auth\Middleware\AuthTokenMiddleware;
-use Google\Auth\Subscriber\AuthTokenSubscriber;
+use BKAPGoogle\Auth\Credentials\AppIdentityCredentials;
+use BKAPGoogle\Auth\Credentials\GCECredentials;
+use BKAPGoogle\Auth\Credentials\ServiceAccountCredentials;
+use BKAPGoogle\Auth\HttpHandler\HttpClientCache;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Auth\Middleware\AuthTokenMiddleware;
+use BKAPGoogle\Auth\Subscriber\AuthTokenSubscriber;
 use BKAPGuzzleHttp\Client;
 use InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;

@@ -268,7 +268,7 @@ class bkap_calendar_sync {
 					$variation_obj      = new WC_Product_Variation( $variation_id );
 					$variation_attr_cnt = count( $variation_obj->get_variation_attributes() );
 					if ( 2 < $variation_attr_cnt ) {
-						$product_variations = implode( ", ", $variation_obj->get_variation_attributes() );
+						$product_variations = implode( ', ', $variation_obj->get_variation_attributes() );
 						$post_title         = $post_title . ' - ' . $product_variations;
 					}
 				}
@@ -336,7 +336,7 @@ class bkap_calendar_sync {
 						}
 
 						if ( isset( $booking_data['resource_id'] ) && '' !== $booking_data['resource_id'] ) {
-							$event_details['resource'] = get_the_title( $booking_data['resource_id'] );
+							$event_details['resource'] = Class_Bkap_Product_Resource::get_resource_name( $booking_data['resource_id'] );
 						}
 
 						if ( isset( $booking_data['persons'] ) && '' !== $booking_data['persons'] ) {
@@ -462,7 +462,7 @@ class bkap_calendar_sync {
 						}
 
 						// add an order note, mentioning an event has been created for the item.
-						$order = new WC_Order( $order_id );
+						$order = wc_get_order( $order_id );
 
 						$order_note = __( "Booking_details for $post_title have been exported to the Google Calendar", 'woocommerce-booking' );
 						$order->add_order_note( $order_note );
@@ -611,8 +611,7 @@ class bkap_calendar_sync {
 	public static function bkap_create_gcal_obj( $item_id, $item, $order_details ) {
 
 		$order_id   = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order_details->id : $order_details->get_id();
-		$order_data = get_post_meta( $order_id );
-		$order      = new WC_Order( $order_id );
+		$order      = wc_get_order( $order_id );
 
 		$bkap = new stdClass();
 
@@ -621,10 +620,10 @@ class bkap_calendar_sync {
 
 		if ( $valid_date ) {
 			$bkap->start          = $item['wapbk_booking_date'];
-			$shipping_address_1   = isset( $order_data['_shipping_address_1'][0] ) ? $order_data['_shipping_address_1'][0] : '';
-			$shipping_address_2   = isset( $order_data['_shipping_address_2'][0] ) ? $order_data['_shipping_address_2'][0] : '';
+			$shipping_address_1   = $order->get_shipping_address_1();
+			$shipping_address_2   = $order->get_shipping_address_2();
 			$bkap->client_address = __( $shipping_address_1 . ' ' . $shipping_address_2, 'woocommerce-booking' );
-			$bkap->client_city    = isset( $order_data['_shipping_city'][0] ) ? __( $order_data['_shipping_city'][0], 'woocommerce-booking' ) : '';
+			$bkap->client_city    = $order->get_shipping_city();
 
 			if ( isset( $item['wapbk_checkout_date'] ) && $item['wapbk_checkout_date'] != '' ) {
 				$bkap->end = $item['wapbk_checkout_date'];
@@ -651,14 +650,11 @@ class bkap_calendar_sync {
 				$bkap->end_time   = '';
 			}
 
-			$bkap->resource = '';
-			if ( isset( $item['resource_id'] ) && '' !== $item['resource_id'] ) {
-				$bkap->resource = get_the_title( $item['resource_id'] );
-			}
+			$bkap->resource = ( isset( $item['resource_id'] ) && '' !== $item['resource_id'] ) ? Class_Bkap_Product_Resource::get_resource_name( $item['resource_id'] ) : '';
 
 			$bkap->persons = '';
 			if ( isset( $item['person_ids'] ) && '' !== $item['person_ids'] ) {
-				$person_info = '';				
+				$person_info = '';
 				if ( isset( $item['person_ids'][0] ) ) {
 					$person_info = Class_Bkap_Product_Person::bkap_get_person_label( $item['product_id'] ) . ' : ' . $item['person_ids'][0];
 				} else {
@@ -678,14 +674,14 @@ class bkap_calendar_sync {
 				$bkap->zoom_meeting = $zoom_label . ' - ' . $zoom_meeting;
 			}
 
-			$bkap->client_email   = isset( $order_data['_billing_email'][0] ) ? $order_data['_billing_email'][0] : '';
-			$billing_first_name   = isset( $order_data['_billing_first_name'][0] ) ? $order_data['_billing_first_name'][0] : '';
-			$billing_last_name    = isset( $order_data['_billing_last_name'][0] ) ? $order_data['_billing_last_name'][0] : '';
+			$bkap->client_email   = $order->get_billing_email();
+			$billing_first_name   = $order->get_billing_first_name();
+			$billing_last_name    = $order->get_billing_last_name();
 			$bkap->client_name    = $billing_first_name . ' ' . $billing_last_name;
-			$billing_address_1    = isset( $order_data['_billing_address_1'][0] ) ? $order_data['_billing_address_1'][0] : '';
-			$billing_address_2    = isset( $order_data['_billing_address_2'][0] ) ? $order_data['_billing_address_2'][0] : '';
+			$billing_address_1    = $order->get_billing_address_1();
+			$billing_address_2    = $order->get_billing_address_2();
 			$bkap->client_address = $billing_address_1 . ' ' . $billing_address_2;
-			$bkap->client_phone   = isset( $order_data['_billing_phone'][0] ) ? $order_data['_billing_phone'][0] : '';
+			$bkap->client_phone   = $order->get_billing_phone();
 			$bkap->order_note     = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order->customer_note : $order->get_customer_note();
 
 			$product                = '';
@@ -700,10 +696,11 @@ class bkap_calendar_sync {
 				$bkap->order_date_time = $order->post->post_date;
 				$order_date            = date( 'Y-m-d', strtotime( $order->post->post_date ) );
 			} else {
-				$order_post            = get_post( $order_id );
-				$post_date             = strtotime( $order_post->post_date );
-				$bkap->order_date_time = date( 'Y-m-d H:i:s', $post_date );
-				$order_date            = date( 'Y-m-d', $post_date );
+				$order_post            = wc_get_order( $order_id );
+				$order_timestamp       = ! is_null( $order_post->get_date_created() ) ? $order_post->get_date_created()->getOffsetTimestamp() : '';
+				$order_date            = date_i18n( 'Y-m-d H:i:s', $order_timestamp );
+				$bkap->order_date_time = $order_date;
+				$order_date            = date( 'Y-m-d', $order_timestamp );
 			}
 
 			$bkap->order_date = $order_date;
@@ -1019,7 +1016,7 @@ class bkap_calendar_sync {
 		if ( isset( $ical_array ) ) {
 
 			// get the last stored event count.
-			$options_query = "SELECT option_name FROM `" . $wpdb->prefix . "options` WHERE option_name like 'bkap_imported_events_%'";
+			$options_query = 'SELECT option_name FROM `' . $wpdb->prefix . "options` WHERE option_name like 'bkap_imported_events_%'";
 			$results       = $wpdb->get_results( $options_query );
 
 			if ( isset( $results ) && count( $results ) > 0 ) {
@@ -1063,7 +1060,7 @@ class bkap_calendar_sync {
 					// Do stuff with the event $event
 					if ( ! in_array( $uid, $event_uids ) ) {
 						// gmt time stamp as Google sends the UTC timestamp
-						$current_time = current_time( 'timestamp', 1 );
+						$current_time = time();
 
 						// Import future dated events.
 						if ( $value_event->start >= $current_time || $value_event->end >= $current_time ) {
@@ -1249,7 +1246,6 @@ class bkap_calendar_sync {
 			foreach ( $total_orders_to_export as $item_id ) {
 
 				$order_id = wc_get_order_id_by_order_item_id( $item_id );
-				$data     = get_post_meta( $order_id );
 				if ( ! in_array( $item_id, $event_item_ids ) ) {
 
 					$event_details = array();
@@ -1287,7 +1283,7 @@ class bkap_calendar_sync {
 								}
 
 								if ( isset( $resource_id ) && '' != $resource_id ) {
-									$event_details['resource'] = get_the_title( $resource_id );
+									$event_details['resource'] = Class_Bkap_Product_Resource::get_resource_name( $resource_id );
 								}
 
 								if ( isset( $person_ids ) && '' != $person_ids ) {
@@ -1303,17 +1299,17 @@ class bkap_calendar_sync {
 									$event_details['persons'] = $person_info;
 								}
 
-								$event_details['billing_email']     = $data['_billing_email'][0];
-								$event_details['billing_address_1'] = $data['_billing_address_1'][0];
-								$event_details['billing_address_2'] = $data['_billing_address_2'][0];
-								$event_details['billing_city']      = $data['_billing_city'][0];
+								$event_details['billing_email']     = $order->get_billing_email();
+								$event_details['billing_address_1'] = $order->get_billing_address_1();
+								$event_details['billing_address_2'] = $order->get_billing_address_2();
+								$event_details['billing_city']      = $order->get_billing_city();
 								$event_details['order_id']          = $order_id;
 
-								$event_details['shipping_first_name'] = $data['_shipping_first_name'][0];
-								$event_details['shipping_last_name']  = $data['_shipping_last_name'][0];
-								$event_details['shipping_address_1']  = $data['_shipping_address_1'][0];
-								$event_details['shipping_address_2']  = $data['_shipping_address_2'][0];
-								$event_details['billing_phone']       = $data['_billing_phone'][0];
+								$event_details['shipping_first_name'] = $order->get_shipping_first_name();
+								$event_details['shipping_last_name']  = $order->get_shipping_last_name();
+								$event_details['shipping_address_1']  = $order->get_shipping_address_1();
+								$event_details['shipping_address_2']  = $order->get_shipping_address_2();
+								$event_details['billing_phone']       = $order->get_billing_phone();
 								$event_details['order_comments']      = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order->customer_note : $order->get_customer_note();
 
 								$_product   = wc_get_product( $product_id );

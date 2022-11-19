@@ -275,8 +275,8 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 									$booking_status = get_post_status( $booking_id );
 
 									// check if it's a valid ID
-									if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
-										$order = wc_get_order( $get_order_id[0]->order_id );
+									$order = wc_get_order( $get_order_id[0]->order_id );
+									if ( $order && false !== $booking_status ) {
 
 										if ( $order ) {
 											$order_status = $order->get_status();
@@ -1352,15 +1352,13 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 									$booking_status = get_post_status( $booking_id );
 
 									// check if it's a valid ID
-									if ( false !== get_post_status( $get_order_id[0]->order_id ) ) {
-										$order = wc_get_order( $get_order_id[0]->order_id );
+									$order = wc_get_order( $get_order_id[0]->order_id );
+									if ( $order ) {
 
-										if ( $order ) {
-											$order_status = $order->get_status();
-											$order_status = "wc-$order_status";
-										}
+										$order_status = $order->get_status();
+										$order_status = "wc-$order_status";
 										
-										if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
+										if ( ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 											// get the booking status
 											$booking_status = wc_get_order_item_meta( $item_key, '_wapbk_booking_status' );
@@ -1623,7 +1621,8 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 									$booking_status = get_post_status( $booking_id );
 
 									// check if it's a valid ID
-									if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
+									$order = wc_get_order( $get_order_id[0]->order_id );
+									if ( $order && false !== $booking_status ) {
 										$order = wc_get_order( $get_order_id[0]->order_id );
 
 										if ( $order ) {
@@ -1859,7 +1858,8 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 									$booking_status = get_post_status( $booking_id );
 
 									// check if it's a valid ID
-									if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
+									$order = wc_get_order( $get_order_id[0]->order_id );
+									if ( $order && false !== $booking_status ) {
 										$order = wc_get_order( $get_order_id[0]->order_id );
 
 										if ( $order ) {

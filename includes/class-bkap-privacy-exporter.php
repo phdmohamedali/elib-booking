@@ -268,9 +268,11 @@ if ( ! class_exists( 'bkap_Personal_Data_Export' ) ) {
 						$final_amt = $amount * $booking->get_quantity();
 						$order_id  = $booking->get_order_id();
 
-						if ( absint( $order_id ) > 0 && false !== get_post_status( $order_id ) ) {
+						if ( absint( $order_id ) > 0 ) {
 							$the_order = wc_get_order( $order_id );
-							$currency  = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $the_order->get_order_currency() : $the_order->get_currency();
+							if ( $the_order ) {
+								$currency  = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $the_order->get_order_currency() : $the_order->get_currency();
+							}
 						} else {
 							// get default woocommerce currency
 							$currency = get_woocommerce_currency();

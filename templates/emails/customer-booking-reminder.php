@@ -5,7 +5,7 @@
 
 do_action( 'woocommerce_email_header', $email_heading, $email );
 
-$order = new WC_order( $booking->order_id ); 
+$order = wc_get_order( $booking->order_id ); 
 
 $html = '<br><table cellspacing="0" cellpadding="6" style="width: 100%;border-color: #aaa; border: 1px solid #aaa;">';
 $html .= '<tbody>';

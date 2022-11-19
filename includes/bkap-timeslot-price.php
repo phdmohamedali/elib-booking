@@ -84,6 +84,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 		 * This function will display the price of selected date and time.
 		 *
 		 * @since 2.0
+		 * @since Updated 5.15.0
 		 * @hook bkap_display_updated_addon_price
 		 * @param int    $product_id Product ID.
 		 * @param int    $booking_settings Booking Settings.
@@ -100,7 +101,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 			$booking_date,
 			$variation_id,
 			$gf_options = 0,
-			$resource_id = 0,
+			$resource_id = '',
 			$person_data = array()
 		) {
 
@@ -111,16 +112,21 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 
 			// If resource is attached to the product then calculating resource price and adding it to final price.
 			$resource_price = 0;
-			if ( $resource_id != 0 ) {
-				$resource       = new BKAP_Product_Resource( $resource_id, $product_id );
-				$resource_price = $resource->get_base_cost();
+
+			if ( '' !== $resource_id ) {
+				$resource_id = explode( ',', $resource_id );
+
+				foreach ( $resource_id as $id ) {
+					$resource        = new BKAP_Product_Resource( $id, $product_id );
+					$resource_price += $resource->get_base_cost();
+				}
 			}
 
-			$person_price = 0;
-			$person_total = 0;
+			$person_price        = 0;
+			$person_total        = 0;
 			$consider_person_qty = false;
 			if ( count( $person_data ) > 0 ) {
-				
+
 				$person_types = $booking_settings['bkap_person_data'];
 				foreach ( $person_data as $p_id => $p_value ) {
 					if ( 1 === absint( $p_value['person_id'] ) ) {
@@ -153,11 +159,11 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 					if ( $product_id == $cart_check_value['product_id']
 					&& $_POST['bkap_date'] == $cart_check_value['bkap_booking'][0]['hidden_date']
 					&& $_POST['timeslot_value'] == $cart_check_value['bkap_booking'][0]['duration_time_slot'] ) {
-						
+
 						$cart_total_person = 1;
-						if ( isset( $cart_check_value['bkap_booking'][0][ 'persons' ] ) ) {
+						if ( isset( $cart_check_value['bkap_booking'][0]['persons'] ) ) {
 							if ( isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_each_person_booking'] ) {
-								$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0][ 'persons' ] );
+								$cart_total_person = array_sum( $cart_check_value['bkap_booking'][0]['persons'] );
 							}
 						}
 						$qty_check = $qty_check + ( $cart_check_value['quantity'] * $cart_total_person );
@@ -167,21 +173,19 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 
 				$duration_date = sanitize_text_field( $_POST['bkap_date'] );
 				$duration_time = sanitize_text_field( $_POST['timeslot_value'] );
+				$from          = strtotime( $duration_date . ' ' . $duration_time );
+				$d_setting     = get_post_meta( $product_id, '_bkap_duration_settings', true );
+				$d_max_booking = isset( $d_setting['duration_max_booking'] ) ? $d_setting['duration_max_booking'] : '';
 
-				$from      = strtotime( $duration_date . ' ' . $duration_time );
-				$d_setting = get_post_meta( $product_id, '_bkap_duration_settings', true );
-				if ( $resource_id > 0 ) {
-					$d_max_booking = bkap_resource_max_booking( $resource_id, $duration_date, $product_id, $booking_settings );
-				} else {
-					$d_max_booking = $d_setting['duration_max_booking'];
+				if ( '' !== $resource_id && is_array( $resource_id ) ) {
+					$d_max_booking = Class_Bkap_Product_Resource::compute_maximum_booking( $resource_id, $duration_date, $product_id, $booking_settings );
 				}
 
 				$base_interval     = (int) $d_setting['duration']; // 2 Hour set for product
 				$selected_duration = sanitize_text_field( $_POST['bkap_duration'] ); // Entered value on front end : 1
 				$duration_type     = $d_setting['duration_type']; // Type of Duration set for product Hours/mins
 				$interval          = $selected_duration * $base_interval; // Total hours/mins based on selected duration and set duration : 2
-
-				$resource_id = isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : 0; // Id of selected Resource
+				$resource_id       = isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : ''; // ID of selected Resource.
 
 				if ( 'hours' === $duration_type ) {
 					$interval      = $interval * 3600;
@@ -203,9 +207,9 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 						if ( $consider_person_qty ) {
 							$value = $value * $person_total;
 						}
-						
+
 						if ( $value > $duration_booked['duration_booked'][ $from ] ) {
-							
+
 							if ( $consider_person_qty ) {
 								$validation_msg = bkap_max_persons_available_msg( '', $product_id );
 								$not_available  = sprintf( $validation_msg, $duration_booked['duration_booked'][ $from ] );
@@ -214,11 +218,15 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 							}
 
 							$not_available = bkap_woocommerce_error_div( $not_available );
-							wp_send_json( array( 'message' => $not_available, 'error' => true ) );
+							wp_send_json(
+								array(
+									'message' => $not_available,
+									'error'   => true,
+								)
+							);
 						}
-						
 					} elseif ( $d_max_booking != '' && $d_max_booking != 0 ) {
-						
+
 						if ( $consider_person_qty ) {
 							$value = $value * $person_total;
 						}
@@ -231,7 +239,12 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 								$not_available = __( 'Booking is not available for selected quantity', 'woocommerce-booking' );
 							}
 							$not_available = bkap_woocommerce_error_div( $not_available );
-							wp_send_json( array( 'message' => $not_available, 'error' => true ) );
+							wp_send_json(
+								array(
+									'message' => $not_available,
+									'error'   => true,
+								)
+							);
 						}
 					}
 				}
@@ -378,7 +391,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 					}
 
 					$wp_send_json['total_price_calculated'] = $total_price;
-					$wp_send_json['bkap_price_charged'] = $total_price;
+					$wp_send_json['bkap_price_charged']     = $total_price;
 
 					// if gf options are enable .. commented since we no longer need to display price below Booking Box.
 					if ( isset( $gf_options ) && $gf_options > 0 ) {
@@ -455,7 +468,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 		 */
 		public static function get_price( $product_id, $variation_id, $product_type, $booking_date, $time_slot, $called_from, $global_settings ) {
 
-			$time_slot_price = $time_slot_price_total = 0; //set the slot price as the product base price.
+			$time_slot_price = $time_slot_price_total = 0; // set the slot price as the product base price.
 			$timezone_check  = bkap_timezone_check( $global_settings ); // Check if the timezone setting is enabled.
 
 			if ( isset( $_POST['special_booking_price'] ) && '' != $_POST['special_booking_price'] ) {
@@ -609,17 +622,17 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 			global $wpdb;
 
 			// Updating 9:00 to 09:00 in from_time and to_time.
-			$query   = "UPDATE `" . $wpdb->prefix . "booking_history`
+			$query   = 'UPDATE `' . $wpdb->prefix . "booking_history`
 			SET from_time=CONCAT('0',from_time) WHERE length(from_time) = 4";
 			$updated = $wpdb->query( $query ); // db call ok; no-cache ok.
 
-			$query   = "UPDATE `" . $wpdb->prefix . "booking_history`
+			$query   = 'UPDATE `' . $wpdb->prefix . "booking_history`
 						SET to_time=CONCAT('0',to_time) WHERE length(to_time) = 4";
 			$updated = $wpdb->query( $query ); // db call ok; no-cache ok.
 
 			// Updating G:i to H:i in woocommerce_order_itemmeta table.
-			$today_ymd   = date( 'Y-m-d', current_time( 'timestamp' ) );
-			$query_date = "SELECT order_item_id FROM `" . $wpdb->prefix . "woocommerce_order_itemmeta`
+			$today_ymd  = date( 'Y-m-d', current_time( 'timestamp' ) );
+			$query_date = 'SELECT order_item_id FROM `' . $wpdb->prefix . "woocommerce_order_itemmeta`
 							WHERE meta_key = '_wapbk_booking_date'
 							AND meta_value >= %s";
 			$results    = $wpdb->get_results( $wpdb->prepare( $query_date, $today_ymd ), ARRAY_A );
@@ -630,7 +643,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 			}
 
 			if ( '' !== $order_item_ids ) {
-				$query_time = "SELECT * FROM `" . $wpdb->prefix . "woocommerce_order_itemmeta`
+				$query_time = 'SELECT * FROM `' . $wpdb->prefix . "woocommerce_order_itemmeta`
 								WHERE meta_key = '_wapbk_time_slot'
 								AND order_item_id IN ( $order_item_ids )";
 				$results    = $wpdb->get_results( $query_time );

@@ -1,13 +1,13 @@
 <?php
 
-namespace Google\AuthHandler;
+namespace BKAPGoogle\AuthHandler;
 
-use Google\Auth\CredentialsLoader;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Auth\FetchAuthTokenCache;
-use Google\Auth\Subscriber\AuthTokenSubscriber;
-use Google\Auth\Subscriber\ScopedAccessTokenSubscriber;
-use Google\Auth\Subscriber\SimpleSubscriber;
+use BKAPGoogle\Auth\CredentialsLoader;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Auth\FetchAuthTokenCache;
+use BKAPGoogle\Auth\Subscriber\AuthTokenSubscriber;
+use BKAPGoogle\Auth\Subscriber\ScopedAccessTokenSubscriber;
+use BKAPGoogle\Auth\Subscriber\SimpleSubscriber;
 use BKAPGuzzleHttp\Client;
 use BKAPGuzzleHttp\ClientInterface;
 use Psr\Cache\CacheItemPoolInterface;

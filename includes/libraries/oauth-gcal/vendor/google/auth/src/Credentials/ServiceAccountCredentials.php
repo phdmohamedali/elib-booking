@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Credentials;
+namespace BKAPGoogle\Auth\Credentials;
 
-use Google\Auth\CredentialsLoader;
-use Google\Auth\GetQuotaProjectInterface;
-use Google\Auth\OAuth2;
-use Google\Auth\ProjectIdProviderInterface;
-use Google\Auth\ServiceAccountSignerTrait;
-use Google\Auth\SignBlobInterface;
+use BKAPGoogle\Auth\CredentialsLoader;
+use BKAPGoogle\Auth\GetQuotaProjectInterface;
+use BKAPGoogle\Auth\OAuth2;
+use BKAPGoogle\Auth\ProjectIdProviderInterface;
+use BKAPGoogle\Auth\ServiceAccountSignerTrait;
+use BKAPGoogle\Auth\SignBlobInterface;
 use InvalidArgumentException;
 
 /**

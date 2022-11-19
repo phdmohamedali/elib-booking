@@ -314,7 +314,6 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 						if ( $resource_id != '' ) {
 
-							
 							$show_resource = apply_filters( 'bkap_display_resource_info_on_view_booking', true, $product, $resource_id );
 
 							if ( $show_resource ) {
@@ -353,7 +352,8 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				case 'bkap_order':
 					$order = $booking->get_order();
 					if ( $order ) {
-						echo '<a href="' . admin_url( 'post.php?post=' . ( is_callable( array( $order, 'get_id' ) ) ? $order->get_id() : $order->id ) . '&action=edit' ) . '">#' . $order->get_order_number() . '</a><br> ' . esc_html( wc_get_order_status_name( $order->get_status() ) );
+						$order_url = bkap_order_url( $order->get_id() );
+						echo '<a href="' . $order_url . '">#' . $order->get_order_number() . '</a><br> ' . esc_html( wc_get_order_status_name( $order->get_status() ) );
 					} else {
 						echo '-';
 					}
@@ -1437,9 +1437,12 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			$amount    = $booking->get_cost();
 			$final_amt = (float) $amount * (int) $quantity;
 
-			if ( absint( $booking->order_id ) > 0 && false !== get_post_status( $booking->order_id ) ) {
-				$the_order = wc_get_order( $booking->order_id );
-				$currency  = ( $phpversion ) ? $the_order->get_order_currency() : $the_order->get_currency();
+			if ( absint( $booking->order_id ) > 0 ) {
+				$order = wc_get_order( $booking->order_id );
+
+				if ( $order ) {
+					$currency = ( $phpversion ) ? $order->get_order_currency() : $order->get_currency();
+				}
 			}
 
 			$final_amt = wc_price( $final_amt, array( 'currency' => $currency ) );
@@ -1572,6 +1575,10 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				),
 				's'              => $s,
 			);
+
+			if ( 'all' === $post_status ) {
+				$post_status = array( 'confirmed', 'paid', 'pending-confirmation' );
+			}
 
 			$report = self::generate_data( $post_status, $args );
 

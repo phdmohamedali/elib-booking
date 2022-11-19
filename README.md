@@ -10,7 +10,9 @@
 ### Production
 1. composer install --no-dev
 2. yarn install
-3. yarn prod
+3. Bump up BKAP version in .env file ( see more information in Instructions section - No. 3 )
+4. Set BKAP_DEV_MODE to false  ( see more information in Instructions section - No. 2 )
+5. yarn prod
 
 ### Some other instructions
 1. "build" folder generated need not be committed (though we have provisions set in the .gitignore but we must take care). For each test cycle the build is ideally generated to avoid any issues.

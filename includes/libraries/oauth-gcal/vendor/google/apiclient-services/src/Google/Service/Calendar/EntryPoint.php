@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EntryPoint extends Google_Collection
+class Google_Service_Calendar_EntryPoint extends BKAPGoogle_Collection
 {
   protected $collection_key = 'entryPointFeatures';
   public $accessCode;

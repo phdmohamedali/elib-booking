@@ -739,15 +739,13 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						$booking_status = get_post_status( $booking_id );
 
 						// check if it's a valid order ID & booking ID
-						if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
-							$order = wc_get_order( $get_order_id[0]->order_id );
+						$order = wc_get_order( $get_order_id[0]->order_id );
+						if ( $order && false !== $booking_status ) {
 							
-							if ( $order ) {
-								$order_status = $order->get_status();
-								$order_status = "wc-$order_status";
-							}
+							$order_status = $order->get_status();
+							$order_status = "wc-$order_status";
 
-							if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
+							if ( ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 								// get the booking details for the given order item ID
 								$query_get_dates = 'SELECT meta_value FROM `' . $wpdb->prefix . 'woocommerce_order_itemmeta`
@@ -1019,14 +1017,10 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						$booking_status = get_post_status( $booking_id );
 
 						// check if it's a valid order ID & booking ID
-						if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
-							$order = wc_get_order( $get_order_id[0]->order_id );
-
-							if ( $order ) {
-								$order_status = $order->get_status();
-								$order_status = "wc-$order_status";
-							}
-
+						$order = wc_get_order( $get_order_id[0]->order_id );
+						if ( $order && false !== $booking_status ) {
+							$order_status = $order->get_status();
+							$order_status = "wc-$order_status";
 							
 							if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
@@ -1204,15 +1198,13 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						$booking_status = get_post_status( $booking_id );
 
 						// check if it's a valid order ID & booking ID
-						if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
-							$order = wc_get_order( $get_order_id[0]->order_id );
+						$order = wc_get_order( $get_order_id[0]->order_id );
+						if ( $order && false !== $booking_status ) {
 
-							if ( $order ) {
-								$order_status = $order->get_status();
-								$order_status = "wc-$order_status";
-							}
+							$order_status = $order->get_status();
+							$order_status = "wc-$order_status";
 							
-							if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
+							if ( ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 								// get the booking details for the given order item ID
 								$query_get_dates = 'SELECT meta_value FROM `' . $wpdb->prefix . 'woocommerce_order_itemmeta`
@@ -1339,14 +1331,11 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						$booking_status = get_post_status( $booking_id );
 
 						// check if it's a valid order ID & booking ID
-						if ( false !== get_post_status( $get_order_id[0]->order_id ) && false !== $booking_status ) {
+						$order = wc_get_order( $get_order_id[0]->order_id );
+						if ( $order && false !== $booking_status ) {
 
-							$order = wc_get_order( $get_order_id[0]->order_id );
-
-							if ( $order ) {
-								$order_status = $order->get_status();
-								$order_status = "wc-$order_status";
-							}
+							$order_status = $order->get_status();
+							$order_status = "wc-$order_status";
 
 							if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 

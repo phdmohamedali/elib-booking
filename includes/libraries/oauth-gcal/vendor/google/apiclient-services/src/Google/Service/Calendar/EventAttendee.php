@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventAttendee extends Google_Model
+class Google_Service_Calendar_EventAttendee extends BKAPGoogle_Model
 {
   public $additionalGuests;
   public $comment;

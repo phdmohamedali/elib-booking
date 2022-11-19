@@ -78,7 +78,7 @@ class BKAP_Email_Manager {
 	function init_confirmation_emails( $order_id, $posted ) {
 
 		if ( isset( $order_id ) && 0 != $order_id ) {
-			$order    = new WC_order( $order_id );
+			$order    = wc_get_order( $order_id );
 			$requires = bkap_common::bkap_order_requires_confirmation( $order );
 
 			if ( $requires ) {

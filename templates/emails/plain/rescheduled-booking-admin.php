@@ -5,7 +5,7 @@
 
 echo '= ' . $email_heading . " =\n\n";
 
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 
 echo sprintf( __( 'Bookings have been rescheduled for an order from %s. The order is as follows:', 'woocommerce-booking' ), $order->get_formatted_billing_full_name() ) . "\n\n";
 

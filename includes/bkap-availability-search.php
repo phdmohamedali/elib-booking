@@ -333,6 +333,36 @@ function calback_bkap_max_date( $m_d, $max_dates, $booking_set ) {
 	$next_date      = $m_d;
 	$max_loop_count = apply_filters( 'bkap_max_date_loop_count', 1000, $m_d, $max_dates, $booking_set );
 
+	$recurring = true;
+	foreach ( $booking_set['booking_recurring'] as $recur_key => $recur_value ) {
+		if ( isset( $recur_value ) && $recur_value != 'on' ) {
+			$recurring = false;
+		} elseif ( isset( $recur_value ) && $recur_value == 'on' ) {
+			$recurring = true;
+			break;
+		}
+	}
+
+	if ( isset( $booking_set['booking_specific_date'] )
+	&& is_array( $booking_set['booking_specific_date'] )
+	&& count( $booking_set['booking_specific_date'] ) > 0 ) {
+		$specific_dates = array_keys( $booking_set['booking_specific_date'] );
+		$today_midnight = strtotime( 'today midnight' );
+		foreach ( $specific_dates as $k => $v ) {
+			if ( strtotime( $v ) < $today_midnight ) {
+				unset( $specific_dates[ $k ] );
+			}
+		}
+	}
+
+	if ( ! $recurring && isset( $specific_dates ) ) {
+
+		if ( count( $specific_dates ) > 0 ) {
+			sort( $specific_dates );
+			$next_date = $specific_dates[ 0 ];
+		}
+	}
+
 	for ( $i = 0; $i < $max_loop_count; $i++ ) {
 
 		$stt = '';
@@ -355,11 +385,8 @@ function calback_bkap_max_date( $m_d, $max_dates, $booking_set ) {
 					$m_d = $next_date;
 					$max_dates--;
 				}
-			} elseif ( isset( $booking_set['booking_specific_date'] )
-				&& is_array( $booking_set['booking_specific_date'] )
-				&& count( $booking_set['booking_specific_date'] ) > 0
-			) {
-				if ( in_array( $next_date, array_keys( $booking_set['booking_specific_date'] ) ) ) {
+			} elseif ( isset( $specific_dates ) ) {
+				if ( in_array( $next_date, $specific_dates ) ) {
 					$m_d = $next_date;
 				}
 				$max_dates--;

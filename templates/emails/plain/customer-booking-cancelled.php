@@ -5,7 +5,7 @@
 
 echo '= ' . $email_heading . " =\n\n";
 
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 if ( $order ) {
 	$billing_first_name = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order->billing_first_name : $order->get_billing_first_name();
 	echo sprintf( __( 'Hello %s', 'woocommerce-booking' ), $billing_first_name ) . "\n\n";

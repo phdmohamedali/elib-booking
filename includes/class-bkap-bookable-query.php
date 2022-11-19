@@ -175,7 +175,6 @@ class BKAP_Bookable_Query {
 
 		$show_times             = isset( $args['showTimes'] ) ? $args['showTimes'] : false;
 		$sort_single_day_events = isset( $args['sortingSingleEvents'] ) ? $args['sortingSingleEvents'] : false;
-
 		$events                 = array();
 		$bookables              = self::get_data( $args );
 		$show_times             = rest_sanitize_boolean( $show_times );
@@ -188,12 +187,7 @@ class BKAP_Bookable_Query {
 		$global_settings        = bkap_global_setting();
 		$global_holidays        = explode( ',', $global_settings->booking_global_holidays );
 		$timezone               = bkap_timezone_check( $global_settings );
-		if ( $timezone && ! is_admin() ) {
-			$store_timezone_string = bkap_booking_get_timezone_string();
-			$offset                = bkap_get_offset_from_date( strtotime( $current_date ), $store_timezone_string );
-		}
-
-		$last_event_date = array();
+		$last_event_date        = array();
 
 		foreach ( $bookables as $bookable ) {
 
@@ -222,11 +216,10 @@ class BKAP_Bookable_Query {
 			}
 
 			$last_event_date[] = $end_date;
-
-			$start     = gmdate( 'Y-m-d', strtotime( $min_date ) );
-			$frequency = 'daily';
-			$interval  = 1;
-			$allday    = ( $show_times ? false : true );
+			$start             = gmdate( 'Y-m-d', strtotime( $min_date ) );
+			$frequency         = 'daily';
+			$interval          = 1;
+			$allday            = ( $show_times ? false : true );
 
 			// Structure data.
 			$bookable_item = array(
@@ -259,11 +252,7 @@ class BKAP_Bookable_Query {
 			}
 
 			// Sort single day events.
-			if ( $sort_single_day_events ) {
-				$bookable_item['extendedProps']['sort'] = ( in_array( $booking_type, array( 'only_day', 'multidates' ), true ) === $booking_type ? 0 : 1 );
-			} else {
-				$bookable_item['extendedProps']['sort'] = 0;
-			}
+			$bookable_item['extendedProps']['sort'] = in_array( $booking_type, array( 'only_day', 'multidates' ), true ) ? 0 : 1;
 
 			// Set product type as variable when show time is false to display select options.
 			if ( ! $show_times && in_array( $booking_type, array( 'duration_time', 'date_time', 'multidates_fixedtime' ), true ) ) {
@@ -279,19 +268,15 @@ class BKAP_Bookable_Query {
 			$recurring_weekdays = $bookable->_bkap_recurring_weekdays;
 
 			if ( ! empty( $recurring_weekdays ) ) {
-				$weekdays_keys   = array( 'su', 'mo', 'tu', 'we', 'th', 'fr', 'sa' );
-				$weekdays_values = array_values( $recurring_weekdays );
-				$weekdays_data   = array_combine( $weekdays_keys, $weekdays_values );
-				$weekdays        = array_keys( array_filter( $weekdays_data ) );
-
+				$weekdays_keys                       = array( 'su', 'mo', 'tu', 'we', 'th', 'fr', 'sa' );
+				$weekdays_values                     = array_values( $recurring_weekdays );
+				$weekdays_data                       = array_combine( $weekdays_keys, $weekdays_values );
+				$weekdays                            = array_keys( array_filter( $weekdays_data ) );
 				$bookable_item['rrule']['byweekday'] = $weekdays;
 			}
 
-			// check if Manage Availability Time data are added or not.
-			$mta_check = false;
-			if ( isset( $booking_settings['bkap_manage_time_availability'] ) && ! empty( $booking_settings['bkap_manage_time_availability'] ) ) {
-				$mta_check = true;
-			}
+			// check for Manage Availability Time.
+			$mta_check = ( isset( $booking_settings['bkap_manage_time_availability'] ) && ! empty( $booking_settings['bkap_manage_time_availability'] ) );
 
 			// Set duration based rules.
 			if ( 'duration_time' === $booking_type && $show_times ) {
@@ -328,19 +313,17 @@ class BKAP_Bookable_Query {
 					$interval      = ( isset( $duration_settings['duration'] ) && '' !== $duration_settings['duration'] ) ? $duration_settings['duration'] : '';
 
 					// Calculate number of hours and mins for end time.
-					$start_date = new DateTime( $first );
-					$end_date   = new DateTime( $last );
-					$int        = $start_date->diff( $end_date );
-					$hours      = $int->format( '%H' );
-					$minutes    = $int->format( '%i' );
-					$minutes    = ( $minutes < 10 ) ? '0' . $minutes : $minutes;
-
+					$start_date                        = new DateTime( $first );
+					$end_date                          = new DateTime( $last );
+					$int                               = $start_date->diff( $end_date );
+					$hours                             = $int->format( '%H' );
+					$minutes                           = $int->format( '%i' );
+					$minutes                           = ( $minutes < 10 ) ? '0' . $minutes : $minutes;
 					$bookable_item['rrule']['dtstart'] = date( 'Y-m-d H:i:s', ( $current_time + ( $bookable->_bkap_abp * 3600 ) ) );
 
 					// Need some help in setting frequency and interval so look at it later.
-					/*
-					 $bookable_item['rrule']['freq']      = 'RRule.DAILY';
-					$bookable_item['rrule']['interval']  = 5; */
+					// $bookable_item['rrule']['freq']      = 'RRule.DAILY';
+					// $bookable_item['rrule']['interval']  = 5;
 
 					$bookable_item['rrule']['byhour']   = array( $first_explode[0] );
 					$bookable_item['rrule']['byminute'] = array( $first_explode[1] );
@@ -416,7 +399,10 @@ class BKAP_Bookable_Query {
 						}
 
 						if ( $timezone && ! is_admin() ) {
+							$store_timezone_string = bkap_booking_get_timezone_string();
+							$offset                = bkap_get_offset_from_date( strtotime( $current_date ), $store_timezone_string );
 							date_default_timezone_set( $store_timezone_string );
+
 							$fromtime = strtotime( $from );
 							$from     = date( 'H:i', $offset + $fromtime );
 							$from_exp = explode( ':', $from );
@@ -455,7 +441,7 @@ class BKAP_Bookable_Query {
 				$bookable_item = $newtimedata;
 			}
 
-			if ( isset( $resources ) && is_array( $resources ) ) { // saparating when product having resource.
+			if ( isset( $resources ) && is_array( $resources ) && count( $resources ) > 0 ) { // saparating when product having resource.
 
 				$_resources      = ( isset( $args['resources'] ) && is_array( $args['resources'] ) ) ? $args['resources'] : '';
 				$arg_resource    = explode( ',', $_resources );
@@ -490,9 +476,96 @@ class BKAP_Bookable_Query {
 				}
 			}
 
+			// Handle variations for Products.
+			if ( 'only_day' === $booking_type && 'variable' === $product_type ) {
+				$product_variations = $_product->get_available_variations( 'object' );
+
+				$titles = array();
+
+				foreach ( $_product->get_attributes() as $product_attribute ) {
+					$attribute_name           = $product_attribute->get_name();
+					$attribute_key            = 'attribute_' . sanitize_title( $attribute_name );
+					$titles[ $attribute_key ] = $attribute_name;
+				}
+
+				foreach ( $product_variations as $variation ) {
+					$price          = $variation->get_price();
+					$attributes     = $variation->get_variation_attributes();
+					$variation_data = array();
+
+					foreach ( $attributes as $title => $attribute ) {
+						$unsanitized_title = $titles[ $title ];
+						$variation_data[]  = array(
+							'id'               => $variation->get_id(),
+							'price'            => $price,
+							$unsanitized_title => $attribute,
+						);
+					}
+
+					if ( count( $variation_data ) > 0 ) {
+						$bookable_item['extendedProps']['variation_data'] = $variation_data;
+						array_push( $events, $bookable_item );
+						$push = false;
+					}
+				}
+			}
+
 			// Add to collection array.
 			if ( $push ) {
 				array_push( $events, $bookable_item );
+			}
+		}
+
+		// Availability.
+		if ( ! in_array( $booking_type, array( 'duration_time' ) ) ) {
+
+			$is_date_based = in_array( $booking_type, array( 'only_day', 'multiple_days', 'multidates' ) );
+			$is_time_based = in_array( $booking_type, array( 'date_time', 'multidates_fixedtime' ) );
+
+			foreach ( $events as &$event ) {
+
+				$availability = array();
+
+				// Get array of dates between start_date and end_date.
+				$interval   = new DateInterval( 'P1D' );
+				$date_start = new DateTime( $event['extendedProps']['start'] );
+				$date_end   = new DateTime( $event['extendedProps']['end'] );
+				$date_end->add( $interval );
+				$period = new DatePeriod( $date_start, $interval, $date_end );
+
+				foreach ( $period as $_date ) {
+
+					$date  = $_date->format( 'Y-m-d' );
+					$date_ = $_date->format( 'j-n-Y' );
+					$post  = array(
+						'post_id'      => (int) $event['id'],
+						'date'         => $date,
+						'checkin_date' => $date,
+						'bkap_page'    => 'product',
+						'cal_price'    => true,
+					);
+
+					// Resources.
+					if ( isset( $event['extendedProps']['resources'] ) && '' !== $event['extendedProps']['resources'] ) {
+						$exp                 = explode( '=>', $event['extendedProps']['resources'] );
+						$post['resource_id'] = $exp[0];
+					}
+
+					// Variation.
+					if ( isset( $event['extendedProps']['variation_data'] ) && '' !== $event['extendedProps']['variation_data'] && is_array( $event['extendedProps']['variation_data'] ) ) {
+						$post['variation_id'] = $event['extendedProps']['variation_data'][0]['id'];
+					}
+
+					if ( $is_date_based ) {
+						$availability[ $date_ ] = bkap_booking_process::bkap_date_lockout( $post );
+					} elseif ( $is_time_based ) {
+						$post['timeslot_value'] = $event['extendedProps']['timeslot_value'];
+						$post['date_time_type'] = 'on';
+						$availability[ $date_ ] = bkap_booking_process::bkap_get_time_lockout( $post );
+					}
+				}
+
+				$event['extendedProps']['availability_data'] = $availability;
 			}
 		}
 

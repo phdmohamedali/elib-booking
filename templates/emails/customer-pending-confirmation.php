@@ -7,7 +7,7 @@
 <?php do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <?php 
-$order = new WC_order( $booking->order_id ); 
+$order = wc_get_order( $booking->order_id ); 
 ?>
 <?php if ( $message !== '' ) : ?>
 	<p><?php echo wpautop( wptexturize( $message ) ); ?></p>

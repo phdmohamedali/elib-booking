@@ -2,7 +2,7 @@
 /**
  * Admin new booking email
  */
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 if ( bkap_common::bkap_order_requires_confirmation( $order ) && 'pending-confirmation' == $booking->item_booking_status ) {
 	$opening_paragraph = __( 'A booking has been made by %s and is awaiting your approval. The details of this booking are as follows:', 'woocommerce-booking' );
 } else {

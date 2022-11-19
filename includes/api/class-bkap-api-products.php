@@ -544,6 +544,7 @@ if ( ! class_exists( 'BKAP_API_Products' ) ) {
 					'_bkap_product_resources',
 					'_bkap_resource',
 					'_bkap_product_resource_selection',
+					'_bkap_product_resource_selection_type',
 					'_bkap_resource_base_costs',
 				)
 			);
@@ -711,9 +712,12 @@ if ( ! class_exists( 'BKAP_API_Products' ) ) {
 				$booking_resource_return_data['resources'] = $resources;
 			}
 
-			$booking_resource_setting = $product_booking_settings['_bkap_resource'];
+			$booking_resource_setting     = $product_booking_settings['_bkap_resource'];
+			$booking_resource_return_data = '';
 
 			if ( 'on' === $booking_resource_setting ) {
+
+				$booking_resource_return_data = array();
 
 				if ( $this->check_if_exists( '_bkap_product_resource_lable', $product_booking_settings ) ) {
 					$booking_resource_return_data['label'] = $product_booking_settings['_bkap_product_resource_lable'];
@@ -721,6 +725,10 @@ if ( ! class_exists( 'BKAP_API_Products' ) ) {
 
 				if ( $this->check_if_exists( '_bkap_product_resource_selection', $product_booking_settings ) ) {
 					$booking_resource_return_data['selection'] = ( 'bkap_customer_resource' === $product_booking_settings['_bkap_product_resource_selection'] ? 'By Customer' : 'Automatically Assigned' );
+				}
+
+				if ( $this->check_if_exists( '_bkap_product_resource_selection_type', $product_booking_settings ) ) {
+					$booking_resource_return_data['selection_type'] = ( 'single' === $product_booking_settings['_bkap_product_resource_selection_type'] ? 'Single' : 'Multiple' );
 				}
 
 				$resource_base_cost = $product_booking_settings['_bkap_resource_base_costs'];
@@ -739,6 +747,8 @@ if ( ! class_exists( 'BKAP_API_Products' ) ) {
 					$booking_resource_return_data['resource_costs'] = $return_resource;
 				}
 			}
+
+			$product_data = $this->check_if_exists_and_set( 'booking_resource', $booking_resource_return_data, $product_data );
 
 			return $product_data;
 		}

@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Subscriber;
+namespace BKAPGoogle\Auth\Subscriber;
 
-use Google\Auth\FetchAuthTokenInterface;
-use Google\Auth\GetQuotaProjectInterface;
+use BKAPGoogle\Auth\FetchAuthTokenInterface;
+use BKAPGoogle\Auth\GetQuotaProjectInterface;
 use BKAPGuzzleHttp\Event\BeforeEvent;
 use BKAPGuzzleHttp\Event\RequestEvents;
 use BKAPGuzzleHttp\Event\SubscriberInterface;

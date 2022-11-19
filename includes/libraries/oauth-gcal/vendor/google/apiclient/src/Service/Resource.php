@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-namespace Google\Service;
+namespace BKAPGoogle\Service;
 
-use Google\Model;
-use Google\Http\MediaFileUpload;
-use Google\Exception as GoogleException;
-use Google\Utils\UriTemplate;
+use BKAPGoogle\Model;
+use BKAPGoogle\Http\MediaFileUpload;
+use BKAPGoogle\Exception as GoogleException;
+use BKAPGoogle\Utils\UriTemplate;
 use BKAPGuzzleHttp\Psr7\Request;
 
 /**

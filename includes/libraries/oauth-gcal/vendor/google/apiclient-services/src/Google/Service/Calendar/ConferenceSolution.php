@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_ConferenceSolution extends Google_Model
+class Google_Service_Calendar_ConferenceSolution extends BKAPGoogle_Model
 {
   public $iconUri;
   protected $keyType = 'Google_Service_Calendar_ConferenceSolutionKey';

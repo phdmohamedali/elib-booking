@@ -79,7 +79,8 @@ if ( ! class_exists( 'Bkap_Booking_Dashboard_Widget' ) ) {
 
 					$order = $booking_post->get_order();
 					if ( $order ) {
-						echo '<a href="' . admin_url( 'post.php?post=' . ( is_callable( array( $order, 'get_id' ) ) ? $order->get_id() : $order->id ) . '&action=edit' ) . '" target="_blank">Order #' . $order->get_order_number() . '</a> - ' . esc_html( wc_get_order_status_name( $order->get_status() ) );
+						$order_url = bkap_order_url( $order->get_id() );
+						echo '<a href="' . $order_url . '" target="_blank">Order #' . $order->get_order_number() . '</a> - ' . esc_html( wc_get_order_status_name( $order->get_status() ) );
 					} else {
 						echo '-';
 					}

@@ -36,7 +36,11 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			// Free up the bookings when an order is trashed.
 			add_action( 'wp_trash_post', array( &$this, 'bkap_trash_order' ), 10, 1 );
+			add_action( 'woocommerce_before_trash_order', array( &$this, 'bkap_trash_order_hpos' ), 10, 2 );
+			
 			add_action( 'untrash_post', array( &$this, 'bkap_untrash_order' ), 10, 1 );
+			add_action( 'woocommerce_untrash_order', array( &$this, 'bkap_untrash_order_hpos' ), 10, 2 );
+			
 
 			add_filter( 'woocommerce_my_account_my_orders_actions', array( &$this, 'bkap_get_add_cancel_button' ), 10, 3 );
 
@@ -375,6 +379,39 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 		/**
 		 * This function frees up the booking dates and/or time for all the items in an order when the order is trashed without cancelling or refunding it.
 		 *
+		 * @hook woocommerce_before_trash_order
+		 *
+		 * @param string|int $post_id Order ID whose booking needs to be trashed.
+		 * @param object $order Order object.
+		 *
+		 * @since 5.17.0
+		 */
+		public static function bkap_trash_order_hpos( $order_id, $order ) {
+
+			// array of all the  order statuses for which the bookings do not need to be freed up.
+			$status = array( 'cancelled', 'refunded', 'failed' );
+
+			if ( ! in_array( $order->get_status(), $status ) ) {
+
+				// trash the booking posts as well.
+				self::bkap_woocommerce_cancel_order( $order_id ); // Previously it was below foreach but when moving the order to trash from bulk then booking id was coming blank hence moved it above foreach.
+
+				foreach ( $order->get_items() as $order_item_id => $item ) {
+
+					if ( 'line_item' == $item['type'] ) {
+						$booking_id = bkap_common::get_booking_id( $order_item_id ); // get the booking ID for each item.
+
+						if ( $booking_id ) {
+							wp_trash_post( $booking_id );
+						}
+					}
+				}
+			}
+		}
+
+		/**
+		 * This function frees up the booking dates and/or time for all the items in an order when the order is trashed without cancelling or refunding it.
+		 *
 		 * @hook wp_trash_post
 		 *
 		 * @param string|int $post_id Order ID whose booking needs to be trashed.
@@ -420,6 +457,40 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 		/**
 		 * Untrash the order and restore the bookings.
 		 *
+		 * @hook woocommerce_untrash_order
+		 *
+		 * @param string|int $order_id Order ID.
+		 * @param string     $previous_status Previous Order status.
+		 *
+		 * @since 5.17.0
+		 */
+		public static function bkap_untrash_order_hpos( $order_id, $previous_status ) {
+
+			$order = wc_get_order( $order_id );
+
+			wp_mail( 'kartik@tychesoftwares.com', 'bkap_untrash_order_hpos', 'bkap_untrash_order_hpos' );
+			wp_mail( 'kartik@tychesoftwares.com', 'ORder', print_r( $order, true ) );
+			wp_mail( 'kartik@tychesoftwares.com', 'previous_status', print_r( $previous_status, true ) );
+			
+			if ( ( 'cancelled' != $previous_status || 'refunded' != $previous_status ) ) {
+
+				// untrash the booking posts as well.
+				$order = wc_get_order( $order_id );
+				if ( $order ) {
+					foreach ( $order->get_items() as $order_item_id => $item ) {
+						if ( 'line_item' == $item['type'] ) {
+							// get the booking ID for each item.
+							$booking_id = bkap_common::get_booking_id( $order_item_id );
+							wp_untrash_post( $booking_id );
+						}
+					}
+				}
+			}
+		}
+
+		/**
+		 * Untrash the order and restore the bookings.
+		 *
 		 * @hook untrash_post
 		 *
 		 * @param string|int $post_id Order ID whose booking needs to be untrashed.
@@ -427,17 +498,20 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 		 * @since 1.7.0
 		 */
 		public static function bkap_untrash_order( $post_id ) {
+			
 			$post_obj = get_post( $post_id );
 
 			if ( 'shop_order' == $post_obj->post_type && ( 'wc-cancelled' != $post_obj->post_status || 'wc-refunded' != $post_obj->post_status ) ) {
 
 				// untrash the booking posts as well.
 				$order = wc_get_order( $post_id );
-				foreach ( $order->get_items() as $order_item_id => $item ) {
-					if ( 'line_item' == $item['type'] ) {
-						// get the booking ID for each item.
-						$booking_id = bkap_common::get_booking_id( $order_item_id );
-						wp_untrash_post( $booking_id );
+				if ( $order ) {
+					foreach ( $order->get_items() as $order_item_id => $item ) {
+						if ( 'line_item' == $item['type'] ) {
+							// get the booking ID for each item.
+							$booking_id = bkap_common::get_booking_id( $order_item_id );
+							wp_untrash_post( $booking_id );
+						}
 					}
 				}
 			}
@@ -446,17 +520,18 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 				$booking = new BKAP_Booking( $post_id );
 				$order   = $booking->get_order();
 
-				foreach ( $order->get_items() as $item_key => $item_value ) {
-					if ( 'line_item' == $item_value['type'] ) {
-						// get the booking ID for each item
-						$booking_id = bkap_common::get_booking_id( $item_key );
-						if ( $booking_id == $post_id ) {
-							self::bkap_restore_trashed_booking( $item_key, $item_value, $order );
+				if ( $order ) {
+					foreach ( $order->get_items() as $item_key => $item_value ) {
+						if ( 'line_item' == $item_value['type'] ) {
+							// get the booking ID for each item
+							$booking_id = bkap_common::get_booking_id( $item_key );
+							if ( $booking_id == $post_id ) {
+								self::bkap_restore_trashed_booking( $item_key, $item_value, $order );
+							}
 						}
 					}
 				}
 			}
-
 		}
 
 		/**
@@ -2052,7 +2127,8 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 					if ( false != $_product ) {
 						$product_title = $_product->get_name();
-						$order_obj->add_order_note( __( "The booking for $product_title has been trashed.", 'woocommerce-booking' ) );
+						/* translators: %1$d: Booking ID, %2$s: Product Title */
+						$order_obj->add_order_note( sprintf( __( 'Booking #%1$d for %2$s has been trashed.', 'woocommerce-booking' ), (int) $booking_post_id, $product_title ) );
 					} else {
 						$order_obj->add_order_note( __( 'The booking has been trashed.', 'woocommerce-booking' ) );
 					}

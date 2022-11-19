@@ -65,7 +65,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 	 */
 	public function queue_notification( $order_id ) {
 
-		$order = new WC_order( $order_id );
+		$order = wc_get_order( $order_id );
 		$items = $order->get_items();
 		foreach ( $items as $item_key => $item_value ) {
 
@@ -212,7 +212,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 	 */
 	public function get_subject() {
 
-		$order = new WC_order( $this->booking_data->order_id );
+		$order = wc_get_order( $this->booking_data->order_id );
 		if ( bkap_common::bkap_order_requires_confirmation( $order ) && $this->booking_data->item_booking_status == 'pending-confirmation' ) {
 			return apply_filters( 'woocommerce_email_subject_' . $this->id, $this->format_string( $this->get_option( 'subject', $this->subject_confirmation ) ), $this->booking_data );
 		} else {
@@ -229,7 +229,7 @@ class BKAP_Email_New_Booking extends WC_Email {
 	 */
 	public function get_heading() {
 
-		$order = new WC_order( $this->booking_data->order_id );
+		$order = wc_get_order( $this->booking_data->order_id );
 		if ( bkap_common::bkap_order_requires_confirmation( $order ) && $this->booking_data->item_booking_status == 'pending-confirmation' ) {
 			return apply_filters( 'woocommerce_email_heading_' . $this->id, $this->format_string( $this->get_option( 'heading', $this->heading_confirmation ) ), $this->booking_data );
 		} else {

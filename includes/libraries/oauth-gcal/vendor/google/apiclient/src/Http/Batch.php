@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Google\Http;
+namespace BKAPGoogle\Http;
 
-use Google\Client;
-use Google\Http\REST;
-use Google\Service\Exception as GoogleServiceException;
+use BKAPGoogle\Client;
+use BKAPGoogle\Http\REST;
+use BKAPGoogle\Service\Exception as GoogleServiceException;
 use BKAPGuzzleHttp\Psr7;
 use BKAPGuzzleHttp\Psr7\Request;
 use BKAPGuzzleHttp\Psr7\Response;
@@ -57,7 +57,7 @@ class Batch
   private $batchPath;
 
   public function __construct(
-      Client $client,
+      BKAPClient $client,
       $boundary = false,
       $rootUrl = null,
       $batchPath = null

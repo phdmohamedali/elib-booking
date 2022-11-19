@@ -73,7 +73,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 
 		public function process_payment( $order_id ) {
-			$order = new WC_Order( $order_id );
+			$order = wc_get_order( $order_id );
 
 			// Add meta
 			update_post_meta( $order_id, '_bkap_pending_confirmation', '1' );
@@ -100,7 +100,7 @@ if ( class_exists( 'WC_Payment_Gateway' ) ) {
 		 */
 
 		public function thankyou_page( $order_id ) {
-			$order = new WC_Order( $order_id );
+			$order = wc_get_order( $order_id );
 
 			if ( 'completed' == $order->get_status() ) {
 				echo '<p>' . __( 'Your booking has been confirmed. Thank you.', 'woocommerce-booking' ) . '</p>';

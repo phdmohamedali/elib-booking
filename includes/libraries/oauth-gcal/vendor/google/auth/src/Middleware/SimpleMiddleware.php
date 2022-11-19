@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Middleware;
+namespace BKAPGoogle\Auth\Middleware;
 
 use BKAPGuzzleHttp\Psr7;
 use Psr\Http\Message\RequestInterface;

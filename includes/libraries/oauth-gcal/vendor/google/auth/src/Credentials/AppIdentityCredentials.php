@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Credentials;
+namespace BKAPGoogle\Auth\Credentials;
 
 /*
  * The AppIdentityService class is automatically defined on App Engine,
@@ -23,9 +23,9 @@ namespace Google\Auth\Credentials;
  * PHP fatal error in the App Engine environment.
  */
 use google\appengine\api\app_identity\AppIdentityService;
-use Google\Auth\CredentialsLoader;
-use Google\Auth\ProjectIdProviderInterface;
-use Google\Auth\SignBlobInterface;
+use BKAPGoogle\Auth\CredentialsLoader;
+use BKAPGoogle\Auth\ProjectIdProviderInterface;
+use BKAPGoogle\Auth\SignBlobInterface;
 
 /**
  * AppIdentityCredentials supports authorization on Google App Engine.

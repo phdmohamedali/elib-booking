@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_ColorDefinition extends Google_Model
+class Google_Service_Calendar_ColorDefinition extends BKAPGoogle_Model
 {
   public $background;
   public $foreground;

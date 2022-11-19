@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\HttpHandler;
+namespace BKAPGoogle\Auth\HttpHandler;
 
 use BKAPGuzzleHttp\ClientInterface;
 

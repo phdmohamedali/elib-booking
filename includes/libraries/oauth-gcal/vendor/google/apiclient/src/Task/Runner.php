@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-namespace Google\Task;
+namespace BKAPGoogle\Task;
 
-use Google\Service\Exception as GoogleServiceException;
-use Google\Task\Exception as GoogleTaskException;
+use BKAPGoogle\Service\Exception as BKAPGoogleServiceException;
+use BKAPGoogle\Task\Exception as BKAPGoogleTaskException;
 
 /**
  * A task runner with exponential backoff support.
@@ -102,7 +102,7 @@ class Runner
   ) {
     if (isset($config['initial_delay'])) {
       if ($config['initial_delay'] < 0) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task configuration `initial_delay` must not be negative.'
         );
       }
@@ -112,7 +112,7 @@ class Runner
 
     if (isset($config['max_delay'])) {
       if ($config['max_delay'] <= 0) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task configuration `max_delay` must be greater than 0.'
         );
       }
@@ -122,7 +122,7 @@ class Runner
 
     if (isset($config['factor'])) {
       if ($config['factor'] <= 0) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task configuration `factor` must be greater than 0.'
         );
       }
@@ -132,7 +132,7 @@ class Runner
 
     if (isset($config['jitter'])) {
       if ($config['jitter'] <= 0) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task configuration `jitter` must be greater than 0.'
         );
       }
@@ -142,7 +142,7 @@ class Runner
 
     if (isset($config['retries'])) {
       if ($config['retries'] < 0) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task configuration `retries` must not be negative.'
         );
       }
@@ -150,7 +150,7 @@ class Runner
     }
 
     if (!is_callable($action)) {
-        throw new GoogleTaskException(
+        throw new BKAPGoogleTaskException(
             'Task argument `$action` must be a valid callable.'
         );
     }
@@ -180,7 +180,7 @@ class Runner
     while ($this->attempt()) {
       try {
         return call_user_func_array($this->action, $this->arguments);
-      } catch (GoogleServiceException $exception) {
+      } catch (BKAPGoogleServiceException $exception) {
         $allowedRetries = $this->allowedRetries(
             $exception->getCode(),
             $exception->getErrors()

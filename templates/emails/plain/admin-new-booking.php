@@ -2,7 +2,7 @@
 /**
  * Admin new booking email
  */
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 
 echo '= ' . $email_heading . " =\n\n";
 

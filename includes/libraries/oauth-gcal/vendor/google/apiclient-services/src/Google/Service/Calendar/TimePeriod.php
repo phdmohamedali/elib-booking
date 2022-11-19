@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_TimePeriod extends Google_Model
+class Google_Service_Calendar_TimePeriod extends BKAPGoogle_Model
 {
   public $end;
   public $start;

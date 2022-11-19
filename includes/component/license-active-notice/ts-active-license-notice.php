@@ -99,7 +99,7 @@ class Bkap_Active_License_Notice {
 
 		global $current_screen;
 
-		if ( 'page' !== $current_screen->post_type && 'post' !== $current_screen->post_type && 'update' !== $current_screen->base ) {
+		if ( 'page' !== $current_screen->post_type && 'post' !== $current_screen->post_type && 'update' !== $current_screen->base && 'bkap_booking_page_booking_license_page' !== $current_screen->id ) {
 
 			$class   = 'notice notice-error';
 			$message = __( 'We have noticed that the license for <b>' . $this->plugin_name . '</b> plugin is not active. To receive automatic updates & support, please activate the license <a href= "' . $this->ts_license_page_url . '"> here </a>.', "'. $this->ts_locale .'" );
@@ -108,4 +108,3 @@ class Bkap_Active_License_Notice {
 		}
 	}
 }
-

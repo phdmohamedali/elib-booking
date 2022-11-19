@@ -5,7 +5,7 @@
 
 echo '= ' . $email_heading . " =\n\n";
 
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 
 if ( $order ) {
 	$billing_first_name = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order->billing_first_name : $order->get_billing_first_name();
@@ -41,9 +41,9 @@ if ( $order ) {
 	if ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) {
 		$order_date = $order->order_date;
 	} else {
-		$order_post     = get_post( $booking->order_id );
-			$post_date  = strtotime( $order_post->post_date );
-			$order_date = date( 'Y-m-d H:i:s', $post_date );
+		$order_post      = wc_get_order( $booking->order_id );
+		$order_strtotime = ! is_null( $order_post->get_date_created() ) ? $order_post->get_date_created()->getOffsetTimestamp() : '';
+		$order_date      = date( 'Y-m-d H:i:s', $order_strtotime );
 	}
 	echo sprintf( __( 'Order number: %s', 'woocommerce-booking' ), $order->get_order_number() ) . "\n";
 	echo sprintf( __( 'Order date: %s', 'woocommerce-booking' ), date_i18n( wc_date_format(), strtotime( $order_date ) ) ) . "\n";

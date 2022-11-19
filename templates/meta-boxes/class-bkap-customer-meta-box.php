@@ -112,7 +112,7 @@ class BKAP_Customer_Meta_Box {
 					</tr>
 					<tr class="view">
 						<th>&nbsp;</th>
-						<td><a class="button button-small" target="_blank" href="<?php echo esc_url( admin_url( 'post.php?post=' . absint( $booking->get_order_id() ) . '&action=edit' ) ); ?>"><?php echo esc_html__( 'View Order', 'woocommerce-booking' ); ?></a></td>
+						<td><a class="button button-small" target="_blank" href="<?php echo esc_url( bkap_order_url( absint( $booking->get_order_id() ) ) ); ?>"><?php echo esc_html__( 'View Order', 'woocommerce-booking' ); ?></a></td>
 					</tr>
 					<?php
 					$has_data = true;

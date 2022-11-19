@@ -24,6 +24,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td id="bkap-multidates-total"></td>
 				<td></td>
 			</tr>
+			<?php if ( isset( $total_remaining_price ) ) { ?>
+			<tr id="bkap-multidates-remaining-tr" data-total-remaining-charged=0>
+				<td><?php echo esc_html( $total_remaining_price ); ?></td>
+				<td id="bkap-multidates-remaining"></td>
+				<td></td>
+			</tr>
+			<tr id="bkap-multidates-ftotal-tr" data-ftotal-price-charged=0>
+				<td><?php echo esc_html( $final_total_price ); ?></td>
+				<td id="bkap-multidates-ftotal"></td>
+				<td></td>
+			</tr>
+			<?php } ?>
 		</tfoot>
 </table>
 </div>

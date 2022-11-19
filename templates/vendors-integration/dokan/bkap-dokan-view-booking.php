@@ -129,7 +129,7 @@
 							if ( ! is_null( $sub_orders ) ) {
 								foreach ( $sub_orders as $key => $value ) {
 									$sub_order_id    = $value->ID;
-									$new_order       = new WC_Order( $value->ID );
+									$new_order       = wc_get_order( $value->ID );
 									$order_seller_id = dokan_get_seller_id_by_order( $new_order );
 
 									if ( $vendor_id == $order_seller_id ) {

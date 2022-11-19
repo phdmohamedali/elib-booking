@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google;
+namespace BKAPGoogle;
 
-use Google\Exception as GoogleException;
+use BKAPGoogle\Exception as GoogleException;
 use ReflectionObject;
 use ReflectionProperty;
 use stdClass;

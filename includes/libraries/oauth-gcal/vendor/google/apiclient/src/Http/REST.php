@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-namespace Google\Http;
+namespace BKAPGoogle\Http;
 
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Client;
-use Google\Task\Runner;
-use Google\Service\Exception as GoogleServiceException;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Client;
+use BKAPGoogle\Task\Runner;
+use BKAPGoogle\Service\Exception as GoogleServiceException;
 use BKAPGuzzleHttp\ClientInterface;
 use BKAPGuzzleHttp\Exception\RequestException;
 use BKAPGuzzleHttp\Psr7\Response;

@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventDateTime extends Google_Model
+class Google_Service_Calendar_EventDateTime extends BKAPGoogle_Model
 {
   public $date;
   public $dateTime;

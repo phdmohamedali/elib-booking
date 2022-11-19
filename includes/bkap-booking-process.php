@@ -44,24 +44,25 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		}
 
 		/**
-         * Clear Selection link on the front end to clear the selected booking details.
-         * @param object $booking_settings Booking Setting.
-         *
-         * @since 5.14.0
-         * @hook bkap_before_add_to_cart_button
-         */
+		 * Clear Selection link on the front end to clear the selected booking details.
+		 *
+		 * @param object $booking_settings Booking Setting.
+		 *
+		 * @since 5.14.0
+		 * @hook bkap_before_add_to_cart_button
+		 */
 		public static function bkap_reset_booking_details_in_booking_form( $booking_settings ) {
 
-            if ( get_post_type() == "product" ) {
+			if ( get_post_type() == 'product' ) {
 				$show = apply_filters( 'bkap_reset_bookings_link', true, $booking_settings );
-                if ( isset( $booking_settings['booking_purchase_without_date'] ) && 'on' === $booking_settings['booking_purchase_without_date'] && $show ){
-                    ?>
-                    <div class="bkap_reset_dates_selection">
-                        <a href="" class="bkap_reset_dates"><?php echo __( 'Clear booking details', 'woocommerce-booking' );?></a>
-                    </div>
-                    <?php
-                }
-            }
+				if ( isset( $booking_settings['booking_purchase_without_date'] ) && 'on' === $booking_settings['booking_purchase_without_date'] && $show ) {
+					?>
+					<div class="bkap_reset_dates_selection">
+						<a href="" class="bkap_reset_dates"><?php echo __( 'Clear booking details', 'woocommerce-booking' ); ?></a>
+					</div>
+					<?php
+				}
+			}
 		}
 
 		/**
@@ -109,8 +110,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			}
 
 			if ( $booking_settings != ''
-				&& ( isset( $booking_settings['booking_enable_date'] ) && $booking_settings['booking_enable_date'] == 'on' )
-				&& ( isset( $booking_settings['booking_purchase_without_date'] ) && $booking_settings['booking_purchase_without_date'] != 'on' )
+			&& ( isset( $booking_settings['booking_enable_date'] ) && $booking_settings['booking_enable_date'] == 'on' )
+			&& ( isset( $booking_settings['booking_purchase_without_date'] ) && $booking_settings['booking_purchase_without_date'] != 'on' )
 			) {
 
 				// check the product type.
@@ -140,8 +141,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					if ( $multidates ) {
 						?>
 						jQuery( '.quantity input[name="quantity"]' ).hide();
-					<?php } ?>
-					});    				
+						<?php } ?>
+					});
 				</script>
 					<?php
 				} else {
@@ -184,7 +185,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$display_html = '<div id="bkap-price-box" style="display:none">
 							<div id="ajax_img" class="ajax_img" style="display:none"><img src="' . plugins_url() . '/woocommerce-booking/assets/images/ajax-loader.gif"></div>
 							<span id="bkap_no_of_days"></span>
-							<span id="bkap_price" class="price">' . $display_price . '</span>    			    		
+							<span id="bkap_price" class="price">' . $display_price . '</span>
 						</div>';
 
 			$price_display = apply_filters( 'bkap_price_display_html', $display_html, $display_price );
@@ -339,7 +340,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$ord_id                           = substr( $first_part, 0, strpos( $first_part, '/' ) );
 						$additional_data['view_order_id'] = $ord_id;
 
-						$view_order = new WC_order( $ord_id );
+						$view_order = wc_get_order( $ord_id );
 
 						$view_order_item_timeslots = array();
 
@@ -667,8 +668,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$current_slot_hrs = $value['from_slot_hrs'];
 
 						if ( $current_slot_hrs > $last_slot_hrs ) {
-							$last_slot_hrs = $current_slot_hrs;
-							$last_slot_min = $value['from_slot_min'];
+							$last_slot_hrs    = $current_slot_hrs;
+							$last_slot_min    = $value['from_slot_min'];
 							$last_slot_to_hrs = $value['to_slot_hrs'];
 							$last_slot_to_min = $value['to_slot_min'];
 						}
@@ -683,8 +684,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						foreach ( $booking_settings['booking_time_settings'][ $booking_weekday ] as $key => $value ) {
 							$current_slot_hrs = $value['from_slot_hrs'];
 							if ( $current_slot_hrs >= $last_slot_hrs ) {
-								$last_slot_hrs = $current_slot_hrs;
-								$last_slot_min = $value['from_slot_min'];
+								$last_slot_hrs    = $current_slot_hrs;
+								$last_slot_min    = $value['from_slot_min'];
 								$last_slot_to_hrs = $value['to_slot_hrs'];
 								$last_slot_to_min = $value['to_slot_min'];
 							}
@@ -699,7 +700,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$advance_booking_hrs = bkap_advance_booking_hrs( $booking_settings, $product_id );
 
 					$booking_date2 = $min_date . ' ' . $last_slot;
-					$booking_date2 = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_date2, $min_date, $last_slot, $last_slot_to_hrs . ':' .$last_slot_to_min, $product_id, $booking_settings );
+					$booking_date2 = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_date2, $min_date, $last_slot, $last_slot_to_hrs . ':' . $last_slot_to_min, $product_id, $booking_settings );
 					$booking_date2 = date( 'Y-m-d H:i', strtotime( $booking_date2 ) );
 
 					$date2         = new DateTime( $booking_date2 );
@@ -720,16 +721,16 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				if ( '' !== $d_end_time ) {
 
 					$advance_booking_hrs = bkap_advance_booking_hrs( $booking_settings, $product_id );
-					$booking_date1 = date( 'Y-m-d H:i', $current_time );
-					$date1         = new DateTime( $booking_date1 );
+					$booking_date1       = date( 'Y-m-d H:i', $current_time );
+					$date1               = new DateTime( $booking_date1 );
 
 					$booking_date2 = $min_date . ' ' . $d_end_time;
 					$booking_date2 = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_date2, $min_date, $d_end_time, $d_end_time, $product_id, $booking_settings );
 					$booking_date2 = date( 'Y-m-d H:i', strtotime( $booking_date2 ) );
 					$date2         = new DateTime( $booking_date2 );
 
-					$phpversion    = version_compare( phpversion(), '5.3', '>' );
-					$include       = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
+					$phpversion = version_compare( phpversion(), '5.3', '>' );
+					$include    = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
 					if ( ! $include ) {
 						$min_date = date( 'j-n-Y', strtotime( $min_date . '+1 day' ) );
@@ -747,7 +748,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				if ( $number_of_days == 0 && ! in_array( 'booking_specific_date', $booking_settings ) &&
 				( in_array( 'booking_specific_date', $booking_settings ) && ( ! is_array( $booking_settings['booking_specific_date'] ) ) ||
 				in_array( 'booking_specific_date', $booking_settings ) && is_array( $booking_settings['booking_specific_date'] ) &&
-					count( $booking_settings['booking_specific_date'] ) == 0 ) ) {
+				count( $booking_settings['booking_specific_date'] ) == 0 ) ) {
 					$days = 0;
 				}
 			}
@@ -783,7 +784,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			} elseif ( $booking_type != 'multiple_days' ) {
 
 				$single_day_lockedout_dates = bkap_get_lockout( $product_id, $min_date, $days, $booking_settings, 'Y-m-d' ); // array of locked dates.
-				
+
 				$single_day_lockedout_dates = apply_filters( 'bkap_block_dates_single', $single_day_lockedout_dates, $booking_settings, $product_id );
 
 				foreach ( $single_day_lockedout_dates as $k => $v ) {
@@ -809,7 +810,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				$todays_date = date( 'Y-m-d' );
 
-				$query_date = "SELECT DATE_FORMAT(start_date,'%d-%c-%Y') as start_date,DATE_FORMAT(end_date,'%d-%c-%Y') as end_date 
+				$query_date = "SELECT DATE_FORMAT(start_date,'%d-%c-%Y') as start_date,DATE_FORMAT(end_date,'%d-%c-%Y') as end_date
 		    					FROM " . $wpdb->prefix . "booking_history
 								WHERE ( start_date >='" . $todays_date . "'
 								        OR end_date >='" . $todays_date . "'
@@ -845,6 +846,12 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$end_date   = $v->end_date;
 						$new_start  = strtotime( '+1 day', strtotime( $start_date ) );
 						$new_start  = date( 'd-n-Y', $new_start );
+						if ( function_exists( 'is_bkap_rental_active' ) && is_bkap_rental_active() ) {
+							if ( $k > 0 && $start_date == $results_date[ $k - 1 ]->end_date ) {
+								$new_start = strtotime( '-1 day', strtotime( $new_start ) );
+								$new_start = date( 'd-n-Y', $new_start );
+							}
+						}
 
 						if ( isset( $booking_settings['booking_charge_per_day'] ) && $booking_settings['booking_charge_per_day'] == 'on' ) {
 							$dates = bkap_common::bkap_get_betweendays_when_flat( $new_start, $end_date, $product_id );
@@ -1003,7 +1010,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								$month_range = bkap_get_month_range( $value['from'], $value['to'] );
 								$date_month  = date( 'n', $bkap_availabile_date_str );
 
-								if ( $date_month >= $value['from']  && $date_month <= $value['to'] ) {
+								if ( $date_month >= $value['from'] && $date_month <= $value['to'] ) {
 
 									if ( $value['bookable'] == 1 && ! in_array( $a_value, $mta_holiday_array ) ) {
 										array_push( $mta_must_array, $a_value );
@@ -1035,7 +1042,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								if ( strpos( $date_status, $date_day ) !== false && $value['bookable'] == 0 && ! in_array( $a_value, $mta_must_array ) ) {
 
 									array_push( $mta_holiday_array, $a_value );
-									//$holiday_check = true;
+									// $holiday_check = true;
 								}
 
 								if ( strpos( $date_status, $date_day ) !== false && $value['bookable'] == 1 ) {
@@ -1058,7 +1065,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 									$rad_explode = explode( ':', $value['type'] );
 
 									if ( 'range' === $rad_explode[1] ) {
-										if ( $bkap_availabile_date_str >= strtotime( $value['from_date'] ) &&  $bkap_availabile_date_str <= strtotime( $value['to_date'] ) ) {
+										if ( $bkap_availabile_date_str >= strtotime( $value['from_date'] ) && $bkap_availabile_date_str <= strtotime( $value['to_date'] ) ) {
 											$check = true;
 										}
 									} else {
@@ -1083,7 +1090,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 							if ( $value['bookable'] == 0 && ! in_array( $a_value, $mta_must_array ) ) {
 								if ( $default_date == $a_value ) {
-									$default_date = date( 'j-n-Y', strtotime( $default_date . ' +1 day' )  );
+									$default_date = date( 'j-n-Y', strtotime( $default_date . ' +1 day' ) );
 								}
 								array_push( $mta_holiday_array, $a_value );
 							}
@@ -1092,25 +1099,26 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					}
 				}
 
-				if ( isset( $booking_settings['bkap_all_data_unavailable'] ) && 'on' === $booking_settings['bkap_all_data_unavailable'] ) {
+				if ( isset( $booking_settings['bkap_all_data_unavailable'] ) && 'on' === $booking_settings['bkap_all_data_unavailable'] && is_array( $mta_must_array ) && count( $mta_must_array ) > 0 ) {
 					$bkap_all_data_unavailable = true;
-					$mta_holiday_array = array_values( array_diff( $availabile_dates_in_calendar, $mta_must_array ) );
+					$mta_holiday_array         = array_values( array_diff( $availabile_dates_in_calendar, $mta_must_array ) );
 
-					if ( ! in_array( $default_date, $mta_must_array ) ) {
+					if ( ! in_array( $default_date, $mta_must_array ) && isset( $mta_must_array[0] ) ) {
 						$default_date = $mta_must_array[0];
 					}
 				}
 
-				if ( ! empty( $mta_holiday_array ) ) {
+				if ( ! empty( $mta_holiday_array ) && is_array( $mta_holiday_array ) && count( $mta_holiday_array ) > 0 ) {
 					$mta_holiday_array = array_values( array_unique( $mta_holiday_array ) );
-					/* if ( isset( $additional_data['holidays'] ) && '' !== $additional_data['holidays'] ) {
-						$mta_holiday_string = ',"' . implode( '","', $mta_holiday_array ) . '"';
-						$additional_data['holidays'] = $additional_data['holidays'] . $mta_holiday_string;
+					/*
+					 if ( isset( $additional_data['holidays'] ) && '' !== $additional_data['holidays'] ) {
+					$mta_holiday_string = ',"' . implode( '","', $mta_holiday_array ) . '"';
+					$additional_data['holidays'] = $additional_data['holidays'] . $mta_holiday_string;
 					} else {
-						$additional_data['holidays'] = '"' . implode( '","', $mta_holiday_array )  . '"';
+					$additional_data['holidays'] = '"' . implode( '","', $mta_holiday_array )  . '"';
 					} */
 
-					$additional_data['bkap_disabled_dates'] = '"' . implode( '","', $mta_holiday_array )  . '"';
+					$additional_data['bkap_disabled_dates'] = '"' . implode( '","', $mta_holiday_array ) . '"';
 				}
 			}
 
@@ -1119,7 +1127,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$resource_array                            = Class_Bkap_Product_Resource::bkap_add_additional_resource_data( array(), $booking_settings, $product_id );
 
 			$resource_holiday_array = array();
-			$resource_must_array = array();
+			$resource_must_array    = array();
 			if ( ! empty( $resource_array ) ) {
 
 				$resource_ids = Class_Bkap_Product_Resource::bkap_get_product_resources( $product_id );
@@ -1205,7 +1213,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 										if ( strpos( $date_status, $date_day ) !== false && $value['bookable'] == 0 && ! in_array( $a_value, $resource_must_array[ $resource_id ] ) ) {
 
 											array_push( $resource_holiday_array[ $resource_id ], $a_value );
-											//$holiday_check = true;
+											// $holiday_check = true;
 										}
 
 										if ( strpos( $date_status, $date_day ) !== false && $value['bookable'] == 1 ) {
@@ -1228,7 +1236,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 											$rad_explode = explode( ':', $value['type'] );
 
 											if ( 'range' === $rad_explode[1] ) {
-												if ( $bkap_availabile_date_str >= strtotime( $value['from_date'] ) &&  $bkap_availabile_date_str <= strtotime( $value['to_date'] ) ) {
+												if ( $bkap_availabile_date_str >= strtotime( $value['from_date'] ) && $bkap_availabile_date_str <= strtotime( $value['to_date'] ) ) {
 													$check = true;
 												}
 											} else {
@@ -1245,8 +1253,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 												if ( 'time' === $value['type'] ) {
 													$r_selected_date_time = $a_value;
-													$r_compare_fdate_time  = $a_value;
-													$r_compare_tdate_time  = $a_value;
+													$r_compare_fdate_time = $a_value;
+													$r_compare_tdate_time = $a_value;
 												} else {
 													if ( 'range' === $rad_explode[1] ) {
 														$r_selected_date_time = $a_value;
@@ -1261,7 +1269,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 												$r_rfrom = strtotime( $r_compare_fdate_time . ' ' . $value['from'] );
 												$r_rto   = strtotime( $r_compare_tdate_time . ' ' . $value['to'] );
-												foreach( $timeslots_for_date as $timeslot_for_date ) {
+												foreach ( $timeslots_for_date as $timeslot_for_date ) {
 													$r_sfrom = strtotime( $r_selected_date_time . ' ' . $timeslot_for_date['from'] );
 													$r_sto   = strtotime( $r_selected_date_time . ' ' . $timeslot_for_date['to'] );
 
@@ -1271,15 +1279,16 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 													|| ( $r_sfrom < $r_rfrom && $r_sto > $r_rto )
 
 													) {
-														$rdisable_date = true;
+														$rdisable_date             = true;
 														$rdisable_date_timeslots[] = $timeslot_for_date['from'] . ' - ' . $timeslot_for_date['to'];
 														$rdisable_date_count++;
 													}
 												}
 											}
 
-											/* if ( $value['bookable'] == 0 && ! in_array( $a_value, $resource_must_array[ $resource_id ] ) ) {
-												$resource_holiday_array[ $resource_id ][] = $a_value;
+											/*
+											 if ( $value['bookable'] == 0 && ! in_array( $a_value, $resource_must_array[ $resource_id ] ) ) {
+											$resource_holiday_array[ $resource_id ][] = $a_value;
 											} */
 										}
 										break;
@@ -1308,8 +1317,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 									$holiday_check = true;
 								}
 
-								/* if ( $holiday_check ) {
-									break;
+								/*
+								 if ( $holiday_check ) {
+								break;
 								} */
 							}
 						}
@@ -1358,7 +1368,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					if ( isset( $booking_settings['booking_enable_multiple_day'] ) && $booking_settings['booking_enable_multiple_day'] == 'on' ) {
 						$session_end_strtotime = strtotime( $session_end_date );
 
-						$hidden_date_checkout  = date( 'j-n-Y', $session_end_strtotime );
+						$hidden_date_checkout = date( 'j-n-Y', $session_end_strtotime );
 						if ( $hidden_date == $hidden_date_checkout ) {
 							$hidden_date_checkout = bkap_add_days_to_date( $hidden_date_checkout, 1 );
 						} elseif ( strtotime( $hidden_date ) > strtotime( $hidden_date_checkout ) ) {
@@ -1373,7 +1383,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				if ( isset( $global_settings->booking_global_selection ) && $global_settings->booking_global_selection == 'on' ) {
 
-					if ( ! $admin_booking && ! $edit ) {
+					if ( ! $admin_booking && ! $edit && isset( WC()->cart ) ) {
 						foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
 							if ( array_key_exists( 'bkap_booking', $values ) ) {
@@ -1506,7 +1516,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				if ( isset( $global_settings->booking_global_selection ) && $global_settings->booking_global_selection == 'on' ) {
 
-					if ( ! $admin_booking && ! $edit ) {
+					if ( ! $admin_booking && ! $edit && isset( WC()->cart ) ) {
 
 						foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
@@ -1687,7 +1697,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 			$currency_symbol = get_woocommerce_currency_symbol();
 
-			$additional_data['wapbk_currency'] = $currency_symbol;
+			$additional_data['wapbk_currency']     = $currency_symbol;
 			$additional_data['bkap_currency_args'] = wc_currency_arguments();
 
 			$attribute_change_var     = '';
@@ -1781,9 +1791,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$additional_data['wapbk_lockout_days'] = str_replace( $start_date, '', $additional_data['wapbk_lockout_days'] );
 					}
 
-
 					if ( $booking_type == 'only_day' || 'multidates' === $booking_type ) {
-						if ( $resource_id != 0 && isset( $additional_data['bkap_booked_resource_data'] ) ) {
+						if ( $resource_id != 0 && isset( $additional_data['bkap_booked_resource_data'] ) && isset( $additional_data['bkap_booked_resource_data'][ $resource_id ] ) && isset( $additional_data['bkap_booked_resource_data']['bkap_locked_dates'] ) ) {
 							if ( strpos( $additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'], $start_date ) > 0 ) {
 								$additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'] = str_replace( $start_date, '', $additional_data['bkap_booked_resource_data'][ $resource_id ]['bkap_locked_dates'] );
 							}
@@ -1892,7 +1901,6 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$additional_data['rental_system_addon']   = ( function_exists( 'is_bkap_rental_active' ) && is_bkap_rental_active() ) ? true : false;
 
 			$additional_data['bkap_no_of_days'] = apply_filters( 'bkap_selected_days_label', __( 'Number of Days Selected: ', 'woocommerce-booking' ), $product_id, $booking_settings );
-			
 
 			$global_settings  = apply_filters( 'bkap_init_parameter_localize_script_global_settings', $global_settings );
 			$booking_settings = apply_filters( 'bkap_init_parameter_localize_script_booking_settings', $booking_settings );
@@ -1955,7 +1963,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 			if ( function_exists( 'wp_get_theme' ) ) {
 				$wordpress_theme = wp_get_theme();
-			}			
+			}
 
 			wp_localize_script(
 				'bkap-process-functions',
@@ -1973,8 +1981,10 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					'attr_value'          => $attribute_value,
 					'attr_selected'       => $attribute_value_selected,
 					'attr_fields_str'     => $attribute_name_and_values,
+					'selected_attribute'  => isset( $_GET['bkap_attribute'] ) && '' !== $_GET['bkap_attribute'] ? sanitize_text_field( $_GET['bkap_attribute'] ) : '',
 					'add_to_cart_labels'  => $add_to_cart_labels,
 					'wordpress_theme'     => strtolower( $wordpress_theme ),
+					'is_admin'            => var_export( current_user_can( 'manage_options' ), true ),
 				)
 			);
 
@@ -2140,27 +2150,30 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 			if ( $product_type == 'variable' ) {
 				if ( isset( $variation_id ) && ( $variation_id == '' || $variation_id == 0 ) ) {
-					$error_message              = __( 'Please choose product options&hellip;', 'woocommerce' );
-					$wp_send_json               = array( 'error' => true );
-					$wp_send_json['message']    = addslashes( $error_message );
+					$error_message           = __( 'Please choose product options&hellip;', 'woocommerce' );
+					$wp_send_json            = array( 'error' => true );
+					$wp_send_json['message'] = addslashes( $error_message );
 					wp_send_json( $wp_send_json );
 				}
 			}
 
-			$booking_date_format  = sanitize_text_field( $_POST['bkap_date'] );
-			$booking_date         = date( 'Y-m-d', strtotime( $booking_date_format ) );
-			$resource_id          = ( isset( $_POST['resource_id'] ) && $_POST['resource_id'] != '' ) ? (int) $_POST['resource_id'] : 0;
-			$gf_options           = ( isset( $_POST['gf_options'] ) && is_numeric( $_POST['gf_options'] ) ) ? $_POST['gf_options'] : 0;
-			$booking_settings     = bkap_setting( $product_id );
-			$person_data          = isset( $_POST['person_ids'] ) ? $_POST['person_ids'] : array();
-			$total_person         = isset( $_POST['total_person'] ) ? sanitize_text_field( $_POST['total_person'] ) : 0;
+			$booking_date_format = sanitize_text_field( $_POST['bkap_date'] );
+			$booking_date        = date( 'Y-m-d', strtotime( $booking_date_format ) );
+			$resource_id         = ( isset( $_POST['resource_id'] ) ) ? $_POST['resource_id'] : '';
+			$gf_options          = ( isset( $_POST['gf_options'] ) && is_numeric( $_POST['gf_options'] ) ) ? $_POST['gf_options'] : 0;
+			$booking_settings    = bkap_setting( $product_id );
+			$person_data         = isset( $_POST['person_ids'] ) ? $_POST['person_ids'] : array();
+			$total_person        = isset( $_POST['total_person'] ) ? sanitize_text_field( $_POST['total_person'] ) : 0;
 
 			/* Person Calculations */
 			$message = bkap_validate_person_selection( $person_data, $total_person, $booking_settings, $product_id );
 
 			if ( '' !== $message ) {
 				$message = bkap_woocommerce_error_div( $message );
-				$data    = array( 'message' => $message, 'error' => true );
+				$data    = array(
+					'message' => $message,
+					'error'   => true,
+				);
 				wp_send_json( $data );
 			}
 
@@ -2199,94 +2212,143 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		}
 
 		/**
-		 * This function returns the availability for a given
-		 * date for all types of bookings
+		 * This function returns the availability for a given date for all types of bookings.
 		 * Called via AJAX
 		 *
+		 * @param array $post Array containing POST values sent as arguments.
 		 * @return array containing the message and the availability.
 		 *
 		 * @since 2.1
+		 * @since Updated 5.15.0
 		 */
+		public static function bkap_date_lockout( $post = array() ) {
 
-		public static function bkap_date_lockout() {
-
-			$product_id      = $_POST['post_id'];
-			$product         = wc_get_product( $product_id );
-			$bkap_settings   = bkap_setting( $product_id );
-
-			$date_format_set = bkap_common::bkap_get_date_format();
-			$checkin_date    = sanitize_text_field( $_POST['date'] );
-			$date            = strtotime( $checkin_date );
-			$date_check_in   = date( 'Y-m-d', $date );
-			$check_in_date   = date( $date_format_set, $date );
-			$message         = '';
-
-			$variation_id             = isset( $_POST['variation_id'] ) && '' != $_POST['variation_id'] ? sanitize_text_field( $_POST['variation_id'] ) : 0;
+			$product_id               = isset( $post['post_id'] ) ? $post['post_id'] : $_POST['post_id'];
+			$product                  = wc_get_product( $product_id );
+			$bkap_settings            = bkap_setting( $product_id );
+			$date_format_set          = bkap_common::bkap_get_date_format();
+			$checkin_date             = sanitize_text_field( isset( $post['date'] ) ? $post['date'] : $_POST['date'] );
+			$date                     = strtotime( $checkin_date );
+			$date_check_in            = date( 'Y-m-d', $date );
+			$check_in_date            = date( $date_format_set, $date );
+			$variation_id             = isset( $post['variation_id'] ) ? $post['variation_id'] : ( isset( $_POST['variation_id'] ) && '' != $_POST['variation_id'] ? sanitize_text_field( $_POST['variation_id'] ) : 0 );
 			$bookings_placed          = isset( $_POST['bookings_placed'] ) && '' != $_POST['bookings_placed'] ? sanitize_text_field( $_POST['bookings_placed'] ) : '';
 			$attr_bookings_placed     = isset( $_POST['attr_bookings_placed'] ) && '' != $_POST['attr_bookings_placed'] ? sanitize_text_field( $_POST['attr_bookings_placed'] ) : '';
-			$resource_id              = isset( $_POST['resource_id'] ) ? (int) $_POST['resource_id'] : 0;
-			$resource_bookings_placed = isset( $_POST['resource_bookings_placed'] ) ? sanitize_text_field( $_POST['resource_bookings_placed'] ) : '';
+			$resource_id              = isset( $post['resource_id'] ) ? $post['resource_id'] : ( isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : '' );
+			$resource_bookings_placed = isset( $_POST['resource_bookings_placed'] ) ? bkap_common::frontend_json_decode( $_POST['resource_bookings_placed'] ) : '';
 			$date_fld_val             = isset( $_POST['date_fld_val'] ) ? $_POST['date_fld_val'] : $check_in_date;
 			$selected_person_data     = isset( $_POST['person_ids'] ) ? sanitize_text_field( $_POST['person_ids'] ) : 0;
 			$total_person             = isset( $_POST['total_person'] ) ? sanitize_text_field( $_POST['total_person'] ) : 0;
-			
-			$available_tickets = self::bkap_get_date_availability(
-				$product_id,
-				$variation_id,
-				$date_check_in,
-				$check_in_date,
-				$bookings_placed,
-				$attr_bookings_placed,
-				'',
-				true,
-				$resource_id,
-				$resource_bookings_placed
-			);
-			
-			if ( $available_tickets != 'FALSE' && $available_tickets != 'TIME-FALSE' ) {
+			$resource_ids             = '' !== $resource_id ? explode( ',', $resource_id ) : array();
+			$availability_msg         = get_option( 'book_available-stock-date' );
+			$message                  = __( 'Please select a date.', 'woocommerce-booking' );
+			$available_tickets        = '';
+			$cal_price                = ( isset( $_POST['cal_price'] ) && true === $_POST['cal_price'] ) || ( isset( $post['cal_price'] ) && true === $post['cal_price'] );
 
-				if ( is_numeric( $available_tickets ) || $available_tickets === 'Unlimited' ) {
+			if ( '' !== $checkin_date ) {
 
-					if ( $checkin_date != '' ) {
-						$availability_msg = get_option( 'book_available-stock-date' );
-						$message          = str_replace( array( 'AVAILABLE_SPOTS', 'DATE' ), array( $available_tickets, $date_fld_val ), $availability_msg );
-					} else {
-						$message = __( 'Please select a date.', 'woocommerce-booking' );
+				if ( count( $resource_ids ) > 0 && ! $cal_price ) {
+					$resource_id = $resource_ids;
+				}
+
+				$available_tickets = self::bkap_get_date_availability(
+					$product_id,
+					$variation_id,
+					$date_check_in,
+					$check_in_date,
+					$bookings_placed,
+					$attr_bookings_placed,
+					'',
+					true,
+					$resource_id,
+					$resource_bookings_placed,
+					$cal_price
+				);
+
+				if (
+					'' !== $resource_id &&
+					is_array( $resource_ids ) &&
+					count( $resource_ids ) > 0 &&
+					is_array( $available_tickets ) &&
+					count( $available_tickets ) > 0
+				) {
+					// Multiple availabilites for Resources.
+					$message                   = '';
+					$all_resource_availability = array();
+
+					foreach ( $available_tickets as $_resource_id => $availability ) {
+						$_message                    = $availability;
+						$all_resource_availability[] = $availability;
+						$_message                    = ( 'U' === $availability ) ? 'Unlimited' : $_message;
+						$_message                    = ( 0 === $availability ) ? sprintf( 'Available bookings for date %s are either fully booked or already added in the cart', $date_fld_val ) : $_message;
+						$_message                    = ( 0 !== $availability ) ? str_replace( array( 'AVAILABLE_SPOTS', 'DATE' ), array( $_message, $date_fld_val ), $availability_msg ) : $_message;
+						$resource_name               = Class_Bkap_Product_Resource::get_resource_name( $_resource_id );
+						$message                    .= '<label>' . $_message . ' for ' . $resource_name . '</label>';
 					}
-				} else {
-					$message           = $available_tickets;
-					$available_tickets = '';
-				}
-			} else if ( $available_tickets === 'FALSE' ) {
-				$message = __( 'Bookings are full.', 'woocommerce-booking' );
-			} else if ( $available_tickets === 'TIME-FALSE' ) {
-				$message = sprintf( __( 'Available bookings for date %1$s are already added in the cart. You can add bookings for a different date or place the order that is currently in the <a href="%2$s">%3$s</a>.', 'woocommerce-booking' ), $check_in_date, esc_url( wc_get_page_permalink( 'cart' ) ), esc_html__( 'cart', 'woocommerce' ) );
-				$message = apply_filters( 'bkap_all_date_availability_present_in_cart', $message );
 
+					// Since we have availabilities for a number of resources, we return the intersect of them all - the least availability and assign to the $available_tickets variable .
+					$all_resource_availability = array_unique( $all_resource_availability );
+					sort( $all_resource_availability );
+
+					$available_tickets = $all_resource_availability[0];
+
+					if ( 'U' === $all_resource_availability[0] ) {
+						$available_tickets = 'Unlimited';
+						if ( isset( $all_resource_availability[1] ) ) {
+							$available_tickets = $all_resource_availability[1];
+						}
+					}
+				} elseif ( 'FALSE' !== $available_tickets && 'TIME-FALSE' !== $available_tickets ) {
+					if ( is_numeric( $available_tickets ) || 'Unlimited' === $available_tickets ) {
+						$message = str_replace( array( 'AVAILABLE_SPOTS', 'DATE' ), array( $available_tickets, $date_fld_val ), $availability_msg );
+					}
+				} elseif ( 'FALSE' === $available_tickets ) {
+					$message = __( 'Bookings are full.', 'woocommerce-booking' );
+				} elseif ( 'TIME-FALSE' === $available_tickets ) {
+					$message = sprintf(
+						__( 'Available bookings for date %1$s are already added in the cart. You can add bookings for a different date or place the order that is currently in the <a href="%2$s">%3$s</a>.', 'woocommerce-booking' ),
+						$check_in_date,
+						esc_url( wc_get_page_permalink( 'cart' ) ),
+						esc_html__( 'cart', 'woocommerce' )
+					);
+
+					$message = apply_filters( 'bkap_all_date_availability_present_in_cart', $message );
+				}
+
+				$message = apply_filters( 'bkap_date_lockout_message', $message );
+
+				// Available Booking Based on Total Person.
+				if ( isset( $bkap_settings['bkap_each_person_booking'] ) && 'on' === $bkap_settings['bkap_each_person_booking'] ) {
+					if ( is_numeric( $available_tickets ) && $total_person > $available_tickets ) {
+						$validation_msg = bkap_max_persons_available_msg( '', $product_id );
+						$message        = sprintf( $validation_msg, $available_tickets, $date_fld_val );
+						$message        = bkap_woocommerce_error_div( $message );
+						$data           = array(
+							'message' => $message,
+							'error'   => true,
+						);
+
+						wp_send_json( $data );
+					}
+				}
 			}
 
-			$message = apply_filters( 'bkap_date_lockout_message', $message );
-
-			// Available Booking Based on Total Person.
-			if ( isset( $bkap_settings['bkap_each_person_booking'] ) && 'on' === $bkap_settings['bkap_each_person_booking'] ) {
-				if ( is_numeric( $available_tickets ) && $total_person > $available_tickets ) {
-					$validation_msg = bkap_max_persons_available_msg( '', $product_id );
-					$message        = sprintf( $validation_msg, $available_tickets, $date_fld_val );
-					$message        = bkap_woocommerce_error_div( $message );
-					$data           = array( 'message' => $message, 'error' => true );
-					wp_send_json( $data );
-				}
-			}
-
-			$data    = apply_filters(
+			$data = apply_filters(
 				'bkap_date_lockout_data',
-				array( 'message' => $message, 'max_qty' => $available_tickets ),				
+				array(
+					'message' => $message,
+					'max_qty' => $available_tickets,
+				),
 				$product,
 				$product_id,
 				$variation_id,
 				$resource_id,
 				$date_check_in
 			);
+
+			if ( isset( $post ) && is_array( $post ) && count( $post ) > 0 ) {
+				return $data;
+			}
 
 			wp_send_json( $data );
 		}
@@ -2312,17 +2374,19 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		 * @since 2.1
 		 */
 
-		public static function bkap_get_date_availability(  $product_id,
-														$variation_id,
-														$hidden_date,
-														$check_in_date,
-														$bookings_placed,
-														$attr_bookings_placed,
-														$hidden_checkout_date = '',
-														$cart_check = true,
-														$resource_id = 0,
-														$resource_bookings_placed = ''
-													) {
+		public static function bkap_get_date_availability(
+		$product_id,
+		$variation_id,
+		$hidden_date,
+		$check_in_date,
+		$bookings_placed,
+		$attr_bookings_placed,
+		$hidden_checkout_date = '',
+		$cart_check = true,
+		$resource_id = '',
+		$resource_bookings_placed = '',
+		$cal_price = false
+		) {
 
 			global $wpdb;
 
@@ -2332,11 +2396,11 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$_product                 = wc_get_product( $product_id );
 			$product_type             = $_product->get_type();
 			$selected_date            = date( 'j-n-Y', strtotime( $hidden_date ) );
-			$check_availability       = 'YES'; // assuming that variation lockout is not set
+			$check_availability       = 'YES'; // assuming that variation lockout is not set.
 			$unlimited_plugin_lockout = false;
 
-			// Inserting date records to database for Only Day based on booking settings
-			self::bkap_insert_date_record( $product_id, $booking_settings, $_product );
+			// Inserting date records to database for Only Day based on booking settings.
+			self::bkap_insert_date_record( $check_in_date, $product_id, $booking_settings, $_product );
 
 			// Check if it is a variable product.
 			if ( $product_type === 'variable' ) {
@@ -2420,7 +2484,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 						}
 					}
-				} else { // if attribute lockout is set
+				} else { // if attribute lockout is set.
 
 					$attributes = get_post_meta( $product_id, '_product_attributes', true );
 					// Product Attributes - Booking Settings
@@ -2509,123 +2573,64 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				}
 			}
 
-			if ( $check_availability == 'YES' ) {
+			if ( 'YES' === $check_availability ) {
 
-				// Calculaing availability based on resources.
-				if ( $resource_id != 0 ) {
+				$unlimited_unavailability_text = __( 'Unlimited', 'woocommerce-booking' );
+				$number_of_slots               = ( '' !== $booking_settings && isset( $booking_settings['booking_enable_time'] ) && 'on' === $booking_settings['booking_enable_time'] ) ? bkap_common::bkap_get_number_of_slots( $product_id, $hidden_date ) : '';
 
-					$bkap_resource_availability = bkap_resource_max_booking( $resource_id, $hidden_date, $product_id, $booking_settings );
+				// Calculating availability based on resources.
+				if ( '' !== $resource_id ) {
 
-					if ( 0 != $bkap_resource_availability ) {
+					if ( ! is_array( $resource_id ) ) {
 
-						// Timeslot availability check
-						// First we will check if lockout is set at the variation level
-						if ( $booking_settings != '' && ( isset( $booking_settings['booking_enable_time'] ) && 'on' == $booking_settings['booking_enable_time'] ) ) {
+						$bkap_resource_availability = (int) bkap_resource_max_booking( $resource_id, $hidden_date, $product_id, $booking_settings );
+						$bkap_resource_availability = ( '' !== $number_of_slots && $number_of_slots > 0 ) ? $bkap_resource_availability *= $number_of_slots : 0;
 
-							$number_of_slots = bkap_common::bkap_get_number_of_slots( $product_id, $hidden_date );
-							if ( isset( $number_of_slots ) && $number_of_slots > 0 ) {
-								$bkap_resource_availability *= $number_of_slots;
-							} else if ( 0 === $number_of_slots ) {
-								$bkap_resource_availability = 0;
-							}
+						if ( 0 === $bkap_resource_availability ) {
+							return $unlimited_unavailability_text;
 						}
 
-						if ( strlen( $resource_bookings_placed ) > 0 ) {
+						// Calculation for list view availability.
+						if ( $cal_price ) { //phpcs:ignore
 
-							$resource_bookings_placed_list_dates = explode( ',', $resource_bookings_placed );
-							$resource_date_array                 = array();
-
-							foreach ( $resource_bookings_placed_list_dates as $list_key => $list_value ) {
-								// separate the qty for each date & time slot
-								$explode_date = explode( '=>', $list_value );
-
-								if ( isset( $explode_date[1] ) && $explode_date[1] != '' ) {
-									$date                         = substr( $explode_date[0], 2, -2 );
-									$resource_date_array[ $date ] = (int) $explode_date[1];
-								}
-							}
-
-							$resource_booked_for_date = 0;
-
-							if ( array_key_exists( $selected_date, $resource_date_array ) ) {
-								$resource_booked_for_date = $resource_date_array[ $selected_date ];
-							}
-
-							$resource_booking_available = $bkap_resource_availability - $resource_booked_for_date;
-
-						} else if ( isset( $_POST['cal_price'] ) && true == $_POST['cal_price'] ) {
-
-							// Calculation for list view availability.
-							$resource_bookings_placed   = '';
-							$resource_booking_available = $bkap_resource_availability;
+							$resource_booking_available        = $bkap_resource_availability;
 							$resource_bookings[ $resource_id ] = bkap_calculate_bookings_for_resource( $resource_id, $product_id );
+
 							if ( isset( $booking_settings['booking_enable_time'] ) && ( 'on' == $booking_settings['booking_enable_time'] || $booking_settings['booking_enable_time'] == 'duration_time' ) ) {
 								$resource_bookings[ $resource_id ] = apply_filters( 'bkap_locked_dates_for_dateandtime', $resource_id, $product_id, $booking_settings, $resource_bookings[ $resource_id ] );
 							}
 
-							if ( isset( $resource_bookings[ $resource_id ]['bkap_booking_placed'] ) && '' != $resource_bookings[ $resource_id ]['bkap_booking_placed'] ) {
-								$resource_bookings_placed = $resource_bookings[ $resource_id ]['bkap_booking_placed'];
-							}
+							$placed_bookings        = ( isset( $resource_bookings[ $resource_id ]['bkap_booking_placed'] ) && '' != $resource_bookings[ $resource_id ]['bkap_booking_placed'] ) ? $resource_bookings[ $resource_id ]['bkap_booking_placed'] : '';
+							$qty_in_placed_bookings = Class_Bkap_Product_Resource::return_quantity_in_placed_bookings( $placed_bookings, $selected_date );
+							$qty_in_cart            = Class_Bkap_Product_Resource::return_quantity_in_cart( $resource_id, $hidden_date );
 
-							if ( strlen( $resource_bookings_placed ) > 0 ) {
+							$resource_booking_available = $bkap_resource_availability - $qty_in_placed_bookings - $qty_in_cart;
 
-								$resource_bookings_placed_list_dates = explode( ',', $resource_bookings_placed );
-								$resource_date_array                 = array();
-
-								foreach ( $resource_bookings_placed_list_dates as $list_key => $list_value ) {
-									// separate the qty for each date & time slot.
-									$explode_date = explode( '=>', $list_value );
-									if ( isset( $explode_date[1] ) && $explode_date[1] != '' ) {
-										$date                         = substr( $explode_date[0], 1, -1 );
-										$resource_date_array[ $date ] = (int) $explode_date[1];
-									}
-								}
-
-								$resource_booked_for_date = 0;
-
-								if ( array_key_exists( $selected_date, $resource_date_array ) ) {
-									$resource_booked_for_date = $resource_date_array[ $selected_date ];
-								}
-
-								$resource_booking_available = $bkap_resource_availability - $resource_booked_for_date;
-							}
-						} else {
-							$resource_booking_available = $bkap_resource_availability;
+							return ( 0 === $resource_booking_available && 0 !== $bkap_resource_availability ) ? 'TIME-FALSE' : $resource_booking_available;
 						}
 
-						// Check if the same resource is already present in the cart
-						if ( count( WC()->cart->get_cart() ) > 0 ) {
-							$trc_qty = 0;
-
-							foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
-
-								if ( isset( $values['bkap_booking'] ) ) {
-									$cart_booking = $values['bkap_booking'][0];
-
-									if ( isset( $cart_booking['resource_id'] ) && $cart_booking['resource_id'] == $resource_id ) {
-										if ( isset( $cart_booking['hidden_date_checkout'] ) && $cart_booking['hidden_date_checkout'] != '' ) {
-											if ( strtotime( $hidden_date ) >= strtotime( $cart_booking['hidden_date'] ) && strtotime( $hidden_date ) <= strtotime( $cart_booking['hidden_date_checkout'] ) ) {
-												$trc_qty += $values['quantity'];
-											}
-										} else {
-											if ( strtotime( $hidden_date ) == strtotime( $cart_booking['hidden_date'] ) ) {
-												$trc_qty += $values['quantity'];
-											}
-										}
-									}
-								}
-							}
-
-							$resource_booking_available = $resource_booking_available - $trc_qty;
-							if ( $resource_booking_available == 0 && $bkap_resource_availability != 0 ) {
-								$resource_booking_available = 'TIME-FALSE';
-							}
-						}
-					} else {
-						$resource_booking_available = __( 'Unlimited', 'woocommerce-booking' );
+						return;
 					}
 
-					return $resource_booking_available;
+					// resource_id is an array.
+					$all_resource_availability = array();
+
+					foreach ( $resource_id as $id ) {
+
+						$bkap_resource_availability = (int) bkap_resource_max_booking( $id, $hidden_date, $product_id, $booking_settings );
+						$bkap_resource_availability = ( '' !== $number_of_slots && $number_of_slots > 0 ) ? $bkap_resource_availability *= $number_of_slots : $bkap_resource_availability;
+
+						if ( 0 === $bkap_resource_availability ) {
+							$all_resource_availability[ $id ] = 'U'; // Unlimited.
+							continue;
+						}
+
+						$qty_in_placed_bookings           = is_array( $resource_bookings_placed ) && isset( $resource_bookings_placed[ $id ] ) ? Class_Bkap_Product_Resource::return_quantity_in_placed_bookings( $resource_bookings_placed[ $id ], $selected_date ) : 0;
+						$qty_in_cart                      = Class_Bkap_Product_Resource::return_quantity_in_cart( $id, $hidden_date );
+						$all_resource_availability[ $id ] = $bkap_resource_availability - $qty_in_placed_bookings - $qty_in_cart;
+					}
+
+					return $all_resource_availability;
 				}
 
 				// if multiple day booking is enabled then calculate the availability based on the total lockout in the settings
@@ -2674,23 +2679,27 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 					$fromtimequery = '';
 					$select_clause = 'available_booking,total_booking';
+					$bookings_done = 0;
 
 					if ( isset( $booking_settings['booking_enable_time'] )
 					&& 'on' == $booking_settings['booking_enable_time']
 					) {
-						$fromtimequery = "AND from_time!= ''";
+						$bookings_done = array();
+						$fromtimequery = "AND from_time != ''";
 						$select_clause = 'available_booking,total_booking,from_time,to_time';
 					}
-					
 
-					$bookings_done     = 0;
-					$booking_available = apply_filters( 'bkap_check_booking_availability_done', false, $product_id ); 
+					$booking_available = apply_filters( 'bkap_check_booking_availability_done', false, $product_id );
 					if ( ! $booking_available ) {
 						$bookings_data = get_bookings_for_range( $product_id, $hidden_date, strtotime( $hidden_date ) );
-					
+
 						if ( count( $bookings_data ) > 0 ) {
-							if ( isset( $bookings_data[ date('Ymd', strtotime( $hidden_date ) ) ] ) ) {
-								$bookings_done = $bookings_data[ date('Ymd', strtotime( $hidden_date ) ) ];
+							if ( isset( $bookings_data[ date( 'Ymd', strtotime( $hidden_date ) ) ] ) ) {
+								$bookings_done = $bookings_data[ date( 'Ymd', strtotime( $hidden_date ) ) ];
+
+								if ( $fromtimequery && ! empty( $bookings_done ) ) {
+									  $bookings_done = array_sum( $bookings_done );
+								}
 							}
 						}
 					}
@@ -2715,8 +2724,6 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 					if ( isset( $results_date ) && count( $results_date ) > 0 ) {
 
-						// If records are found then the total available will be the total available for each time slot for that date
-						// If its only day bookings, then only 1 record will be present, so this will work
 						foreach ( $results_date as $key => $value ) {
 
 							if ( isset( $value->from_time ) && $value->from_time != '' ) { // Do not calc availablity of passed timeslot based on advance booking period
@@ -2727,9 +2734,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 
 							if ( $value->available_booking > 0 && $value->total_booking != 0 ) {
-								$unlimited         = false;
-								//$available_tickets = (int) $available_tickets + (int) $value->available_booking;
-								$available_tickets = (int) $value->total_booking - (int) $bookings_done;
+								$unlimited          = false;
+								$available_tickets += (int) $value->total_booking;
 							}
 
 							if ( $value->available_booking > 0 || $value->total_booking != 0 ) {
@@ -2739,6 +2745,10 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							if ( $value->available_booking == 0 && $value->total_booking == 0 ) {
 								$unlimited_plugin_lockout = true;
 							}
+						}
+
+						if ( ! $unlimited ) {
+							$available_tickets -= (int) $bookings_done;
 						}
 					} else { // if no record found and multiple day bookings r not enabled then get the base record for that weekday
 
@@ -2761,8 +2771,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 									}
 								}
 								if ( $value->available_booking > 0 ) {
-									$unlimited         = false;
-									//$available_tickets = (int) $available_tickets + (int) $value->available_booking;
+									$unlimited = false;
+									// $available_tickets = (int) $available_tickets + (int) $value->available_booking;
 									$available_tickets = (int) $value->total_booking - (int) $bookings_done;
 								}
 							}
@@ -2779,7 +2789,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			 * Check if the same product is already present in the cart.
 			 */
 
-			if ( $cart_check ) {
+			if ( $cart_check && isset( WC()->cart ) ) {
 
 				foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
@@ -2797,11 +2807,11 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 
 							// Check if there is a record of maximum booking that has been set for the selected date. If there is, then check for lockout.
-							$max_bookings                = bkap_get_specific_date_maximum_booking( $available_tickets, $hidden_date, $product_id, $booking_settings );
-							
+							$max_bookings = bkap_get_specific_date_maximum_booking( $available_tickets, $hidden_date, $product_id, $booking_settings );
+
 							if ( $max_bookings > 0 ) {
-							    $check_lockout               = 'YES';
-							    $is_max_booking_set_for_date = true;
+								$check_lockout               = 'YES';
+								$is_max_booking_set_for_date = true;
 							}
 						} elseif ( isset( $attribute_lockout_set ) && 'YES' == $attribute_lockout_set ) {
 							$check_lockout = 'NO';
@@ -2826,18 +2836,18 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							$quantity = (int) $values['quantity'] * $total_person;
 
 							// Check if variation data is set in the cart dataset and maximum booking set for the selected date.
-							if ( isset( $values['variation']) && $is_max_booking_set_for_date) {
-							    
-							    // Get variation value which will be used for quantity.
-							    foreach( $values['variation'] as $variation_key => $variation_value ) {
+							if ( isset( $values['variation'] ) && $is_max_booking_set_for_date ) {
 
-							        // Check if variation value is an integer and then set as quantity so that variation value can represent number for quantity.
-							        $variation_value = (int) $variation_value;
-									
-							        if ( $variation_value > 0 ) {
-							            $quantity = $variation_value;
-							        }
-							    }
+								// Get variation value which will be used for quantity.
+								foreach ( $values['variation'] as $variation_key => $variation_value ) {
+
+									// Check if variation value is an integer and then set as quantity so that variation value can represent number for quantity.
+									$variation_value = (int) $variation_value;
+
+									if ( $variation_value > 0 ) {
+										$quantity = $variation_value;
+									}
+								}
 							}
 
 							if ( strtotime( $booking[0]['hidden_date'] ) == strtotime( $hidden_date ) ) {
@@ -2873,19 +2883,20 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		 * This functions will add the date records in db for only day booking type product
 		 *
 		 * @since 4.14.4
+		 * @param string $date Date
 		 * @param int    $product_id Product Id
 		 * @param array  $booking_Setting Booking Setting of the product
 		 * @param object $product Product Object
 		 */
 
-		public static function bkap_insert_date_record( $product_id, $booking_settings, $product ) {
+		public static function bkap_insert_date_record( $date, $product_id, $booking_settings, $product ) {
 
 			$product_type = $product->get_type();
 
-			if ( isset( $_POST['date'] ) && $_POST['date'] != '' ) {
+			if ( '' !== $date ) {
 				$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
 				if ( in_array( $booking_type, array( 'only_day', 'multidates' ) ) ) {
-					self::bkap_insert_date( $product_id, $product->get_type(), $_POST['date'] );
+					self::bkap_insert_date( $product_id, $product->get_type(), $date );
 				}
 			}
 
@@ -2899,7 +2910,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$booking_type = get_post_meta( $pro_id, '_bkap_booking_type', true );
 						$_product     = wc_get_product( $pro_id );
 						if ( $booking_type == 'only_day' ) {
-							self::bkap_insert_date( $pro_id, $_product->get_type(), $_POST['date'] );
+							self::bkap_insert_date( $pro_id, $_product->get_type(), $date );
 						}
 					}
 				}
@@ -2907,63 +2918,63 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		}
 
 		/**
-		 * This function returns the availability for a given
-		 * timeslot for all types of bookings.
+		 * This function returns the availability for a given timeslot for all types of bookings.
 		 * Called via AJAX
 		 *
+		 * @param array $post Array containing POST values sent as arguments.
 		 * @return array containing the message and the availability.
 		 *
 		 * @since 2.1
+		 * @since Updated 5.15.0
 		 */
+		public static function bkap_get_time_lockout( $post = array() ) {
 
-		public static function bkap_get_time_lockout() {
+			$available_tickets        = 0;
+			$message                  = '';
+			$timeslots                = isset( $post['timeslot_value'] ) ? $post['timeslot_value'] : ( isset( $_POST['timeslot_value'] ) ? $_POST['timeslot_value'] : '' );
+			$product_id               = isset( $post['post_id'] ) ? $post['post_id'] : $_POST['post_id'];
+			$variation_id             = isset( $post['variation_id'] ) ? $post['variation_id'] : ( isset( $_POST['variation_id'] ) ? $_POST['variation_id'] : '' );
+			$bookings_placed          = isset( $_POST['bookings_placed'] ) ? $_POST['bookings_placed'] : '';
+			$resource_id              = isset( $post['resource_id'] ) ? $post['resource_id'] : ( isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : '' );
+			$resource_bookings_placed = isset( $_POST['resource_bookings_placed'] ) ? bkap_common::frontend_json_decode( $_POST['resource_bookings_placed'] ) : array();
+			$booking_date_in          = isset( $post['checkin_date'] ) ? $post['checkin_date'] : ( isset( $_POST['checkin_date'] ) ? $_POST['checkin_date'] : '' ); // Checkin/Booking Date
+			$selected_person_data     = isset( $_POST['person_ids'] ) ? sanitize_text_field( $_POST['person_ids'] ) : 0;
+			$total_person             = isset( $_POST['total_person'] ) ? absint( $_POST['total_person'] ) : 0;
+			$cal_price                = ( isset( $_POST['cal_price'] ) && true === $_POST['cal_price'] ) || ( isset( $post['cal_price'] ) && true === $post['cal_price'] );
+			$msg_format               = get_option( 'book_available-stock-time' );
 
-			$available_tickets = 0;
-			$message           = '';
-			$timeslots         = ( isset( $_POST['timeslot_value'] ) ) ? $_POST['timeslot_value'] : '';
-			$product_id        = $_POST['post_id'];
+			if ( '' !== $timeslots ) {
 
-			if ( $timeslots != '' ) {
-
-				$variation_id             = isset( $_POST['variation_id'] ) ? $_POST['variation_id'] : '';
-				$bookings_placed          = isset( $_POST['bookings_placed'] ) ? $_POST['bookings_placed'] : '';
-				$resource_id              = isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : '';
-				$resource_bookings_placed = isset( $_POST['resource_bookings_placed'] ) ? $_POST['resource_bookings_placed'] : '';
-				$booking_date_in          = isset( $_POST['checkin_date'] ) ? $_POST['checkin_date'] : ''; // Checkin/Booking Date
-				$selected_person_data     = isset( $_POST['person_ids'] ) ? sanitize_text_field( $_POST['person_ids'] ) : 0;
-				$total_person             = isset( $_POST['total_person'] ) ? absint( $_POST['total_person'] ) : 0;
-
-				$booking_settings = bkap_setting( $product_id ); // Booking settings
-				$global_settings  = bkap_global_setting();
-
+				$booking_settings    = bkap_setting( $product_id ); // Booking settings
+				$global_settings     = bkap_global_setting();
 				$date_format_set     = bkap_common::bkap_get_date_format();
-				$date                = strtotime( $_POST['checkin_date'] );
+				$date                = strtotime( $booking_date_in );
 				$booking_date        = date( 'Y-m-d', $date ); // Checkin/Booking Date
 				$booking_date_disply = date( $date_format_set, $date );
 				$date_fld_val        = isset( $_POST['date_fld_val'] ) ? $_POST['date_fld_val'] : $booking_date_disply;
+				$unlimited           = 'YES';
 
-				$unlimited = 'YES';
-				// assuming that variation lockout is not set
+				// assuming that variation lockout is not set.
 				$check_availability    = 'YES';
 				$attr_lockout_set      = 'NO';
 				$variation_lockout_set = 'NO';
 				$booking_in_cart       = 'NO';
 
-				$timezone_check = bkap_timezone_check( $global_settings ); // Check if the timezone setting is enabled
+				$timezone_check = bkap_timezone_check( $global_settings ); // Check if the timezone setting is enabled.
 
-				// if it's a variable product and bookings placed field passed is non blanks
+				// if it's a variable product and bookings placed field passed is non blanks.
 				if ( isset( $variation_id ) && $variation_id > 0 ) {
 
 					$variation_lockout = get_post_meta( $variation_id, '_booking_lockout_field', true );
 
 					if ( isset( $variation_lockout ) && $variation_lockout > 0 ) {
-						$check_availability    = 'NO'; // set it to NO, so availability is not re calculated at the product level
+						$check_availability    = 'NO'; // set it to NO, so availability is not re calculated at the product level.
 						$variation_lockout_set = 'YES';
 
 						$available_tickets = $variation_lockout;
 						$date_check_in     = date( 'j-n-Y', $date );
 
-						// create an array of dates for which orders have already been placed and the qty for each date
+						// create an array of dates for which orders have already been placed and the qty for each date.
 						if ( isset( $bookings_placed ) && $bookings_placed != '' ) {
 							// create an array of the dates
 							$list_dates = explode( ',', $bookings_placed );
@@ -3029,82 +3040,56 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					}
 				}
 
-				$resource_lockout_set = '';
 				// Calculaing availability based on resources.
-				if ( 0 !== (int) $resource_id ) {
+				if ( '' !== $resource_id ) {
 
-					$bkap_resource_availability = bkap_resource_max_booking( $resource_id, $booking_date, $product_id, $booking_settings );
+					$check_availability        = 'NO';
+					$date_check_in             = date( 'j-n-Y', $date );
+					$resource_date_array       = array();
+					$all_resource_availability = array();
+					$resource_ids              = explode( ',', $resource_id );
 
-					$resource_lockout_set = 'YES';
-					$check_availability   = 'NO';
-					$available_tickets    = $bkap_resource_availability;
-					$date_check_in        = date( 'j-n-Y', $date );
-					$resource_date_array  = array();
+					if ( $cal_price ) {
 
-					if ( 0 != $available_tickets ) {
+						// Calculation for list view availability.
+						// resource_id is a single item.
+						$resource_bookings[ $resource_id ]        = bkap_calculate_bookings_for_resource( $resource_id, $product_id );
+						$resource_bookings_placed[ $resource_id ] = ( isset( $resource_bookings[ $resource_id ]['bkap_time_booking_placed'] ) && '' !== $resource_bookings[ $resource_id ]['bkap_time_booking_placed'] ) ? $resource_bookings[ $resource_id ]['bkap_time_booking_placed'] : array();
+					}
 
-						if ( strlen( $resource_bookings_placed ) > 0 ) {
+					if ( is_array( $resource_bookings_placed ) && count( $resource_bookings_placed ) > 0 ) {
+						foreach ( $resource_bookings_placed as $id => $resource_bookings_placed_list_dates ) {
+							$explode_date = explode( '=>', $resource_bookings_placed_list_dates ); // separate the qty for each date & time slot.
 
-							$resource_bookings_placed_list_dates = explode( ',', $resource_bookings_placed );
-
-							foreach ( $resource_bookings_placed_list_dates as $list_key => $list_value ) {
-								// separate the qty for each date & time slot
-								$explode_date = explode( '=>', $list_value );
-
-								if ( isset( $explode_date[2] ) && $explode_date[2] != '' ) {
-									$date = substr( $explode_date[0], 2, -2 );
-									$resource_date_array[ $date ][ $explode_date[1] ] = (int) $explode_date[2];
-								}
+							if ( isset( $explode_date[2] ) && '' !== $explode_date[2] ) {
+								$date = substr( $explode_date[0], 2, -2 );
+								$resource_date_array[ $id ][ $date ][ $explode_date[1] ] = (int) $explode_date[2];
 							}
-						} else if ( isset( $_POST['cal_price'] ) && true == $_POST['cal_price'] ) {
-
-							// Calculation for list view availability.
-							$resource_bookings_placed = '';
-							$resource_bookings[ $resource_id ] = bkap_calculate_bookings_for_resource( $resource_id, $product_id );
-							
-							if ( isset( $resource_bookings[ $resource_id ]['bkap_time_booking_placed'] ) && '' != $resource_bookings[ $resource_id ]['bkap_time_booking_placed'] ) {
-								$resource_bookings_placed = $resource_bookings[ $resource_id ]['bkap_time_booking_placed'];
-							}
-							if ( strlen( $resource_bookings_placed ) > 0 ) {
-								$resource_bookings_placed_list_dates = explode( ',', $resource_bookings_placed );
-
-								foreach ( $resource_bookings_placed_list_dates as $list_key => $list_value ) {
-									// separate the qty for each date & time slot
-									$explode_date = explode( '=>', $list_value );
-
-									if ( isset( $explode_date[2] ) && $explode_date[2] != '' ) {
-										$date = substr( $explode_date[0], 1, -1 );
-										$resource_date_array[ $date ][ $explode_date[1] ] = (int) $explode_date[2];
-									}
-								}
-							}
-
 						}
+					}
 
-						// Check if the same resource is already present in the cart
-						if ( count( WC()->cart->get_cart() ) > 0 ) {
-							foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
+					// Check if the same resource is already present in the cart.
+					if ( isset( WC()->cart ) && count( WC()->cart->get_cart() ) > 0 ) {
+						foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
-								if ( isset( $values['bkap_booking'] ) ) {
-									$cart_booking = $values['bkap_booking'][0];
+							if ( isset( $values['bkap_booking'] ) ) {
+								$cart_booking = $values['bkap_booking'][0];
 
-									if ( isset( $cart_booking['resource_id'] ) && $cart_booking['resource_id'] == $resource_id ) {
+								if ( isset( $cart_booking['resource_id'] ) && in_array( $cart_booking['resource_id'], $resource_ids ) ) {
 
-										if ( isset( $cart_booking['time_slot'] ) && '' !== $cart_booking['time_slot'] ) {
-											$time_slot = $cart_booking['time_slot'];
-											$timeslot  = explode( ' - ', $time_slot );
-											$frmtime   = date( 'H:i', strtotime( $timeslot[0] ) );
-											$totime    = date( 'H:i', strtotime( $timeslot[1] ) );
-											$time_slot = $frmtime . ' - ' . $totime;
-											$resource_date_array[ $date_check_in ][ $time_slot ] = $values['quantity'];
-										}
+									if ( isset( $cart_booking['time_slot'] ) && '' !== $cart_booking['time_slot'] ) {
+										$time_slot = $cart_booking['time_slot'];
+										$timeslot  = explode( ' - ', $time_slot );
+										$frmtime   = date( 'H:i', strtotime( $timeslot[0] ) );
+										$totime    = date( 'H:i', strtotime( $timeslot[1] ) );
+										$time_slot = $frmtime . ' - ' . $totime;
+
+										$_qty = isset( $resource_date_array[ $cart_booking['resource_id'] ][ $date_check_in ][ $time_slot ] ) ? $resource_date_array[ $cart_booking['resource_id'] ][ $date_check_in ][ $time_slot ] : 0;
+										$resource_date_array[ $cart_booking['resource_id'] ][ $date_check_in ][ $time_slot ] = $_qty + $values['quantity'];
 									}
 								}
 							}
 						}
-					} else {
-						$unlimited            = 'YES';
-						$resource_lockout_set = 'NO';
 					}
 				}
 
@@ -3204,35 +3189,37 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						}
 
 						// Availability for resources.
-						if ( $resource_lockout_set == 'YES' ) {
+						if ( '' !== $resource_id ) {
 
 							$resource_orders_placed = 0;
+							$all_available_tickets  = array();
 
 							if ( isset( $resource_date_array ) && is_array( $resource_date_array ) && count( $resource_date_array ) > 0 ) {
 
-								if ( isset( $resource_date_array[ $date_check_in ] ) /* array_key_exists( $date_check_in, $resource_date_array ) */ ) {
-									if ( isset( $resource_date_array[ $date_check_in ][ $booking_time ] ) /* array_key_exists( $booking_time, $resource_date_array[ $date_check_in ] ) */ ) {
-										$resource_orders_placed = $resource_date_array[ $date_check_in ][ $booking_time ];
-									} else {
-										// Condition for overlapping timeslot check in cart
-										foreach ( $resource_date_array[ $date_check_in ] as $k => $v ) {
-											$ktimeslot = explode( ' - ', $k );
-											$lf        = strtotime( $ktimeslot[0] ); // 07:00 100
-											$lt        = strtotime( $ktimeslot[1] ); // 15:00 200
+								foreach ( $resource_date_array as $id => $date_array ) {
 
-											$t_s_e = explode( ' - ', $booking_time );
-											$f     = strtotime( $t_s_e[0] ); // 07:00 100
-											$t     = strtotime( $t_s_e[1] ); // 11:00 150
+									if ( isset( $date_array[ $date_check_in ] ) /* array_key_exists( $date_check_in, $resource_date_array ) */ ) {
+										if ( isset( $date_array[ $date_check_in ][ $booking_time ] ) /* array_key_exists( $booking_time, $resource_date_array[ $date_check_in ] ) */ ) {
+											$resource_orders_placed = $date_array[ $date_check_in ][ $booking_time ];
+										} else {
+											// Condition for overlapping timeslot check in cart
+											foreach ( $date_array[ $date_check_in ] as $k => $v ) {
+												$ktimeslot = explode( ' - ', $k );
+												$lf        = strtotime( $ktimeslot[0] ); // 07:00 100
+												$lt        = strtotime( $ktimeslot[1] ); // 15:00 200
 
-											// 07:00 > 07:00 && 07:00 < 15:00  || 11:00 > 07:00 && 11:00 < 15:00
-											if ( ( $f > $lf && $f < $lt ) || ( $t > $lf && $t < $lt ) ) {
-												$resource_orders_placed = $v;
+												$t_s_e = explode( ' - ', $booking_time );
+												$f     = strtotime( $t_s_e[0] ); // 07:00 100
+												$t     = strtotime( $t_s_e[1] ); // 11:00 150
+
+												// 07:00 > 07:00 && 07:00 < 15:00  || 11:00 > 07:00 && 11:00 < 15:00
+												if ( ( $f > $lf && $f < $lt ) || ( $t > $lf && $t < $lt ) ) {
+													$resource_orders_placed = $v;
+												}
 											}
 										}
-									}
-									$available_tickets = $bkap_resource_availability - $resource_orders_placed;
-									if ( $available_tickets == 0 ) {
-										$booking_in_cart = 'YES';
+
+										$all_resource_availability[ $id ] = 'U' === $all_resource_availability[ $id ] ? $all_resource_availability[ $id ] : ( $all_resource_availability[ $id ] - (int) $resource_orders_placed );
 									}
 								}
 							}
@@ -3242,61 +3229,64 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$overlapping = bkap_booking_overlapping_timeslot( $global_settings, $product_id );
 					$s_timeslot  = explode( ' - ', $timeslot );
 					$s_from      = strtotime( $s_timeslot[0] );
-					$s_to        = isset( $s_timeslot[1] ) ? strtotime( $s_timeslot[1] ) : ''; 
+					$s_to        = isset( $s_timeslot[1] ) ? strtotime( $s_timeslot[1] ) : '';
 
 					// Check if the same product is already present in the cart
-					foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
-						$product_id_cart = $values['product_id'];
-						if ( isset( $values['bkap_booking'] ) && $product_id_cart == $product_id ) {
+					if ( isset( WC()->cart ) ) {
+						foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
+							$product_id_cart = $values['product_id'];
+							if ( isset( $values['bkap_booking'] ) && $product_id_cart == $product_id ) {
 
-							$check_lockout = 'YES';
-							if ( isset( $variation_lockout_set ) && 'YES' == $variation_lockout_set ) {
-								if ( $variation_id != $values['variation_id'] ) {
+								$check_lockout = 'YES';
+								if ( isset( $variation_lockout_set ) && 'YES' == $variation_lockout_set ) {
+									if ( $variation_id != $values['variation_id'] ) {
+										$check_lockout = 'NO';
+									}
+								} elseif ( isset( $attr_lockout_set ) && 'YES' == $attr_lockout_set ) {
 									$check_lockout = 'NO';
 								}
-							} elseif ( isset( $attr_lockout_set ) && 'YES' == $attr_lockout_set ) {
-								$check_lockout = 'NO';
-							}
 
-							if ( 'YES' == $check_lockout && 'YES' !== $resource_lockout_set ) {
+								if ( 'YES' == $check_lockout && '' === $resource_id ) {
 
-								$booking  = $values['bkap_booking'][0];
-								$quantity = $values['quantity'];
+									$booking  = $values['bkap_booking'][0];
+									$quantity = $values['quantity'];
 
-								if ( $booking['hidden_date'] == $booking_date_in ) {
-									if ( $booking['time_slot'] == $timeslot ) {
+									if ( $booking['hidden_date'] == $booking_date_in ) {
+										if ( $booking['time_slot'] == $timeslot ) {
 
-										/* Persons Calculations */
-										if ( isset( $booking['persons'] ) ) {
-											$carr_total_person = 1;
-											if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-												$carr_total_person = array_sum( $booking['persons'] );
-												$quantity = $quantity * $carr_total_person;
+											/* Persons Calculations */
+											if ( isset( $booking['persons'] ) ) {
+												$carr_total_person = 1;
+												if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
+													$carr_total_person = array_sum( $booking['persons'] );
+													$quantity          = $quantity * $carr_total_person;
+												}
 											}
-										}
-										if ( $available_tickets > 0 ) {
-											$unlimited          = 'NO';
-											$available_tickets -= $quantity;
 
-											if ( $available_tickets == 0 ) {
-												$booking_in_cart = 'YES';
-											}
-										}
-									} else {
-
-										// overlapping check.
-										if ( $overlapping && '' != $s_to ) {
 											if ( $available_tickets > 0 ) {
-												$unlimited = 'NO';
-												$c_explode = explode( ' - ', $booking['time_slot'] );
-												$c_from    = strtotime( $c_explode[0] );
-												$c_to      = strtotime( $c_explode[1] );
+												$unlimited          = 'NO';
+												$available_tickets -= $quantity;
 
-												if ( ( $s_from > $c_from && $s_from < $c_to ) || ( $s_to > $c_from && $s_to < $c_to ) || ( $s_from <= $c_from && $s_to >= $c_to ) ) {
-													$available_tickets -= $quantity;
+												if ( $available_tickets == 0 ) {
+													$booking_in_cart = 'YES';
+												}
+											}
+										} else {
 
-													if ( $available_tickets == 0 ) {
-														$booking_in_cart = 'YES';
+											// overlapping check.
+											if ( $overlapping && '' != $s_to ) {
+												if ( $available_tickets > 0 ) {
+													$unlimited = 'NO';
+													$c_explode = explode( ' - ', $booking['time_slot'] );
+													$c_from    = strtotime( $c_explode[0] );
+													$c_to      = strtotime( $c_explode[1] );
+
+													if ( ( $s_from > $c_from && $s_from < $c_to ) || ( $s_to > $c_from && $s_to < $c_to ) || ( $s_from <= $c_from && $s_to >= $c_to ) ) {
+														$available_tickets -= $quantity;
+
+														if ( $available_tickets == 0 ) {
+															$booking_in_cart = 'YES';
+														}
 													}
 												}
 											}
@@ -3307,44 +3297,86 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						}
 					}
 
-					if ( $available_tickets == 0 && $unlimited == 'YES' ) {
-						$available_tickets = __( 'Unlimited', 'woocommerce-booking' );
-					}
-					if ( $attr_lockout_set != 'YES' && $booking_in_cart == 'NO' && 'FALSE' != $available_tickets ) {
-						$msg_format      = get_option( 'book_available-stock-time' );
-						$avaiability_msg = str_replace( array( 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $available_tickets, $date_fld_val, $time_slot_array[ $i ] ), $msg_format );
-						$avaiability_msg = apply_filters(
-							'bkap_availability_message_display',
-							$avaiability_msg,
-							array(
-								'available'    => $available_tickets,
-								'date'         => $_POST['checkin_date'],
-								'date_display' => $date_fld_val,
-								'time_slot'    => $time_slot_array[ $i ]
-							),
-							$product_id,
-							$msg_format
-						);
-						$message        .= $avaiability_msg . '<br>';
+					if ( '' !== $resource_id ) {
 
-					}
+						if ( 'YES' !== $attr_lockout_set && 'NO' === $booking_in_cart && 'FALSE' !== $available_tickets ) {
+							$msg_format      = get_option( 'book_available-stock-time' );
+							$avaiability_msg = str_replace( array( 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $available_tickets, $date_fld_val, $time_slot_array[ $i ] ), $msg_format );
+							$avaiability_msg = apply_filters(
+								'bkap_availability_message_display',
+								$avaiability_msg,
+								array(
+									'available'    => $available_tickets,
+									'date'         => $booking_date_in,
+									'date_display' => $date_fld_val,
+									'time_slot'    => $time_slot_array[ $i ],
+								),
+								$product_id,
+								$msg_format
+							);
+							$message        .= $avaiability_msg . '<br>';
 
-					if ( $booking_in_cart == 'YES' && $available_tickets == 0 ) {
-						$available_tickets = 0;
-						
-						$message = sprintf( __( 'Available bookings for this timeslot are already added in the cart. You can add bookings for a different timeslot or place the order that is currently in the <a href="%s">%s</a>.', 'woocommerce-booking' ), esc_url( wc_get_page_permalink( 'cart' ) ), esc_html__( 'cart', 'woocommerce' ) );
-						$message = apply_filters( 'bkap_all_datetime_availability_present_in_cart', $message );
+							foreach ( $all_resource_availability as $_resource_id => $_availability ) {
+								$_all_resource_availability[] = $_availability;
+								$_message                     = $_availability;
+								$_message                     = ( 'U' === $_availability ) ? __( 'Unlimited', 'woocommerce-booking' ) : $_message;
+								$_message                     = ( 0 === $_availability ) ? sprintf( __( 'Available bookings for timeslot %s are either fully booked or already added in the cart', 'woocommerce-booking' ), $timeslots ) : $_message;
+								$availability_msg             = str_replace( array( 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $_message, $date_fld_val, $time_slot_array[ $i ] ), $msg_format );
+								$_message                     = ( 0 !== $_availability ) ? $availability_msg : $_message;
+								$resource_name                = Class_Bkap_Product_Resource::get_resource_name( $_resource_id );
+								$message                     .= '<label>' . $_message . ' for ' . $resource_name . '</label>';
+							}
+						}
 
-					}
+						if ( $booking_in_cart == 'YES' && $available_tickets == 0 ) {
+							$available_tickets = 0;
+							$message           = sprintf( __( 'Available bookings for this timeslot are already added in the cart. You can add bookings for a different timeslot or place the order that is currently in the <a href="%1$s">%2$s</a>.', 'woocommerce-booking' ), esc_url( wc_get_page_permalink( 'cart' ) ), esc_html__( 'cart', 'woocommerce' ) );
+							$message           = apply_filters( 'bkap_all_datetime_availability_present_in_cart', $message );
+						}
 
-					// Available Booking Based on Total Person.
-					if ( 'on' === $booking_settings['bkap_each_person_booking'] ) {
-						if ( is_numeric( $available_tickets ) && $total_person > $available_tickets ) {
-							$validation_msg = bkap_max_persons_available_msg( 'time', $product_id );
-							$message        = sprintf( $validation_msg, $available_tickets, $date_fld_val, $time_slot_array[ $i ] );
-							$message        = bkap_woocommerce_error_div( $message );
-							$data           = array( 'message' => $message, 'error' => true );
-							wp_send_json( $data );
+						if ( $available_tickets == 0 && $unlimited == 'YES' ) {
+							$available_tickets = __( 'Unlimited', 'woocommerce-booking' );
+						}
+					} else {
+
+						if ( $attr_lockout_set != 'YES' && $booking_in_cart == 'NO' && 'FALSE' != $available_tickets ) {
+							$avaiability_msg = str_replace( array( 'AVAILABLE_SPOTS', 'DATE', 'TIME' ), array( $available_tickets, $date_fld_val, $time_slot_array[ $i ] ), $msg_format );
+							$avaiability_msg = apply_filters(
+								'bkap_availability_message_display',
+								$avaiability_msg,
+								array(
+									'available'    => $available_tickets,
+									'date'         => $_POST['checkin_date'],
+									'date_display' => $date_fld_val,
+									'time_slot'    => $time_slot_array[ $i ],
+								),
+								$product_id,
+								$msg_format
+							);
+							$message        .= $avaiability_msg . '<br>';
+
+						}
+
+						if ( $booking_in_cart == 'YES' && $available_tickets == 0 ) {
+							$available_tickets = 0;
+
+							$message = sprintf( __( 'Available bookings for this timeslot are already added in the cart. You can add bookings for a different timeslot or place the order that is currently in the <a href="%1$s">%2$s</a>.', 'woocommerce-booking' ), esc_url( wc_get_page_permalink( 'cart' ) ), esc_html__( 'cart', 'woocommerce' ) );
+							$message = apply_filters( 'bkap_all_datetime_availability_present_in_cart', $message );
+
+						}
+
+						// Available Booking Based on Total Person.
+						if ( isset( $booking_settings['bkap_each_person_booking'] ) && 'on' === $booking_settings['bkap_each_person_booking'] ) {
+							if ( is_numeric( $available_tickets ) && $total_person > $available_tickets ) {
+								$validation_msg = bkap_max_persons_available_msg( 'time', $product_id );
+								$message        = sprintf( $validation_msg, $available_tickets, $date_fld_val, $time_slot_array[ $i ] );
+								$message        = bkap_woocommerce_error_div( $message );
+								$data           = array(
+									'message' => $message,
+									'error'   => true,
+								);
+								wp_send_json( $data );
+							}
 						}
 					}
 				}
@@ -3352,13 +3384,20 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 			$data = apply_filters(
 				'bkap_date_lockout_data',
-				array( 'message' => $message, 'max_qty' => $available_tickets ),				
+				array(
+					'message' => $message,
+					'max_qty' => $available_tickets,
+				),
 				wc_get_product( $product_id ),
 				$product_id,
 				$variation_id,
 				$resource_id,
 				$booking_date
 			);
+
+			if ( isset( $post ) && is_array( $post ) && count( $post ) > 0 ) {
+				return $data;
+			}
 
 			wp_send_json( $data );
 		}
@@ -3390,7 +3429,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$from_hrs = date( 'H:i', strtotime( $from_hrs ) );
 
 				if ( $to_hrs == '' ) {
-					$time_query   = "SELECT total_booking,available_booking FROM `" . $wpdb->prefix . "booking_history`
+					$time_query   = 'SELECT total_booking,available_booking FROM `' . $wpdb->prefix . "booking_history`
 								WHERE post_id = %d
 								AND start_date = %s
 								AND TIME_FORMAT( from_time, '%H:%i' ) = %s
@@ -3399,7 +3438,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$results_time = $wpdb->get_results( $wpdb->prepare( $time_query, $product_id, $booking_date, $from_hrs, $to_hrs ) );
 				} else {
 					$to_hrs       = date( 'H:i', strtotime( $to_hrs ) );
-					$time_query   = "SELECT total_booking,available_booking FROM `" . $wpdb->prefix . "booking_history`
+					$time_query   = 'SELECT total_booking,available_booking FROM `' . $wpdb->prefix . "booking_history`
 								WHERE post_id = %d
 								AND weekday = ''
 								AND start_date = %s
@@ -3409,7 +3448,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$results_time = $wpdb->get_results( $wpdb->prepare( $time_query, $product_id, $booking_date, $from_hrs, $to_hrs ) );
 
 					if ( count( $results_time ) == 0 ) {
-						$time_query   = "SELECT total_booking,available_booking FROM `" . $wpdb->prefix . "booking_history`
+						$time_query   = 'SELECT total_booking,available_booking FROM `' . $wpdb->prefix . "booking_history`
 								WHERE post_id = %d
 								AND start_date = %s
 								AND TIME_FORMAT( from_time, '%H:%i' ) = %s
@@ -3423,24 +3462,24 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				if ( isset( $results_time ) && count( $results_time ) > 0 ) {
 
 					if ( $results_time[0]->available_booking > 0 ) {
-						$unlimited         = 'NO';
+						$unlimited = 'NO';
 
 						/* Person Calculations */
-						$bookings_data = get_bookings_for_range( $product_id, $booking_date, strtotime( $booking_date . ' 23:59'  ) );
+						$bookings_data = get_bookings_for_range( $product_id, $booking_date, strtotime( $booking_date . ' 23:59' ) );
 
 						$to_hrs = ( '' == $to_hrs ) ? '00:00' : $to_hrs;
 						if ( count( $bookings_data ) > 0 ) {
 							if ( isset( $bookings_data[ date( 'Ymd', strtotime( $booking_date ) ) ] ) ) {
-								if ( isset( $bookings_data[ date( 'Ymd', strtotime( $booking_date ) ) ][ $from_hrs . ' - '. $to_hrs ] ) ) {
-									$available = $bookings_data[ date( 'Ymd', strtotime( $booking_date ) ) ][ $from_hrs . ' - '. $to_hrs ];
+								if ( isset( $bookings_data[ date( 'Ymd', strtotime( $booking_date ) ) ][ $from_hrs . ' - ' . $to_hrs ] ) ) {
+									$available = $bookings_data[ date( 'Ymd', strtotime( $booking_date ) ) ][ $from_hrs . ' - ' . $to_hrs ];
 									$available = $results_time[0]->total_booking - $available;
 								}
 							}
 						}
 
 						$available_tickets = isset( $available ) ? $available : (int) $results_time[0]->available_booking;
-					} else if ( $results_time[0]->available_booking == 0 && $results_time[0]->total_booking > 0 ) {
-						$unlimited = 'NO';
+					} elseif ( $results_time[0]->available_booking == 0 && $results_time[0]->total_booking > 0 ) {
+						$unlimited         = 'NO';
 						$available_tickets = 'FALSE';
 					}
 				} else { // Else get the base record and the availability for that weekday
@@ -3448,14 +3487,14 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$booking_weekday = 'booking_weekday_' . $weekday;
 
 					if ( $to_hrs == '' ) {
-						$base_query = "SELECT available_booking FROM `" . $wpdb->prefix . "booking_history`
+						$base_query = 'SELECT available_booking FROM `' . $wpdb->prefix . "booking_history`
 									WHERE post_id = %d
 									AND weekday = %s
 									AND TIME_FORMAT( from_time, '%H:%i' ) = %s
 									AND to_time = %s
 									ANd status = ''";
 					} else {
-						$base_query = "SELECT available_booking FROM `" . $wpdb->prefix . "booking_history`
+						$base_query = 'SELECT available_booking FROM `' . $wpdb->prefix . "booking_history`
 									WHERE post_id = %d
 									AND weekday = %s
 									AND TIME_FORMAT( from_time, '%H:%i' ) = %s
@@ -3544,17 +3583,20 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$quantity_grp_str  = isset( $_POST['quantity'] ) ? sanitize_text_field( $_POST['quantity'] ) : 1;
 			$currency_selected = ( isset( $_POST['currency_selected'] ) && $_POST['currency_selected'] != '' ) ? sanitize_text_field( $_POST['currency_selected'] ) : '';
 			$gf_options        = ( isset( $_POST['gf_options'] ) && is_numeric( $_POST['gf_options'] ) ) ? $_POST['gf_options'] : 0;
-			$resource_id       = ( isset( $_POST['resource_id'] ) && is_numeric( $_POST['resource_id'] ) ) ? (int) $_POST['resource_id'] : 0;
+			$resource_id       = ( isset( $_POST['resource_id'] ) ) ? $_POST['resource_id'] : '';
 
-			$selected_person_data     = isset( $_POST['person_ids'] ) ? $_POST['person_ids'] : array();
-			$total_person             = isset( $_POST['total_person'] ) ? sanitize_text_field( $_POST['total_person'] ) : 0;
+			$selected_person_data = isset( $_POST['person_ids'] ) ? $_POST['person_ids'] : array();
+			$total_person         = isset( $_POST['total_person'] ) ? sanitize_text_field( $_POST['total_person'] ) : 0;
 
 			/* Person Calculations */
 			$message = bkap_validate_person_selection( $selected_person_data, $total_person, $booking_settings, $product_id );
 
 			if ( '' !== $message ) {
 				$message = bkap_woocommerce_error_div( $message );
-				$data    = array( 'message' => $message, 'error' => true );
+				$data    = array(
+					'message' => $message,
+					'error'   => true,
+				);
 				wp_send_json( $data );
 			}
 
@@ -3563,8 +3605,13 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$checkin_date      = date( 'Y-m-d', $checkin_date_str );
 			$checkout_date     = date( 'Y-m-d', $checkout_date_str );
 
-			$number_of_days = $checkout_date_str - $checkin_date_str;
-			$number         = floor( $number_of_days / 86400 );
+			$number = 1;
+			if ( (int) $diff_days <= 0 ) {
+				$number_of_days = $checkout_date_str - $checkin_date_str;
+				$number         = floor( $number_of_days / 86400 );
+			} else {
+				$number = (int) $diff_days;
+			}
 
 			// Rental Active and Same Day Charge opton is enable then consider end date as well.
 			if ( is_plugin_active( 'bkap-rental/rental.php' ) ) {
@@ -3710,7 +3757,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$post_id       = ( $p_id != 0 ) ? $p_id : $_POST['id'];
 			$product_type  = ( $p_type != '' ) ? $p_type : $_POST['p_type'];
 
-			$check_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+			$check_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 						  	WHERE start_date= %s
 						  	AND post_id= %d
 						  	AND status = ''
@@ -3720,7 +3767,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			if ( ! $results_check ) {
 
 				$day_check         = 'booking_weekday_' . date( 'w', strtotime( $current_date ) );
-				$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+				$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     								WHERE weekday= %s
     								AND post_id= %d
     								AND start_date='0000-00-00'
@@ -3729,12 +3776,12 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$results_day_check = $wpdb->get_results( $wpdb->prepare( $check_day_query, $day_check, $post_id ) );
 
 				if ( ! $results_day_check ) {
-					$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+					$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     									WHERE weekday= %s
     									AND post_id= %d
     									AND start_date='0000-00-00'
     									AND status = ''
-    									AND total_booking = 0 
+    									AND total_booking = 0
     									AND available_booking = 0";
 					$results_day_check = $wpdb->get_results( $wpdb->prepare( $check_day_query, $day_check, $post_id ) );
 				}
@@ -3751,7 +3798,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				foreach ( $results_day_check as $key => $value ) {
 
-					$insert_date = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+					$insert_date = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
 									(post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
 									VALUES (
 									'" . $post_id . "',
@@ -3771,7 +3818,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 							foreach ( $child_ids as $k => $v ) {
 
-								$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+								$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     												WHERE weekday= %s
     												AND post_id= %d
     												AND start_date='0000-00-00'
@@ -3780,7 +3827,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								$results_day_check = $wpdb->get_results( $wpdb->prepare( $check_day_query, $day_check, $v ) );
 
 								if ( ! $results_day_check ) {
-									$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+									$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     													WHERE weekday= %s
     													AND post_id= %d
     													AND start_date='0000-00-00'
@@ -3790,7 +3837,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 									$results_day_check = $wpdb->get_results( $wpdb->prepare( $check_day_query, $day_check, $v ) );
 								}
 
-								$insert_date = "INSERT INTO `" . $wpdb->prefix . "booking_history`
+								$insert_date = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
     											(post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
     											VALUES (
     											'" . $v . "',
@@ -3841,7 +3888,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 					if ( '' !== Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ) {
 						$bkap_timezone_name = Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' );
-					} else if ( isset( $_POST['bkap_timezone_name'] ) ) {
+					} elseif ( isset( $_POST['bkap_timezone_name'] ) ) {
 						$bkap_timezone_name = $_POST['bkap_timezone_name'];
 					}
 
@@ -3861,19 +3908,18 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$extra_information['timezone']        = true;
 					$extra_information['store_time_zone'] = $store_timezone_string;
 
-					if ( isset( $global_settings->booking_timeslot_display_mode ) && 
-						'list-view' === $global_settings->booking_timeslot_display_mode 
+					if ( isset( $global_settings->booking_timeslot_display_mode ) &&
+						'list-view' === $global_settings->booking_timeslot_display_mode
 					) {
 						self::bkap_display_timezoned_timeslots_lists( $current_date, $date_time_drop_down, $global_settings, $extra_information );
 					} else {
 						self::bkap_display_time_dropdown_timezone( $current_date, $date_time_drop_down, $global_settings, $extra_information );
 					}
-
 				} else {
 					$time_drop_down = self::get_time_slot( $current_date, $post_id );
 
-					if ( isset( $global_settings->booking_timeslot_display_mode ) && 
-						'list-view' === $global_settings->booking_timeslot_display_mode 
+					if ( isset( $global_settings->booking_timeslot_display_mode ) &&
+						'list-view' === $global_settings->booking_timeslot_display_mode
 					) {
 						self::bkap_display_timeslots_lists( $current_date, $time_drop_down, $global_settings, $extra_information );
 					} else {
@@ -3918,7 +3964,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$current_date_str = strtotime( $current_date ); // timestamp of date in UTC timezone
 				$current_date_ymd = date( 'Y-m-d', $current_date_str ); // getting date in Y-m-d format
 
-				//$offset = bkap_get_offset_from_date( $current_date_str, Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
+				// $offset = bkap_get_offset_from_date( $current_date_str, Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
 
 				foreach ( $date_time_drop_down as $key => $value ) {
 					$offset = bkap_get_offset_from_date( strtotime( $key ), Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
@@ -3927,47 +3973,46 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$time_drop_down_array = explode( '|', $value );
 
 					if ( trim( $time_drop_down_array[0] ) === 'ERROR' ) {
-						$drop_down  = trim( $time_drop_down_array[1] );
-						$drop_down .= '<select name="time_slot" id="time_slot" class="time_slot" style="display:none;">';
+						$drop_down       = trim( $time_drop_down_array[1] );
+						$drop_down      .= '<select name="time_slot" id="time_slot" class="time_slot" style="display:none;">';
 						$timeslots_count = 2;
 					} else {
 						$time_drop_down_array = bkap_sort_time_in_chronological( $time_drop_down_array );
 
 						foreach ( $time_drop_down_array as $k => $v ) {
-	
+
 							if ( $v != '' ) {
 								$timeslots_count++;
-	
+
 								$store_time = sprintf( __( 'Store time is %1$s %2$s', 'woocommerce-booking' ), $key, $v );
 								$vexplode   = explode( ' - ', $v );
 								$fromtime   = strtotime( $key . ' ' . $vexplode[0] );
-	
+
 								$datetimeISO = date( DateTime::ISO8601, $fromtime );
-	
+
 								$from_time = date( $time_format_to_show, $offset + $fromtime );
 								$to_time   = '';
-	
+
 								$timedateymd = date( 'Y-m-d', $offset + $fromtime );
-	
+
 								if ( $timedateymd != $current_date_ymd ) {
 									continue;
 								}
-	
+
 								if ( isset( $vexplode[1] ) ) {
 									$totime  = strtotime( $vexplode[1] );
 									$to_time = date( $time_format_to_show, $offset + $totime );
 									$to_time = ' - ' . $to_time;
 								}
-	
+
 								$v = $from_time . $to_time;
-	
+
 								$drop_down .= "<option data-value='" . $datetimeISO . "' title='" . $store_time . "' value='" . $v . "'>" . $v . '</option>';
 							}
 						}
-	
+
 						date_default_timezone_set( 'UTC' );
 					}
-					
 				}
 
 				$drop_down .= '</select>';
@@ -3981,7 +4026,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				wp_send_json( $wp_send_json );
 			}
 		}
-		
+
 		/**
 		 * Display available timezoned timeslot in the list view.
 		 *
@@ -3993,11 +4038,11 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		 * @since 5.5.0
 		 */
 
-		public static function bkap_display_timezoned_timeslots_lists( 
-			$current_date, 
-			$datewise_timeslots, 
-			$global_settings, 
-			$extra_information 
+		public static function bkap_display_timezoned_timeslots_lists(
+		$current_date,
+		$datewise_timeslots,
+		$global_settings,
+		$extra_information
 		) {
 
 			if ( count( $datewise_timeslots ) > 0 ) { // Dates mate timeslots chhe ke nai
@@ -4018,7 +4063,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$time_slot_lists .= '<ul class="timeslot-lists ts-grid-container">';
 				$current_date_str = strtotime( $current_date ); // timestamp of date in UTC timezone
 				$current_date_ymd = date( 'Y-m-d', $current_date_str ); // getting date in Y-m-d format
-				//$offset = bkap_get_offset_from_date( $current_date_str, Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
+				// $offset = bkap_get_offset_from_date( $current_date_str, Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
 
 				foreach ( $datewise_timeslots as $key => $value ) {
 					$offset = bkap_get_offset_from_date( strtotime( $key ), Bkap_Timezone_Conversion::get_timezone_var( 'bkap_timezone_name' ) ); // fetching the timezone str
@@ -4034,39 +4079,39 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$time_drop_down_array = bkap_sort_time_in_chronological( $time_drop_down_array );
 
 						foreach ( $time_drop_down_array as $k => $v ) {
-	
+
 							if ( $v != '' ) {
 								$timeslots_count++;
-	
+
 								$store_time = sprintf( __( 'Store time is %1$s %2$s', 'woocommerce-booking' ), $key, $v );
 								$vexplode   = explode( ' - ', $v );
 								$fromtime   = strtotime( $key . ' ' . $vexplode[0] );
-	
+
 								$datetimeISO = date( DateTime::ISO8601, $fromtime );
-	
+
 								$from_time = date( $time_format_to_show, $offset + $fromtime );
 								$to_time   = '';
-	
+
 								$timedateymd = date( 'Y-m-d', $offset + $fromtime );
-	
+
 								if ( $timedateymd != $current_date_ymd ) {
 									continue;
 								}
-	
+
 								if ( isset( $vexplode[1] ) ) {
 									$totime  = strtotime( $vexplode[1] );
 									$to_time = date( $time_format_to_show, $offset + $totime );
 									$to_time = ' - ' . $to_time;
 								}
-	
-								$v = $from_time . $to_time;
+
+								$v                = $from_time . $to_time;
 								$time_slot_lists .= '<li class="ts-grid-item">' .
 									'<a href="#" data-value="' . $v . '">' .
-									'<input type="radio" name="time_slots" value="' . $v . '" class="time_slot" />' . 
-									$v . 
-									'</a>' . 
+									'<input type="radio" name="time_slots" value="' . $v . '" class="time_slot" />' .
+									$v .
+									'</a>' .
 								'</li>';
-	
+
 							}
 						}
 					}
@@ -4085,7 +4130,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				wp_send_json( $wp_send_json );
 			}
 		}
-		
+
 		/**
 		 * Display available timeslots in the list views.
 		 *
@@ -4097,20 +4142,20 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		 * @since 5.5.0
 		 */
 		public static function bkap_display_timeslots_lists(
-			$current_date, 
-			$time_slots,
-			$global_settings,
-			$extra_information 
+		$current_date,
+		$time_slots,
+		$global_settings,
+		$extra_information
 		) {
 			$wp_send_json = array();
 
 			if ( $time_slots != '' ) {
 
-				$time_format_to_show  = $extra_information['time_format_to_show'];
-				$time_slot_lists      = '';
-				$ts_lists             = explode( '|', rtrim( $time_slots, '|' ) );
-				$ts_lists_arr         = apply_filters( 'bkap_time_slot_filter', $ts_lists, $extra_information );
-				$time_slots_cnt       = 0;
+				$time_format_to_show = $extra_information['time_format_to_show'];
+				$time_slot_lists     = '';
+				$ts_lists            = explode( '|', rtrim( $time_slots, '|' ) );
+				$ts_lists_arr        = apply_filters( 'bkap_time_slot_filter', $ts_lists, $extra_information );
+				$time_slots_cnt      = 0;
 
 				if ( trim( $ts_lists_arr[0] ) === 'ERROR' ) {
 					$time_slot_lists = trim( $ts_lists_arr[1] );
@@ -4118,13 +4163,13 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				} else {
 					$time_lable      = apply_filters( 'bkap_change_book_time_label', bkap_option( 'time' ) );
 					$time_lable      = __( ( '' !== $time_lable ? $time_lable : 'Booking Time' ), 'woocommerce-booking' );
-					$time_slot_lists = '<label id="bkap_book_time">'. $time_lable .'</label>';
+					$time_slot_lists = '<label id="bkap_book_time">' . $time_lable . '</label>';
 					$time_slot_lists = apply_filters( 'bkap_change_book_time_label_section', $time_slot_lists );
 					$time_slots_cnt  = count( $ts_lists_arr );
 					$ts_lists_arr    = bkap_sort_time_in_chronological( $ts_lists_arr );
 					$ts_lists_arr    = apply_filters( 'bkap_time_slot_filter_after_chronological', $ts_lists_arr, $extra_information );
 
-					$time_selected   = $time_slots_cnt == 1 ? ' active_slot' : '';
+					$time_selected = $time_slots_cnt == 1 ? ' active_slot' : '';
 
 					$time_slot_lists .= '<input type="hidden" name="time_slot" id="time_slot" value="" />';
 					$time_slot_lists .= '<ul class="timeslot-lists ts-grid-container">';
@@ -4132,9 +4177,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						if ( $ts_val != '' ) {
 							$time_slot_lists .= '<li class="ts-grid-item ' . $time_selected . '">' .
 								'<a href="#" data-value="' . $ts_val . '">' .
-								'<input type="radio" name="time_slots" value="' . $ts_val . '" class="time_slot" />' . 
-								$ts_val . 
-								'</a>' . 
+								'<input type="radio" name="time_slots" value="' . $ts_val . '" class="time_slot" />' .
+								$ts_val .
+								'</a>' .
 							'</li>';
 						}
 					}
@@ -4173,9 +4218,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$time_drop_down_array = explode( '|', $time_drop_down );
 
 				$time_drop_down_array = apply_filters( 'bkap_time_slot_filter', $time_drop_down_array, $extra_information );
-				
-				$timeslots_count      = 0;
-				$wp_send_json         = array();
+
+				$timeslots_count = 0;
+				$wp_send_json    = array();
 
 				if ( trim( $time_drop_down_array[0] ) === 'ERROR' ) {
 					$drop_down       = trim( $time_drop_down_array[1] );
@@ -4235,10 +4280,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 		public static function get_time_slot( $current_date, $post_id ) {
 			global $wpdb;
 
-			$global_settings     = bkap_global_setting();
-			$booking_settings    = bkap_setting( $post_id );
-			$advance_booking_hrs = bkap_advance_booking_hrs( $booking_settings, $post_id );
-
+			$global_settings      = bkap_global_setting();
+			$booking_settings     = bkap_setting( $post_id );
+			$advance_booking_hrs  = bkap_advance_booking_hrs( $booking_settings, $post_id );
 			$time_format_db_value = 'H:i';
 			$time_format_to_show  = bkap_common::bkap_get_time_format( $global_settings );
 			$current_time         = current_time( 'timestamp' );
@@ -4252,8 +4296,8 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$from_time_db_value   = '';
 			$from_time_show       = '';
 			$timeslots_str        = '';
-
-			$dropdownarray = array();
+			$dropdownarray        = array();
+			$time_slot            = '';
 
 			$product      = wc_get_product( $post_id );
 			$product_type = $product->get_type();
@@ -4264,7 +4308,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			}
 
 			// check if there's a record available for the given date and time with availability > 0.
-			$check_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+			$check_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
             				WHERE start_date= '" . $date_to_check . "'
             				AND post_id = '" . $post_id . "'
             				AND status = ''
@@ -4292,7 +4336,6 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						}
 
 						$to_time_show = $value->to_time;
-						
 
 						$booking_time = $current_date . $from_time_db_value;
 						$booking_time = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_time, $current_date, $from_time_db_value, $to_time_show, $post_id, $booking_settings );
@@ -4300,14 +4343,14 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$include      = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
 						if ( $include ) {
-							
+
 							if ( $to_time_show != '' ) {
 								$to_time_show     = date( $time_format_to_show, strtotime( $value->to_time ) );
 								$to_time_db_value = date( $time_format_db_value, strtotime( $value->to_time ) );
-								$timeslots_str       .= $from_time_show . ' - ' . $to_time_show . '|';
+								$timeslots_str   .= $from_time_show . ' - ' . $to_time_show . '|';
 								$dropdownarray[ $from_time_show . ' - ' . $to_time_show ] = $value->available_booking;
 							} else {
-								$timeslots_str                       .= $from_time_show . '|';
+								$timeslots_str                   .= $from_time_show . '|';
 								$dropdownarray[ $from_time_show ] = $value->available_booking;
 							}
 						}
@@ -4330,16 +4373,16 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$include      = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
 						if ( $include ) {
-							//$to_time_show = $value->to_time;
+							// $to_time_show = $value->to_time;
 							if ( $to_time_show != '' ) {
 								$to_time_show     = date( $time_format_to_show, strtotime( $value->to_time ) );
 								$to_time_db_value = date( $time_format_db_value, strtotime( $value->to_time ) );
-								$timeslots_str       .= $from_time_show . ' - ' . $to_time_show . '|';
+								$timeslots_str   .= $from_time_show . ' - ' . $to_time_show . '|';
 								$dropdownarray[ $from_time_show . ' - ' . $to_time_show ] = $value->available_booking;
 							} else {
 
 								if ( $value->from_time != '' ) {
-									$timeslots_str                       .= $from_time_show . '|';
+									$timeslots_str                   .= $from_time_show . '|';
 									$dropdownarray[ $from_time_show ] = $value->available_booking;
 								}
 							}
@@ -4351,7 +4394,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					 * that might hv been added after the original date record was created
 					 * This can happen only for recurring weekdays
 					 */
-					$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+					$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 										 WHERE weekday= '" . $day_check . "'
 										 AND post_id= '" . $post_id . "'
 										 AND start_date='0000-00-00'
@@ -4365,11 +4408,11 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$from_hi = date( 'H:i', strtotime( $v->from_time ) );
 						$to_hi   = ( $v->to_time != '' ) ? date( 'H:i', strtotime( $v->to_time ) ) : '';
 
-						$time_check_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+						$time_check_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 											WHERE start_date= '" . $date_to_check . "'
 											AND post_id= '" . $post_id . "'
 											AND TIME_FORMAT( from_time, '%H:%i' ) = '" . $from_hi . "'
-											AND TIME_FORMAT( to_time, '%H:%i' )= '" . $to_hi . "'  
+											AND TIME_FORMAT( to_time, '%H:%i' )= '" . $to_hi . "'
 											AND status = '' ORDER BY STR_TO_DATE(from_time,'%H:%i')";
 						$results_time_check = $wpdb->get_results( $time_check_query );
 
@@ -4377,11 +4420,11 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							unset( $results_day_check[ $k ] );
 						} else {
 
-							$time_check_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+							$time_check_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 												WHERE start_date= '" . $date_to_check . "'
 												AND post_id= '" . $post_id . "'
 												AND TIME_FORMAT( from_time, '%H:%i' ) = '" . $from_hi . "'
-												AND to_time = '" . $to_hi . "'  
+												AND to_time = '" . $to_hi . "'
 												AND status = '' ORDER BY STR_TO_DATE(from_time,'%H:%i')";
 							$results_time_check = $wpdb->get_results( $time_check_query );
 
@@ -4429,7 +4472,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						$booking_time = $current_date . $from_time_db_value;
 						$booking_time = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_time, $current_date, $from_time_db_value, $to_time_show, $post_id, $booking_settings );
 						$date2        = new DateTime( $booking_time );
-						$include      = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );						
+						$include      = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
 						if ( $to_time_show != '' ) {
 							$to_time_show     = date( $time_format_to_show, strtotime( $value->to_time ) );
@@ -4441,7 +4484,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 						} else {
 							if ( $value->from_time != '' && $include ) {
-								$timeslots_str                       .= $from_time_show . '|';
+								$timeslots_str                   .= $from_time_show . '|';
 								$dropdownarray[ $from_time_show ] = $value->available_booking;
 							}
 
@@ -4454,7 +4497,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						if ( $product_type == 'grouped' ) {
 							if ( $has_children == 'yes' ) {
 								foreach ( $child_ids as $k => $v ) {
-									$check_day_query_child   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+									$check_day_query_child   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     															WHERE weekday= '" . $day_check . "'
     															AND post_id= '" . $v . "'
     															AND start_date='0000-00-00'
@@ -4473,7 +4516,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				// If no date records found then it will come here..
 
 				// Getting all the base records with availability more than 0
-				$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+				$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     								 WHERE weekday= '" . $day_check . "'
     								 AND post_id= '" . $post_id . "'
     								 AND start_date='0000-00-00'
@@ -4484,7 +4527,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				// No base record for availability > 0
 				if ( ! $results_day_check ) {
 					// check if there's a record for the date where unlimited bookings are allowed i.e. total and available = 0
-					$check_query = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+					$check_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     								WHERE start_date= '" . $date_to_check . "'
     								AND post_id= '" . $post_id . "'
     								AND total_booking = 0
@@ -4507,21 +4550,21 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								$from_time_show = $from_time_db_value = '';
 							}
 
-							$to_time_show       = $value->to_time;
+							$to_time_show = $value->to_time;
 							$booking_time = $current_date . $from_time_db_value;
 							$booking_time = apply_filters( 'bkap_change_date_comparison_for_abp', $booking_time, $current_date, $from_time_db_value, $to_time_show, $post_id, $booking_settings );
 							$date2        = new DateTime( $booking_time );
 							$include      = bkap_dates_compare( $date1, $date2, $advance_booking_hrs, $phpversion );
 
 							if ( $include ) {
-								
+
 								if ( $to_time_show != '' ) {
 									$to_time_show     = date( $time_format_to_show, strtotime( $value->to_time ) );
 									$to_time_db_value = date( $time_format_db_value, strtotime( $value->to_time ) );
-									$timeslots_str    .= $from_time_show . ' - ' . $to_time_show . '|';
+									$timeslots_str   .= $from_time_show . ' - ' . $to_time_show . '|';
 									$dropdownarray[ $from_time_show . ' - ' . $to_time_show ] = $value->available_booking;
 								} else {
-									$timeslots_str                    .= $from_time_show . '|';
+									$timeslots_str                   .= $from_time_show . '|';
 									$dropdownarray[ $from_time_show ] = $value->available_booking;
 									$to_time_show                     = $to_time_db_value = '';
 								}
@@ -4529,7 +4572,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						}
 					} else {
 						// else check if there's a base record with unlimited bookings i.e. total and available = 0
-						$check_day_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+						$check_day_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     										WHERE weekday= '" . $day_check . "'
     										AND post_id= '" . $post_id . "'
     										AND start_date='0000-00-00'
@@ -4542,7 +4585,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				if ( $results_day_check ) {
 
-					$check_query   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+					$check_query   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
     								WHERE start_date= '" . $date_to_check . "'
     								AND post_id= '" . $post_id . "'
     								AND total_booking > 0
@@ -4551,7 +4594,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					$results_check = $wpdb->get_results( $check_query );
 
 					if ( count( $results_check ) == count( $results_day_check ) ) {
-						$timeslots_str              = 'ERROR | ' . __( get_option( 'book_real-time-error-msg' ), 'woocommerce-booking' );
+						$timeslots_str          = 'ERROR | ' . __( get_option( 'book_real-time-error-msg' ), 'woocommerce-booking' );
 						$dropdownarray['ERROR'] = __( get_option( 'book_real-time-error-msg' ), 'woocommerce-booking' );
 						return apply_filters( 'bkap_edit_display_timeslots', $timeslots_str, $post_id, $booking_settings, $global_settings, $extra_information );
 					} else {
@@ -4566,7 +4609,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							}
 
 							$to_time_show = $value->to_time;
-							
+
 							$booking_time = $current_date . $from_time_db_value;
 							$booking_time = apply_filters( 'bkap_modify_from_time_for_abp', $booking_time, $current_date, $from_time_db_value, $to_time_show, $post_id, $booking_settings );
 							$date2        = new DateTime( $booking_time );
@@ -4582,7 +4625,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								}
 							} else {
 								if ( $include ) {
-									$timeslots_str                       .= $from_time_show . '|';
+									$timeslots_str                   .= $from_time_show . '|';
 									$dropdownarray[ $from_time_show ] = $value->available_booking;
 								}
 
@@ -4597,7 +4640,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								if ( isset( $has_children ) && $has_children == 'yes' ) {
 
 									foreach ( $child_ids as $k => $v ) {
-										$check_day_query_child   = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+										$check_day_query_child   = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
         															WHERE weekday= '" . $day_check . "'
         															AND post_id= '" . $v . "'
         															AND start_date='0000-00-00'
@@ -4620,7 +4663,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			// Add any unlimited booking slots that might be present for the date/day.
 			$unlimited_drop_down = self::bkap_add_unlimited_slots( $timeslots_str, $post_id, $booking_settings, $global_settings, $extra_information );
 			if ( $timeslots_str !== $unlimited_drop_down ) {
-				$timeslots_str          = $unlimited_drop_down;
+				$timeslots_str      = $unlimited_drop_down;
 				$u_dropdown_explode = explode( '|', $unlimited_drop_down );
 				foreach ( $u_dropdown_explode as $ukey => $uvalue ) {
 					if ( '' !== $uvalue ) {
@@ -4632,7 +4675,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				}
 			}
 
-			// before returning check if any of the slots are to be blocked at the variation level
+			// before returning check if any of the slots are to be blocked at the variation level.
 			if ( isset( $_POST['variation_id'] ) && $_POST['variation_id'] != '' ) {
 
 				if ( isset( $_POST['variation_timeslot_lockout'] ) && $_POST['variation_timeslot_lockout'] != '' ) {
@@ -4710,7 +4753,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				if ( is_array( $mta_availability_data ) && count( $mta_availability_data ) > 0 ) {
 					$timeslots_str = bkap_filter_time_based_on_resource_availability( $current_date, $mta_availability_data, $timeslots_str, array( 'type' => 'fixed_time' ), 0, $post_id, $booking_settings );
 					if ( '' !== $timeslots_str ) {
-						$mta_dropdownarray = array();
+						$mta_dropdownarray     = array();
 						$mta_drop_down_explode = explode( '|', $timeslots_str );
 						foreach ( $mta_drop_down_explode as $mta_key => $mta_value ) {
 							if ( '' !== $mta_value ) {
@@ -4724,103 +4767,153 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				}
 			}
 
-			$resource_id           = ( isset( $_POST['resource_id'] ) ) ? $_POST['resource_id'] : 0;
-			$resource_lockoutdates = ( isset( $_POST['resource_lockoutdates'] ) ) ? $_POST['resource_lockoutdates'] : '';
+			$resource_id                     = ( isset( $_POST['resource_id'] ) ) ? $_POST['resource_id'] : '';
+			$resource_lockoutdates           = ( isset( $_POST['resource_lockoutdates'] ) ) ? bkap_common::frontend_json_decode( $_POST['resource_lockoutdates'] ) : '';
+			$check_for_overlapping_timeslots = true;
 
-			if ( $resource_id != 0 ) {
-				$resource                   = new BKAP_Product_Resource( $resource_id, $post_id );
-				$r_availability             = bkap_resource_max_booking( $resource_id, $date_to_check, $post_id, $booking_settings );
-				$resource_availability_data = $resource->get_resource_availability();
+			if ( '' !== $resource_id ) {
 
-				if ( is_array( $resource_availability_data ) && count( $resource_availability_data ) > 0 ) {
-					$timeslots_str = bkap_filter_time_based_on_resource_availability( $current_date, $resource_availability_data, $timeslots_str, array( 'type' => 'fixed_time' ), $resource_id, $post_id, $booking_settings );
-				}
+				$resource_ids   = explode( ',', $resource_id );
+				$availability   = array();
+				$locked_dates   = array();
+				$time_slots     = array();
+				$_timeslots_str = $timeslots_str;
+				$_time_slot     = $time_slot;
 
-				// Check if the same resource is already present in the cart
-				if ( isset( WC()->cart ) ) {
-					$trc_qty        = 0;
-					
-					foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
+				foreach ( $resource_ids as $id ) {
 
-						if ( isset( $values['bkap_booking'] ) ) {
-							$cart_booking = $values['bkap_booking'][0];
+					$resource                   = new BKAP_Product_Resource( $id, $post_id );
+					$r_availability             = (int) bkap_resource_max_booking( $id, $date_to_check, $post_id, $booking_settings );
+					$resource_availability_data = $resource->get_resource_availability();
 
-							if ( isset( $cart_booking['resource_id'] ) && $cart_booking['resource_id'] == $resource_id ) {
-
-								if ( isset( $cart_booking['time_slot'] ) && '' !== $cart_booking['time_slot'] ) {
-									$time_slot = $cart_booking['time_slot'];
-								}
-
-								if ( isset( $cart_booking['hidden_date_checkout'] ) && $cart_booking['hidden_date_checkout'] != '' ) {
-									if ( strtotime( $current_date ) >= strtotime( $cart_booking['hidden_date'] ) && strtotime( $hidden_date ) < strtotime( $cart_booking['hidden_date_checkout'] ) ) {
-										$trc_qty += $values['quantity'];
-									}
-								} else {
-									if ( strtotime( $current_date ) == strtotime( $cart_booking['hidden_date'] ) ) {
-										$trc_qty += $values['quantity'];
-									}
-								}
-
-								// @todo - verify once if it needs to check for individual product's max booking.
-								$r_availability = bkap_resource_max_booking( $resource_id, $current_date, $post_id, $booking_settings );
-							}
-						}
-
-						if ( 0 != $r_availability && $trc_qty >= $r_availability ) {
-							// "18-3-2020"=>07:00 - 17:00
-							$timeslotexplode        = explode( ' - ', $time_slot );
-							$time_slot              = date( 'H:i', strtotime( $timeslotexplode[0] ) ) . ' - ' . date( 'H:i', strtotime( $timeslotexplode[1] ) );
-							$resource_lockoutdates .= ',\"' . $current_date . '\"=>' . $time_slot;
-						}
+					if ( is_array( $resource_availability_data ) && count( $resource_availability_data ) > 0 ) {
+						$_timeslots_str = bkap_filter_time_based_on_resource_availability( $current_date, $resource_availability_data, $_timeslots_str, array( 'type' => 'fixed_time' ), $id, $post_id, $booking_settings );
 					}
-				}
-				if ( 0 != $r_availability && strlen( $resource_lockoutdates ) > 0 ) {
 
-					$resource_dates_array = explode( ',', $resource_lockoutdates );
+					$time_slots[ $id ] = array_filter( explode( '|', $_timeslots_str ) );
 
-					foreach ( $resource_dates_array as $date_key => $date_value ) {
+					if ( isset( $resource_lockoutdates[ $id ] ) ) {
+						$locked_dates[ $id ] = array_filter( explode( ',', $resource_lockoutdates[ $id ] ) );
+					}
 
-						$list_dates    = explode( '=>', $date_value );
-						$list_dates[0] = substr( stripslashes( $list_dates[0] ), 1, -1 );
+					// Check if the resource is present in the cart.
+					if ( isset( WC()->cart ) ) {
 
-						if ( $list_dates[0] == $_POST['current_date'] ) {
+						$trc_qty = 0;
 
-							// convert the time slot in the format in which it is being displayed
-							$time_slot_explode = explode( '-', $list_dates[1] );
+						foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
-							$lf = strtotime( $time_slot_explode[0] );
-							$lt = strtotime( $time_slot_explode[1] );
+							if ( isset( $values['bkap_booking'] ) ) {
+								$cart_booking = $values['bkap_booking'][0];
 
-							$time_slot  = date( $time_format_to_show, $lf );
-							$time_slot .= ' - ' . date( $time_format_to_show, $lt );
+								if ( isset( $cart_booking['resource_id'] ) && $cart_booking['resource_id'] === $id ) {
 
-							if ( strpos( $timeslots_str, $time_slot ) >= 0 ) {
-								$pattern_to_be_removed = $time_slot . '|';
-								$timeslots_str             = str_replace( $pattern_to_be_removed, '', $timeslots_str );
-							}
+									if ( isset( $cart_booking['time_slot'] ) && '' !== $cart_booking['time_slot'] ) {
+										$_time_slot = $cart_booking['time_slot'];
+									}
 
-							$slts = explode( '|', $timeslots_str );
-							foreach ( $slts as $k => $v ) {
-								$t_s_e = explode( ' - ', $v );
-								$f     = isset( $t_s_e[0] ) ? strtotime( $t_s_e[0] ) : 0;
-								$t     = isset( $t_s_e[1] ) ? strtotime( $t_s_e[1] ) : 0;
-
-								if ( ( $f > $lf && $f < $lt ) || ( $t > $lf && $t < $lt ) || ( $f <= $lf && $t >= $lt ) ) {
-									if ( strpos( $timeslots_str, $v ) >= 0 ) {
-										$pattern_to_be_removed = $v . '|';
-										$timeslots_str             = str_replace( $pattern_to_be_removed, '', $timeslots_str );
+									if ( isset( $cart_booking['hidden_date_checkout'] ) && $cart_booking['hidden_date_checkout'] != '' ) {
+										if ( strtotime( $current_date ) >= strtotime( $cart_booking['hidden_date'] ) && strtotime( $hidden_date ) < strtotime( $cart_booking['hidden_date_checkout'] ) ) {
+											$trc_qty += $values['quantity'];
+										}
+									} else {
+										if ( strtotime( $current_date ) == strtotime( $cart_booking['hidden_date'] ) ) {
+											$trc_qty += $values['quantity'];
+										}
 									}
 								}
 							}
+
+							if ( 0 === $r_availability ) {
+								// Unlimited Booking.
+								$r_availability = 'U';
+							} else {
+								if ( $trc_qty >= $r_availability ) {
+
+									// "18-3-2020"=>07:00 - 17:00
+									$timeslotexplode       = explode( ' - ', $_time_slot );
+									$_time_slot            = date( 'H:i', strtotime( $timeslotexplode[0] ) ) . ' - ' . date( 'H:i', strtotime( $timeslotexplode[1] ) );
+									$locked_dates[ $id ][] = '\"' . $current_date . '\"=>' . $_time_slot;
+									$time_slots[ $id ][]   = $_time_slot;
+								}
+
+								$locked_dates[ $id ] = array_filter( array_unique( $locked_dates[ $id ] ) );
+								$time_slots[ $id ]   = array_filter( array_unique( $time_slots[ $id ] ) );
+							}
+
+							$availability[ $id ] = $r_availability;
 						}
 					}
 				}
 
-				if ( $timeslots_str == '' ) {
-					$timeslots_str          = 'ERROR | ' . __( 'The resource is not available for the selected date.', 'woocommerce-booking' );
-					$dropdownarray['ERROR'] = __( 'The resource is not available for the selected date.', 'woocommerce-booking' );
+				if ( count( $locked_dates ) > 0 && count( $time_slots ) > 0 ) {
+
+					foreach ( $resource_ids as $id ) {
+
+						if ( isset( $locked_dates[ $id ] ) && is_array( $locked_dates[ $id ] ) && count( $locked_dates[ $id ] ) > 0 ) {
+
+							foreach ( $locked_dates[ $id ] as $dates ) {
+
+								$_date    = explode( '=>', $dates );
+								$_date[0] = substr( stripslashes( $_date[0] ), 1, -1 );
+
+								if ( $_date[0] === $_POST['current_date'] ) {
+
+									// convert the time slot in the format in which it is being displayed
+									$time_slot_explode = explode( ' - ', $_date[1] );
+									$lf                = strtotime( $time_slot_explode[0] );
+									$lt                = strtotime( $time_slot_explode[1] );
+
+									$_time_slot  = date( $time_format_to_show, $lf );
+									$_time_slot .= ' - ' . date( $time_format_to_show, $lt );
+
+									/*
+									foreach ( array_keys( $time_slots[ $id ], $_time_slot, true ) as $key ) {
+									unset( $time_slots[ $id ][ $key ] );
+									}
+									*/
+
+									foreach ( $time_slots[ $id ] as $key => $_timeslot ) {
+
+										$remove_item = ( $_timeslot === $_time_slot );
+
+										$t_s_e = explode( ' - ', $_timeslot );
+										$f     = isset( $t_s_e[0] ) ? strtotime( $t_s_e[0] ) : 0;
+										$t     = isset( $t_s_e[1] ) ? strtotime( $t_s_e[1] ) : 0;
+
+										$remove_item = ( ( $f > $lf && $f < $lt ) || ( $t > $lf && $t < $lt ) || ( $f <= $lf && $t >= $lt ) ) ? true : $remove_item;
+
+										if ( $remove_item ) {
+											unset( $time_slots[ $id ][ $key ] );
+										}
+									}
+								}
+							}
+						}
+					}
+
+					// Get timeslots that are available in all resources available.
+					$uniform_time_slots   = bkap_common::return_unique_array_values( $time_slots, count( $resource_ids ) );
+					$uniform_availability = bkap_common::return_unique_array_values( $availability, count( $resource_ids ) );
+
+					if ( 0 === count( $uniform_time_slots ) ) {
+						$_error_message         = ( 1 === count( $resource_ids ) ? __( 'The selected resource is not available for the selected date', 'woocommerce-booking' ) : __( 'One or more of the resources selected are not available for the selected date.', 'woocommerce-booking' ) );
+						$timeslots_str          = 'ERROR | ' . $_error_message;
+						$dropdownarray['ERROR'] = $_error_message;
+					}
+
+					if ( count( $uniform_time_slots ) > 0 || ! in_array( 'U', $uniform_availability ) ) {
+
+						if ( count( $uniform_time_slots ) > 0 ) {
+							$timeslots_str = implode( '|', $uniform_time_slots ) . '|';
+						}
+
+						$check_for_overlapping_timeslots = false;
+					}
 				}
-			} else {
+			}
+
+			if ( $check_for_overlapping_timeslots ) {
 				// Normal check for overlapping
 
 				if ( isset( WC()->cart ) && count( WC()->cart->cart_contents ) > 0 ) {
@@ -4832,7 +4925,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						if ( isset( $values['bkap_booking'] ) ) {
 							$cart_booking = $values['bkap_booking'][0];
 
-							if ( $values['product_id'] == $post_id && strtotime( $current_date ) == strtotime( $cart_booking['hidden_date'] ) ) {
+							if ( $values['product_id'] === $post_id && strtotime( $current_date ) === strtotime( $cart_booking['hidden_date'] ) ) {
 
 								if ( isset( $cart_booking['time_slot'] ) && '' !== $cart_booking['time_slot'] ) {
 
@@ -4840,6 +4933,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 									$time_slot_explode = explode( ' - ', $time_slot );
 									$c_from            = strtotime( $time_slot_explode[0] );
 									$c_to              = isset( $time_slot_explode[1] ) ? strtotime( $time_slot_explode[1] ) : '';
+
 									foreach ( $dropdownarray as $d_key => $d_value ) {
 
 										if ( $cart_booking['time_slot'] == $d_key ) {
@@ -4869,18 +4963,12 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 						}
 					}
 
-					if ( count( $dropdownarray ) > 0 ) {
-						$timeslots_str  = implode( '|', array_keys( $dropdownarray ) );
-						$timeslots_str .= '|';
-					} else {
-						$timeslots_str = '';
-					}
+					$timeslots_str = ( count( $dropdownarray ) > 0 ) ? implode( '|', array_keys( $dropdownarray ) ) . '|' : '';
 				}
 			}
 
-			$timeslots_str = apply_filters( 'bkap_edit_display_timeslots', $timeslots_str, $post_id, $booking_settings, $global_settings, $extra_information );
+			return apply_filters( 'bkap_edit_display_timeslots', $timeslots_str, $post_id, $booking_settings, $global_settings, $extra_information );
 
-			return $timeslots_str;
 		}
 
 		/**
@@ -5098,7 +5186,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 					if ( $booking_type == 'multiple_days' && $bkap_fixed_blocks == 'booking_fixed_block_enable' ) {
 
 						if ( count( $bkap_fixed_blocks_data ) > 0 ) {
-							$min_day      = date( 'w', strtotime( $date ) );
+							$min_day     = date( 'w', strtotime( $date ) );
 							$first_block = self::bkap_first_available_date_fixed_block( $bkap_fixed_blocks_data, $min_day );
 
 							if ( $first_block['start_day'] == 'any_days' || $min_day == $first_block['start_day'] ) {
@@ -5109,9 +5197,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 								$fixed_min_day = date( 'w', strtotime( $date ) );
 
 								while ( $fix_min_day != $fixed_min_day ) {
-									$date          = date( 'j-n-Y', strtotime( '+1day', strtotime( $date ) ) );
-									$fixed_min_day = date( 'w', strtotime( $date ) );
-									$date_updated  = 'NO';
+									$date                  = date( 'j-n-Y', strtotime( '+1day', strtotime( $date ) ) );
+									$fixed_min_day         = date( 'w', strtotime( $date ) );
+									$date_updated          = 'NO';
 									$custom_holiday_ranges = false;
 									if ( is_array( $custom_holiday_ranges ) && count( $custom_holiday_ranges ) > 0 ) {
 										foreach ( $custom_holiday_ranges as $custom_key => $custom_value ) {
@@ -5195,7 +5283,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 							} else {
 								$date_enabled = 'YES';
 								break;
-							}							
+							}
 						} else {
 							$date_enabled = 'NO';
 						}
@@ -5361,7 +5449,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 		public static function bkap_add_unlimited_slots( $dropdown, $post_id, $booking_settings, $global_settings, $extra_information ) {
 
-			if ( isset( $_POST['resource_id'] ) && $_POST['resource_id'] != 0 ) {
+			if ( isset( $_POST['resource_id'] ) && '' !== $_POST['resource_id'] ) {
 				return $dropdown;
 			}
 
@@ -5385,7 +5473,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				global $wpdb;
 
-				$query_unlimited = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+				$query_unlimited = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 		                           WHERE post_id = %d
 		                           AND start_date = %s
 		                           AND total_booking = 0
@@ -5396,7 +5484,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 				$weekday         = bkap_weekday_string( $date_ymd );
 
 				// check for the base records
-				$base_unlimited     = "SELECT * FROM `" . $wpdb->prefix . "booking_history`
+				$base_unlimited     = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 		                           WHERE post_id = %d
 		                           AND weekday = %s
 			                       AND start_date = '0000-00-00'
@@ -5639,4 +5727,3 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 	}
 	$bkap_booking_process = new bkap_booking_process();
 }
-?>

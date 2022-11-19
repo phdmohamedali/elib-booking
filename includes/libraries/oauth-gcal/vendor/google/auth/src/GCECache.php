@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google\Auth;
+namespace BKAPGoogle\Auth;
 
-use Google\Auth\Credentials\GCECredentials;
+use BKAPGoogle\Auth\Credentials\GCECredentials;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**

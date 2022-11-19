@@ -107,21 +107,15 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 
 			if ( isset( $_POST['date_time_type'] ) && $_POST['date_time_type'] == 'duration_time' ) {
 
-				$selected_date = strtotime( $current_date ); // timestamp of selected date
-
-				$d_setting = $bkap_setting['bkap_duration_settings'];
-
-				$base_interval = (int) $d_setting['duration']; // 2 Hour set for product
-				$duration_type = $d_setting['duration_type']; // Type of Duration set for product Hours/mins
-
+				$selected_date     = strtotime( $current_date ); // timestamp of selected date
+				$d_setting         = $bkap_setting['bkap_duration_settings'];
+				$base_interval     = (int) $d_setting['duration']; // 2 Hour set for product
+				$duration_type     = $d_setting['duration_type']; // Type of Duration set for product Hours/mins
 				$duration_gap      = (int) $d_setting['duration_gap']; // 2 Hour set for product
 				$duration_gap_type = $d_setting['duration_gap_type']; // Type of Duration set for product Hours/mins
-
 				$selected_duration = (int) $_POST['seleced_duration']; // Entered value on front end : 1
-
-				$interval = $selected_duration * $base_interval; // Total hours/mins based on selected duration and set duration : 2
-
-				$resource_id = isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : 0; // Id of selected Resource
+				$interval          = $selected_duration * $base_interval; // Total hours/mins based on selected duration and set duration : 2
+				$resource_id       = isset( $_POST['resource_id'] ) ? $_POST['resource_id'] : ''; // Id of selected Resource
 
 				if ( 'hours' === $duration_type ) {
 					$interval      = $interval * 3600;
@@ -155,23 +149,58 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 				if ( isset( $bkap_setting['bkap_manage_time_availability'] ) && ! empty( $bkap_setting['bkap_manage_time_availability'] ) ) {
 					$mta_availability_data = $bkap_setting['bkap_manage_time_availability'];
 					if ( is_array( $mta_availability_data ) && count( $mta_availability_data ) > 0 ) {
-						$blocks = bkap_filter_time_based_on_resource_availability( $current_date, $mta_availability_data, $blocks, array( 'type' => 'duration_time', 'interval' => $interval ), 0, $post_id, $bkap_setting );
+						$blocks = bkap_filter_time_based_on_resource_availability(
+							$current_date,
+							$mta_availability_data,
+							$blocks,
+							array(
+								'type'     => 'duration_time',
+								'interval' => $interval,
+							),
+							0,
+							$post_id,
+							$bkap_setting
+						);
 					}
 				}
 
-				if ( $resource_id > 0 ) {
-					$resource                   = new BKAP_Product_Resource( $resource_id, $post_id );
-					$r_availability             = $resource->get_resource_qty();
-					$resource_availability_data = $resource->get_resource_availability();
+				if ( '' !== $resource_id ) {
 
-					if ( is_array( $resource_availability_data ) && count( $resource_availability_data ) > 0 ) {
-						if ( isset( $bkap_setting['bkap_all_data_unavailable'] ) && 'on' === $bkap_setting['bkap_all_data_unavailable'] ) {
-							$resource_availability_data = $mta_availability_data;
+					$resource_id = explode( ',', $resource_id );
+					$_blocks     = array();
+
+					foreach ( $resource_id as $id ) {
+
+						$resource                   = new BKAP_Product_Resource( $id, $post_id );
+						$r_availability             = $resource->get_resource_qty();
+						$resource_availability_data = $resource->get_resource_availability();
+
+						if ( is_array( $resource_availability_data ) && count( $resource_availability_data ) > 0 ) {
+							if ( isset( $bkap_setting['bkap_all_data_unavailable'] ) && 'on' === $bkap_setting['bkap_all_data_unavailable'] ) {
+								$resource_availability_data = $mta_availability_data;
+							}
+
+							$_blocks[ $id ] = array_filter(
+								bkap_filter_time_based_on_resource_availability(
+									$current_date,
+									$resource_availability_data,
+									$blocks,
+									array(
+										'type'     => 'duration_time',
+										'interval' => $interval,
+									),
+									$id,
+									$post_id,
+									$bkap_setting
+								)
+							);
 						}
-						$blocks = bkap_filter_time_based_on_resource_availability( $current_date, $resource_availability_data, $blocks, array( 'type' => 'duration_time', 'interval' => $interval ), $resource_id, $post_id, $bkap_setting );
+					}
+
+					if ( count( $_blocks ) > 0 ) {
+						$blocks = bkap_common::return_unique_array_values( $_blocks, count( $resource_id ) );
 					}
 				}
-
 
 				$html_blocks = self::bkap_display_availabile_blocks_html(
 					$post_id,
@@ -285,12 +314,10 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 				}
 			}
 
-			// $booking_keys = array_keys( $booking );
+			$d_max_booking = $d_setting['duration_max_booking'];
 
-			if ( $resource_id > 0 ) {
-				$d_max_booking = bkap_resource_max_booking( $resource_id, date( 'Y-m-d', $from ), $product_id, bkap_setting( $product_id ) );
-			} else {
-				$d_max_booking = $d_setting['duration_max_booking'];
+			if ( '' !== $resource_id && is_array( $resource_id ) ) {
+				$d_max_booking = Class_Bkap_Product_Resource::compute_maximum_booking( $resource_id, date( 'Y-m-d', $from ), $product_id, bkap_setting( $product_id ) );
 			}
 
 			if ( count( $booking ) > 0 ) {
@@ -360,11 +387,11 @@ if ( ! class_exists( 'Bkap_Duration_Time' ) ) {
 		 *
 		 * @since 5.15.0
 		 */
-		public function bkap_add_time_slot_on_bookingpage_or_vieworder( $blocks, $product_id, $booking_id, $current_date ) {
+		public static function bkap_add_time_slot_on_bookingpage_or_vieworder( $blocks, $product_id, $booking_id, $current_date ) {
 
-			$booking         = new BKAP_Booking( $booking_id );
-			$times_selected  = explode( '-', $booking->get_time() );
-			$strtotime       = strtotime( $current_date .  ' ' . $times_selected[0] );
+			$booking        = new BKAP_Booking( $booking_id );
+			$times_selected = explode( '-', $booking->get_time() );
+			$strtotime      = strtotime( $current_date . ' ' . $times_selected[0] );
 
 			if ( ! in_array( $strtotime, $blocks ) ) {
 				array_push( $blocks, $strtotime );

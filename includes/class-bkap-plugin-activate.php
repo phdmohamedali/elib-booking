@@ -108,10 +108,10 @@ if ( ! class_exists( 'Bkap_Plugin_Activate' ) ) {
 
 			// add the new messages in the options table.
 			add_option( 'book_stock-total', __( 'AVAILABLE_SPOTS stock total', 'woocommerce-booking' ) );
-			add_option( 'book_available-stock-date', __( 'AVAILABLE_SPOTS bookings are available on DATE', 'woocommerce-booking' ) );
-			add_option( 'book_available-stock-time', __( 'AVAILABLE_SPOTS bookings are available for TIME on DATE', 'woocommerce-booking' ) );
-			add_option( 'book_available-stock-date-attr', __( 'AVAILABLE_SPOTS ATTRIBUTE_NAME bookings are available on DATE', 'woocommerce-booking' ) );
-			add_option( 'book_available-stock-time-attr', __( 'AVAILABLE_SPOTS ATTRIBUTE_NAME bookings are available for TIME on DATE', 'woocommerce-booking' ) );
+			add_option( 'book_available-stock-date', __( 'AVAILABLE_SPOTS booking(s) are available on DATE', 'woocommerce-booking' ) );
+			add_option( 'book_available-stock-time', __( 'AVAILABLE_SPOTS booking(s) are available for TIME on DATE', 'woocommerce-booking' ) );
+			add_option( 'book_available-stock-date-attr', __( 'AVAILABLE_SPOTS ATTRIBUTE_NAME booking(s) are available on DATE', 'woocommerce-booking' ) );
+			add_option( 'book_available-stock-time-attr', __( 'AVAILABLE_SPOTS ATTRIBUTE_NAME booking(s) are available for TIME on DATE', 'woocommerce-booking' ) );
 
 			add_option( 'book_limited-booking-msg-date', __( 'PRODUCT_NAME has only AVAILABLE_SPOTS tickets available for the date DATE.', 'woocommerce-booking' ) );
 			add_option( 'book_no-booking-msg-date', __( 'For PRODUCT_NAME, the date DATE has been fully booked. Please try another date.', 'woocommerce-booking' ) );

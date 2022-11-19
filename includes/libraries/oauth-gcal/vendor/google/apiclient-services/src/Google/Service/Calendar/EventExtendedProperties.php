@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventExtendedProperties extends Google_Model
+class Google_Service_Calendar_EventExtendedProperties extends BKAPGoogle_Model
 {
   public $private;
   public $shared;

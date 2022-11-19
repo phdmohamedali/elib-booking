@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Middleware;
+namespace BKAPGoogle\Auth\Middleware;
 
-use Google\Auth\CacheTrait;
+use BKAPGoogle\Auth\CacheTrait;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 

@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_EventGadget extends Google_Model
+class Google_Service_Calendar_EventGadget extends BKAPGoogle_Model
 {
   public $display;
   public $height;

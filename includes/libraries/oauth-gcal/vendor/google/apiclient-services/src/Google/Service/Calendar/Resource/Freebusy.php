@@ -23,7 +23,7 @@
  *   $freebusy = $calendarService->freebusy;
  *  </code>
  */
-class Google_Service_Calendar_Resource_Freebusy extends Google_Service_Resource
+class Google_Service_Calendar_Resource_Freebusy extends BKAPGoogle_Service_Resource
 {
   /**
    * Returns free/busy information for a set of calendars. (freebusy.query)

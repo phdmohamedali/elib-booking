@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Setting extends Google_Model
+class Google_Service_Calendar_Setting extends BKAPGoogle_Model
 {
   public $etag;
   public $id;

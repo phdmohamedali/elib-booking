@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Credentials;
+namespace BKAPGoogle\Auth\Credentials;
 
-use Google\Auth\CredentialsLoader;
-use Google\Auth\GetQuotaProjectInterface;
-use Google\Auth\HttpHandler\HttpClientCache;
-use Google\Auth\HttpHandler\HttpHandlerFactory;
-use Google\Auth\Iam;
-use Google\Auth\ProjectIdProviderInterface;
-use Google\Auth\SignBlobInterface;
+use BKAPGoogle\Auth\CredentialsLoader;
+use BKAPGoogle\Auth\GetQuotaProjectInterface;
+use BKAPGoogle\Auth\HttpHandler\HttpClientCache;
+use BKAPGoogle\Auth\HttpHandler\HttpHandlerFactory;
+use BKAPGoogle\Auth\Iam;
+use BKAPGoogle\Auth\ProjectIdProviderInterface;
+use BKAPGoogle\Auth\SignBlobInterface;
 use BKAPGuzzleHttp\Exception\ClientException;
 use BKAPGuzzleHttp\Exception\ConnectException;
 use BKAPGuzzleHttp\Exception\RequestException;

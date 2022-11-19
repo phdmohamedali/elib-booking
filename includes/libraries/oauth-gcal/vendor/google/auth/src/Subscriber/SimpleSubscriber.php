@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Subscriber;
+namespace BKAPGoogle\Auth\Subscriber;
 
 use BKAPGuzzleHttp\Event\BeforeEvent;
 use BKAPGuzzleHttp\Event\RequestEvents;

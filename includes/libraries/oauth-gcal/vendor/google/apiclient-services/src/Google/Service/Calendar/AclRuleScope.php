@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_AclRuleScope extends Google_Model
+class Google_Service_Calendar_AclRuleScope extends BKAPGoogle_Model
 {
   public $type;
   public $value;

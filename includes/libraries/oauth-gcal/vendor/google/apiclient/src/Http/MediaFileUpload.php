@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Google\Http;
+namespace BKAPGoogle\Http;
 
-use Google\Client;
-use Google\Http\REST;
-use Google\Exception as GoogleException;
+use BKAPGoogle\Client;
+use BKAPGoogle\Http\REST;
+use BKAPGoogle\Exception as GoogleException;
 use BKAPGuzzleHttp\Psr7;
 use BKAPGuzzleHttp\Psr7\Request;
 use BKAPGuzzleHttp\Psr7\Uri;
@@ -82,7 +82,7 @@ class MediaFileUpload
    * only used if resumable=True
    */
   public function __construct(
-      Client $client,
+      BKAPClient $client,
       RequestInterface $request,
       $mimeType,
       $data,

@@ -207,7 +207,7 @@ if ( ! class_exists( 'bkap_booking_confirmation' ) ) {
 		 * @since 2.5
 		 */
 		public function bkap_prevent_cancel( $return, $order ) {
-			if ( '1' === get_post_meta( $order->get_id(), '_bkap_pending_confirmation', true ) ) {
+			if ( '1' === $order->get_meta( '_bkap_pending_confirmation' ) ) {
 				return false;
 			}
 

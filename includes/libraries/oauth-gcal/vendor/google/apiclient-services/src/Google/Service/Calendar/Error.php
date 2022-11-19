@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Error extends Google_Model
+class Google_Service_Calendar_Error extends BKAPGoogle_Model
 {
   public $domain;
   public $reason;

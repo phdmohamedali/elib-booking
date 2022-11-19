@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_Event extends Google_Collection
+class Google_Service_Calendar_Event extends BKAPGoogle_Collection
 {
   protected $collection_key = 'recurrence';
   public $anyoneCanAddSelf;

@@ -223,7 +223,7 @@ if ( ! class_exists( 'Bkap_Multidates' ) ) {
 			$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
 			if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
 
-				$show = apply_filters( 'bkap_show_add_day_button', true, $product_id, $booking_settings ); 
+				$show = apply_filters( 'bkap_show_add_day_button', true, $product_id, $booking_settings );
 				if ( ! is_account_page() && ! isset( $_GET['post'] ) && $show ) {
 					?>
 				<div id="bkap-multidates-button-msg-div" style="">
@@ -246,17 +246,22 @@ if ( ! class_exists( 'Bkap_Multidates' ) ) {
 		 */
 		public static function bkap_multiidates_selected_bookings_display( $booking_settings, $booking_details ) {
 
-			$product_id          = $booking_details['product_id'];
-			$booking_type        = get_post_meta( $product_id, '_bkap_booking_type', true );
-			$summary_heading     = __( 'Booking Summary', 'woocommerce-booking' );
-			$total_booking_price = __( 'Total Booking Price:', 'woocommerce-booking' );
-			$booking_parameters  = array(
-				'product_id'          => $product_id,
-				'booking_settings'    => $booking_settings,
-				'booking_type'        => $booking_type,
-				'summary_heading'     => $summary_heading,
-				'total_booking_price' => $total_booking_price,
+			$product_id            = $booking_details['product_id'];
+			$booking_type          = get_post_meta( $product_id, '_bkap_booking_type', true );
+			$summary_heading       = __( 'Booking Summary', 'woocommerce-booking' );
+			$total_booking_price   = __( 'Total Booking Price:', 'woocommerce-booking' );
+			$booking_parameters    = array(
+				'product_id'            => $product_id,
+				'booking_settings'      => $booking_settings,
+				'booking_type'          => $booking_type,
+				'summary_heading'       => $summary_heading,
+				'total_booking_price'   => $total_booking_price,
 			);
+
+			if ( function_exists( 'is_bkap_deposits_active' ) && is_bkap_deposits_active() ) {
+				$booking_parameters['total_remaining_price'] = __( 'Total Remaining Price:', 'woocommerce-booking' );
+				$booking_parameters['final_total_price']     = __( 'Final Total Price:', 'woocommerce-booking' );
+			}
 
 			if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
 

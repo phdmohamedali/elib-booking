@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_FreeBusyCalendar extends Google_Collection
+class Google_Service_Calendar_FreeBusyCalendar extends BKAPGoogle_Collection
 {
   protected $collection_key = 'errors';
   protected $busyType = 'Google_Service_Calendar_TimePeriod';

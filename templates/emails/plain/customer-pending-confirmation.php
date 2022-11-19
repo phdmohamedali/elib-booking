@@ -2,7 +2,7 @@
 /**
  * Customer new pending booking email.
  */
-$order = new WC_order( $booking->order_id );
+$order = wc_get_order( $booking->order_id );
 
 echo '= ' . $email_heading . " =\n\n";
 $opening_paragraph = __( 'We have received your request for a booking. The details of the booking are as follows:', 'woocommerce-booking' );

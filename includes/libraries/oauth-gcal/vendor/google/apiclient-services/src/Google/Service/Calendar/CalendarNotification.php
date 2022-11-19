@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_CalendarNotification extends Google_Model
+class Google_Service_Calendar_CalendarNotification extends BKAPGoogle_Model
 {
   public $method;
   public $type;

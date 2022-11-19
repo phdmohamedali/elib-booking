@@ -421,7 +421,9 @@ if ( ! class_exists( 'BKAP_Background_Process' ) ) {
 		 * @since 5.13.0
 		 */
 		protected function complete() {
-			$this->clear_scheduled_event();
+			// $this->clear_scheduled_event();
+			// No data to process.
+			$this->clear_scheduled_action();
 
 			delete_transient( $this->hook_identifier . '_process_cancelled' );
 		}

@@ -115,9 +115,12 @@ class Bkap_Calendar_View {
 						$resource_title = $booking->get_resource_title();
 					}
 
+					$order_id  = $order->get_id();
+					$order_url = bkap_order_url( $order_id );
+
 					$value = array(
 						'order_id'      => $order->get_id(),
-						'order_url'     => apply_filters( 'bkap_after_successful_manual_booking', admin_url( 'post.php?post=' . ( $order->get_id() ) . '&action=edit' ), $order->get_id() ),
+						'order_url'     => apply_filters( 'bkap_after_successful_manual_booking', $order_url, $order->get_id() ),
 						'post_id'       => $product_id,
 						'start_date'    => $booking->get_start_date(),
 						'end_date'      => $booking->get_end_date(),
@@ -264,7 +267,7 @@ class Bkap_Calendar_View {
 
 		if ( ! empty( $_REQUEST['order_id'] ) && ! empty( $_REQUEST['event_value'] ) ) {
 			$order_id = $_REQUEST['order_id'];
-			$order    = new WC_Order( $order_id );
+			$order    = wc_get_order( $order_id );
 
 			$order_items              = $order->get_items();
 			$attribute_name           = '';
@@ -290,7 +293,7 @@ class Bkap_Calendar_View {
 				if ( $item['variation_id'] != '' && $value[0]['post_id'] == $item['product_id'] && $value[0]['order_item_id'] == $item_id ) {
 					$variation_product              = get_post_meta( $item['product_id'] );
 					$product_variation_array_string = $variation_product['_product_attributes'];
-					$product_variation_array        = unserialize( $product_variation_array_string[0] );
+					$product_variation_array        = isset( $variation_product['_product_attributes'] ) && isset( $variation_product['_product_attributes'][0] ) ? unserialize( $variation_product['_product_attributes'][0] ) : array();
 
 					foreach ( $product_variation_array as $product_variation_key => $product_variation_value ) {
 						if ( isset( $item[ $product_variation_key ] ) && '' !== $item[ $product_variation_key ] ) {
@@ -353,8 +356,8 @@ class Bkap_Calendar_View {
 
 			if ( isset( $value[0]['persons'] ) && $value[0]['persons'] != '' ) {
 				$value_persons = $value[0]['persons'];
-				$content       .= ' <tr> <td> <strong>' . $person_txt . '</strong></td><td> ' . $value_persons . '</td> </tr> ';
-				
+				$content      .= ' <tr> <td> <strong>' . $person_txt . '</strong></td><td> ' . $value_persons . '</td> </tr> ';
+
 			}
 
 			$content = apply_filters( 'bkap_display_additional_info_in_calendar_tip', $content, $value );

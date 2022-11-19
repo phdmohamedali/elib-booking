@@ -101,17 +101,24 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		}
 
 		/**
-		 * Load data from DB.
+		 * Load data.
 		 *
 		 * @since 5.12.0
 		 */
 		public static function load_license_data() {
 
-			$license_page_url = 'edit.php?post_type=bkap_booking&page=booking_license_page';
+			/* translators: %1$s: Current Plan, %2$s: Expected Plan */
+			self::$license_error_message = __( 'You are on the %1$s License. This feature is available only on the %2$s License.', 'woocommerce-booking' );
 
-			self::$license_error_message         = __( 'You are on the %1$s License. This feature is available only on the %2$s License.', 'woocommerce-booking' );
-			self::$plugin_license_error_message  = __( 'You have activated the %1$s Plugin. Your current license ( %2$s ) does not offer support for Vendor Plugins. Please upgrade to the %3$s License.', 'woocommerce-booking' );
-			self::$plugin_activate_error_message = __( 'We have noticed that the license for <b>' . self::$plugin_name . '</b> plugin is not active. To receive automatic updates & support, please activate the license <a href= "' . $license_page_url . '"> here </a>.', 'woocommerce-booking' );
+			/* translators: %1$s: Vendor Plugin, %2$s: Current License, %3$s: Expected License */
+			self::$plugin_license_error_message  = __( 'You have activated the %1$s Plugin. Your current license ( %2$s ) does not offer support for Vendor Plugins. Please upgrade to the %3$s License.', 'woocommerce-booking' ); //phpcs:ignore
+
+			self::$plugin_activate_error_message = sprintf(
+				/* translators: %1$s: Plugin name; %2$s: URL for License Page. */
+				__( 'We have noticed that the license for <b>%1$s</b> plugin is not active. To receive automatic updates & support, please activate the license <a href= "%2$s"> here </a>.', 'woocommerce-booking' ),
+				self::$plugin_name,
+				'edit.php?post_type=bkap_booking&page=booking_license_page'
+			);
 
 			self::$license_key    = get_option( 'edd_sample_license_key', '' );
 			self::$license_type   = get_option( 'edd_sample_license_type', '' );
@@ -138,6 +145,43 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 						__( 'An error has been encountered while trying to activate your license key: %s. Please check that you typed in the key correctly ( make sure to save ) and try again.', 'woocommerce-booking' ),
 						self::$license_key
 					);
+
+					if ( isset( $_GET['bkap_license_error_code'] ) && '' !== $_GET['bkap_license_error_code'] ) { // phpcs:ignore
+
+						switch( $_GET['bkap_license_error_code'] ) { // phpcs:ignore
+
+							case '10b':
+								$notice = __( 'A <strong>403 Forbidden</strong> error has been received from the Tyche Server. This isn\'t a problem with your license key but rather with the destination server as the activation request was flatly rejected. Please check your system configuration and ensure that your system is properly provisioned to send valid API requests.', 'woocommerce-booking' );
+								break;
+
+							case '10c':
+								$domain_name = ( isset( $_SERVER['SERVER_NAME'] ) && '' !== $_SERVER['SERVER_NAME'] ? $_SERVER['SERVER_NAME'] : '[please provide your domain name here]' ); // phpcs:ignore
+								$ip_address  = ( isset( $_SERVER['REMOTE_ADDR'] ) && '' !== $_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '[please provie your IP Address here]' ); // phpcs:ignore
+
+								$notice = sprintf(
+									/* translators: %1s: Create Ticket Link; %2s: Domain Name; %3s: IP address;%4s: License Key. */
+									__(
+										'Your License Activation Request was unsuccessful because API requests from your system to Tyche Softwares have been blocked by the Tyche Softwares Firewall.<br/>
+										<br/>
+										To resolve this issue, kindly create a ticket <a href="%1$s"> here </a> and provide the following details ( in the ticket ):<br/>
+										<br/>
+										<strong>Domain Name:</strong> %2$s<br/>
+										<strong>IP Address:</strong> %3$s<br/>
+										<strong>License Key:</strong> %4$s<br/>
+										<strong>Temporary WP Admin Access:</strong> <em>[please provide username and password here for access to your WP site as it may be needed for debugging]</em><br/>
+										<strong>Temporary FTP Access:</strong> <em>[please provide FTP details here as it may be needed if the Tyche Plugin files need to be updated]</em><br/>
+										<br/>
+										Please deactivate the temporary FTP and WP Admin access as soon as this issue has been resolved by the Tyche Softwares Support Team.',
+										'woocommerce-booking'
+									),
+									'https://tychesoftwares.freshdesk.com/support/tickets/new',
+									$domain_name,
+									$ip_address,
+									self::$license_key
+								);
+								break;
+						}
+					}
 
 					self::display_error_notice( $notice );
 				}
@@ -180,6 +224,8 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 									</td>
 								</tr>
 								<?php } ?>
+
+								<input type="hidden" name="_wp_http_referer" value="<?php echo esc_url_raw( admin_url( 'edit.php?post_type=bkap_booking&page=booking_license_page' ) ); ?>" />
 						</tbody>
 					</table>	
 					<?php submit_button(); ?>
@@ -200,10 +246,11 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		 * Places a call to fetch license details.
 		 *
 		 * @param string $action Action to send to remote server while fetching license.
+		 * @param bool   $return_whole_response Whether to return the whole response or just the body. Default action is to return only the body.
 		 *
 		 * @since 5.12.0
 		 */
-		public static function fetch_license( $action = 'check_license' ) {
+		public static function fetch_license( $action = 'check_license', $return_whole_response = false ) {
 
 			$api_params = array(
 				'edd_action' => $action,
@@ -224,13 +271,16 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 				return false;
 			}
 
-			return json_decode( wp_remote_retrieve_body( $response ) );
+			return $return_whole_response ? $response : json_decode( wp_remote_retrieve_body( $response ) );
 		}
 
 		/**
-		 * This function will check the license entered using an API call to the store website and if its valid it will activate the license.
+		 * This function activates the stored license key.
+		 * It sends an API call to the Tyche Server to check the validity of the license and thereafter activates the license if valid.
+		 * 5.15.0 Update: Return useful information on the cause of failed activation - https://github.com/TycheSoftwares/woocommerce-booking/issues/5184
 		 *
 		 * @since 5.12.0
+		 * @since Updated 5.15.0
 		 */
 		public static function activate_license() {
 
@@ -240,34 +290,44 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 					return; // get out if we didn't click the Activate button.
 				}
 
-				$license_data  = self::fetch_license( 'activate_license' );
-				$http_referrer = $_POST['_wp_http_referer']; // phpcs:ignore
-				$did_update    = false;
+				$http_referrer 			= self::return_url_without_bkap_notice( $_POST['_wp_http_referer'] ); // phpcs:ignore
+				$request_data           = self::fetch_license( 'activate_license', true );
+				$response_code          = (int) $request_data['response']['code'];
+				$response_body          = $request_data['body'];
+				$response_message       = $request_data['response']['message'];
+				$is_response_successful = ( 2 === (int) substr( $response_code, 0, 1 ) );
+				$did_update             = false;
 
-				if ( $license_data && isset( $license_data->license ) && '' !== $license_data->license && 'invalid' !== $license_data->license ) {
+				if ( $is_response_successful ) {
 
-					$did_update           = true;
-					self::$license_status = $license_data->license;
-					self::$license_type   = self::get_license_type( strval( $license_data->price_id ) );
+					$license_data = json_decode( $response_body );
 
-					update_option( 'edd_sample_license_status', self::$license_status );
-					update_option( 'edd_sample_license_expires', $license_data->expires );
-					update_option( 'edd_sample_license_type', self::$license_type );
+					if ( $license_data && isset( $license_data->license ) && '' !== $license_data->license && 'invalid' !== $license_data->license ) {
 
-					if ( false === strpos( $http_referrer, 'bkap_license_notice' ) ) {
-						return;
+						$did_update           = true;
+						self::$license_status = $license_data->license;
+						self::$license_type   = self::get_license_type( strval( $license_data->price_id ), $license_data );
+
+						update_option( 'edd_sample_license_status', self::$license_status );
+						update_option( 'edd_sample_license_expires', $license_data->expires );
+						update_option( 'edd_sample_license_type', self::$license_type );
+
+						if ( false === strpos( $http_referrer, 'bkap_license_notice' ) ) {
+							return;
+						}
 					}
 				}
 
-				if ( $did_update ) {
-					// Remove bkap_license_notice from URL.
-					$http_referrer = remove_query_arg( 'bkap_license_notice', $http_referrer );
-				} else {
+				if ( ! $did_update ) {
 
 					// If we get here, then an error has occurred.
-					// Append error variable to http_referer.
+					$error_code = '10a';
+					$error_code = ( 403 === $response_code ) ? '10b' : $error_code;
+					$error_code = ( false !== strpos( $response_body, 'BlogVault Firewall' ) ) ? '10c' : $error_code; // Check if error has been caused by Tyche Firewall.
+
+					// Append error variables to http_referer.
 					if ( false === strpos( $http_referrer, 'bkap_license_notice' ) ) {
-						$http_referrer .= '&bkap_license_notice=error'; // phpcs:ignore
+						$http_referrer .= ( '&bkap_license_notice=error&bkap_license_error_code=' . $error_code ); // phpcs:ignore
 					}
 				}
 
@@ -316,7 +376,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			}
 
 			self::$license_status = $license_data->license;
-			self::$license_type   = self::get_license_type( strval( $license_data->price_id ) );
+			self::$license_type   = self::get_license_type( strval( $license_data->price_id ), $license_data );
 
 			update_option( 'edd_sample_license_status', self::$license_status );
 			update_option( 'edd_sample_license_expires', $license_data->expires );
@@ -340,7 +400,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			$license_data = self::fetch_license();
 
 			if ( $license_data && isset( $license_data->license ) && '' !== $license_data->license && 'invalid' !== $license_data->license ) {
-				$license_type   = self::get_license_type( strval( $license_data->price_id ) );
+				$license_type   = self::get_license_type( strval( $license_data->price_id ), $license_data );
 				$license_status = get_option( 'edd_sample_license_status', '' );
 				if ( '' !== $license_status ) {
 					self::$license_type = $license_type;
@@ -350,7 +410,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		}
 
 		/**
-		 * This function checks if a new license has been entered, if yes, then plugin must be reactivated.
+		 * This function checks if a new license has been entered, if yes, then license must be reactivated.
 		 *
 		 * @param string $license License Key.
 		 *
@@ -370,10 +430,11 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		 * This function gets the license type from the Price ID..
 		 *
 		 * @param string $price_id Price ID of the license.
+		 * @param object $license_data License Data.
 		 *
 		 * @since Updated 5.12.0
 		 */
-		private static function get_license_type( $price_id ) {
+		private static function get_license_type( $price_id, $license_data = null ) {
 
 			$license_type = '';
 
@@ -395,8 +456,11 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			}
 
 			// Consider starter licenses earlier purchased.
-			$license_data         = self::fetch_license();
 			$is_earlier_purchased = false;
+
+			if ( is_null( $license_data ) ) {
+				$license_data = self::fetch_license();
+			}
 
 			if ( isset( $license_data->payment_date ) && '' !== $license_data->payment_date ) {
 				$is_earlier_purchased = 'lifetime' === $license_data->expires || ( strtotime( $license_data->payment_date ) <= strtotime( '2022-03-31' ) );
@@ -419,18 +483,18 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		public static function license_error_message( $expected_plan ) {
 			self::check_license_type();
 
-			if ( '' == self::$license_status ) {
-				return sprintf(
-					self::$plugin_activate_error_message
-				);
-			} else {
-				return sprintf(
+			$message = self::$plugin_activate_error_message;
+
+			if ( '' !== self::$license_status ) {
+				$message = sprintf(
 					/* translators: %1$s: Current Plan, %2$s: Expected Plan */
 					__( self::$license_error_message, 'woocommerce-booking' ), //phpcs:ignore
 					ucwords( self::$license_type ),
 					ucwords( $expected_plan )
 				);
 			}
+
+			return $message;
 		}
 
 		/**
@@ -501,7 +565,7 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 		}
 
 		/**
-		 * Displays an error notice if any of the Vendor Plugins are activated with an un-supporting license.
+		 * Displays an error notice if any of the Vendor Plugins are activated with an un-supported license.
 		 *
 		 * @since 5.12.0
 		 */
@@ -607,6 +671,30 @@ if ( ! class_exists( 'BKAP_License' ) ) {
 			}
 
 			return $did_remove;
+		}
+
+		/**
+		 * Remove bkap_license_notice and error_code from URL.
+		 *
+		 * @param string $url URL.
+		 *
+		 * @since 5.15.0
+		 */
+		public static function return_url_without_bkap_notice( $url = '' ) {
+
+			if ( '' === $url ) {
+				$url = wp_get_referer();
+			}
+
+			if ( false !== strpos( $url, 'bkap_license_notice' ) ) {
+				$url = remove_query_arg( 'bkap_license_notice', $url );
+			}
+
+			if ( false !== strpos( $url, 'bkap_license_error_code' ) ) {
+				$url = remove_query_arg( 'bkap_license_error_code', $url );
+			}
+
+			return $url;
 		}
 	}
 }

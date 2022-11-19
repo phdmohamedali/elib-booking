@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_ConferenceProperties extends Google_Collection
+class Google_Service_Calendar_ConferenceProperties extends BKAPGoogle_Collection
 {
   protected $collection_key = 'allowedConferenceSolutionTypes';
   public $allowedConferenceSolutionTypes;

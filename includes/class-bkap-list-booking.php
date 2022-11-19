@@ -29,7 +29,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 		 */
 		public function __construct() {
 			add_action( 'init', array( $this, 'register_block' ) );
-			add_action( 'init', array( $this, 'events_json' ) );
+			add_action( 'wp_loaded', array( $this, 'events_json' ) );
 			add_action( 'bkap_booking_after_add_to_cart_end', array( $this, 'register_assets' ), 50 );
 			add_filter( 'register_taxonomy_args', array( $this, 'enable_taxonomy_api' ), 10, 2 );
 			add_filter( 'rest_product_query', array( $this, 'enable_product_metaquery' ), 10, 2 );

@@ -15,7 +15,7 @@
  * the License.
  */
 
-class Google_Service_Calendar_ConferenceParametersAddOnParameters extends Google_Model
+class Google_Service_Calendar_ConferenceParametersAddOnParameters extends BKAPGoogle_Model
 {
   public $parameters;
 

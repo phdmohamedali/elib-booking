@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Google\Auth\Credentials;
+namespace BKAPGoogle\Auth\Credentials;
 
-use Google\Auth\CredentialsLoader;
-use Google\Auth\GetQuotaProjectInterface;
-use Google\Auth\OAuth2;
+use BKAPGoogle\Auth\CredentialsLoader;
+use BKAPGoogle\Auth\GetQuotaProjectInterface;
+use BKAPGoogle\Auth\OAuth2;
 
 /**
  * Authenticates requests using User Refresh credentials.

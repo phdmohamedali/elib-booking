@@ -10,13 +10,13 @@
 
 if ( ! is_null( $booking ) ) :
 
-	$order = new WC_order( $booking->order_id );
+	$order = wc_get_order( $booking->order_id );
 	?>
 
 <p><?php printf( __( 'Bookings have been rescheduled for an order from %s. The order is as follows:', 'woocommerce-booking' ), $order->get_formatted_billing_full_name() ); ?></p>
 
 <h2>
-	<a class="link" href="<?php echo esc_url( admin_url( 'post.php?post=' . $order->get_id() . '&action=edit' ) ); ?>">
+	<a class="link" href="<?php echo esc_url( bkap_order_url( $order->get_id() ) ); ?>">
 		<?php printf( __( 'Order #%s', 'woocommerce-booking' ), $order->get_order_number() ); ?>
 	</a> 
 	(<?php printf( '<time datetime="%s">%s</time>', $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ); ?>)

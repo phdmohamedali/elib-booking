@@ -279,13 +279,14 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 
 			// Resource Settings.
 			$resource_settings = array(
-				'_bkap_resource'                     => self::set_meta_data( self::$booking_meta_data, '_bkap_resource' ),
-				'_bkap_product_resource_lable'       => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_lable' ),
-				'_bkap_product_resource_selection'   => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_selection' ),
-				'_bkap_product_resource_max_booking' => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_max_booking' ),
-				'_bkap_product_resource_sorting'     => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_sorting' ),
-				'_bkap_product_resources'            => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resources' ),
-				'_bkap_resource_base_costs'          => self::set_meta_data( self::$booking_meta_data, '_bkap_resource_base_costs' ),
+				'_bkap_resource'                        => self::set_meta_data( self::$booking_meta_data, '_bkap_resource' ),
+				'_bkap_product_resource_lable'          => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_lable' ),
+				'_bkap_product_resource_selection'      => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_selection' ),
+				'_bkap_product_resource_selection_type' => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_selection_type' ),
+				'_bkap_product_resource_max_booking'    => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_max_booking' ),
+				'_bkap_product_resource_sorting'        => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resource_sorting' ),
+				'_bkap_product_resources'               => self::set_meta_data( self::$booking_meta_data, '_bkap_product_resources' ),
+				'_bkap_resource_base_costs'             => self::set_meta_data( self::$booking_meta_data, '_bkap_resource_base_costs' ),
 			);
 
 			$resource_settings['resource_titles'] = self::get_the_post_titles( $resource_settings['_bkap_product_resources'] ); // Get Titles for Person IDs.
@@ -711,11 +712,11 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 							if ( $is_person_settings ) {
 								$data[ $booking_field_key ]['_bkap_person_ids'] = maybe_unserialize( $_bkap_person_ids );
 								$booking_settings_meta['_bkap_person_ids']      = $data[ $booking_field_key ]['_bkap_person_ids'];
-								$booking_settings_meta['bkap_person_ids']      = $data[ $booking_field_key ]['_bkap_person_ids'];
+								$booking_settings_meta['bkap_person_ids']       = $data[ $booking_field_key ]['_bkap_person_ids'];
 
 								$data[ $booking_field_key ]['_bkap_person_data'] = maybe_unserialize( $_bkap_person_data );
 								$booking_settings_meta['_bkap_person_data']      = $data[ $booking_field_key ]['_bkap_person_data'];
-								$booking_settings_meta['bkap_person_data']      = $data[ $booking_field_key ]['_bkap_person_data'];
+								$booking_settings_meta['bkap_person_data']       = $data[ $booking_field_key ]['_bkap_person_data'];
 								unset( $data[ $booking_field_key ]['person_titles'] );
 							}
 
@@ -875,12 +876,10 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 			}
 
 			$post_titles = array();
-			if($post_ids)
-			{
-				if ( count( $post_ids ) > 0 ) {
-					foreach ( $post_ids as $post_id ) {
-						$post_titles[ $post_id ] = get_the_title( $post_id );
-					}
+
+			if ( is_array( $post_ids ) && count( $post_ids ) > 0 ) {
+				foreach ( $post_ids as $post_id ) {
+					$post_titles[ $post_id ] = get_the_title( $post_id );
 				}
 			}
 

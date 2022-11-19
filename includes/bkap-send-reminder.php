@@ -669,6 +669,9 @@ Your booking id is: {booking_id}
 			if ( is_array( $twilio_details ) ) {
 				Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $twilio_details, $item_id );
 			}
+
+			// Sending remiders from other tools.
+			do_action( 'bkap_send_auto_reminder_emails', $booking, $item_id );
 			wp_die();
 		}
 

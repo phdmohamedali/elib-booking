@@ -321,8 +321,9 @@ class BKAP_Booking {
 	 * @since 4.1.0
 	 */
 	public function get_order() {
+		
 		if ( empty( $this->order ) ) {
-			if ( $this->populated && ! empty( $this->order_id ) && 'shop_order' === get_post_type( $this->order_id ) ) {
+			if ( $this->populated && ! empty( $this->order_id ) ) {
 				$this->order = wc_get_order( $this->order_id );
 			} else {
 				return false;
@@ -409,10 +410,10 @@ class BKAP_Booking {
 	public function get_date_created() {
 
 		if ( ! empty( $this->order_id ) ) {
-			$order_post = get_post( $this->order_id );
+			$order_post = wc_get_order( $this->order_id );
 			if ( $order_post ) {
-				$post_date  = strtotime( $order_post->post_date );
-				$order_date = date( 'Y-m-d H:i:s', $post_date );
+				$order_date = ! is_null( $order_post->get_date_created() ) ? $order_post->get_date_created()->getOffsetTimestamp() : '';
+				$order_date = date_i18n( 'Y-m-d H:i:s', $order_date );
 			} else {
 				$order_date = __( 'Order date not available', 'woocommerce-booking' );
 			}

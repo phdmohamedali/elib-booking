@@ -55,29 +55,25 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 		 */
 		public static function bkap_add_cart_item( $cart_item ) {
 
-			// Adjust price if addons are set
 			global $wpdb;
 
-			if ( isset( $cart_item['bkap_booking'] ) ) :
+			if ( isset( $cart_item['bkap_booking'] ) ) {
 
 				$extra_cost = 0;
 
-				foreach ( $cart_item['bkap_booking'] as $addon ) :
+				foreach ( $cart_item['bkap_booking'] as $addon ) {
 
 					if ( isset( $addon['price'] ) && is_numeric( $addon['price'] ) ) {
 						$extra_cost += $addon['price'];
 					}
-
-				endforeach;
+				}
 
 				$duplicate_of = bkap_common::bkap_get_product_id( $cart_item['product_id'] );
 				$product      = wc_get_product( $cart_item['product_id'] );
-
 				$product_type = $product->get_type();
-
 				$variation_id = 0;
 
-				if ( $product_type == 'variable' ) {
+				if ( 'variable' === $product_type ) {
 					$variation_id = $cart_item['variation_id'];
 				}
 
@@ -111,9 +107,13 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 						if ( isset( $cart_item['bkap_booking'][0]['price'] ) ) {
 							if ( $extra_cost === $cart_item['bkap_booking'][0]['price'] ) { // If no additional cost added.
-								$net_cost = $bundle_child_price * $diff;
+								if ( $diff > 1 ) {
+									$net_cost = $bundle_child_price * $diff;
+								} else {
+									$net_cost = $extra_cost;
+								}
 								$cart_item['data']->set_price( $net_cost );
-							} else { // phpcs:ignore.
+								} else { // phpcs:ignore.
 								// @ TODO Handling the case when extra cost does not match item price.
 							}
 						}
@@ -141,8 +141,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 				}
 
 				$cart_item = apply_filters( 'bkap_modify_product_price', $cart_item );
-
-			endif;
+			}
 
 			return $cart_item;
 		}
@@ -173,15 +172,8 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 			if ( $is_bookable && ( ! array_key_exists( 'bundled_by', $cart_item_meta ) ) && $allow_bookings ) {
 
-				$booking_calendar = false;
-				if ( isset( $_POST['booking_calender'] ) && '' !== $_POST['booking_calender'] ) {
-					$booking_calendar = true;
-				}
-
-				$bkap_multidates = false;
-				if ( isset( $_POST['bkap_multidate_data'] ) && '' != $_POST['bkap_multidate_data'] ) {
-					$bkap_multidates = true;
-				}
+				$booking_calendar = ( isset( $_POST['booking_calender'] ) && '' !== $_POST['booking_calender'] );
+				$bkap_multidates  = ( isset( $_POST['bkap_multidate_data'] ) && '' != $_POST['bkap_multidate_data'] );
 
 				if ( $booking_calendar || $bkap_multidates ) { // If booking start date is set then only prepare the cart array.
 
@@ -203,12 +195,15 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 						foreach ( $bkap_multidate_data as $key => $value ) {
 							$date_checks[]   = $value->hidden_date;
 							$booking_dates[] = $value->date;
+
 							if ( isset( $value->time_slot ) ) {
 								$time_slots[] = $value->time_slot;
 							}
+
 							$price_charged[] = $value->price_charged;
+
 							if ( isset( $value->resource_id ) ) {
-								$resource_id[] = $value->resource_id;
+								$resource_id[] = ( 'multiple' === BKAP_Product_Resource::get_resource_selection_type( $product_id ) ) ? explode( ',', $value->resource_id ) : $value->resource_id;
 							}
 						}
 					} else {
@@ -230,12 +225,15 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 								if ( isset( $_POST['block_option'] ) && '' !== $_POST['block_option'] ) {
 									$cart_arr['fixed_block'] = $_POST['block_option'];
 								}
+
 								if ( isset( $_POST['booking_calender_checkout'] ) ) {
 									$cart_arr['date_checkout'] = $_POST['booking_calender_checkout'];
 								}
+
 								if ( isset( $_POST['wapbk_hidden_date_checkout'] ) ) {
 									$cart_arr['hidden_date_checkout'] = $_POST['wapbk_hidden_date_checkout'];
 								}
+
 								if ( isset( $_POST['wapbk_diff_days'] ) ) {
 									$diff_days = $_POST['wapbk_diff_days'];
 								}
@@ -548,12 +546,12 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 				}
 
 				if ( ( isset( $cart_item['bundled_by'] ) && '' != $cart_item['bundled_by'] )
-					|| ( isset( $cart_item['composite_parent'] ) && '' != $cart_item['composite_parent'] )
+				|| ( isset( $cart_item['composite_parent'] ) && '' != $cart_item['composite_parent'] )
 				) {
 
 					if ( isset( $cart_item['bkap_booking'][0] ) ) {
 						if ( isset( $cart_item['bkap_booking'][0]['hidden_date_checkout'] )
-							&& '' != $cart_item['bkap_booking'][0]['hidden_date_checkout'] ) {
+						&& '' != $cart_item['bkap_booking'][0]['hidden_date_checkout'] ) {
 							$booking_settings = get_post_meta( $cart_item['product_id'], 'woocommerce_booking_settings', true );
 
 							$start    = strtotime( $cart_item['bkap_booking'][0]['hidden_date'] );
@@ -627,7 +625,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 				$cart_item = self::bkap_add_cart_item( $cart_item );
 
 				$cart_item = (array) apply_filters( 'bkap_get_cart_item_from_session', $cart_item, $values );
-			endif;
+				endif;
 			return $cart_item;
 		}
 
@@ -655,28 +653,25 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					return $other_data;
 				}
 
-				$duplicate_of     = bkap_common::bkap_get_product_id( $cart_item['product_id'] );
-				$booking_settings = bkap_setting( $duplicate_of );
-				$type_of_slot     = apply_filters( 'bkap_slot_type', $duplicate_of );
+				$duplicate_of        = bkap_common::bkap_get_product_id( $cart_item['product_id'] );
+				$booking_settings    = bkap_setting( $duplicate_of );
+				$type_of_slot        = apply_filters( 'bkap_slot_type', $duplicate_of );
+				$is_multidates       = isset( $cart_item['bkap_booking'] ) && is_array( $cart_item['bkap_booking'] ) && count( $cart_item['bkap_booking'] ) > 1;
+				$bkap_multidate_data = array();
+				$person_check        = true;
 
-				$is_multidates = false;
-				if ( count( $cart_item['bkap_booking'] ) > 1 ) {
-					$is_multidates   = true;
-					$bkap_multidates = '';
-				}
-				$person_check = true;
-
-				foreach ( $cart_item['bkap_booking'] as $booking ) {
+				foreach ( $cart_item['bkap_booking'] as $key => $booking ) {
 
 					// Booking Start Date Label.
-					if ( isset( $booking['date'] ) && $booking['date'] != '' ) {
+					if ( isset( $booking['date'] ) && '' !== $booking['date'] ) {
 
 						$cart_start_lable = bkap_option( 'cart_start_date' );
 
 						$start_date_name = __( ( '' !== $cart_start_lable ? $cart_start_lable : 'Start Date' ), 'woocommerce-booking' );
 						$start_date_name = apply_filters( 'bkap_change_cart_start_date_label', $start_date_name, $booking_settings );
+
 						if ( $is_multidates ) {
-							$bkap_multidates .= $booking['date'] . '<br>';
+							$bkap_multidate_data['date'][ $key ] = $start_date_name . ': ' . $booking['date'];
 						} else {
 							$other_data[] = array(
 								'name'    => $start_date_name,
@@ -686,10 +681,9 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					}
 
 					// Booking End Date Label.
-					if ( isset( $booking['date_checkout'] ) && $booking['date_checkout'] != '' ) {
+					if ( isset( $booking['date_checkout'] ) && '' !== $booking['date_checkout'] ) {
 
-						if ( $booking_settings['booking_enable_multiple_day'] == 'on' ) {
-
+						if ( 'on' === $booking_settings['booking_enable_multiple_day'] ) {
 							$cart_end_label = bkap_option( 'cart_end_date' );
 							$name_checkout  = __( ( '' !== $cart_end_label ? $cart_end_label : 'End Date' ), 'woocommerce-booking' );
 							$other_data[]   = array(
@@ -700,36 +694,25 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					}
 
 					// Booking Time slot label and its value.
-					if ( isset( $booking['time_slot'] ) && $booking['time_slot'] != '' ) {
+					if ( isset( $booking['time_slot'] ) && '' !== $booking['time_slot'] ) {
 
 						$cart_time_label      = bkap_option( 'cart_time' );
 						$time_slot_to_display = $booking['time_slot'];
-						$to_time              = '';
+						$time_exploded        = explode( '-', $time_slot_to_display );
+						$from_time            = bkap_common::bkap_get_formated_time( $time_exploded[0] );
+						$to_time              = isset( $time_exploded[1] ) ? bkap_common::bkap_get_formated_time( $time_exploded[1] ) : '';
+						$time_slot_to_display = '' !== $to_time ? $from_time . ' - ' . $to_time : $from_time;
+						$label                = __( ( '' !== $cart_time_label ? $cart_time_label : 'Booking Time' ), 'woocommerce-booking' );
 
-						$time_exploded = explode( '-', $time_slot_to_display );
-						$from_time     = bkap_common::bkap_get_formated_time( $time_exploded[0] );
+						if ( 'multiple' !== $type_of_slot || $is_multidates ) {
 
-						if ( isset( $time_exploded[1] ) ) {
-							$to_time = bkap_common::bkap_get_formated_time( $time_exploded[1] );
-						}
-
-						if ( $to_time != '' ) {
-							$time_slot_to_display = $from_time . ' - ' . $to_time;
-						} else {
-							$time_slot_to_display = $from_time;
-						}
-
-						if ( $type_of_slot != 'multiple' || $is_multidates ) {
-
-							$name = __( ( '' !== $cart_time_label ? $cart_time_label : 'Booking Time' ), 'woocommerce-booking' );
 							if ( $is_multidates ) {
-								$bkap_multidates  = substr( $bkap_multidates, 0, -4 ); // removing br from date info.
-								$bkap_multidates .= ' - ' . $time_slot_to_display . '<br>';
+								$bkap_multidate_data['time'][ $key ] = $label . ': ' . $time_slot_to_display;
 							} else {
 								$other_data[] = apply_filters(
 									'bkap_get_item_data_time_slot',
 									array(
-										'name'    => $name,
+										'name'    => $label,
 										'display' => $time_slot_to_display,
 									),
 									$booking,
@@ -742,8 +725,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					// Booking Duration Time slot label and its value.
 					if ( isset( $booking['duration_time_slot'] ) && $booking['duration_time_slot'] != '' ) {
 
-						if ( $type_of_slot != 'multiple' ) {
-
+						if ( 'multiple' !== $type_of_slot ) {
 							$cart_time_label       = bkap_option( 'cart_time' );
 							$duration_time_display = bkap_common::bkap_get_formated_time( $booking['duration_time_slot'] );
 							$duration_name         = __( ( '' !== $cart_time_label ? $cart_time_label : 'Booking Time' ), 'woocommerce-booking' );
@@ -757,36 +739,35 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					// Booking duration and hours/minutes.
 					if ( isset( $booking['selected_duration'] ) && $booking['selected_duration'] != '' ) {
 
-						$d_setting      = $booking_settings['bkap_duration_settings'];
-						$duration_label = __( 'Duration', 'woocommerce-booking' );
-
+						$d_setting         = $booking_settings['bkap_duration_settings'];
+						$duration_label    = __( 'Duration', 'woocommerce-booking' );
 						$selected_duration = explode( '-', $booking['selected_duration'] );
 						$duration          = $selected_duration[0];
-
-						if ( $selected_duration[1] == 'hours' ) {
-							$d_type = __( 'Hour(s)', 'woocommerce-booking' );
-						} else {
-							$d_type = __( 'Minute(s)', 'woocommerce-booking' );
-						}
-
-						$other_data[] = array(
+						$d_type            = 'hours' === $selected_duration[1] ? __( 'Hour(s)', 'woocommerce-booking' ) : __( 'Minute(s)', 'woocommerce-booking' );
+						$other_data[]      = array(
 							'name'    => $duration_label,
 							'display' => $duration . ' ' . $d_type,
 						);
 					}
 
 					// Booking resource label and its value.
-					if ( isset( $booking['resource_id'] ) && $booking['resource_id'] != 0 ) {
+					if ( isset( $booking['resource_id'] ) && '' !== $booking['resource_id'] ) {
 
 						$show_resource = apply_filters( 'bkap_display_resource_info_on_cart_checkout', true, $cart_item );
 
 						if ( $show_resource ) {
-							$resource_name = Class_Bkap_Product_Resource::bkap_get_resource_label( $cart_item['product_id'] );
-							$resource_name = ( '' != $resource_name ) ? $resource_name : __( 'Resource Type', 'wocommerce-booking' );
-							$other_data[]  = array(
-								'name'    => $resource_name,
-								'display' => get_the_title( $booking['resource_id'] ),
-							);
+							$resource_title = Class_Bkap_Product_Resource::bkap_get_resource_label( $cart_item['product_id'] );
+							$resource_title = ( '' != $resource_title ) ? $resource_title : __( 'Resource Type', 'wocommerce-booking' );
+							$resource_name  = Class_Bkap_Product_Resource::get_resource_name( $booking['resource_id'] );
+
+							if ( $is_multidates ) {
+								$bkap_multidate_data['resource'][ $key ] = $resource_title . ': ' . $resource_name;
+							} else {
+								$other_data[] = array(
+									'name'    => $resource_title,
+									'display' => $resource_name,
+								);
+							}
 						}
 					}
 
@@ -814,9 +795,37 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 				}
 
 				if ( $is_multidates ) {
+
+					// Date - Time - Resource.
+					$multidates_display_data = '';
+
+					foreach ( $cart_item['bkap_booking'] as $key => $booking ) {
+
+						$display_data = '';
+
+						// Date.
+						if ( isset( $bkap_multidate_data['date'][ $key ] ) ) {
+							$display_data .= $bkap_multidate_data['date'][ $key ];
+						}
+
+						// Time.
+						if ( isset( $bkap_multidate_data['time'][ $key ] ) ) {
+							$display_data .= isset( $bkap_multidate_data['date'][ $key ] ) ? ' - ' . $bkap_multidate_data['time'][ $key ] : $bkap_multidate_data['time'][ $key ];
+						}
+
+						// Resource.
+						if ( isset( $bkap_multidate_data['resource'][ $key ] ) ) {
+							$display_data .= ( '' === $display_data ? '' : '<br/>' ) . $bkap_multidate_data['resource'][ $key ];
+						}
+
+						if ( '' !== $display_data ) {
+							$multidates_display_data .= $display_data . '<br/><br/>';
+						}
+					}
+
 					$other_data[] = array(
 						'name'    => __( 'Booking Summary', 'woocommerce-booking' ),
-						'display' => $bkap_multidates,
+						'display' => $multidates_display_data,
 					);
 				}
 			}
