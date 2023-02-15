@@ -130,7 +130,7 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Connection' ) ) {
 				'exp' => time() + 3600 // 60 seconds as suggested.
 			);
 
-			return JWT::encode( $token, $secret );
+			return JWT::encode( $token, $secret, 'HS256' );
 		}
 
 		/**

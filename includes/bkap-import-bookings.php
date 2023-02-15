@@ -586,7 +586,12 @@ class import_bookings {
 				}
 
 				// update the order status to processing.
-				$order_status = apply_filters( 'bkap_manual_gcal_booking_order_status', 'processing' );
+				if ( $gcal ) {
+					$order_status = apply_filters( 'bkap_manual_gcal_booking_order_status', 'processing' );
+				} else {
+					// Manual order status.
+					$order_status = apply_filters( 'bkap_manual_booking_order_status', 'pending' );
+				}
 				$order_obj->update_status( $order_status );
 			}
 

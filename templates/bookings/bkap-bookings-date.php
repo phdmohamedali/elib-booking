@@ -70,7 +70,7 @@ $calendar_src = apply_filters( 'bkap_calendar_icon_file', $calendar_src, $produc
 $disabled        = '';
 $disabled_status = apply_filters( 'bkap_disable_booking_fields', false, $product_id );
 if ( $disabled_status && '' != bkap_common::bkap_date_from_session_cookie( 'start_date' ) ) {
-	$disabled     = 'disabled="disabled"';
+	$disabled     = 'style="pointer-events:none;"';
 	$calendar_src = '';
 }
 
@@ -95,7 +95,7 @@ $display_start = apply_filters( 'bkap_check_to_show_start_date_field', true, $pr
 
 if ( $display_start ) {
 	?>
-	<div class="bkap_start_date" id="bkap_start_date">
+	<div class="bkap_start_date" id="bkap_start_date" <?php echo $disabled; ?>>
 		<label class="book_start_date_label" style="margin-top:1em;">
 			<?php
 				$bkap_start_date_label = get_option( 'book_date-label', __( 'Start Date', 'woocommerce-booking' ) );
@@ -111,7 +111,6 @@ if ( $display_start ) {
 			class="booking_calender" 
 			style="cursor: text!important;" 
 			readonly
-			<?php echo $disabled; ?>
 		/>
 
 		<?php
@@ -137,7 +136,7 @@ if ( $display_start ) {
 if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $booking_settings['booking_enable_multiple_day'] ) {
 
 	?>
-		<div class="bkap_end_date" id="bkap_end_date">
+		<div class="bkap_end_date" id="bkap_end_date" <?php echo $disabled; ?>>
 			<label class="book_end_date_label">
 				<?php
 				$bkap_end_date_label = get_option( 'checkout_date-label', __( 'End Date', 'woocommerce-booking' ) );
@@ -153,7 +152,6 @@ if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $book
 				class="booking_calender" 
 				style="cursor: text!important;" 
 				readonly
-				<?php echo $disabled; ?>
 			/>
 			<?php
 			if ( '' === $bkap_inline ) :

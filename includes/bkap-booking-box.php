@@ -84,7 +84,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			$duplicate_of     = bkap_common::bkap_get_product_id( $post_id );
 			$booking_settings = get_post_meta( $duplicate_of, 'woocommerce_booking_settings', true );
 
-			$booking_settings = (array) apply_filters( 'bkap_save_product_settings', $booking_settings, $duplicate_of );
+			$booking_settings = apply_filters( 'bkap_save_product_settings', (array) $booking_settings, $duplicate_of );
 			update_post_meta( $duplicate_of, 'woocommerce_booking_settings', $booking_settings );
 		}
 
@@ -2438,7 +2438,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			if ( isset( $_POST['bkap_defaults'] ) && 'on' == $_POST['bkap_defaults'] ) {
 
 				$bkap_default_booking_settings = array();
-				$bkap_default_booking_settings = array_merge( $bkap_default_booking_settings, $booking_options, $settings_data, $block_ranges, $gcal_data, $resource_data, $person_data );
+				$bkap_default_booking_settings = array_merge( $bkap_default_booking_settings, $booking_options, $settings_data, $block_ranges, $gcal_data, $rental_data, $resource_data, $person_data );
 
 				update_option( 'bkap_default_individual_booking_settings', $bkap_default_booking_settings );
 			}

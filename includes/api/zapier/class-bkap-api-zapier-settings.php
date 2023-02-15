@@ -793,7 +793,7 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 								?>
 								<label class="bkap_switch">
 									<input id="bkap_zapier_integration_create_booking_trigger_enable" name= "bkap_zapier_integration_create_booking_trigger_enable" type="checkbox" <?php echo esc_attr( $checked_value_create_booking_trigger ); ?> />
-								<div class="bkap_slider round"></div> 
+								<div class="bkap_slider round"></div>
 								<?php
 							}
 							?>
@@ -872,7 +872,7 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 								?>
 								<label class="bkap_switch">
 									<input id="bkap_zapier_integration_update_booking_trigger_enable" name= "bkap_zapier_integration_update_booking_trigger_enable" type="checkbox" <?php echo esc_attr( $checked_value_update_booking_trigger ); ?> />
-								<div class="bkap_slider round"></div> 
+								<div class="bkap_slider round"></div>
 								<?php
 							}
 							?>
@@ -951,7 +951,7 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 							?>
 							<label class="bkap_switch">
 								<input id="bkap_zapier_integration_delete_booking_trigger_enable" name= "bkap_zapier_integration_delete_booking_trigger_enable" type="checkbox" <?php echo esc_attr( $checked_value_delete_booking_trigger ); ?> />
-							<div class="bkap_slider round"></div> 
+							<div class="bkap_slider round"></div>
 							<?php
 						}
 						?>
@@ -1337,7 +1337,9 @@ if ( ! class_exists( 'BKAP_API_Zapier_Settings' ) ) {
 				$label     = isset( $hook_data->label ) ? $hook_data->label : '';
 			}
 
-			$label_data = self::bkap_api_zapier_fetch_subscription_information( $action, 'label', $label );
+			if ( ! empty( $label ) ) {
+				$label_data = self::bkap_api_zapier_fetch_subscription_information( $action, 'label', $label );
+			}
 			return isset( $label_data->url ) ? $label_data->url : '';
 		}
 

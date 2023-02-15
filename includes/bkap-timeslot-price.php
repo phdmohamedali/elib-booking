@@ -134,18 +134,19 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 					} elseif ( 'on' === $booking_settings['bkap_person_type'] ) {
 						$person_total += absint( $p_value['person_val'] );
 						if ( absint( $p_value['person_val'] ) > 0 ) {
-							$person_price += $person_types[ $p_value['person_id'] ]['base_cost'];
-							$person_price += ( $person_types[ $p_value['person_id'] ]['block_cost'] * absint( $p_value['person_val'] ) );
+							if ( isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_price_per_person'] ) {
+								$person_price += ( $person_types[ $p_value['person_id'] ]['base_cost'] * absint( $p_value['person_val'] ) );
+								$person_price += ( $person_types[ $p_value['person_id'] ]['block_cost'] * absint( $p_value['person_val'] ) );
+							} else {
+								$person_price += $person_types[ $p_value['person_id'] ]['base_cost'];
+								$person_price += $person_types[ $p_value['person_id'] ]['block_cost'];
+							}
 						}
 					}
 				}
 				if ( isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_each_person_booking'] ) {
 					$consider_person_qty = true;
 				}
-			}
-
-			if ( isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_price_per_person'] ) {
-				$person_price = $person_price * $person_total;
 			}
 
 			if ( isset( $_POST['date_time_type'] ) && $_POST['date_time_type'] == 'duration_time' ) {
@@ -331,6 +332,10 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 
 			if ( isset( $_POST['nyp'] ) && '' != $_POST['nyp'] ) {
 				$time_slot_price = $_POST['nyp'];
+			}
+
+			if ( $person_price > 0 ) {
+				$time_slot_price = apply_filters( 'bkap_consider_person_settings_without_product_price', $time_slot_price, $person_price );
 			}
 
 			$time_slot_price = apply_filters( 'bkap_modify_booking_price', $time_slot_price, $product_id, $variation_id, $product_type );
@@ -525,7 +530,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 						$to_hrs = explode( ':', $timeslot_explode[1] );
 					}
 
-					if ( isset( $booking_settings['booking_enable_time'] ) && 'on' === $booking_settings['booking_enable_time']
+					if ( isset( $booking_settings['booking_enable_time'] ) && ( 'on' === $booking_settings['booking_enable_time'] || 'dates_time' === $booking_settings['booking_enable_time'] )
 						&& isset( $booking_settings['booking_time_settings'] ) && count( $booking_settings['booking_time_settings'] ) > 0 ) {
 
 						// match the booking date as specific overrides recurring.

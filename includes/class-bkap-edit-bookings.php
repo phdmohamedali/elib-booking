@@ -680,6 +680,29 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 				$session_cart  = WC()->session->cart;
 				$cart_item_obj = $_POST['cart_item_obj'];
 
+				$global_settings = bkap_global_setting();
+				if ( isset( $global_settings->same_bookings_in_cart ) && 'on' === $global_settings->same_bookings_in_cart ) {
+
+					if ( $cart_item_obj['variation_id'] > 0 ) {
+						$product_id = $cart_item_obj['variation_id'];
+						$product    = wc_get_product( $cart_item_obj['variation_id'] );
+					} else {
+						$product_id = $cart_item_obj['product_id'];
+						$product    = wc_get_product( $cart_item_obj['product_id'] );
+					}
+
+					// Check same booking in cart required parameter defined.
+					$passed                              = true;
+					$booking_settings                    = array();
+					$_POST['wapbk_hidden_date']          = $cart_item_obj['bkap_booking'][0]['hidden_date'];
+					$_POST['wapbk_hidden_date_checkout'] = $cart_item_obj['bkap_booking'][0]['hidden_date_checkout'];
+
+					$passed = Bkap_Validation::bkap_same_bookings_in_cart_validation( $passed, $product_id, $booking_settings, $product );
+					if ( ! $passed ) {
+						die();
+					}
+				}
+
 				// Set the per qty price for 'price' in 'bkap_booking'.
 				$per_qty_price                             = $cart_item_obj['bkap_booking'][0]['price'] / $session_cart[ $_POST['cart_item_key'] ]['quantity'];
 				$cart_item_obj['bkap_booking'][0]['price'] = $per_qty_price;
@@ -1311,9 +1334,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			}
 
 			?>
-				<input 
-					type="checkbox" 
-					id="bkap_enable_booking_edit" 
+				<input
+					type="checkbox"
+					id="bkap_enable_booking_edit"
 					name="woocommerce_booking_global_settings[bkap_enable_booking_edit]"
 					<?php echo $bkap_enable_booking_option; ?>
 				/>
@@ -1339,9 +1362,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			}
 
 			?>
-				<input 
-					type="checkbox" 
-					id="bkap_enable_booking_reschedule" 
+				<input
+					type="checkbox"
+					id="bkap_enable_booking_reschedule"
 					name="woocommerce_booking_global_settings[bkap_enable_booking_reschedule]"
 					<?php echo $bkap_enable_booking_reschedule; ?>
 				/>
@@ -1368,9 +1391,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			}
 
 			?>
-				<input 
-					type="checkbox" 
-					id="bkap_enable_booking_without_date" 
+				<input
+					type="checkbox"
+					id="bkap_enable_booking_without_date"
 					name="woocommerce_booking_global_settings[bkap_enable_booking_without_date]"
 					<?php echo $bkap_enable_booking_without_date; ?>
 				/>
@@ -1390,9 +1413,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			$bkap_booking_reschedule_hours = $this->bkap_update_booking_reschedule_day_to_hour();
 
 			?>
-				<input 
-					type="number" 
-					id="bkap_booking_reschedule_hours" 
+				<input
+					type="number"
+					id="bkap_booking_reschedule_hours"
 					min=0
 					name="woocommerce_booking_global_settings[bkap_booking_reschedule_hours]"
 					value="<?php echo esc_attr( $bkap_booking_reschedule_hours ); ?>"
@@ -1446,9 +1469,9 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			}
 
 			?>
-				<input 
-					type="number" 
-					id="bkap_booking_minimum_hours_cancel" 
+				<input
+					type="number"
+					id="bkap_booking_minimum_hours_cancel"
 					min=0
 					name="woocommerce_booking_global_settings[bkap_booking_minimum_hours_cancel]"
 					value="<?php echo $bkap_booking_minimum_hours_cancel; ?>"

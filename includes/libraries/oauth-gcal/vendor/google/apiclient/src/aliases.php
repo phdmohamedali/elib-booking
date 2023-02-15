@@ -37,7 +37,7 @@ foreach ( $classMap as $class => $alias ) {
  * This class needs to be defined explicitly as scripts must be recognized by
  * the autoloader.
  */
-class Google_Task_Composer extends \BKAPGoogle\Task\Composer {
+class BKAPGoogle_Task_Composer extends \BKAPGoogle\Task\Composer {
 
 }
 

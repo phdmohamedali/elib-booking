@@ -35,6 +35,9 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 
 			// Adding Client ID and Client Secret data to Connection.
 			add_action( 'bkap_update_google_client_id_secret', array( $this, 'bkap_update_google_client_callback' ), 10, 1 );
+
+			// Load Vendor Files.
+			self::bkap_load_gcal_vendor_files();
 		}
 
 		/**
@@ -355,7 +358,7 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 				$url           = add_query_arg( $redirect_args, admin_url( '/post.php?' ) );
 
 				if ( ! is_admin() && current_user_can( 'dokan_edit_product' ) && function_exists( 'dokan_edit_product_url' ) ) {
-					$query_args = array( 'bkap_con_status' =>  $status );
+					$query_args = array( 'bkap_con_status' => $status );
 					$url        = add_query_arg( $query_args, dokan_edit_product_url( $this->product_id ) );
 				}
 			} else {
@@ -407,7 +410,7 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 		 * @since 5.9.1
 		 */
 		public function bkap_check_gcal_vendor_files() {
-			return class_exists( BKApGoogle_Client::class ) && class_exists( Google_Service_Calendar::class );
+			return class_exists( BKAPGoogle_Client::class ) && class_exists( Google_Service_Calendar::class );
 		}
 
 		/**
@@ -422,7 +425,4 @@ if ( ! class_exists( 'BKAP_OAuth_Google_Calendar' ) ) {
 			}
 		}
 	}
-
-	// Load Vendor Files.
-	return BKAP_OAuth_Google_Calendar::bkap_load_gcal_vendor_files();
 }

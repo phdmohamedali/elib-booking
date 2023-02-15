@@ -40,7 +40,7 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 		 *
 		 * @var array $parsed_data.
 		 */
-		private $parsed_data = array();
+		private static $parsed_data = array();
 
 		/**
 		 * Initializes the BKAP_Import_Export_Bookable_Products class. Checks for an existing instance and if it doesn't find one, it then creates it.
@@ -454,7 +454,7 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 				$value = '';
 			}
 
-			$this->parsed_data['can_be_cancelled_duration'] = $value;
+			self::$parsed_data['can_be_cancelled_duration'] = $value;
 			return $value;
 		}
 
@@ -465,7 +465,7 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 		 * @since 5.14.0
 		 */
 		public function parse_can_be_cancelled_period( $value ) {
-			$this->parsed_data['can_be_cancelled_period'] = $value;
+			self::$parsed_data['can_be_cancelled_period'] = $value;
 			return (int) $value;
 		}
 
@@ -477,7 +477,7 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 		 */
 		public function parse_can_be_cancelled( $value ) {
 
-			if ( ! isset( $this->parsed_data['can_be_cancelled_duration'] ) || '' === $this->parsed_data['can_be_cancelled_duration'] || 0 === $this->parsed_data['can_be_cancelled_period'] ) {
+			if ( ! isset( self::$parsed_data['can_be_cancelled_duration'] ) || '' === self::$parsed_data['can_be_cancelled_duration'] || 0 === self::$parsed_data['can_be_cancelled_period'] ) {
 				return '';
 			}
 
@@ -739,13 +739,53 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 							'value' => $value,
 						);
 					}
-				} else {
-					$value               = $data[ $booking_field_key ];
-					$data['meta_data'][] = array(
-						'key'   => $booking_meta_field,
-						'value' => $value,
-					);
+
+					unset( $data[ $booking_field_key ] );
+					return $data;
 				}
+
+				// Ticket: 45790 - Update booking_settings_meta ( woocommerce_booking_settings ) with the settings that may have been made directly on the sheet.
+				if ( 'booking_settings_meta' === $booking_field_key ) {
+
+					$booking_settings_meta = (array) maybe_unserialize( $data['booking_settings_meta'] );
+
+					// Update structure done as was used in the update_serilized_post_meta function.
+					$booking_settings_meta['booking_enable_date'] = isset( self::$parsed_data['enable_booking'] ) ? self::$parsed_data['enable_booking'] : '';
+					$booking_type                                 = isset( self::$parsed_data['booking_type'] ) ? self::$parsed_data['booking_type'] : '';
+
+					$booking_enable_time                          = '';
+					$booking_enable_time                          = 'date_time' === $booking_type ? 'on' : $booking_enable_time;
+					$booking_enable_time                          = 'duration_time' === $booking_type ? 'duration_time' : $booking_enable_time;
+					$booking_enable_time                          = 'multidates_fixedtime' === $booking_type ? 'dates_time' : $booking_enable_time;
+					$booking_settings_meta['booking_enable_time'] = $booking_enable_time;
+
+					$booking_enable_multiple_days                         = '';
+					$booking_enable_multiple_days                         = 'multiple_days' === $booking_type ? 'on' : $booking_enable_multiple_days;
+					$booking_enable_multiple_days                         = ( 'multidates' === $booking_type || 'multidates_fixedtime' === $booking_type ) ? 'multidates' : $booking_enable_multiple_days;
+					$booking_settings_meta['booking_enable_multiple_day'] = $booking_enable_multiple_days;
+
+					$booking_settings_meta['enable_inline_calendar']        = isset( self::$parsed_data['inline_calendar'] ) ? self::$parsed_data['inline_calendar'] : '';
+					$booking_settings_meta['booking_purchase_without_date'] = isset( self::$parsed_data['purchase_without_date'] ) ? self::$parsed_data['purchase_without_date'] : '';
+					$booking_settings_meta['booking_confirmation']          = isset( self::$parsed_data['requires_confirmation'] ) ? self::$parsed_data['requires_confirmation'] : '';
+					$booking_settings_meta['booking_can_be_cancelled']      = array(
+						'status'   => isset( self::$parsed_data['can_be_cancelled'] ) ? self::$parsed_data['can_be_cancelled'] : '',
+						'duration' => isset( self::$parsed_data['can_be_cancelled_duration'] ) ? self::$parsed_data['can_be_cancelled_duration'] : '',
+						'period'   => isset( self::$parsed_data['can_be_cancelled_period'] ) ? self::$parsed_data['can_be_cancelled_period'] : '',
+					);
+					$booking_settings_meta['booking_minimum_number_days']   = isset( self::$parsed_data['abp'] ) ? self::$parsed_data['abp'] : '';
+					$booking_settings_meta['booking_maximum_number_days']   = isset( self::$parsed_data['maximum_dates'] ) ? self::$parsed_data['maximum_dates'] : '';
+					$booking_settings_meta['multidates_type']               = isset( self::$parsed_data['multidates_selecton_type'] ) ? self::$parsed_data['multidates_selecton_type'] : '';
+					$booking_settings_meta['multidates_fixed_number']       = isset( self::$parsed_data['multidates_no_dates'] ) ? self::$parsed_data['multidates_no_dates'] : '';
+					$booking_settings_meta['booking_date_lockout']          = isset( self::$parsed_data['maximum_bookings'] ) ? self::$parsed_data['maximum_bookings'] : '';
+
+					$data['booking_settings_meta'] = $booking_settings_meta;
+				}
+
+				$value               = $data[ $booking_field_key ];
+				$data['meta_data'][] = array(
+					'key'   => $booking_meta_field,
+					'value' => $value,
+				);
 
 				unset( $data[ $booking_field_key ] );
 			}
@@ -761,6 +801,8 @@ if ( ! class_exists( 'BKAP_Import_Export_Bookable_Products' ) ) {
 		 * @since 5.14.0
 		 */
 		public static function format_parsed_data( $data, $instance ) {
+
+			self::$parsed_data = $data;
 
 			// enable_booking.
 			$data = self::replace_booking_field_with_meta_key( $data, 'enable_booking', '_bkap_enable_booking' );

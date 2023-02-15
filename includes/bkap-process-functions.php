@@ -6226,8 +6226,8 @@ function bkap_validate_person_selection( $selected_person_data, $total_person, $
 		$min_person  = $bkap_settings['bkap_min_person'];
 		$max_person  = $bkap_settings['bkap_max_person'];
 		$person_data = $bkap_settings['bkap_person_data'];
-		$max_msg     = apply_filters( 'bkap_max_person_message', __( 'The maximum persons per group is %d', 'woocommerce-bookings' ), $product_id );
-		$min_msg     = apply_filters( 'bkap_min_person_message', __( 'The minimum persons per group is %d', 'woocommerce-bookings' ), $product_id );
+		$max_msg     = apply_filters( 'bkap_max_person_message', __( 'The maximum persons per group is %d', 'woocommerce-booking' ), $product_id );
+		$min_msg     = apply_filters( 'bkap_min_person_message', __( 'The minimum persons per group is %d', 'woocommerce-booking' ), $product_id );
 
 		if ( $max_person && $total_person > $max_person ) {
 			return sprintf( $max_msg, $max_person );

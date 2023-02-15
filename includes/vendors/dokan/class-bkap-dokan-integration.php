@@ -80,7 +80,7 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 
 			$base_url = isset( $_SERVER['REQUEST_URI'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( '/' . $wp->request . '/' );
 
-			
+
 			if ( false !== strpos( $base_url, 'bkap-create-booking' ) || false !== strpos( $base_url, 'bkap-calendar' ) ) {
 				$redirect_url = add_query_arg( '_wpnonce', wp_create_nonce( 'dokan_view_order' ), add_query_arg( [ 'order_id' => $order_id ], dokan_get_navigation_url( 'orders' ) ) );
 			}
@@ -94,7 +94,7 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 		 * @since 5.10.0
 		 */
 		public static function bkap_dokan_enqueue_scripts() {
-			
+
 			global $wp;
 
 			$end_point = '';
@@ -124,7 +124,7 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 		 */
 		public function bkap_remove_menu() {
 
-			if ( current_user_can( 'seller' ) ) {
+			if ( current_user_can( 'vendor' ) && ! is_multisite() ) {
 				remove_menu_page( 'edit.php?post_type=bkap_booking' );
 			}
 		}
@@ -195,7 +195,7 @@ if ( ! class_exists( 'bkap_dokan_class' ) ) {
 		 * @since 4.6.0
 		 */
 		public function bkap_dokan_include_template( $query_vars ) {
-			
+
 			$end_point = '';
 			if ( isset( $query_vars['bkap-dashboard'] ) ) {
 				$end_point = 'bkap-dashboard';

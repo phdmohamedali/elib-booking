@@ -212,7 +212,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				// This is the section where one can enable the block pricing option.
 				$this->bkap_enable_price_by_range_or_fixed_block_booking( $duplicate_of, $booking_settings, $default_booking_settings, $defaults );
 				?>
-				<hr/>				
+				<hr/>
 				<?php
 					// This functions are for Fixed Block Booking and Price By Range tables.
 					$this->bkap_fixed_block_booking_table( $duplicate_of, $booking_settings, $default_booking_settings, $defaults );
@@ -379,7 +379,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				$first_key = key( $results );
 
 				$show_field = apply_filters( 'bkap_show_fixed_blocks_field', true, $duplicate_of, $booking_settings, $results );
-				
+
 				if ( count( $results ) > 0 && $show_field ) {
 
 					$curr_lang = 'en';
@@ -421,7 +421,15 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 							}
 						}
 
-						printf( '<option value=%s&%s&%s %s>%s</option>', $value['start_day'], $value['number_of_days'], $value['price'], $selected, $block_name );
+						$no_days = $value['number_of_days'];
+						// Rental Active and Same Day Charge opton is enable then consider end date as well.
+						if ( is_plugin_active( 'bkap-rental/rental.php' ) ) {
+							if ( isset( $booking_settings['booking_charge_per_day'] ) && $booking_settings['booking_charge_per_day'] == 'on' ) {
+								$no_days = (int) $no_days + 1;
+							}
+						}
+
+						printf( '<option value=%s&%s&%s %s>%s</option>', $value['start_day'], $no_days, $value['price'], $selected, $block_name );
 					}
 					printf( '</select> <br/> <br/></div>' );
 
@@ -494,7 +502,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 					<label><?php _e( 'Block Pricing', 'woocommerce-booking' ); ?></label>
 				</div>
 
-				<div class="block_pricing_flex_child pricing_center block_type_main"> 
+				<div class="block_pricing_flex_child pricing_center block_type_main">
 					<div class="block_pricing_flex_child_block_type" >
 						<input type="radio" id="booking_fixed_block_enable" name="bkap_enable_block_pricing_type" value="booking_fixed_block_enable" onclick="bkap_save_fixed_block_settings()" <?php echo $bkap_fixed_blocks_check; ?>></input>
 						<label for="booking_fixed_block_enable"> <?php _e( 'Fixed Block Booking', 'woocommerce-booking' ); ?> </label>
@@ -552,16 +560,16 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				$attribute_count = 2;
 			}
 			?>
-			
+
 			<!-- Table for Price by range of days -->
 			<div class="bkap_price_range_booking <?php echo $disable_block_pricing_class; ?>" style="<?php echo $display_price_range_table; ?>">
-				 
+
 				<div>
 				   <h4><?php _e( 'Price by range of nights :', 'woocommerce-booking' ); ?></h4>
 				</div>
-				
+
 				<table id="bkap_price_range_booking_table" >
-				
+
 				<?php
 
 				 self::bkap_get_price_range_booking_heading( $product_id, $booking_settings ); // Adding Heading of the table.
@@ -569,7 +577,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				 self::bkap_get_price_range_booking( $product_id, $booking_settings, $default_booking_settings, $defaults  ); // Displaying the table based on the added ranges.
 
 				?>
-				
+
 				<tr style="padding:5px; border-top:2px solid #eee">
 				   <td colspan="<?php echo $attribute_count; ?>" style="border-right: 0px;">
 					   <i>
@@ -582,7 +590,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 					<?php } ?>
 				   <button type="button" class="button-primary bkap_add_new_price_range"><i class="fa fa-plus" aria-hidden="true"></i> <?php _e( 'Add New Range', 'woocommerce-booking' ); ?></button></td>
 				</tr>
-				
+
 				</table>
 			</div>
 			<?php
@@ -638,7 +646,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				<th <?php echo $width; ?>><?php _e( 'Maximum Day', 'woocommerce-booking' ); ?></th>
 				<th <?php echo $width; ?>><?php _e( "Per Day ($currency_symbol)", 'woocommerce-booking' ); ?></th>
 				<th <?php echo $width; ?>><?php _e( "Fixed ($currency_symbol)", 'woocommerce-booking' ); ?></th>
-				
+
 				<th width="4%" id="bkap_price_range_all_close" class="bkap_remove_all_price_ranges" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></th>
 			</tr>
 			<?php
@@ -670,14 +678,14 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 			}
 
 			?>
-		
+
 		<!-- Table for Fixed Block Booking -->
 		<div class="bkap_fixed_block_booking <?php echo $disable_block_pricing_class; ?>" style="<?php echo $display_fixed_block_table; ?>">
-		
+
 			<div>
 				<h4><?php _e( 'Fixed Blocks Booking :', 'woocommerce-booking' ); ?></h4>
 			</div>
-		
+
 			<table id="bkap_fixed_block_booking_table" >
 				<?php
 				 // add date and time setup.
@@ -685,7 +693,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				 self::bkap_get_fixed_block_booking_base_data( $product_id, $booking_settings );
 				 self::bkap_get_fixed_block_booking( $product_id, $booking_settings, $default_booking_settings, $defaults );
 				?>
-				
+
 				<tr style="padding:5px; border-top:2px solid #eee">
 				   <td colspan="3" style="border-right: 0px;">
 					   <i>
@@ -695,12 +703,12 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				   <td colspan="3" align="right" style="border-left: none;">
 				   <?php if ( isset( $_GET['action'] ) && $_GET['action'] != 'bulk_booking_settings' ) { ?>
 					   <button type="button" class="button-primary bkap_save_fixed_block" onclick="bkap_save_fixed_blocks()"><i class="fas fa-save fa-lg"></i> <?php _e( 'Save', 'woocommerce-booking' ); ?></button>
-					<?php } ?> 
-				   
+					<?php } ?>
+
 				   <button type="button" class="button-primary bkap_add_new_fixed_block"><i class="fa fa-plus" aria-hidden="true"></i> <?php _e( 'Add New Block', 'woocommerce-booking' ); ?></button></td>
 				</tr>
 			</table>
-		
+
 		</div>
 			<?php
 		}
@@ -740,7 +748,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 		static function bkap_get_fixed_block_booking_base_data( $product_id, $booking_settings ) {
 			global $bkap_fixed_days;
 			?>
-		
+
 		<tr id="bkap_default_fixed_block_row" style="display: none;">
 			<td width="25%">
 				<input type="text" id="booking_block_name" name="booking_block_name" style="width:100%" placeholder="Enter Name of Block"></input>
@@ -772,10 +780,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				</select>
 			 </td>
 			<td width="20%"><input type="text" class="bkap_input_price" id="fixed_block_price" name="fixed_block_price" style="width:100%" placeholder="Block Price"></input></td>
-			
+
 			<td width="4%" id="bkap_fixed_block_close" class="" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
 		</tr>
-		
+
 			<?php
 		}
 
@@ -840,10 +848,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 				<td>
 					<input type="text" class="bkap_input_price" id="fixed_price" name="fixed_price" style="width:100%"></input>
 				</td>
-				
+
 				<td width="4%" id="bkap_price_range_close" class="" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
 			</tr>
-		
+
 			<?php
 		}
 
@@ -956,10 +964,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 					<td>
 						<input type="text" class="wc_input_price" id="fixed_price_<?php echo $row_number; ?>" name="fixed_price" style="width:100%" value="<?php echo $fixed_price; ?>"></input>
 					</td>
-					
+
 					<td width="4%" id="bkap_price_range_close_<?php echo $row_number; ?>" class="" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
 				</tr>
-			
+
 				<?php
 
 				$row_number++;
@@ -1061,7 +1069,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 								$start_selected = 'selected';
 							}
 							?>
-							<option value="<?php echo $dkey; ?>" <?php echo $start_selected; ?>><?php echo $dvalue; ?></option> 
+							<option value="<?php echo $dkey; ?>" <?php echo $start_selected; ?>><?php echo $dvalue; ?></option>
 							<?php
 						}
 						?>
@@ -1077,17 +1085,17 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 
 						}
 						?>
-						<option value="<?php echo $dkey; ?>" <?php echo $end_selected; ?>><?php echo $dvalue; ?></option> 
+						<option value="<?php echo $dkey; ?>" <?php echo $end_selected; ?>><?php echo $dvalue; ?></option>
 						<?php
 					}
 					?>
 					</select>
 				 </td>
 				<td width="20%"><input type="text" class="bkap_input_price" id="fixed_block_price_<?php echo $row_number; ?>" name="fixed_block_price" style="width:100%" placeholder="Block Price" value="<?php echo $price; ?>"></input></td>
-				
+
 				<td width="4%" id="bkap_fixed_block_close_<?php echo $row_number; ?>" class="" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
 			</tr>
-		
+
 				<?php
 				$row_number++;
 				$i++;
@@ -1257,7 +1265,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 						if ( apply_filters( 'bkap_allow_variation_price', true ) ) {
 							$price = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type, $checkin_date, $checkout_date );
 						}
-						$price += $_POST['block_option_price'];
+						$price += ( float ) $_POST['block_option_price'];
 					}
 				} else {
 					$price = sanitize_text_field( $_POST['block_option_price'] );

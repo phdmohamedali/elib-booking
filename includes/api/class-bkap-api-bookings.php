@@ -81,9 +81,8 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 			// GET Update start date for products
 			// Atif
 			$routes[ $this->get_bookings_endpoint() . '/updatestartdate' ] = array(
-					array( array( $this, 'update_start_date' ), WC_API_Server::READABLE | WC_API_Server::ACCEPT_DATA ),
+				array( array( $this, 'update_start_date' ), WC_API_Server::READABLE | WC_API_Server::ACCEPT_DATA ),
 			);
-
 			// GET /bookings/count.
 			$routes[ $this->get_bookings_endpoint() . '/count' ] = array(
 				array( array( $this, 'get_bookings_count' ), WC_API_Server::READABLE | WC_API_Server::ACCEPT_DATA ),
@@ -1300,7 +1299,6 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 				return new WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
 			}
 		}
-
 		/**
 		 * ATIF Update startdate
 		 */
@@ -1385,8 +1383,7 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 			    }
 
 			    update_post_meta($product_id, '_bkap_first_availabe_slot', $start_date);
-		}		
-		//END ATIF
+		}
 		public function get_products_from_category_by_ID($category){
 			$products = new WP_Query( array(
 				'post_type'   => 'product',
@@ -1405,7 +1402,9 @@ if ( ! class_exists( 'BKAP_API_Bookings' ) ) {
 		
 			) );
 			return $products->posts;
-		}
+		}		
+		//END ATIF
+	
 		/**
 		 * Get availability for bookings.
 		 *

@@ -200,6 +200,15 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$display_name = $first_name . ' ' . $last_name;
 		}
 
+		if ( $preview ) {
+			$current_user = wp_get_current_user();
+			if ( $current_user ) {
+				$display_name = ! empty( $current_user->display_name ) ? $current_user->display_name : $display_name;
+				$first_name   = ! empty( $current_user->user_firstname ) ? $current_user->user_firstname : $first_name;
+				$last_name    = ! empty( $current_user->user_lastname ) ? $current_user->user_lastname : $last_name;
+			}
+		}
+
 		$this->find[]    = '{customer_name}';
 		$this->replace[] = $display_name;
 

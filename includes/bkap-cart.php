@@ -613,6 +613,11 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 										$cost                               = $cost * $diff;
 										$values['bkap_booking'][0]['price'] = $cost;
+									} else {
+										if ( 'simple' === $cart_item['data']->get_type() ) {
+											$cost                               = $cart_item['data']->get_price();
+											$values['bkap_booking'][0]['price'] = $cost;
+										}
 									}
 								}
 							}

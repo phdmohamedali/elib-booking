@@ -88,11 +88,11 @@ class ComposerStaticInit8178541f110b049550bbc7afbc9a52f2 {
 		array(
 			0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
 		),
-		'BKAPGoogle\\Auth\\'            =>
+		'BKAPGoogle\\Auth\\'        =>
 		array(
 			0 => __DIR__ . '/..' . '/google/auth/src',
 		),
-		'BKAPGoogle\\'                  =>
+		'BKAPGoogle\\'              =>
 		array(
 			0 => __DIR__ . '/..' . '/google/apiclient/src',
 		),
@@ -119,7 +119,7 @@ class ComposerStaticInit8178541f110b049550bbc7afbc9a52f2 {
 		'BKAPGoogle_AuthHandler_Guzzle5AuthHandler' => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_AuthHandler_Guzzle6AuthHandler' => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_AuthHandler_Guzzle7AuthHandler' => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
-		'BKAPGoogle_Client'                     => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
+		'BKAPGoogle_Client'                         => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Collection'                     => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Exception'                      => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Http_Batch'                     => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
@@ -129,7 +129,7 @@ class ComposerStaticInit8178541f110b049550bbc7afbc9a52f2 {
 		'BKAPGoogle_Service'                        => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Service_Exception'              => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Service_Resource'               => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
-		'Google_Task_Composer'                  => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
+		'BKAPGoogle_Task_Composer'                  => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Task_Exception'                 => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Task_Retryable'                 => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
 		'BKAPGoogle_Task_Runner'                    => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',

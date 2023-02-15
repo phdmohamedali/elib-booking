@@ -2940,6 +2940,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$booking_date_in          = isset( $post['checkin_date'] ) ? $post['checkin_date'] : ( isset( $_POST['checkin_date'] ) ? $_POST['checkin_date'] : '' ); // Checkin/Booking Date
 			$selected_person_data     = isset( $_POST['person_ids'] ) ? sanitize_text_field( $_POST['person_ids'] ) : 0;
 			$total_person             = isset( $_POST['total_person'] ) ? absint( $_POST['total_person'] ) : 0;
+			$booking_id               = isset( $_POST['booking_id'] ) ? absint( $_POST['booking_id'] ) : 0;
 			$cal_price                = ( isset( $_POST['cal_price'] ) && true === $_POST['cal_price'] ) || ( isset( $post['cal_price'] ) && true === $post['cal_price'] );
 			$msg_format               = get_option( 'book_available-stock-time' );
 
@@ -2956,6 +2957,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 				// assuming that variation lockout is not set.
 				$check_availability    = 'YES';
+				$is_existing_ts        = 'NO';
 				$attr_lockout_set      = 'NO';
 				$variation_lockout_set = 'NO';
 				$booking_in_cart       = 'NO';
@@ -3133,6 +3135,19 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 
 					if ( 'YES' == $check_availability ) {
 						$available_tickets = self::bkap_get_time_availability( $product_id, $booking_date, $from_hrs, $to_hrs, 'YES' );
+
+						if ( $booking_id > 0 ) {
+							$bkap           = new BKAP_Booking( $booking_id );
+							$bkap_start     = date('H:i', $bkap->start);
+							$bkap_end       = date('H:i', $bkap->end);
+							/* if ( '00:00' == $bkap_end ) {
+								$bkap_end = '';
+							} */
+							if ( ( $from_hrs == $bkap_start && empty( $to_hrs ) ) || ( $from_hrs == $bkap_start && ! empty( $to_hrs ) && $to_hrs == $bkap_end ) ) {
+								$is_existing_ts = 'YES';
+							}
+						}
+
 						if ( 'FALSE' == $available_tickets ) {
 							$unlimited = 'NO';
 						}
@@ -3263,7 +3278,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 												}
 											}
 
-											if ( $available_tickets > 0 ) {
+											if ( 'Unlimited' == $available_tickets ) {
+												$unlimited = 'YES';
+											} else if ( (int) $available_tickets > 0 ) {
 												$unlimited          = 'NO';
 												$available_tickets -= $quantity;
 
@@ -3385,8 +3402,9 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$data = apply_filters(
 				'bkap_date_lockout_data',
 				array(
-					'message' => $message,
-					'max_qty' => $available_tickets,
+					'message'        => $message,
+					'max_qty'        => $available_tickets,
+					'is_existing_ts' => $is_existing_ts,
 				),
 				wc_get_product( $product_id ),
 				$product_id,
@@ -3606,7 +3624,7 @@ if ( ! class_exists( 'bkap_booking_process' ) ) {
 			$checkout_date     = date( 'Y-m-d', $checkout_date_str );
 
 			$number = 1;
-			if ( (int) $diff_days <= 0 ) {
+			if ( (int) $diff_days > 0 ) {
 				$number_of_days = $checkout_date_str - $checkin_date_str;
 				$number         = floor( $number_of_days / 86400 );
 			} else {

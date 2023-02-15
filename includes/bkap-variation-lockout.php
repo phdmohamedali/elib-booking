@@ -94,13 +94,13 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 
 			$lockout_value = get_post_meta( $variation->ID, '_booking_lockout_field', true );
 
-			if ( isset( $post->post_status ) && $post->post_status == 'publish' ) {
+			if ( isset( $post->post_status ) && ( 'publish' === $post->post_status || 'draft' === $post->post_status ) ) {
 				?>
-				
+
 				<div class='variable_lockout'>
 				<?php
 				if ( function_exists( 'woocommerce_wp_text_input' ) ) {
-					// Text Field
+					// Text Field.
 					woocommerce_wp_text_input(
 						array(
 							'id'                => '_booking_lockout_field[' . $variation->ID . ']',
@@ -452,7 +452,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						}
 					}
 				}
-	
+
 				$booking_date = isset( $_POST['wapbk_hidden_date'] ) ? sanitize_text_field( $_POST['wapbk_hidden_date'] ) : ''; // Booking Date.
 				$final_qty    = isset( $_POST['quantity'] ) ? absint( $_POST['quantity'] ) : 0; // Quantity.
 
@@ -741,7 +741,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						// check if it's a valid order ID & booking ID
 						$order = wc_get_order( $get_order_id[0]->order_id );
 						if ( $order && false !== $booking_status ) {
-							
+
 							$order_status = $order->get_status();
 							$order_status = "wc-$order_status";
 
@@ -1021,7 +1021,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						if ( $order && false !== $booking_status ) {
 							$order_status = $order->get_status();
 							$order_status = "wc-$order_status";
-							
+
 							if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 								// get the booking details for the given order item ID
@@ -1203,7 +1203,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 
 							$order_status = $order->get_status();
 							$order_status = "wc-$order_status";
-							
+
 							if ( ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 								// get the booking details for the given order item ID

@@ -2528,8 +2528,23 @@ class bkap_common {
 	public static function bkap_get_wpa_cart_totals( $cart_item ) {
 
 		$wpa_addons_total = 0;
+		$quantity         = $cart_item['quantity'];
+		$price            = $cart_item['addons_price_before_calc'];
 		foreach ( $cart_item['addons'] as $addon_key => $addon_value ) {
-			$wpa_addons_total = $wpa_addons_total + $addon_value['price'];
+			$price_type  = $addon_value['price_type'];
+			$addon_price = $addon_value['price'];
+
+			switch ( $price_type ) {
+				case 'percentage_based':
+					$wpa_addons_total  += (float) ( $price * ( $addon_price / 100 ) );
+					break;
+				case 'flat_fee':
+					$wpa_addons_total  += (float) ( $addon_price / $quantity );
+					break;
+				default:
+					$wpa_addons_total  += (float) $addon_price;
+					break;
+			}
 		}
 
 		return $wpa_addons_total;

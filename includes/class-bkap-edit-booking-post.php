@@ -647,6 +647,7 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 					}
 
 					if ( isset( $post['block_option'] ) ) { // updating selected fixed block data.
+						$fixed_block = ( ! empty( $post['block_option'] ) ) ? $post['block_option'] : '';
 						update_post_meta( $post_id, '_bkap_fixed_block', $fixed_block );
 
 						if ( 'multiple' === $resource_selection_type ) {

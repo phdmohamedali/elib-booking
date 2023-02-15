@@ -45,7 +45,7 @@ if ( ! class_exists( 'Bkap_Fluentcrm_Settings' ) ) {
 			// Product Settings.
 			add_action( 'bkap_after_zoom_meeting_settings_product', array( $this, 'bkap_fluentcrm_product_settings' ), 10, 2 );
 
-			if ( ! BKAP_License::enterprise_license() ) {
+			if ( ( ! bkap_fluentcrm_lite_active() || ! bkap_fluentcrm_pro_active() ) || ! BKAP_License::enterprise_license() ) {
 				return;
 			}
 
@@ -260,7 +260,7 @@ if ( ! class_exists( 'Bkap_Fluentcrm_Settings' ) ) {
 		 */
 		public function bkap_fluentcrm_product_settings( $product_id, $booking_settings ) {
 
-			if ( ! BKAP_License::enterprise_license() ) {
+			if ( ( ! bkap_fluentcrm_lite_active() || ! bkap_fluentcrm_pro_active() ) || ! BKAP_License::enterprise_license() ) {
 				return;
 			}
 
@@ -297,7 +297,7 @@ if ( ! class_exists( 'Bkap_Fluentcrm_Settings' ) ) {
 						<td>
 							<label class="bkap_switch">
 								<input id="bkap_enable_fluentcrm" name= "bkap_enable_fluentcrm" type="checkbox" <?php esc_attr_e( $enable_fluentcrm ); ?>/>
-							<div class="bkap_slider round"></div> 
+							<div class="bkap_slider round"></div>
 						</td>
 						<td>
 							<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enable FluentCRM.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -326,7 +326,7 @@ if ( ! class_exists( 'Bkap_Fluentcrm_Settings' ) ) {
 								printf( "<option value='%s' %s>%s</option>", esc_attr( $list['id'] ), esc_attr( $selected_list ), esc_html( $fluent_crm_list_title ) );
 							}
 							?>
-							</select>							
+							</select>
 						</td>
 						<td>
 							<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Contact will be added to selected list..', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -352,7 +352,7 @@ if ( ! class_exists( 'Bkap_Fluentcrm_Settings' ) ) {
 								}
 								?>
 								</i>
-							</p> 
+							</p>
 						</td>
 					</tr>
 				</table>

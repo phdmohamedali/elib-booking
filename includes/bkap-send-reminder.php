@@ -30,7 +30,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 
 			add_action( 'bkap_auto_reminder_emails', array( $this, 'bkap_send_auto_reminder_emails' ) );
 			add_action( 'bkap_manual_reminder_email_settings', array( $this, 'bkap_manual_reminder_email_settings' ), 10 );
-			
+
 			add_action( 'bkap_integration_links', array( $this, 'bkap_twilio_link' ), 10, 1 );
 			add_action( 'bkap_global_integration_settings', array( $this, 'bkap_twilio_settings_page' ), 10, 1 );
 			add_action( 'admin_head', array( $this, 'bkap_add_manual_reminder_button' ) );
@@ -109,7 +109,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 		public static function bkap_reminder_set_status_upon_untrash( $new_status, $post_id, $previous_status ) {
 
 			$post_obj = get_post( $post_id );
-			
+
 			if ( 'bkap_reminder' == $post_obj->post_type ) {
 				return $previous_status;
 			}
@@ -131,7 +131,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 					unset( $actions['inline hide-if-no-js'] );
 				}
 			}
-			
+
 			return $actions;
 		}
 
@@ -227,8 +227,8 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 
 			$columns                                = array();
 			$columns['title']                       = __( 'Reminder Title', 'woocommerce-booking' ); // Resource Title
-			$columns['bkap_reminder_status']        = __( 'Status', 'woocommerce-booking' ); 
-			$columns['bkap_reminder_time_after_before_booking'] = __( 'Send time after/before Booking Date', 'woocommerce-booking' ); 
+			$columns['bkap_reminder_status']        = __( 'Status', 'woocommerce-booking' );
+			$columns['bkap_reminder_time_after_before_booking'] = __( 'Send time after/before Booking Date', 'woocommerce-booking' );
 			$columns['date']                        = $existing_columns['date'];
 
 			unset( $existing_columns['comments'], $existing_columns['title'], $existing_columns['date'] );
@@ -247,7 +247,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 		 * @hook manage_bkap_reminder_posts_custom_column
 		 */
 		public function bkap_reminder_custom_columns( $column ) {
-			
+
 			global $post;
 
 			if ( get_post_type( $post->ID ) === 'bkap_reminder' ) {
@@ -285,7 +285,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 		 * @since 5.14.0
 		 */
 		public function bkap_reminder_remove_month_filter( $months, $post_type ) {
-			
+
 			if ( $post_type === $this->post_type ) {
 				$months = array();
 			}
@@ -333,7 +333,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 			$bkap_screen = get_current_screen();
 
 			// Not our post type, exit earlier
-			// You can remove this if condition if you don't have any specific post type to restrict to. 
+			// You can remove this if condition if you don't have any specific post type to restrict to.
 			if ( $this->post_type != $bkap_screen->post_type ) {
 				return;
 			}
@@ -488,7 +488,7 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 			} else {
 				$content = 'Hi {customer_first_name},
 
-You have a booking of {product_title} on {start_date}. 
+You have a booking of {product_title} on {start_date}.
 
 Your Order # : {order_number}
 Order Date : {order_date}
@@ -547,7 +547,7 @@ Your booking id is: {booking_id}
 				$reminder_email      = $mailer->emails['BKAP_Email_Booking_Reminder'];
 				$main_twilio_details = bkap_get_sms_settings(); // Getting SMS settings.
 				$vendor_sms          = BKAP_Vendors::bkap_vendor_sms_settings(); // key - Vendor ID & Value - Hours.
-				
+
 				foreach ( $all_reminders as $key => $value ) {
 
 					$reminder_id = $value->ID;
@@ -588,7 +588,7 @@ Your booking id is: {booking_id}
 					$number_of_hours = $sending_delay['delay_value'];
 					switch ( $sending_delay['delay_unit'] ) {
 						case 'days':
-							$number_of_hours *= 24; 
+							$number_of_hours *= 24;
 							break;
 						case 'months':
 							$number_of_hours *= 730;
@@ -598,7 +598,7 @@ Your booking id is: {booking_id}
 							break;
 						default:
 							break;
-					}	
+					}
 
 					foreach ( $booking_posts as $key => $booking ) {
 						$booked_date  = date( 'Y-m-d H', strtotime( $booking->get_start() ) );
@@ -614,7 +614,7 @@ Your booking id is: {booking_id}
 
 						switch ( $trigger ) {
 							case 'before_booking_date':
-								$interval = ( $booking_date - $current_date_time ); // booking date - current date time.		
+								$interval = ( $booking_date - $current_date_time ); // booking date - current date time.
 								break;
 							case 'after_booking_date':
 								$interval = ( $current_date_time - $booking_date ); // booking date - current date time.
@@ -631,7 +631,7 @@ Your booking id is: {booking_id}
 							if ( 'on' === $enable_sms ) {
 								if ( isset( $vendor_sms[ $vendor_id ] ) ) {
 									$vendor_twilio_details         = $vendor_sms[ $vendor_id ];
-									
+
 									$vendor_twilio_details['body'] = $sms_body;
 									Bkap_SMS_settings::bkap_send_automatic_sms_reminder( $booking, $vendor_twilio_details, $item_id );
 								} else {
@@ -641,7 +641,7 @@ Your booking id is: {booking_id}
 									}
 								}
 							}
-		
+
 							// Sending remiders from other tools.
 							do_action( 'bkap_send_auto_reminder_emails', $booking, $item_id );
 						}
@@ -687,7 +687,7 @@ Your booking id is: {booking_id}
 			$email_heading = $_POST['email_heading']; // phpcs:ignore
 			$email_address = $_POST['email_address']; // phpcs:ignore
 			$booking_id    = $_POST['booking_id']; // phpcs:ignore
-			
+
 			if ( $booking_id > 0 ) {
 				$booking    = new BKAP_Booking( $booking_id );
 				$item_id    = $booking->get_item_id();
@@ -695,9 +695,9 @@ Your booking id is: {booking_id}
 				$booking = array();
 				$item_id = 0;
 			}
-			
-			$mailer     = WC()->mailer();
-			$reminder   = $mailer->emails['BKAP_Email_Booking_Reminder'];
+
+			$mailer   = WC()->mailer();
+			$reminder = $mailer->emails['BKAP_Email_Booking_Reminder'];
 
 			if ( '' === $email_subject ) {
 				$email_subject = $reminder->subject;
@@ -709,7 +709,7 @@ Your booking id is: {booking_id}
 
 			$reminder->recipient = ( $reminder->recipient == '' ) ? $email_address : ',' . $email_address;
 
-			$reminder->trigger( $item_id, $email_subject, $email_content, $email_heading, $email_address );
+			$reminder->trigger( $item_id, $email_subject, $email_content, $email_heading, $email_address, true );
 
 			$twilio_details = bkap_get_sms_settings(); // Getting SMS settings.
 			if ( is_array( $twilio_details ) ) {

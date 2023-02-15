@@ -335,7 +335,7 @@ if ( ! class_exists( 'bkap_admin_bookings' ) ) {
 					if ( 'existing' === $booking_order ) {
 						$order_id      = absint( $_POST['bkap_order_id'] );
 						$booking_order = $order_id;
-						if ( wc_get_order( $order_id ) ) {
+						if ( ! wc_get_order( $order_id ) ) {
 							throw new Exception( __( 'Invalid order ID provided', 'woocommerce-booking' ) );
 						}
 					}

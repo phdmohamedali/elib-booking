@@ -326,12 +326,12 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							}
 
 								$query = 'UPDATE `' . $wpdb->prefix . 'booking_history`
-									SET available_booking = available_booking - ' . $quantity . '
-									WHERE post_id = ' . $post_id . ' AND
-									start_date = ' . $date_query . ' AND
-									TIME_FORMAT( from_time, "%H:%i" ) = ' . $from_hi . ' AND                                                
-									status != "inactive" AND
-									total_booking > 0';
+									SET available_booking = available_booking - ' . $quantity . "
+									WHERE post_id = '" . $post_id . "' AND
+									start_date = '" . $date_query . "' AND
+									TIME_FORMAT( from_time, '%H:%i' ) = '" . $from_hi . "' AND
+									status != 'inactive' AND
+									total_booking > 0";
 								$wpdb->query( $query );
 						}
 
@@ -794,7 +794,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 			$new_booking_data['start']           = $start_date . $start_time;
 			$new_booking_data['end']             = $end_date . $end_time;
 			$new_booking_data['cost']            = $booking_price;
-			$new_booking_data['user_id']         = $order->get_customer_id();
+			$new_booking_data['user_id']         = ( $order ) ? $order->get_customer_id() : 0;
 			$new_booking_data['all_day']         = $all_day;
 			$new_booking_data['parent_id']       = $order_id;
 			$new_booking_data['gcal_event_uid']  = $event_uid;
@@ -1028,11 +1028,11 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							$time_slot_lable     = get_option( 'book_item-meta-time' );
 							$metadata            = $wpdb->get_results(
 								$wpdb->prepare(
-									"SELECT meta_key, meta_value, meta_id 
-																		FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-																		WHERE order_item_id = %d 
-																		AND meta_key 
-																		IN (%s,%s,%s,%s,%s,%s) 
+									"SELECT meta_key, meta_value, meta_id
+																		FROM {$wpdb->prefix}woocommerce_order_itemmeta
+																		WHERE order_item_id = %d
+																		AND meta_key
+																		IN (%s,%s,%s,%s,%s,%s)
 																		ORDER BY meta_id",
 									absint( $results[0]->order_item_id ),
 									$start_date_label,
@@ -1424,7 +1424,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 													  WHERE post_id = %d
 													  AND weekday = %s
 													  AND start_date = '0000-00-00'
-													  AND to_time = '' 
+													  AND to_time = ''
 													  AND status !=  'inactive' ";
 										$results = $wpdb->get_results( $wpdb->prepare( $query, $duplicate_of, $weekday ) );
 

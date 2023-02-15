@@ -139,6 +139,23 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					),
 				);
 
+				$user_id = get_current_user_id();
+				if ( ! empty( $user_id ) ) {
+					$user_meta  = get_userdata( $user_id );
+					$user_roles = $user_meta->roles;
+
+					if ( empty( array_intersect( $user_roles, array( 'administrator', 'shop_manager' ) ) ) ) {
+						$meta_query[] = array(
+							'relation' => 'AND',
+							array(
+								'key'     => '_bkap_vendor_id',
+								'value'   => $user_id,
+								'compare' => '=',
+							),
+						);
+					}
+				}
+
 				$wp_query->set( 'meta_query', $meta_query );
 				$wp_query->set( 'm', null );
 			}
@@ -426,6 +443,75 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		}
 
 		/**
+		 * Sortable Views List
+		 *
+		 * @access public
+		 * @param mixed $views Array of views.
+		 * @since 4.1.0
+		 *
+		 * @return array array of the views keys to be displayed on the View Bookings page
+		 */
+		public function bkap_custom_view_count( $views ) {
+			global $current_screen;
+			switch ( $current_screen->id ) {
+				case 'edit-bkap_booking':
+					$views = $this::bkap_manipulate_views( 'bkap_booking', $views );
+					break;
+			}
+			return $views;
+		}
+
+		/**
+		 * Manipulate Views List
+		 *
+		 * @access public
+		 * @param string $what string of post type.
+		 * @param mixed  $views Array of views.
+		 * @since 4.1.0
+		 *
+		 * @return array array of the views keys to be displayed on the View Bookings page
+		 */
+		public function bkap_manipulate_views( $what, $views ) {
+			global $user_ID, $wpdb;
+
+			if ( current_user_can( 'administrator' ) || current_user_can( 'shop_manager' ) ) {
+				return $views;
+			}
+
+			/*
+			* This needs refining, and maybe a better method
+			* e.g. Attachments have completely different counts
+			*/
+			$total   = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE (post_status = 'publish' OR post_status = 'draft' OR post_status = 'pending' OR post_status = 'paid') AND (post_author = '$user_ID' AND post_type = '$what' ) " );
+			$paid    = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'paid' AND post_author = '$user_ID' AND post_type = '$what' " );
+			$publish = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish' AND post_author = '$user_ID' AND post_type = '$what' " );
+			$draft   = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'draft' AND post_author = '$user_ID' AND post_type = '$what' " );
+			$pending = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'pending' AND post_author = '$user_ID' AND post_type = '$what' " );
+
+			/*
+			* Only tested with Posts/Pages
+			* - there are moments where Draft and Pending shouldn't return any value
+			*/
+			if ( isset( $views['all'] ) ) {
+				$views['all'] = preg_replace( '/\(.+\)/U', '(' . $total . ')', $views['all'] );
+			}
+			if ( isset( $views['paid'] ) ) {
+				$views['paid'] = preg_replace( '/\(.+\)/U', '(' . $paid . ')', $views['paid'] );
+			}
+			if ( isset( $views['publish'] ) ) {
+				$views['publish'] = preg_replace( '/\(.+\)/U', '(' . $publish . ')', $views['publish'] );
+			}
+			if ( isset( $views['draft'] ) ) {
+				$views['draft'] = preg_replace( '/\(.+\)/U', '(' . $draft . ')', $views['draft'] );
+			}
+			if ( isset( $views['pending'] ) ) {
+				$views['pending'] = preg_replace( '/\(.+\)/U', '(' . $pending . ')', $views['pending'] );
+			}
+
+			return $views;
+		}
+
+		/**
 		 * Remove Edit link from the bulk actions
 		 *
 		 * @param array $actions Array of Action.
@@ -578,7 +664,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 			global $typenow, $wp_query, $wpdb;
 
-			if ( 'bkap_booking' === $this->type ) {
+			if ( $typenow === $this->type ) {
 
 				$current_timestamp = current_time( 'timestamp' );
 				$current_time      = date( 'Ymd', $current_timestamp );
@@ -598,6 +684,23 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 						'compare' => 'LIKE',
 					),
 				);
+
+				$user_id = get_current_user_id();
+				if ( ! empty( $user_id ) ) {
+					$user_meta  = get_userdata( $user_id );
+					$user_roles = $user_meta->roles;
+
+					if ( empty( array_intersect( $user_roles, array( 'administrator', 'shop_manager', 'seller', 'vendor', 'wcfm_vendor' ) ) ) ) {
+						$query->query_vars['meta_query'] = array(
+							'relation' => 'AND',
+							array(
+								'key'     => '_bkap_vendor_id',
+								'value'   => $user_id,
+								'compare' => '=',
+							),
+						);
+					}
+				}
 
 				if ( ! empty( $_REQUEST['filter_products'] ) && ! empty( $_REQUEST['filter_views'] ) && empty( $query->query_vars['suppress_filters'] ) ) {
 
@@ -1126,6 +1229,11 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		public function bkap_bulk_admin_notices() {
 			global $post_type, $pagenow;
 
+			require_once( ABSPATH . 'wp-admin/includes/screen.php' );
+
+			$bkap_screen = get_current_screen();
+			add_filter( 'views_' . $bkap_screen->id, array( &$this, 'bkap_custom_view_count' ), 1 );
+
 			if ( isset( $_REQUEST['bookings_confirmed'] ) || isset( $_REQUEST['bookings_unconfirmed'] ) || isset( $_REQUEST['bookings_cancelled'] ) ) {
 				$number = isset( $_REQUEST['changed'] ) ? absint( $_REQUEST['changed'] ) : 0;
 
@@ -1183,7 +1291,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 			$results_query = $wpdb->get_results( $wpdb->prepare( $query, '_bkap_product_id', $product_id ) );
 
-			$bookings_present = false; // assume no bookings are present for this product.			
+			$bookings_present = false; // assume no bookings are present for this product.
 			if ( isset( $results_query ) && count( $results_query ) > 0 ) {
 				$bookings_present = true;
 			}
@@ -1585,7 +1693,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			if ( ! empty( $report ) ) {
 
 				$exported_item = $done_items + count( $report );
-				$saved_data    = $done_items + count( $report );				
+				$saved_data    = $done_items + count( $report );
 				$percentage    = round( ( $saved_data / $total_bookings ) * 100 );
 
 				if ( 'csv' === $csv_print ) {
@@ -1780,7 +1888,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			}
 
 			$ids = array();
-			
+
 			// Search by Customer ID if search string is numeric.
 			if ( is_numeric( $term ) ) {
 
@@ -1810,7 +1918,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					$wpdb->prepare(
 						"SELECT `{$wpdb->prefix}wc_customer_lookup`.customer_id FROM `{$wpdb->prefix}wc_customer_lookup` WHERE (`{$wpdb->prefix}wc_customer_lookup`.first_name LIKE %s OR `{$wpdb->prefix}wc_customer_lookup`.last_name LIKE %s) {$limit}",
 						'%'.$term.'%',
-						'%'.$term.'%'				
+						'%'.$term.'%'
 					)
 				);
 			}
