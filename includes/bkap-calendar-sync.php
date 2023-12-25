@@ -57,6 +57,34 @@ add_action( 'woocommerce_bkap_import_events', 'bkap_import_events_cron' );
 class bkap_calendar_sync {
 
 	/**
+	 * Google Calendar API Type.
+	 *
+	 * @var string $gcal_api Google Calendar API Type.
+	 */
+	public $gcal_api;
+
+	/**
+	 * Email ID.
+	 *
+	 * @var string $email_id Email ID.
+	 */
+	public $email_id;
+
+	/**
+	 * Plugin Directory.
+	 *
+	 * @var string $plugin_dir Plugin Directory.
+	 */
+	public $plugin_dir;
+
+	/**
+	 * Plugin URL.
+	 *
+	 * @var string $plugin_url Plugin URL.
+	 */
+	public $plugin_url;
+
+	/**
 	 * Default constructor
 	 *
 	 * @since 2.6.3
@@ -64,7 +92,7 @@ class bkap_calendar_sync {
 	public function __construct() {
 
 		$this->gcal_api = false;
-		$this->email_ID = '';
+		$this->email_id = '';
 
 		add_action( 'wp_loaded', array( $this, 'bkap_setup_gcal_sync' ), 10 );
 		add_action( 'admin_init', array( $this, 'bkap_setup_gcal_sync' ), 10 );
@@ -95,6 +123,12 @@ class bkap_calendar_sync {
 		add_action( 'wp_ajax_bkap_import_events', array( &$this, 'bkap_setup_import' ) );
 		add_action( 'wp_ajax_bkap_admin_booking_calendar_events', array( &$this, 'bkap_admin_booking_calendar_events' ) );
 
+		add_action( 'wp_ajax_bkap_calendar_json_upload', array( &$this, 'bkap_calendar_json_upload_callback' ));
+		add_action( 'wp_ajax_nopriv_bkap_calendar_json_upload', array( &$this, 'bkap_calendar_json_upload_callback' ) );
+
+		add_action( 'wp_ajax_bkap_disconnect_json_data', array( &$this, 'bkap_disconnect_json_data_callback' ));
+		add_action( 'wp_ajax_nopriv_bkap_disconnect_json_data', array( &$this, 'bkap_disconnect_json_data_callback' ) );
+
 		require_once $this->plugin_dir . '/iCal/SG_iCal.php';
 
 		add_filter( 'pre_update_option_bkap_cron_time_duration', array( &$this, 'pre_update_option_bkap_cron_time_duration_call' ), 10, 2 );
@@ -102,6 +136,143 @@ class bkap_calendar_sync {
 		add_action( 'admin_init', array( $this, 'bkap_gcal_oauth_redirect' ), 11 );
 		add_action( 'init', array( $this, 'bkap_gcal_oauth_redirect' ), 11 );
 		add_action( 'admin_notices', array( $this, 'bkap_gcal_success_fail_notice' ), 11 );
+		add_action( 'admin_notices', array( $this, 'bkap_gcal_p12_to_json_notice' ), 11 );
+	}
+
+	/**
+	 * This function will delete the uploaded json data from the database.
+	 *
+	 * @since 5.19.0
+	 */
+	public function bkap_disconnect_json_data_callback() {
+
+		if ( isset( $_POST['product_id'] ) ) {
+
+			$booking_settings = bkap_setting( $_POST['product_id'] );
+
+			if ( ! is_string( $booking_settings && ! empty( $booking_settings ) ) ) {
+
+				$update = false;
+
+				if ( $booking_settings['bkap_calendar_json_file_data'] ) {
+					unset( $booking_settings['bkap_calendar_json_file_data'] );
+					delete_post_meta( $_POST['product_id'], '_bkap_calendar_json_file_data' );
+					$update = true;
+				}
+				if ( $booking_settings['bkap_calendar_json_file_name'] ) {
+					unset( $booking_settings['bkap_calendar_json_file_name'] );
+					delete_post_meta( $_POST['product_id'], '_bkap_calendar_json_file_name' );
+					$update = true;
+				}
+				if ( $booking_settings['product_sync_service_acc_email_addr'] ) {
+					unset( $booking_settings['product_sync_service_acc_email_addr'] );
+					delete_post_meta( $_POST['product_id'], '_bkap_gcal_service_acc' );
+					$update = true;
+				}
+
+				if ( $update ) {
+					update_post_meta( $_POST['product_id'], 'woocommerce_booking_settings', $booking_settings );
+				}
+			}
+		} else {
+			delete_option( 'bkap_calendar_json_file_data' );
+
+			$gcal_array = '' !== get_option( 'bkap_calendar_details_1' ) ? get_option( 'bkap_calendar_details_1' ) : array();
+
+			if ( isset( $gcal_array['bkap_calendar_json_file_name'] ) ) {
+				unset( $gcal_array['bkap_calendar_json_file_name'] );
+				unset( $gcal_array['bkap_calendar_service_acc_email_address'] );
+				update_option( 'bkap_calendar_details_1', $gcal_array );
+			}
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * This function will upload the json data to database.
+	 *
+	 * @since 5.19.0
+	 */
+	public function bkap_calendar_json_upload_callback() {
+
+		// Check if the user has permission to upload files
+		if ( ! current_user_can( 'upload_files' ) ) {
+			wp_send_json_error( __( 'You do not have permission to upload files.', 'woocommerce-booking' ) );
+		}
+
+		// Check if a file was uploaded
+		if ( empty( $_FILES['bkap_calendar_json_data'] ) ) {
+			wp_send_json_error( __( 'No file was uploaded.', 'woocommerce-booking' ) );
+		}
+
+		// Check if the file is a JSON file
+		$file_type = wp_check_filetype( basename( $_FILES['bkap_calendar_json_data']['name'] ), array( 'json' => 'application/json' ) );
+		if ( $file_type['ext'] != 'json' ) {
+			wp_send_json_error( __( 'The uploaded file is not a JSON file.', 'woocommerce-booking' ) );
+		}
+		
+		// Read the contents of the file
+		$file_contents = file_get_contents( $_FILES['bkap_calendar_json_data']['tmp_name'] );
+		
+		// Decode the JSON data
+		$json_data = json_decode( $file_contents );
+		
+		// Check if the JSON data is valid
+		if ( ! $json_data ) {
+			wp_send_json_error( __( 'The uploaded file does not contain valid JSON data.', 'woocommerce-booking' ) );
+		}
+
+		$data = array( 'name' => $_FILES['bkap_calendar_json_data']['name'] );
+		if ( isset( $_POST['product_id'] ) ) {
+
+			$booking_settings = bkap_setting( $_POST['product_id'] );
+
+			if ( is_string( $booking_settings ) ) {
+				$booking_settings = array();
+			}
+
+			$booking_settings['bkap_calendar_json_file_data'] = $json_data;
+			$booking_settings['bkap_calendar_json_file_name'] = $_FILES['bkap_calendar_json_data']['name'];
+			$booking_settings['product_sync_service_acc_email_addr'] = $json_data->client_email;
+
+			update_post_meta( $_POST['product_id'], '_bkap_calendar_json_file_data', $json_data );
+			update_post_meta( $_POST['product_id'], '_bkap_calendar_json_file_name', $_FILES['bkap_calendar_json_data']['name'] );
+			update_post_meta( $_POST['product_id'], '_bkap_gcal_service_acc', $json_data->client_email );
+
+			if ( isset( $booking_settings['product_sync_key_file_name'] ) && '' != $booking_settings['product_sync_key_file_name'] ) {
+				$uploads_dir = isset( $uploads['basedir'] ) ? $uploads['basedir'] . '/' : WP_CONTENT_DIR . '/uploads/';
+				if ( file_exists( $uploads_dir . 'bkap_uploads/' . $booking_settings['product_sync_key_file_name'] . '.p12' ) ) {
+					unlink( $uploads_dir . 'bkap_uploads/' . $booking_settings['product_sync_key_file_name'] . '.p12' );
+					unset( $booking_settings['product_sync_key_file_name'] );
+
+					delete_post_meta( $_POST['product_id'], '_bkap_gcal_key_file_name' );
+				}
+			}
+
+			update_post_meta( $_POST['product_id'], 'woocommerce_booking_settings', $booking_settings );
+
+		} else {
+			// Store the JSON data in the database
+			update_option( 'bkap_calendar_json_file_data', $json_data );
+					
+			$gcal_array = '' !== get_option( 'bkap_calendar_details_1' ) ? get_option( 'bkap_calendar_details_1' ) : array();
+			if ( isset( $gcal_array['bkap_calendar_key_file_name'] ) ) {
+				$uploads_dir = isset( $uploads['basedir'] ) ? $uploads['basedir'] . '/' : WP_CONTENT_DIR . '/uploads/';
+				if ( file_exists( $uploads_dir . 'bkap_uploads/' . $gcal_array['bkap_calendar_key_file_name'] . '.p12' ) ) {
+					unlink( $uploads_dir . 'bkap_uploads/' . $gcal_array['bkap_calendar_key_file_name'] . '.p12' );
+					unset( $gcal_array['bkap_calendar_key_file_name'] );
+				}
+			}
+			$gcal_array['bkap_calendar_service_acc_email_address'] = $json_data->client_email;
+			$gcal_array['bkap_calendar_json_file_name']            = $_FILES['bkap_calendar_json_data']['name'];
+			update_option( 'bkap_calendar_details_1', $gcal_array );
+
+			$data['bkap_calendar_service_acc_email_address'] = $json_data->client_email;
+			$data['bkap_calendar_json_file_name']            = $_FILES['bkap_calendar_json_data']['name'];
+		}
+
+		wp_send_json_success( $data );
 	}
 
 	/**
@@ -126,6 +297,58 @@ class bkap_calendar_sync {
 				$product_id      = ( 0 != $_GET['bkap_logout'] ) ? $_GET['bkap_logout'] : 0; // phpcs:ignore
 				$bkap_oauth_gcal = new BKAP_OAuth_Google_Calendar( $product_id, $user_id );
 				$bkap_oauth_gcal->oauth_logout();
+			}
+		}
+	}
+
+	/**
+	 * This function will add notice on the admin end for uploading json file for gcal.
+	 *
+	 * @since 5.19.1
+	 */
+	public function bkap_gcal_p12_to_json_notice() {
+
+		global $wpdb;
+
+		if ( 'page' !== get_post_type() && 'post' !== get_post_type() ) {
+
+			$bkap_gcal_json_p12_notice = get_option( 'bkap_gcal_json_p12_notice', '' );
+
+			if ( 'yes' != $bkap_gcal_json_p12_notice ) {
+
+				$gcal_array      = '' !== get_option( 'bkap_calendar_details_1' ) ? get_option( 'bkap_calendar_details_1' ) : array();
+				$service_enabled = false;
+				if ( isset( $gcal_array['bkap_calendar_key_file_name'] ) && '' !== $gcal_array['bkap_calendar_key_file_name'] ) {
+					$service_enabled = true;
+				}
+
+				if ( ! $service_enabled ) {
+
+					$results = $wpdb->get_results(
+						"SELECT post_id, meta_value
+						FROM {$wpdb->postmeta}
+						WHERE meta_key = '_bkap_gcal_integration_mode' AND meta_value = 'directly'",
+						ARRAY_A
+					);
+
+					if ( count( $results ) > 0 ) {
+
+						foreach ( $results as $key => $value ) {
+							if ( '' != get_post_meta( $value['post_id'], '_bkap_gcal_key_file_name', true ) ) {
+								$service_enabled = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if ( $service_enabled ) {
+					/* translators: %s: URL of Google Calendar Sync page */
+					$message = __( 'The Google Calendar integration settings need to be updated to use JSON key file instead of p12 file from Google. Please update your settings at Global and Product level both to keep your site secured.', 'woocommerce-booking' );
+					$class   = 'notice notice-info bkap-gcal-json-notice is-dismissible';
+					printf( '<div class="%s"><p><b>%s</b></p></div>', $class, $message ); // phpcs:ignore
+				}
+
 			}
 		}
 	}
@@ -190,7 +413,7 @@ class bkap_calendar_sync {
 	 * @since 2.6
 	 */
 	public function bkap_new_order_email( $subject ) {
-		$this->email_ID = 'new_order';
+		$this->email_id = 'new_order';
 		return $subject;
 	}
 
@@ -205,8 +428,8 @@ class bkap_calendar_sync {
 	 *
 	 * @since 2.6
 	 */
-	function bkap_customer_email( $subject ) {
-		$this->email_ID = 'customer_order';
+	public function bkap_customer_email( $subject ) {
+		$this->email_id = 'customer_order';
 		return $subject;
 	}
 
@@ -400,7 +623,7 @@ class bkap_calendar_sync {
 							$mode = $booking_settings['product_sync_integration_mode'];
 							switch ( $mode ) {
 								case 'directly':
-									if ( '' == $booking_settings['product_sync_key_file_name'] || '' == $booking_settings['product_sync_service_acc_email_addr'] || '' == $booking_settings['product_sync_calendar_id'] ) {
+									if ( '' == $booking_settings['bkap_calendar_json_file_data'] || '' == $booking_settings['product_sync_service_acc_email_addr'] || '' == $booking_settings['product_sync_calendar_id'] ) {
 										$post_id = 0;
 									}
 									break;
@@ -476,21 +699,20 @@ class bkap_calendar_sync {
 	 * Adds buttons in the WooCommerce customer emails
 	 * using which customers can add bookings into their calendars.
 	 *
-	 * @param integer               $item_id - Item ID of the product
-	 * @param WC_Order_Item_Product $item - Item Object
-	 * @param WC_Order              $order - Order Object
+	 * @param integer               $item_id - Item ID of the product.
+	 * @param WC_Order_Item_Product $item - Item Object.
+	 * @param WC_Order              $order - Order Object.
 	 *
 	 * @hook woocommerce_order_item_meta_end
 	 * @since 2.6
 	 */
-
-	function bkap_add_to_calendar_customer( $item_id, $item, $order ) {
+	public function bkap_add_to_calendar_customer( $item_id, $item, $order ) {
 		if ( ! is_account_page() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
-			// check the email ID
-			if ( 'customer_order' == $this->email_ID ) {
+			// check the email ID.
+			if ( 'customer_order' === $this->email_id ) {
 
-				// check if it's a bookable product
+				// check if it's a bookable product.
 				$bookable   = bkap_common::bkap_get_bookable_status( $item['product_id'] );
 				$valid_date = false;
 				if ( isset( $item['wapbk_booking_date'] ) ) {
@@ -510,19 +732,18 @@ class bkap_calendar_sync {
 	 * Executed only when manual booking sync is enabled with
 	 * appropriate settings.
 	 *
-	 * @param integer               $item_id - Item ID of the product
-	 * @param WC_Order_Item_Product $item - Item Object
-	 * @param WC_Order              $order - Order Object
+	 * @param integer               $item_id - Item ID of the product.
+	 * @param WC_Order_Item_Product $item - Item Object.
+	 * @param WC_Order              $order - Order Object.
 	 *
 	 * @hook woocommerce_order_item_meta_end
 	 * @since 2.6
 	 */
-
-	function bkap_add_to_calendar_admin( $item_id, $item, $order ) {
+	public function bkap_add_to_calendar_admin( $item_id, $item, $order ) {
 		if ( ! is_account_page() && ! is_wc_endpoint_url( 'order-received' ) ) {
 
-			if ( 'new_order' == $this->email_ID ) {
-				// check if it's a bookable product
+			if ( 'new_order' === $this->email_id ) {
+				// check if it's a bookable product.
 				$post_id = bkap_common::bkap_get_product_id( $item['product_id'] );
 
 				$bookable = bkap_common::bkap_get_bookable_status( $post_id );

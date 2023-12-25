@@ -61,7 +61,7 @@ if ( ! class_exists( 'Global_Menu' ) ) {
 			unset( $submenu['edit.php?post_type=bkap_booking'][10] );
 
 			$page = add_submenu_page(
-				null,
+				'',
 				__( 'Calednar View', 'woocommerce-booking' ),
 				__( 'Calendar View', 'woocommerce-booking' ),
 				'manage_woocommerce',
@@ -274,9 +274,9 @@ if ( ! class_exists( 'Global_Menu' ) ) {
 							settings_errors();
 							settings_fields( 'bkap_zoom_meeting_settings' );
 							do_settings_sections( 'bkap_zoom_meeting_settings_page' );
-							$key    = get_option( 'bkap_zoom_api_key', '' );
-							$secret = get_option( 'bkap_zoom_api_secret', '' );
-							if ( '' !== $key && '' !== $secret ) {
+
+							$zoom_connection_type = bkap_zoom_connection_type();
+							if ( '' !== $zoom_connection_type ) {
 								?>
 							<h4 class="description" style="color:red;"><?php esc_html_e( 'After you enter your keys. Do save settings before doing "Test Connection".', 'woocommerce-booking' ); ?></h4>
 								<?php
@@ -285,7 +285,7 @@ if ( ! class_exists( 'Global_Menu' ) ) {
 							<p class="submit">
 							<?php
 							submit_button( __( 'Save Settings', 'woocommerce-booking' ), 'primary', 'save', false );
-							if ( '' !== $key && '' !== $secret ) {
+							if ( '' !== $zoom_connection_type ) {
 								?>
 							<button type="button" class="button bkap_zoom_test_connection"><?php esc_html_e( 'Test Connection', 'woocommerce-booking' ); ?></button> </p>
 								<?php
@@ -1036,6 +1036,8 @@ Select this if you want to hide the Booking Price on Product page until the time
 					'bkap_zoom_meeting_settings_page' // Page on which to add this section of options.
 				);
 
+				$zoom_enabled = bkap_zoom_connection_type();
+
 				add_settings_field(
 					'bkap_zoom_meeting_instructions',
 					__( 'Instructions', 'woocommerce-booking' ),
@@ -1046,20 +1048,55 @@ Select this if you want to hide the Booking Price on Product page until the time
 				);
 
 				add_settings_field(
-					'bkap_zoom_api_key',
-					__( 'API Key', 'woocommerce-booking' ),
-					array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_api_key_callback' ),
+					'bkap_zoom_client_id',
+					__( 'Client ID', 'woocommerce-booking' ),
+					array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_client_id_callback' ),
+					'bkap_zoom_meeting_settings_page',
+					'bkap_integrations_settings_section',
+					array( 'type' => $zoom_enabled )
+				);
+
+				add_settings_field(
+					'bkap_zoom_client_secret',
+					__( 'Client Secret', 'woocommerce-booking' ),
+					array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_client_secret_callback' ),
+					'bkap_zoom_meeting_settings_page',
+					'bkap_integrations_settings_section',
+					array( 'type' => $zoom_enabled )
+				);
+
+				add_settings_field(
+					'bkap_zoom_redirect_url',
+					__( 'Redirect URL', 'woocommerce-booking' ),
+					array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_redirect_url_callback' ),
 					'bkap_zoom_meeting_settings_page',
 					'bkap_integrations_settings_section'
 				);
 
-				add_settings_field(
-					'bkap_zoom_api_secret',
-					__( 'API Secret', 'woocommerce-booking' ),
-					array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_api_secret_callback' ),
-					'bkap_zoom_meeting_settings_page',
-					'bkap_integrations_settings_section'
-				);
+				$client_id     = get_option( 'bkap_zoom_client_id', '' );
+				$client_secret = get_option( 'bkap_zoom_client_secret', '' );
+
+				if ( '' !== $client_id && '' !== $client_secret ) {
+
+					$access_token = get_option( 'bkap_zoom_access_token', '' );
+					if ( '' !== $access_token ) {
+						add_settings_field(
+							'bkap_zoom_logout',
+							'',
+							array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_logout_callback' ),
+							'bkap_zoom_meeting_settings_page',
+							'bkap_integrations_settings_section'
+						);
+					} else {
+						add_settings_field(
+							'bkap_zoom_connect',
+							'',
+							array( 'Bkap_Zoom_Meeting_Settings', 'bkap_zoom_connect_callback' ),
+							'bkap_zoom_meeting_settings_page',
+							'bkap_integrations_settings_section'
+						);
+					}
+				}
 
 				// Button for assigning to meeting to already placed bookings.
 				// Show button if there is not background process running for this.
@@ -1187,17 +1224,8 @@ Select this if you want to hide the Booking Price on Product page until the time
 
 			add_settings_field(
 				'bkap_calendar_key_file_name',
-				__( 'Key file name', 'woocommerce-booking' ),
+				__( 'Upload JSON File:', 'woocommerce-booking' ),
 				array( 'bkap_gcal_sync_settings', 'bkap_calendar_key_file_name_callback' ),
-				'bkap_gcal_sync_settings_page',
-				'bkap_calendar_sync_admin_settings_section',
-				array( 'class' => 'bkap_direct_sync' )
-			);
-
-			add_settings_field(
-				'bkap_calendar_service_acc_email_address',
-				__( 'Service account email address', 'woocommerce-booking' ),
-				array( 'bkap_gcal_sync_settings', 'bkap_calendar_service_acc_email_address_callback' ),
 				'bkap_gcal_sync_settings_page',
 				'bkap_calendar_sync_admin_settings_section',
 				array( 'class' => 'bkap_direct_sync' )
@@ -1356,11 +1384,11 @@ Select this if you want to hide the Booking Price on Product page until the time
 
 			register_setting(
 				'bkap_zoom_meeting_settings',
-				'bkap_zoom_api_key'
+				'bkap_zoom_client_id'
 			);
 			register_setting(
 				'bkap_zoom_meeting_settings',
-				'bkap_zoom_api_secret'
+				'bkap_zoom_client_secret'
 			);
 
 			register_setting(

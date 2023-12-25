@@ -3,8 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-global $bkap_weekdays;
-
+$bkap_weekdays      = bkap_weekdays();
 $number             = 0;
 $specific_dates     = array();
 $recurring_weekdays = array();
@@ -101,7 +100,7 @@ if ( $number == 0 ) {
 					</td>
 					<td width="10%" class="bkap_from_time_td"><input id="bkap_from_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_from_time; ?>" readonly></td>
 					<td width="10%" class="bkap_to_time_td"><input id="bkap_to_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" minlength="5" maxlength="5" onkeypress="return bkap_isNumberKey(event)" value="<?php echo $bkap_to_time; ?>" readonly></td>
-					<td width="10%" class="bkap_lockout_time_td"><input id="bkap_lockout_time_<?php echo $number; ?>" onkeypress="return bkap_only_number( event )" type="number" name="quantity" style="width:100%;" min="0" placeholder="Max bookings" value="<?php echo $bkap_lockout; ?>" class = "bkap_default" ></td>
+					<td width="10%" class="bkap_lockout_time_td"><input id="bkap_lockout_time_<?php echo $number; ?>" onkeypress="return bkap_only_number( event )" type="number" name="quantity" style="width:100%;" min="0" placeholder="<?php echo __( 'Max bookings', 'woocommerce-booking' ); ?>" value="<?php echo $bkap_lockout; ?>" class = "bkap_default" ></td>
 					<td width="10%" class="bkap_price_time_td"><input id="bkap_price_time_<?php echo $number; ?>" type="text" name="quantity" style="width:100%;" placeholder="Price" value="<?php echo $bkap_price; ?>" class = "bkap_default wc_input_price"></td>
 					<td width="10%" style="text-align:center;" class="bkap_global_time_td">
 						<label class="bkap_switch">

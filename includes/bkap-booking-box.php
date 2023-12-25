@@ -123,6 +123,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 
 			$booking_settings            = get_post_meta( $duplicate_of, 'woocommerce_booking_settings', true );
 			$post_type                   = get_post_type( $duplicate_of );
+			$post_slug                   = isset( $post->post_name ) && $post_type === 'page' ? $post->post_name : '';
 			$individual_booking_settings = array();
 			$has_defaults                = false;
 
@@ -135,6 +136,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			$product_info['duplicate_of']                = $duplicate_of;
 			$product_info['booking_settings']            = $booking_settings;
 			$product_info['post_type']                   = $post_type;
+			$product_info['post_slug']                   = $post_slug;
 			$product_info['individual_booking_settings'] = $individual_booking_settings;
 			$product_info['has_defaults']                = $has_defaults;
 
@@ -188,13 +190,10 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 * @param boolean                $lockout
 		 * @param boolean                $price
 		 * @param array booking settings
-		 * @global array $bkap_weekdays Array of weekdays
 		 * @since 4.0.0
 		 */
 
 		static function bkap_get_weekdays_html( $product_id, $lockout = false, $price = true, $booking_settings = array(), $default_booking_settings = array(), $defaults = false ) {
-
-			global $bkap_weekdays;
 
 			if ( isset( $booking_settings['booking_enable_date'] ) && 'on' == $booking_settings['booking_enable_date'] ) { // bookable product
 				$display            = '';
@@ -249,7 +248,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 
 				<?php
 				$i = 0;
-				foreach ( $bkap_weekdays as $w_key => $w_value ) {
+				foreach ( bkap_weekdays() as $w_key => $w_value ) {
 					?>
 				<div class="weekdays_flex_child">
 					<div class="weekdays_flex_child_1" style="padding-top:5px; max-width:27%; float:left;"><?php echo $w_value; ?></div>
@@ -278,7 +277,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 					<?php
 						$weekday_lockout = isset( $recurring_lockout[ $w_key ] ) ? $recurring_lockout[ $w_key ] : '';
 					?>
-					<div class="weekdays_flex_child_3" style="padding-top:5px; min-width:26%;<?php echo $mutiple_display; ?>"> <input style="float:left;" type="number" id="weekday_lockout_<?php echo $i; ?>" name="day_lockout" step="1" onkeypress="return bkap_only_number( event )" min="0" max="9999" placeholder="Max bookings" value="<?php echo $weekday_lockout; ?>" <?php echo $fields_status; ?>/></div>
+					<div class="weekdays_flex_child_3" style="padding-top:5px; min-width:26%;<?php echo $mutiple_display; ?>"> <input style="float:left;" type="number" id="weekday_lockout_<?php echo $i; ?>" name="day_lockout" step="1" onkeypress="return bkap_only_number( event )" min="0" max="9999" placeholder="<?php echo __( 'Max bookings', 'woocommerce-booking' ); ?>" value="<?php echo $weekday_lockout; ?>" <?php echo $fields_status; ?>/></div>
 
 
 					<?php
@@ -418,13 +417,13 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 * @param array   $booking_settings - Existing Booking Settings
 		 *
 		 * @global array $bkap_month array of months
-		 * @global array $bkap_dates_months_availability array of months
 		 * @since 4.0.0
 		 */
 
 		static function bkap_get_specific_default_row_html( $product_id, $booking_settings ) {
-			global $bkap_months;
-			global $bkap_dates_months_availability;
+
+			$bkap_intervals = bkap_intervals();
+			$bkap_months    = $bkap_intervals['months'];
 
 			?>
 
@@ -433,7 +432,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			   <td>
 					<select style="width:100%;" id="range_dropdown" >
 					   <?php
-						foreach ( $bkap_dates_months_availability as $d_value => $d_name ) {
+						foreach ( bkap_type_of_ranges_options() as $d_value => $d_name ) {
 							printf( "<option value='%s'>%s</option>\n", $d_value, $d_name );
 						}
 						?>
@@ -521,8 +520,8 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 					<i id="bkap_recurring" class="fa fa-sync-alt" aria-hidden="true" title="Recurring yearly"></i>
 				   </td>
 				   <td class="bkap_lockout_column_data_4" style="display:none;">
-						<input id="bkap_specific_date_lockout" title="This field is for maximum booking for selected specific dates." type="number" min="0" onkeypress="return bkap_only_number( event )" style="width:47%;font-size:11px;" placeholder="Max bookings">
-						<input id="bkap_specific_date_price" class="wc_input_price" title="This field is for price of selected specific dates." type="number" min="0" style="width:45%;float:right;font-size:11px;" placeholder="Price">
+						<input id="bkap_specific_date_lockout" title="This field is for maximum booking for selected specific dates." type="number" min="0" onkeypress="return bkap_only_number( event )" style="width:47%;font-size:11px;" placeholder="<?php echo __( 'Max bookings', 'woocommerce-booking' ); ?>">
+						<input style="width:45%;float:right;font-size:11px;" type="number" id="bkap_specific_date_price" class="wc_input_price" min="0" step="0.01" title="This field is for price of selected specific dates." placeholder="Price">
 				   </td>
 
 				   <td id="bkap_close" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
@@ -539,15 +538,14 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 *
 		 * @param integer $product_id - Product ID
 		 * @param array   $booking_settings - Booking Settings
-		 * @global array $bkap_month array of months
-		 * @global array $bkap_dates_months_availability array of months
 		 *
 		 * @since 4.0.0
 		 */
 
 		static function bkap_get_specific_row_to_display_html( $product_id, $booking_settings, $default_booking_settings, $defaults ) {
-			global $bkap_months;
-			global $bkap_dates_months_availability;
+
+			$bkap_intervals = bkap_intervals();
+			$bkap_months    = $bkap_intervals['months'];
 
 			$booking_type = $booking_custom_ranges = $booking_holiday_ranges = $booking_month_ranges = $booking_specific_dates = $booking_special_prices = $booking_product_holiday = array();
 
@@ -747,7 +745,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 						<select style="width:100%;" id="range_dropdown_<?php echo $i; ?>">
 
 						<?php
-						foreach ( $bkap_dates_months_availability as $d_value => $d_name ) {
+						foreach ( bkap_type_of_ranges_options() as $d_value => $d_name ) {
 							$bkap_range_selected = '';
 							if ( $d_value == $range_type ) {
 								$bkap_range_selected = 'selected';
@@ -855,8 +853,8 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 					   </td>
 
 					   <td class="bkap_lockout_column_data_4" style="<?php echo $specific_dates_disaply; ?>">
-							<input id="bkap_specific_date_lockout_<?php echo $i; ?>" value="<?php echo $bkap_specific_lockout; ?>" title="This is number of maximum bookings for selected specific dates." type="number" min="0"style="width:47%;font-size:11px;" onkeypress="return bkap_only_number( event )" placeholder="Max bookings">
-							<input id="bkap_specific_date_price_<?php echo $i; ?>" value="<?php echo $bkap_specific_price; ?>" title="This is price for selected specific dates." type="number" min="0" style="width:45%;float:right;font-size:11px;" placeholder="Price">
+							<input id="bkap_specific_date_lockout_<?php echo $i; ?>" value="<?php echo $bkap_specific_lockout; ?>" title="This is number of maximum bookings for selected specific dates." type="number" min="0"style="width:47%;font-size:11px;" onkeypress="return bkap_only_number( event )" placeholder="<?php echo __( 'Max bookings', 'woocommerce-booking' ); ?>">
+							<input style="width:45%;float:right;font-size:11px;" type="number" id="bkap_specific_date_price_<?php echo $i; ?>" class="wc_input_price" min="0" step="0.01" value="<?php echo $bkap_specific_price; ?>" title="This is price for selected specific dates." placeholder="Price" >
 					   </td>
 
 					   <td style="width:4%;" id="bkap_close_<?php echo $i; ?>" style="text-align: center;cursor:pointer;"><i class="fa fa-trash" aria-hidden="true"></i></td>
@@ -895,12 +893,13 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 				}
 			}
 
-			$bkap_loop       = 0;
-			$bkap_product_id = absint( $_POST['bkap_product_id'] );
-			$bkap_per_page   = ! empty( $_POST['bkap_per_page'] ) ? absint( $_POST['bkap_per_page'] ) : 15;
-			$bkap_page       = ! empty( $_POST['bkap_page'] ) ? absint( $_POST['bkap_page'] ) : 1;
-
+			$bkap_loop        = 0;
+			$bkap_product_id  = isset( $_POST['bkap_product_id'] ) ? absint( $_POST['bkap_product_id'] ) : 0; //phpcs:ignore
+			$bkap_product_id  = bkap_common::bkap_get_product_id( $bkap_product_id );
+			$bkap_per_page    = ! empty( $_POST['bkap_per_page'] ) ? absint( $_POST['bkap_per_page'] ) : 15; //phpcs:ignore
+			$bkap_page        = ! empty( $_POST['bkap_page'] ) ? absint( $_POST['bkap_page'] ) : 1; //phpcs:ignore
 			$booking_settings = array();
+
 			if ( 0 == $bkap_product_id ) {
 				$default_booking_settings = get_option( 'bkap_default_booking_settings', array() );
 				if ( ! empty( $default_booking_settings ) ) {
@@ -1477,8 +1476,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 
 		static function bkap_get_daydate_and_time_table_base_data( $product_id, $booking_settings, $default_booking_settings, $defaults ) {
 
-			global $bkap_weekdays;
-
+			$bkap_weekdays      = bkap_weekdays();
 			$recurring_weekdays = array();
 			$specific_dates     = array();
 
@@ -1516,7 +1514,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 				</td>
 				<td width="10%" class="bkap_from_time_td"><input id="bkap_from_time" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" maxlength="5" onkeypress="return bkap_isNumberKey(event)"></td>
 				<td width="10%" class="bkap_to_time_td"><input id="bkap_to_time" type="text" name="quantity" style="width:100%;" pattern="^([0-1][0-9]|[2][0-3]):([0-5][0-9])$" title="Please enter time in 24 hour format e.g 14:00 or 03:00" placeholder="HH:MM" maxlength="5" onkeypress="return bkap_isNumberKey(event)"></td>
-				<td width="10%" class="bkap_lockout_time_td"><input id="bkap_lockout_time" type="number" name="quantity" style="width:100%;" min="0" onkeypress="return bkap_only_number( event )" placeholder="Max bookings"></td>
+				<td width="10%" class="bkap_lockout_time_td"><input id="bkap_lockout_time" type="number" name="quantity" style="width:100%;" min="0" onkeypress="return bkap_only_number( event )" placeholder="<?php echo __( 'Max bookings', 'woocommerce-booking' ); ?>"></td>
 				<td width="10%" class="bkap_price_time_td"><input id="bkap_price_time" class="wc_input_price" type="text" name="quantity" style="width:100%;" placeholder="Price"></td>
 				<td width="10%" style="text-align:center;" class="bkap_global_time_td">
 					<label class="bkap_switch">
@@ -1816,7 +1814,7 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 * @since 4.0.0
 		 */
 
-		function setup_data( $product_id, $clean_booking_options, $clean_settings_data, $ranges_array, $clean_gcal_data, $clean_rental_data, $clean_fixed_block_data, $clean_price_range_data, $clean_resource_data = array(), $clean_person_data = array() ) {
+		function setup_data( $product_id, $clean_booking_options, $clean_settings_data, $ranges_array, $clean_gcal_data, $clean_rental_data, $clean_fixed_block_data, $clean_price_range_data, $clean_resource_data = '', $clean_person_data = '' ) {
 
 			$final_booking_options = array();
 			$settings_data         = array();
@@ -1852,6 +1850,10 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 						$final_booking_options['_bkap_can_be_cancelled']['period'] = $clean_booking_options->can_be_cancelled->period;
 					}
 				}
+
+				if ( isset( $clean_booking_options->bkap_date_in_dropdown ) ) {
+			    	$final_booking_options[ '_bkap_date_in_dropdown' ] = $clean_booking_options->bkap_date_in_dropdown;
+			  	}
 
 				$final_booking_options = apply_filters( 'bkap_add_setup_data_for_booking_options', $final_booking_options, $clean_booking_options );
 
@@ -2092,8 +2094,6 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			if ( $clean_gcal_data != '' && count( get_object_vars( $clean_gcal_data ) ) > 0 ) {
 
 				$gcal_data['_bkap_gcal_integration_mode'] = $clean_gcal_data->gcal_sync_mode;
-				$gcal_data['_bkap_gcal_key_file_name']    = $clean_gcal_data->key_file_name;
-				$gcal_data['_bkap_gcal_service_acc']      = $clean_gcal_data->service_acc_email;
 				$gcal_data['_bkap_gcal_calendar_id']      = $clean_gcal_data->calendar_id;
 
 				if ( isset( $clean_gcal_data->gcal_auto_mapping ) ) {
@@ -2146,8 +2146,8 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 			/* Options of the rental tab is prepared in $rental_data variable */
 
 			if ( $clean_rental_data != '' && count( get_object_vars( $clean_rental_data ) ) > 0 ) {
-				$rental_data['_bkap_booking_prior_days_to_book'] = $clean_rental_data->booking_prior_days_to_book;
-				$rental_data['_bkap_booking_later_days_to_book'] = $clean_rental_data->booking_later_days_to_book;
+				$rental_data['_bkap_booking_prior_days_to_book'] = isset( $clean_rental_data->booking_prior_days_to_book ) ? $clean_rental_data->booking_prior_days_to_book : '';
+				$rental_data['_bkap_booking_later_days_to_book'] = isset( $clean_rental_data->booking_later_days_to_book ) ? $clean_rental_data->booking_later_days_to_book : '';
 				$rental_data['_bkap_booking_charge_per_day']     = isset( $clean_rental_data->booking_charge_per_day ) ? $clean_rental_data->booking_charge_per_day : '';
 				$rental_data['_bkap_booking_same_day']           = isset( $clean_rental_data->booking_same_day ) ? $clean_rental_data->booking_same_day: '';
 			}
@@ -2299,8 +2299,10 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 */
 
 		function create_range_data( $range_string ) {
-			global $bkap_months;
-			$range_array = array();
+
+			$bkap_intervals = bkap_intervals();
+			$bkap_months    = $bkap_intervals['months'];
+			$range_array    = array();
 
 			$range_split = explode( ';', $range_string );
 
@@ -2552,6 +2554,12 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 					$updated_settings['booking_can_be_cancelled'] = $booking_options['_bkap_can_be_cancelled'];
 				}
 
+				if ( isset( $booking_options[ '_bkap_date_in_dropdown' ] ) ) {
+			      	$updated_settings[ 'bkap_date_in_dropdown' ] = $booking_options[ '_bkap_date_in_dropdown' ];
+			  	} else {
+			      	$updated_settings[ 'bkap_date_in_dropdown' ] = '';
+			  	}
+
 				$updated_settings = apply_filters( 'bkap_update_serialized_post_meta_booking_option', $updated_settings, $booking_options );
 			}
 
@@ -2684,18 +2692,6 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 					$updated_settings['product_sync_integration_mode'] = $gcal_data['_bkap_gcal_integration_mode'];
 				} else {
 					$updated_settings['product_sync_integration_mode'] = '';
-				}
-
-				if ( isset( $gcal_data['_bkap_gcal_key_file_name'] ) ) {
-					$updated_settings['product_sync_key_file_name'] = $gcal_data['_bkap_gcal_key_file_name'];
-				} else {
-					$updated_settings['product_sync_key_file_name'] = '';
-				}
-
-				if ( isset( $gcal_data['_bkap_gcal_service_acc'] ) ) {
-					$updated_settings['product_sync_service_acc_email_addr'] = $gcal_data['_bkap_gcal_service_acc'];
-				} else {
-					$updated_settings['product_sync_service_acc_email_addr'] = '';
 				}
 
 				if ( isset( $gcal_data['_bkap_gcal_calendar_id'] ) ) {
@@ -3191,25 +3187,27 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 								// Duplicate records were being inserted when openended timeslot becasue DATE_TIME of blank returns no records.
 								// Hence in below if, we are not comparing with DATE_TIME function.
 
-								if ( $to_time == '' ) {
+								if ( '' === $to_time ) {
+									// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.SlowDBQuery -- Upgrade routines are only used intermittently.
 									$check_weekday_query = 'SELECT total_booking, available_booking FROM `' . $wpdb->prefix . "booking_history`
                                                             WHERE post_id = %d
                                                             AND weekday = %s
                                                             AND start_date = '0000-00-00'
-                                                            AND TIME_FORMAT( from_time, '%H:%i' ) = %s
+                                                            AND TIME_FORMAT( from_time, %s ) = %s
                                                             AND to_time = %s
                                                             AND status = ''";
-									$check_weekday       = $wpdb->get_results( $wpdb->prepare( $check_weekday_query, $product_id, $day, $from_db, $to_time ) );
+									$check_weekday       = $wpdb->get_results( $wpdb->prepare( $check_weekday_query, $product_id, $day, '%H:%i', $from_db, $to_time ) );
+									// phpcs:enable
 
 								} else {
 									$check_weekday_query = 'SELECT total_booking, available_booking FROM `' . $wpdb->prefix . "booking_history`
                                                             WHERE post_id = %d
                                                             AND weekday = %s
                                                             AND start_date = '0000-00-00'
-                                                            AND TIME_FORMAT( from_time, '%H:%i' ) = %s
-                                                            AND TIME_FORMAT( to_time, '%H:%i' ) = %s
+                                                            AND TIME_FORMAT( from_time, %s ) = %s
+                                                            AND TIME_FORMAT( to_time, %s ) = %s
                                                             AND status = ''";
-									$check_weekday       = $wpdb->get_results( $wpdb->prepare( $check_weekday_query, $product_id, $day, $from_db, $to_db ) );
+									$check_weekday       = $wpdb->get_results( $wpdb->prepare( $check_weekday_query, $product_id, $day, '%H:%i', $from_db, '%H:%i', $to_db ) );
 								}
 
 								// if yes, then update the lockout
@@ -3226,10 +3224,10 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
                                                         WHERE post_id = %d
                                                         AND start_date != '0000-00-00'
                                                         AND weekday = %s
-                                                        AND TIME_FORMAT( from_time, '%H:%i' ) = %s
-                                                        AND TIME_FORMAT( to_time, '%H:%i' ) = %s
+                                                        AND TIME_FORMAT( from_time, %s ) = %s
+                                                        AND TIME_FORMAT( to_time, %s ) = %s
                                                         ORDER BY id DESC LIMIT 1";
-									$lockout_results  = $wpdb->get_results( $wpdb->prepare( $existing_lockout, $product_id, $day, $from_db, $to_db ) );
+									$lockout_results  = $wpdb->get_results( $wpdb->prepare( $existing_lockout, $product_id, $day, '%H:%i', $from_db, '%H:%i', $to_db ) );
 
 									if ( isset( $lockout_results ) && count( $lockout_results ) > 0 ) {
 
@@ -3274,15 +3272,15 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
                                                 WHERE start_date >= %s
                                                 AND post_id = %d
                                                 AND weekday = %s
-                                                AND TIME_FORMAT( from_time, '%H:%i' ) = %s
-                                                AND TIME_FORMAT( to_time, '%H:%i' ) = %s";
+                                                AND TIME_FORMAT( from_time, %s ) = %s
+                                                AND TIME_FORMAT( to_time, %s ) = %s";
 
-										$dates_present = $wpdb->get_col( $wpdb->prepare( $fetch_dates_present, $current_date, $product_id, $day, $from_db, $to_db ) );
+										$dates_present = $wpdb->get_col( $wpdb->prepare( $fetch_dates_present, $current_date, $product_id, $day, '%H:%i', $from_db, '%H:%i', $to_db ) );
 
 										foreach ( $dates_set as $date ) {
 											// In a scenario where a future date is locked out, as all the time slot bookings are full,
-											// we need to run this insert to ensure the date is unblocked and bookings can be taken for the new slot
-											if ( ! in_array( $date, $dates_present ) ) {
+											// we need to run this insert to ensure the date is unblocked and bookings can be taken for the new slot.
+											if ( ! empty( $dates_present ) && ! in_array( $date, $dates_present, true ) ) {
 
 												$query_insert = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
                                                     (post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
@@ -3537,7 +3535,8 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 						}
 						break;
 					case 'range_of_months':
-						global $bkap_months;
+						$bkap_intervals = bkap_intervals();
+						$bkap_months    = $bkap_intervals['months'];
 
 						$current_year = date( 'Y', current_time( 'timestamp' ) );
 						$next_year    = date( 'Y', strtotime( '+1 year' ) );
@@ -3696,20 +3695,22 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 		 */
 
 		function delete_specific_date( $product_id, $date ) {
-
 			global $wpdb;
 
 			$specific_date = date( 'Y-m-d', strtotime( $date ) );
+			$booking_type  = get_post_meta( $product_id, '_bkap_booking_type', true );
 
-			$update_specific = 'UPDATE `' . $wpdb->prefix . "booking_history`
-                            SET status = 'inactive'
-                            WHERE post_id = '" . $product_id . "'
-                            AND start_date = '" . $specific_date . "'
-                            AND weekday = ''
-                            AND from_time = ''
-                            AND to_time = ''";
+			if ( 'multiple_days' !== $booking_type ) {
+				$update_specific = 'UPDATE `' . $wpdb->prefix . "booking_history`
+								SET status = 'inactive'
+								WHERE post_id = '" . $product_id . "'
+								AND start_date = '" . $specific_date . "'
+								AND weekday = ''
+								AND from_time = ''
+								AND to_time = ''";
 
-			$wpdb->query( $update_specific );
+				$wpdb->query( $update_specific );
+			}
 		}
 
 		/**
@@ -3918,6 +3919,34 @@ if ( ! class_exists( 'bkap_booking_box_class' ) ) {
 						'%s',
 					)
 				);
+			}
+
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.SlowDBQuery -- Upgrade routines are only used intermittently.
+			$st_date     = '0000-00-00';
+			$check_query = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
+							WHERE post_id = %d
+							AND weekday = %s
+							AND start_date != %s
+							AND from_time = %s
+							AND to_time = %s
+							AND status = ''";
+
+			$check_date_records = $wpdb->get_results( $wpdb->prepare( $check_query, $product_id, $booking_weekday, $st_date, $prev_from_time, $prev_to_time ) );
+			// phpcs:enable
+			if ( ! empty( $check_date_records ) ) {
+				foreach ( $check_date_records as $k => $v ) {
+					$new_available_booking = ( absint( $prev_lockout_time ) > 0 ) ? absint( $prev_lockout_time ) - absint( $v->available_booking ) : 0;
+					$new_available_booking = (int) $cur_lockout_time - (int) $new_available_booking;
+
+					// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.SlowDBQuery -- Upgrade routines are only used intermittently.
+					$query = 'UPDATE `' . $wpdb->prefix . "booking_history`
+							SET available_booking = '" . $new_available_booking . "',
+							total_booking = '" . $cur_lockout_time . "'
+							WHERE id = '" . $v->id . "'
+							AND status = ''";
+					$wpdb->query( $query );
+					// phpcs:enable
+				}
 			}
 
 			if ( false !== $status ) {

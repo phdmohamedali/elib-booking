@@ -152,12 +152,19 @@ if ( ! class_exists( 'Bkap_Availability_Search' ) ) {
 
 				$bookable_products = bkap_common::get_woocommerce_product_list( false, 'on', '', array(), $meta_query );
 
+				$wpml_active = function_exists( 'icl_object_id' ) ? true : false;
+
 				foreach ( $bookable_products as $pro_key => $pro_value ) {
 
 					$product_id   = $pro_value['1'];
 					$view_product = bkap_check_booking_available( $product_id, $start_date, $end_date );
 
 					if ( $view_product ) {
+
+						if ( $wpml_active ) {
+							$product_id = icl_object_id( $product_id, 'product', true );
+						}
+
 						array_push( $filtered_products, $product_id );
 					}
 				}
@@ -334,12 +341,14 @@ function calback_bkap_max_date( $m_d, $max_dates, $booking_set ) {
 	$max_loop_count = apply_filters( 'bkap_max_date_loop_count', 1000, $m_d, $max_dates, $booking_set );
 
 	$recurring = true;
-	foreach ( $booking_set['booking_recurring'] as $recur_key => $recur_value ) {
-		if ( isset( $recur_value ) && $recur_value != 'on' ) {
-			$recurring = false;
-		} elseif ( isset( $recur_value ) && $recur_value == 'on' ) {
-			$recurring = true;
-			break;
+	if ( isset( $booking_set['booking_recurring'] ) ) {
+		foreach ( $booking_set['booking_recurring'] as $recur_key => $recur_value ) {
+			if ( isset( $recur_value ) && $recur_value != 'on' ) {
+				$recurring = false;
+			} elseif ( isset( $recur_value ) && $recur_value == 'on' ) {
+				$recurring = true;
+				break;
+			}
 		}
 	}
 
@@ -385,10 +394,8 @@ function calback_bkap_max_date( $m_d, $max_dates, $booking_set ) {
 					$m_d = $next_date;
 					$max_dates--;
 				}
-			} elseif ( isset( $specific_dates ) ) {
-				if ( in_array( $next_date, $specific_dates ) ) {
-					$m_d = $next_date;
-				}
+			} elseif ( isset( $specific_dates ) && in_array( $next_date, $specific_dates ) ) {
+				$m_d = $next_date;
 				$max_dates--;
 			}
 			$next_date = addDayswithdate( $next_date, 1 );

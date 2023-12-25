@@ -330,7 +330,6 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 		 * @since   4.4.0
 		 * @global  object $wpdb Global wpdb Object.
 		 * @global  object $woocommerce Global WooCommerce Object.
-		 * @global  array $bkap_date_formats Array of Date Format.
 		 *
 		 * @return  Array $pass_fail_result_array Array contains overlapped start date and timeslot present in cart.
 		 */
@@ -338,7 +337,6 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 			global $wpdb;
 			global $woocommerce;
-			global $bkap_date_formats;
 
 			$post_id      = bkap_common::bkap_get_product_id( $post_id );
 			$product      = wc_get_product( $post_id );
@@ -346,6 +344,7 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 			$wc_version   = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 );
 			$parent_id    = ( $wc_version ) ? $product->get_parent() : bkap_common::bkap_get_parent_id( $post_id );
 
+			$bkap_date_formats      = bkap_date_formats();
 			$booking_settings       = bkap_setting( $post_id );
 			$booking_type           = bkap_type( $post_id );
 			$global_settings        = bkap_global_setting();
@@ -633,11 +632,11 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 
 						$date_checkout = date( 'd-n-Y', strtotime( $_POST['wapbk_hidden_date_checkout'] ) );
 						$date_cheeckin = date( 'd-n-Y', strtotime( $_POST['wapbk_hidden_date'] ) );
-						$order_dates   = bkap_common::bkap_get_betweendays( $date_cheeckin, $date_checkout );
+						$order_dates   = bkap_common::bkap_get_betweendays( $date_cheeckin, $date_checkout, 'j-n-Y' );
 						$todays_date   = date( 'Y-m-d' );
 
 						$query_date = "SELECT DATE_FORMAT(start_date,'%d-%c-%Y') as start_date,DATE_FORMAT(end_date,'%d-%c-%Y') as end_date FROM " . $wpdb->prefix . "booking_history
-									WHERE start_date >='" . $todays_date . "' AND post_id = '" . $post_id . "'";
+									WHERE start_date >='" . $todays_date . "' AND post_id = '" . $post_id . "' AND status = ''";
 
 						$results_date = $wpdb->get_results( $query_date );
 
@@ -1319,18 +1318,18 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 		 * @hook woocommerce_before_checkout_process
 		 * @global object $wpdb Global wpdb Object
 		 * @global object $woocommerce Global WooCommerce Object
-		 * @global array $bkap_date_formats Array of Date Format
 		 */
 
 		public static function bkap_cart_checkout_quantity_check() {
-			global $wpdb, $bkap_date_formats;
+			global $wpdb;
 
 			// check if the order is already created.
 			if ( self::bkap_order_created_check() ) {
 				return;
 			}
 
-			$wc_cart_object = WC();
+			$bkap_date_formats = bkap_date_formats();
+			$wc_cart_object    = WC();
 			if ( count( $wc_cart_object->cart->cart_contents ) > 0 ) {
 
 				$availability_display = array();
@@ -1742,11 +1741,11 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								$validation_completed = isset( $_POST['validation_status'] ) ? $_POST['validation_status'] : '';
 
 								if ( $validation_completed == 'NO' ) {
-									$order_dates = bkap_common::bkap_get_betweendays( $date_cheeckin, $date_checkout );
+									$order_dates = bkap_common::bkap_get_betweendays( $date_cheeckin, $date_checkout, 'j-n-Y' );
 									$todays_date = date( 'Y-m-d' );
 
 									$query_date = "SELECT DATE_FORMAT(start_date,'%d-%c-%Y') as start_date,DATE_FORMAT(end_date,'%d-%c-%Y') as end_date FROM " . $wpdb->prefix . "booking_history
-											WHERE start_date >='" . $todays_date . "' AND post_id = '" . $duplicate_of . "'";
+											WHERE start_date >='" . $todays_date . "' AND post_id = '" . $duplicate_of . "' AND status = ''";
 
 									$results_date = $wpdb->get_results( $query_date );
 
@@ -1822,10 +1821,10 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 								do_action( 'bkap_single_days_cart_validation' );
 								$validation_completed = isset( $_POST['validation_status'] ) ? $_POST['validation_status'] : '';
 
-								if ( $validation_completed == 'NO' ) {
+								if ( empty( $validation_completed ) || $validation_completed == 'NO' ) {
 
 									$lockout = get_date_lockout( $value['product_id'], $date_check );
-									if ( 'unlimited' != $lockout ) {
+									if ( 'unlimited' !== $lockout ) {
 										$query   = 'SELECT total_booking,available_booking, start_date FROM `' . $wpdb->prefix . "booking_history`
 												WHERE post_id = %d
 												AND start_date = %s
@@ -1878,6 +1877,13 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 											} elseif ( $results[0]->total_booking > 0 && $available_tickets == 0 ) {
 												$values_tobe_replaced = array( $post_title->post_title, $date_to_display );
 												$message              = bkap_str_replace( 'book_no-booking-msg-date', $values_tobe_replaced );
+												if ( ! wc_has_notice( $message, 'error' ) ) {
+													wc_add_notice( $message, $notice_type = 'error' );
+												}
+												bkap_remove_proceed_to_checkout();
+											} elseif ( $results[0]->total_booking == 0 && $available_tickets == 0 ) {
+												$values_tobe_replaced = array( $post_title->post_title, $available_tickets, $date_to_display );
+												$message              = bkap_str_replace( 'book_limited-booking-msg-date', $values_tobe_replaced );
 												if ( ! wc_has_notice( $message, 'error' ) ) {
 													wc_add_notice( $message, $notice_type = 'error' );
 												}
@@ -1991,6 +1997,21 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 									}
 								}
 
+								$custom_ranges = isset( $booking_settings['booking_date_range'] ) ? $booking_settings['booking_date_range'] : array();
+								if ( count( $custom_ranges ) > 0 ) {
+									$dates = array();
+									foreach ( $custom_ranges as $r_key => $range_value ) {
+										$range_start_date = $range_value['start'];
+										$range_end_date   = $range_value['end'];
+										$dates            = array_merge( $dates, bkap_common::bkap_get_betweendays( $range_start_date, $range_end_date ) );
+									}
+
+									$date = date( 'd-n-Y', strtotime( $date ) );
+									if ( ! in_array( $date, $dates ) ) {
+										unset( WC()->cart->cart_contents[ $prod_in_cart_key ] );
+									}
+								}
+
 								if ( isset( WC()->cart->cart_contents[ $prod_in_cart_key ] ) ) {
 									do_action( 'bkap_remove_bookable_product_from_cart', $value, $prod_in_cart_key, WC()->cart->cart_contents[ $prod_in_cart_key ] );
 								}
@@ -2038,7 +2059,11 @@ if ( ! class_exists( 'Bkap_Validation' ) ) {
 					}
 
 					if ( $date !== $bkap_booking['hidden_date'] ) {
-						$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
+						if ( isset( $bkap_booking['date_checkout'] ) ) {
+							$message = sprintf( __( 'Please select %1$s to %2$s to book %3$s.', 'woocommerce-booking' ), $bkap_booking['date'], $bkap_booking['date_checkout'], $product_title );
+						} else {
+							$message = sprintf( __( 'Please select %1$s to book %2$s.', 'woocommerce-booking' ), $bkap_booking['date'], $product_title );
+						}
 						wc_add_notice( $message, $notice_type = 'error' );
 						return false;
 					}

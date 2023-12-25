@@ -379,6 +379,7 @@ Your booking id is: {booking_id}';
 						if ( '' === $resource_post ) {
 							$resource_qty          = 1;
 							$resource_availability = array();
+							$resource_menu_order   = 0;
 							$zoom_host_id          = '';
 							$resource_title        = '';
 						} else {

@@ -40,11 +40,12 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 		 * @since Updated 5.15.0 Multiple Resources
 		 *
 		 * @global mixed $wpdb global variable
-		 * @global array Booking Date Formats Array
 		 */
 		public function bkap_meta_box_save_booking_details( $post_data, $post ) {
 
-			global $wpdb, $bkap_date_formats;
+			global $wpdb;
+
+			$bkap_date_formats = bkap_date_formats();
 
 			if ( 'bkap_booking' !== $post['post_type'] ) {
 				return $post_data;
@@ -99,13 +100,16 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 
 			} elseif ( 'date_time' === $booking_type || 'multidates_fixedtime' === $booking_type ) {
 				$old_time       = $booking->get_time();
-				$new_time_array = explode( '-', wc_clean( $post['time_slot'] ) );
-				$new_time       = bkap_date_as_format( trim( $new_time_array[0] ), 'H:i' );
-				if ( isset( $new_time_array[1] ) && '' != $new_time_array[1] ) {
-					$new_time .= ' - ' . bkap_date_as_format( trim( $new_time_array [1] ), 'H:i' );
+				if ( isset( $post['time_slot'] ) ) {
+					$new_time_array = explode( '-', wc_clean( $post['time_slot'] ) );
+					$new_time       = bkap_date_as_format( trim( $new_time_array[0] ), 'H:i' );
+					if ( isset( $new_time_array[1] ) && '' != $new_time_array[1] ) {
+						$new_time .= ' - ' . bkap_date_as_format( trim( $new_time_array [1] ), 'H:i' );
+					}
+					$booking_data['time_slot'] = $new_time;
+				} else {
+					$booking_data['time_slot'] = $old_time;
 				}
-
-				$booking_data['time_slot'] = $new_time;
 			} elseif ( 'duration_time' === $booking_type ) {
 				$old_time                           = $booking->get_selected_duration_time();
 				$new_time                           = wc_clean( $post['duration_time_slot'] );
@@ -575,15 +579,24 @@ if ( ! class_exists( 'Bkap_Edit_Booking_Post' ) ) {
 							break;
 
 						case 'duration_time':
-							$start_date        = $data['hidden_date'];
-							$date_booking      = date( 'Y-m-d', strtotime( $data['hidden_date'] ) );
-							$time              = $data['duration_time_slot'];
-							$meta_start        = date( 'YmdHis', strtotime( $date_booking . ' ' . $time ) );
-							$selected_duration = explode( '-', $data['selected_duration'] );
-							$end_date_str      = $date_booking;
+							$start_date   = $data['hidden_date'];
+							$date_booking = date( 'Y-m-d', strtotime( $data['hidden_date'] ) );
+							$time         = $data['duration_time_slot'];
+							$meta_start   = date( 'YmdHis', strtotime( $date_booking . ' ' . $time ) );
+							$end_date_str = $date_booking;
 
-							$hour     = $selected_duration[0];
-							$d_type   = $selected_duration[1];
+							if ( isset( $_REQUEST['selected_duration'] ) ) {
+								$selected_duration = explode( '-', $data['selected_duration'] );
+								$hour              = isset( $selected_duration[0] ) ? $selected_duration[0] : '';
+								$d_type            = isset( $selected_duration[1] ) ? $selected_duration[1] : '';
+							}
+
+							if ( isset( $_REQUEST['bkap_duration_field'] ) ) {
+								$d_setting = get_post_meta( $product_id, '_bkap_duration_settings', true );
+								$hour      = (int) $_REQUEST['bkap_duration_field'] * $d_setting['duration'];
+								$d_type    = isset( $d_setting['duration_type'] ) ? $d_setting['duration_type'] : '';
+							}
+
 							$end_str  = bkap_common::bkap_add_hour_to_date( $start_date, $time, $hour, $product_id, $d_type ); // return end date timestamp
 							$meta_end = date( 'YmdHis', $end_str );
 							$end_date = date( 'j-n-Y', $end_str ); // Date in j-n-Y format to compate and store in end date order meta

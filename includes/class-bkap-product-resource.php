@@ -1122,7 +1122,7 @@ class Class_Bkap_Product_Resource {
 
 		<li class="tstab-tab" data-link="bkap_resource_settings_page">
 			<a id="resource_tab_settings" style="<?php echo $selected_value; ?>" class="bkap_tab"><i class="fa fa-people-carry"></i><?php esc_html_e( 'Resource', 'woocommerce-booking' ); ?></a>
-		</li>        
+		</li>
 		<?php
 	}
 
@@ -1134,7 +1134,10 @@ class Class_Bkap_Product_Resource {
 	 * @since 4.6.0
 	 */
 	public static function bkap_resource_settings( $product_id, $booking_settings, $default_booking_settings, $defaults ) {
+		global $post;
+
 		$post_type = get_post_type( $product_id );
+		$post_slug = isset( $post->post_name ) && $post_type === 'page' ? $post->post_name : '';
 
 		?>
 		<div id="bkap_resource_settings_page" class="tstab-content" style="position: relative; display: none;">
@@ -1153,7 +1156,7 @@ class Class_Bkap_Product_Resource {
 		?>
 			<hr />
 		<?php
-		if ( isset( $post_type ) && 'product' === $post_type ) {
+		if ( isset( $post_type ) && ( 'product' === $post_type || 'page' === $post_type && isset( $post_slug ) && 'store-manager' === $post_slug ) ) {
 			bkap_booking_box_class::bkap_save_button( 'bkap_save_resources' );
 		}
 		?>

@@ -2,7 +2,7 @@
 /**
  * Bookings and Appointment Plugin for WooCommerce
  *
- * Class for Google Calendar API for WooCommerce Booking and Appointment Plugin
+ * Class for Google Calendar API for Booking and Appointment Plugin for WooCommerce
  *
  * @author   Tyche Softwares
  * @package  BKAP/Google-Calendar-Sync
@@ -13,11 +13,88 @@
 if ( ! class_exists( 'BKAP_Gcal' ) ) {
 
 	/**
-	 * Class for Google Calendar API for WooCommerce Booking and Appointment Plugin
+	 * Class for Google Calendar API for Booking and Appointment Plugin for WooCommerce
 	 *
 	 * @class BKAP_Gcal
 	 */
 	class BKAP_Gcal {
+
+		/**
+		 * Plugin directory.
+		 *
+		 * @var string $plugin_dir Plugin directory.
+		 */
+		public $plugin_dir;
+
+		/**
+		 * Plugin URL.
+		 *
+		 * @var string $plugin_url Plugin URL.
+		 */
+		public $plugin_url;
+
+		/**
+		 * Local time.
+		 *
+		 * @var string $local_time Local time.
+		 */
+		public $local_time;
+
+		/**
+		 * Key File.
+		 *
+		 * @var string $key_file Key File.
+		 */
+		public $key_file;
+
+		/**
+		 * Service Account.
+		 *
+		 * @var string $service_account Service Account.
+		 */
+		public $service_account;
+
+		/**
+		 * Google Calendar ID.
+		 *
+		 * @var string $calendar Google Calendar ID.
+		 */
+		public $calendar;
+
+		/**
+		 * Time Format.
+		 *
+		 * @var string $time_format Time Format.
+		 */
+		public $time_format;
+
+		/**
+		 * Date Format.
+		 *
+		 * @var string $date_format Date Format.
+		 */
+		public $date_format;
+
+		/**
+		 * DateTime Format.
+		 *
+		 * @var string $datetime_format DateTime Format.
+		 */
+		public $datetime_format;
+
+		/**
+		 * Uploads Directory.
+		 *
+		 * @var string $uploads_dir Uploads Directory.
+		 */
+		public $uploads_dir;
+
+		/**
+		 * Log file path.
+		 *
+		 * @var string $log_file Log file path.
+		 */
+		public $log_file;
 
 		/**
 		 * Constructor
@@ -47,13 +124,12 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 
 			require_once $this->plugin_dir . 'external/google/Client.php';
 
-			add_action( 'admin_init', array( &$this, 'bkap_init' ), 12 );
 			// Prevent exceptions to kill the page.
 			if ( ( isset( $_POST['gcal_api_test'] ) && 1 == $_POST['gcal_api_test'] ) || ( isset( $_POST['gcal_import_now'] ) && $_POST['gcal_import_now'] ) ) { // phpcs:ignore
 				set_exception_handler( array( &$this, 'exception_error_handler' ) );
 			}
 
-			add_action( 'wp_ajax_display_nag', array( &$this, 'display_nag' ) );
+			add_action( 'wp_ajax_bkap_test_connection_msg', array( &$this, 'bkap_test_connection_msg' ) );
 		}
 
 		/**
@@ -87,7 +163,8 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		 *
 		 * @since 2.6
 		 */
-		public function display_nag() {
+		public function bkap_test_connection_msg() {
+
 			$error      = false;
 			$message    = '';
 			$user_id    = $_POST['user_id'];
@@ -102,10 +179,10 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 					// Insert a test event.
 					$result = $this->insert_event( array(), 0, $user_id, $product_id, true );
 					if ( $result ) {
-						$message .= __( '<b>Test is successful</b>. Please REFRESH your Google Calendar and check that test appointment has been saved.', 'woocommerce-booking' );
+						$message .= __( '<div class="notice notice-success"><p><b>Test is successful</b>. Please REFRESH your Google Calendar and check that test appointment has been saved.</p></div>', 'woocommerce-booking' );
 					} else {
 						$log_path = $this->uploads_dir . 'bkap-log.txt';
-						$message .= __( "<b>Test failed</b>. Please inspect your log located at {$log_path} for more info.", 'woocommerce-booking' );
+						$message .= sprintf( __( '<div class="notice notice-error"><p><b>Test failed</b>. Please inspect your log located at %s for more info.</p></div>', 'woocommerce-booking' ), $log_path );
 					}
 				}
 			}
@@ -128,52 +205,6 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 			echo $message;
 			die();
 		}
-
-		/**
-		 * Set some default settings related to GCal
-		 *
-		 * @since 2.6
-		 */
-		public function bkap_init() {
-
-			$product_id = 0;
-			$user_id    = get_current_user_id();
-			$gcal_mode  = $this->get_api_mode( $user_id, $product_id );
-
-			if ( 'disabled' != $gcal_mode && '' != $gcal_mode ) {
-				// Try to create key file folder if it doesn't exist.
-				$this->create_key_file_folder();
-				$kff = $this->key_file_folder();
-
-				// Copy index.php to this folder and to uploads folder.
-				if ( is_dir( $kff ) && ! file_exists( $kff . 'index.php' ) ) {
-					echo 'copying index file <br>';
-					@copy( $this->plugin_dir . 'gcal/key/index.php', $kff . 'index.php' );
-				}
-				if ( is_dir( $this->uploads_dir ) && ! file_exists( $this->uploads_dir . 'index.php' ) ) {
-					@copy( $this->plugin_dir . 'gcal/key/index.php', $this->uploads_dir . 'index.php' );
-				}
-
-				// Copy key file to uploads folder.
-				$kfn = $this->get_key_file( $user_id, $product_id ) . '.p12';
-				if ( $kfn && is_dir( $kff ) && ! file_exists( $kff . $kfn ) && file_exists( $this->plugin_dir . 'gcal/key/' . $kfn ) ) {
-					@copy( $this->plugin_dir . 'gcal/key/' . $kfn, $kff . $kfn );
-				}
-			}
-		}
-
-		/**
-		 * Try to create an encrypted key file folder
-		 *
-		 * @return string
-		 * @since 2.6
-		 */
-		function create_key_file_folder() {
-			if ( ! is_dir( $this->uploads_dir . 'bkap_uploads/' ) ) {
-				@mkdir( $this->uploads_dir . 'bkap_uploads/' );
-			}
-		}
-
 
 		/**
 		 * Return GCal API mode (oauth, directly, manual, disabled )
@@ -256,6 +287,51 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		}
 
 		/**
+		 * Return Private Key that was stored from JSON File.
+		 *
+		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
+		 * @param integer $product_id - Product ID. Greater than 0 for product level calendars.
+		 * @return string
+		 *
+		 * @since 5.19.0
+		 */
+		function get_key_json_file( $user_id, $product_id ) {
+			
+			$private_key = '';
+
+			if ( isset( $product_id ) && 0 != $product_id ) {
+				$booking_settings = get_post_meta( $product_id, 'woocommerce_booking_settings', true );
+
+				if ( isset( $booking_settings['bkap_calendar_json_file_data'] ) && ! empty( $booking_settings['bkap_calendar_json_file_data'] ) ) {
+					$bkap_calendar_json_file_data = $booking_settings['bkap_calendar_json_file_data'];
+					$private_key = $bkap_calendar_json_file_data->private_key;
+				} else {
+					$bkap_calendar_json_file_data = get_option( 'bkap_calendar_json_file_data' );
+					if ( ! empty( $bkap_calendar_json_file_data ) ) {
+						$private_key = $bkap_calendar_json_file_data->private_key;
+					}
+				}
+			} else {
+				// get the user role
+				$user = new WP_User( $user_id );
+				if ( isset( $user->roles[0] ) && 'tour_operator' == $user->roles[0] ) {
+					$bkap_calendar_json_file_data = get_the_author_meta( 'bkap_calendar_json_file_data', $user_id );
+
+					if ( ! empty( $bkap_calendar_json_file_data ) ) {
+						$private_key = $bkap_calendar_json_file_data->private_key;
+					}
+				} else {
+					$bkap_calendar_json_file_data = get_option( 'bkap_calendar_json_file_data' );
+					if ( ! empty( $bkap_calendar_json_file_data ) ) {
+						$private_key = $bkap_calendar_json_file_data->private_key;
+					}
+				}
+			}
+
+			return $private_key;
+		}
+
+		/**
 		 * Return GCal key file name without the extension
 		 *
 		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
@@ -265,6 +341,11 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		 * @since 2.6
 		 */
 		function get_key_file( $user_id, $product_id ) {
+
+			if ( '' != $this->get_key_json_file( $user_id, $product_id, 'private_key' ) ) {
+				return $this->get_key_json_file( $user_id, $product_id, 'private_key' );
+			}
+
 			$gcal_key_file = '';
 
 			if ( isset( $product_id ) && 0 != $product_id ) {
@@ -349,9 +430,8 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 			return $gcal_selected_calendar;
 		}
 
-
 		/**
-		 * Return GCal selected calendar ID
+		 * Return GCal selected Client ID.
 		 *
 		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
 		 * @param integer $product_id - Product ID. Greater than 0 for product level calendars.
@@ -365,18 +445,46 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 			return $data;
 		}
 
+		/**
+		 * Return GCal selected Client Secret.
+		 *
+		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
+		 * @param integer $product_id - Product ID. Greater than 0 for product level calendars.
+		 * @return string
+		 *
+		 * @since 5.1.0
+		 */
 		function get_client_secret( $user_id, $product_id ) {
 
 			$data = $this->id_secret_calendar( $user_id, $product_id, 'client_secret' );
 			return $data;
 		}
 
+		/**
+		 * Return GCal selected Calendar ID
+		 *
+		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
+		 * @param integer $product_id - Product ID. Greater than 0 for product level calendars.
+		 * @return string
+		 *
+		 * @since 5.1.0
+		 */
 		function get_calendar_id( $user_id, $product_id ) {
 
 			$data = $this->id_secret_calendar( $user_id, $product_id, 'calendar_id' );
 			return $data;
 		}
 
+		/**
+		 * Return GCal Data based on the key.
+		 *
+		 * @param integer $user_id - User ID. Greater than 0 for Tor Operator calendars
+		 * @param integer $product_id - Product ID. Greater than 0 for product level calendars.
+		 * @param string  $key - Key of the connection data.
+		 * @return string
+		 *
+		 * @since 5.1.0
+		 */
 		function id_secret_calendar( $user_id, $product_id, $key ) {
 
 			$data = '';
@@ -444,33 +552,33 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		function is_not_suitable( $user_id, $product_id ) {
 
 			if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
-				return __( 'Google PHP API Client <b>requires at least PHP 5.3</b>', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( 'Google PHP API Client <b>requires at least PHP 5.3</b>', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			// Disabled for now
 			if ( false && memory_get_usage() < 31000000 ) {
-				return sprintf( __( 'Google PHP API Client <b>requires at least 32 MByte Server RAM</b>. Please check this link how to increase it: %s', 'woocommerce-booking' ), '<a href="http://codex.wordpress.org/Editing_wp-config.php#Increasing_memory_allocated_to_PHP" target="_blank">' . __( 'Increasing_memory_allocated_to_PHP', 'woocommerce-booking' ) . '</a>' );
+				return '<div class="notice notice-error"><p>' . sprintf( __( 'Google PHP API Client <b>requires at least 32 MByte Server RAM</b>. Please check this link how to increase it: %s', 'woocommerce-booking' ), '<a href="http://codex.wordpress.org/Editing_wp-config.php#Increasing_memory_allocated_to_PHP" target="_blank">' . __( 'Increasing_memory_allocated_to_PHP', 'woocommerce-booking' ) . '</a>' ) . '</p></div>';
 			}
 
 			if ( ! function_exists( 'curl_init' ) ) {
-				return __( 'Google PHP API Client <b>requires the CURL PHP extension</b>', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( 'Google PHP API Client <b>requires the CURL PHP extension</b>', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			if ( ! function_exists( 'json_decode' ) ) {
-				return __( 'Google PHP API Client <b>requires the JSON PHP extension</b>', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( 'Google PHP API Client <b>requires the JSON PHP extension</b>', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			if ( ! function_exists( 'http_build_query' ) ) {
-				return __( 'Google PHP API Client <b>requires http_build_query()</b>', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( 'Google PHP API Client <b>requires http_build_query()</b>', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			// Dont continue further if this is pre check
 			if ( isset( $_POST['gcal_api_pre_test'] ) && 1 == $_POST['gcal_api_pre_test'] ) {
-				return __( 'Your server installation meets requirements.', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( 'Your server installation meets requirements.', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			if ( ! $this->_file_exists( $user_id, $product_id ) ) {
-				return __( '<b>Key file does not exist</b>', 'woocommerce-booking' );
+				return '<div class="notice notice-error"><p>' . __( '<b>Key file data does not exist. Please upload the key file in JSON format.</b>', 'woocommerce-booking' ) . '</p></div>';
 			}
 
 			return '';
@@ -486,7 +594,10 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		 * @since 2.6
 		 */
 		function _file_exists( $user_id, $product_id ) {
-			if ( file_exists( $this->key_file_folder() . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
+
+			if ( '' != $this->get_key_json_file( $user_id, $product_id, 'private_key' ) ) {
+				return true;
+			} elseif ( file_exists( $this->key_file_folder() . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
 				return true;
 			} elseif ( file_exists( $this->plugin_dir . 'gcal/key/' . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
 				return true;
@@ -505,7 +616,10 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 		 * @since 2.6
 		 */
 		function _file_get_contents( $user_id, $product_id ) {
-			if ( file_exists( $this->key_file_folder() . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
+
+			if ( '' != $this->get_key_json_file( $user_id, $product_id, 'private_key' ) ) {
+				return $this->get_key_json_file( $user_id, $product_id, 'private_key' );
+			} elseif ( file_exists( $this->key_file_folder() . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
 				return @file_get_contents( $this->key_file_folder() . $this->get_key_file( $user_id, $product_id ) . '.p12' );
 			} elseif ( file_exists( $this->plugin_dir . 'gcal/key/' . $this->get_key_file( $user_id, $product_id ) . '.p12' ) ) {
 				return @file_get_contents( $this->plugin_dir . 'gcal/key/' . $this->get_key_file( $user_id, $product_id ) . '.p12' );
@@ -563,9 +677,7 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 						return false;
 					}
 
-					if ( $this->get_key_file( $user_id, $product_id )
-					&& $this->get_service_account( $user_id, $product_id )
-					&& $this->get_selected_calendar( $user_id, $product_id ) ) {
+					if ( $this->get_key_file( $user_id, $product_id ) && $this->get_service_account( $user_id, $product_id ) && $this->get_selected_calendar( $user_id, $product_id ) ) {
 						return 'directly';
 					}
 					break;
@@ -1228,6 +1340,6 @@ if ( ! class_exists( 'BKAP_Gcal' ) ) {
 			return str_replace( 'http://', 'webcal://', plugins_url( 'woocommerce-booking/Calendar-event.ics' ) );
 		}
 
-	} // end of class
+	}
 
-}// if not class exists
+}

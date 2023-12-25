@@ -278,7 +278,7 @@ class BKAP_Gcal_Event {
 
 		$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
-		$date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+		$date_formats = bkap_date_formats();
 		// get the global settings to find the date formats
 		$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 		$date_format_set = $date_formats[ $global_settings->booking_date_format ];
@@ -308,7 +308,7 @@ class BKAP_Gcal_Event {
 
 			$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
-			$date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+			$date_formats = bkap_date_formats();
 			// get the global settings to find the date formats
 			$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 			$date_format_set = $date_formats[ $global_settings->booking_date_format ];

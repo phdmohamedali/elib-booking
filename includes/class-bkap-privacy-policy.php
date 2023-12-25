@@ -72,6 +72,9 @@ if ( ! class_exists( 'Bkap_Privacy_Policy' ) ) {
 					case 'bkap-timeslot-notice':
 						set_transient( 'bkap_timeslot_notice', '-1' );
 						break;
+					case 'bkap-gcal-json-notice':
+						update_option( 'bkap_gcal_json_p12_notice', 'yes' );
+						break;
 					case 'bkap-meeting-notice':
 						delete_option( 'bkap_assign_meeting_scheduled' );
 						break;

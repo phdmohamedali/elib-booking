@@ -5,9 +5,11 @@
  * @author  Tyche Softwares
  * @package BKAP/Admin/Component
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
 if ( ! class_exists( 'BKAP_All_Component' ) ) {
 	/**
 	 * It will Add all the Boilerplate component when we activate the plugin.
@@ -19,99 +21,61 @@ if ( ! class_exists( 'BKAP_All_Component' ) ) {
 		 */
 		public function __construct() {
 
-			$is_admin = is_admin();
+			$bkap_plugin_name          = EDD_SL_ITEM_NAME_BOOK;
+			$bkap_edd_license_option   = 'edd_sample_license_status';
+			$bkap_license_path         = 'edit.php?post_type=bkap_booking&page=booking_license_page';
+			$bkap_locale               = 'woocommerce-booking';
+			$bkap_file_name            = 'woocommerce-booking/woocommerce-booking.php';
+			$bkap_plugin_prefix        = 'bkap';
+			$bkap_plugin_folder_name   = 'woocommerce-booking/';
+			$bkap_plugin_dir_name      = BKAP_PLUGIN_PATH . '/woocommerce-booking.php';
+			$bkap_get_previous_version = get_option( 'woocommerce_booking_db_version' );
+			$bkap_plugins_page         = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page';
+			$bkap_plugin_slug          = 'edit.php?post_type=bkap_booking';
+			$bkap_slug_for_faq_submenu = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page';
 
-			if ( true === $is_admin ) {
+			require_once 'component/plugin-tracking/class-tyche-plugin-tracking.php';
+			new Tyche_Plugin_Tracking(
+				array(
+					'plugin_name'       => $bkap_plugin_name,
+					'plugin_locale'     => $bkap_locale,
+					'plugin_short_name' => $bkap_plugin_prefix,
+					'version'           => BKAP_VERSION,
+					'blog_link'         => 'https://www.tychesoftwares.com/booking-appointment-plugin-usage-tracking',
+				)
+			);
 
-				add_filter( 'ts_tracker_data', array( 'bkap_common', 'bkap_ts_add_plugin_tracking_data' ), 10, 1 );
-				add_filter( 'ts_tracker_opt_out_data', array( 'bkap_common', 'bkap_get_data_for_opt_out' ), 10, 1 );
-				add_filter( 'ts_deativate_plugin_questions', array( 'bkap_common', 'bkap_deactivate_add_questions' ), 10, 1 );
+			add_filter( 'ts_tracker_data', array( 'bkap_common', 'bkap_ts_add_plugin_tracking_data' ), 10, 1 );
 
+			if ( is_admin() ) {
 				require_once 'component/license-active-notice/ts-active-license-notice.php';
 				require_once 'component/WooCommerce-Check/ts-woo-active.php';
-
-				require_once 'component/tracking data/ts-tracking.php';
-				require_once 'component/deactivate-survey-popup/class-ts-deactivation.php';
-
 				require_once 'component/faq_support/ts-faq-support.php';
-
-				$bkap_plugin_name        = self::ts_get_plugin_name();
-				$bkap_edd_license_option = 'edd_sample_license_status';
-				$bkap_license_path       = 'edit.php?post_type=bkap_booking&page=booking_license_page';
-				$bkap_locale             = self::ts_get_plugin_locale();
-				$bkap_file_name          = 'woocommerce-booking/woocommerce-booking.php';
-				$bkap_plugin_prefix      = 'bkap';
-				$bkap_plugin_folder_name = 'woocommerce-booking/';
-				$bkap_plugin_dir_name    = BKAP_PLUGIN_PATH . '/woocommerce-booking.php';
-
-				$bkap_blog_post_link = 'https://www.tychesoftwares.com/booking-appointment-plugin-usage-tracking/';
-
-				$bkap_get_previous_version = get_option( 'woocommerce_booking_db_version' );
-
-				$bkap_plugins_page         = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page';
-				$bkap_plugin_slug          = 'edit.php?post_type=bkap_booking';
-				$bkap_slug_for_faq_submenu = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page';
-
-				$bkap_settings_page    = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page';
-				$bkap_setting_add_on   = 'bkap_global_settings_page';
-				$bkap_setting_section  = 'bkap_global_settings_section';
-				$bkap_register_setting = 'bkap_global_settings';
+				require_once 'component/plugin-deactivation/class-tyche-plugin-deactivation.php';
 
 				new Bkap_Active_License_Notice( $bkap_plugin_name, $bkap_edd_license_option, $bkap_license_path, $bkap_locale );
-
 				new Bkap_TS_Woo_Active( $bkap_plugin_name, $bkap_file_name, $bkap_locale );
 
-				new Bkap_TS_tracking( $bkap_plugin_prefix, $bkap_plugin_name, $bkap_blog_post_link, $bkap_locale, BKAP_PLUGIN_URL, $bkap_settings_page, $bkap_setting_add_on, $bkap_setting_section, $bkap_register_setting );
+				add_action( 'admin_footer', array( __CLASS__, 'ts_admin_notices_scripts' ) );
+				add_action( $bkap_plugin_prefix . '_add_new_settings', array( __CLASS__, 'ts_add_reset_tracking_setting' ) );
+				add_action( 'admin_init', array( __CLASS__, 'ts_reset_tracking_setting' ) );
+				add_action( $bkap_plugin_prefix . '_init_tracker_completed', array( __CLASS__, 'init_tracker_completed' ), 10, 2 );
 
-				new Bkap_TS_Tracker( $bkap_plugin_prefix, $bkap_plugin_name );
+				new Tyche_Plugin_Deactivation(
+					array(
+						'plugin_name'       => $bkap_plugin_name,
+						'plugin_base'       => $bkap_file_name,
+						'script_file'       => bkap_load_scripts_class::bkap_asset_url( '/assets/js/plugin-deactivation.js', BKAP_FILE ),
+						'plugin_short_name' => $bkap_plugin_prefix,
+						'version'           => BKAP_VERSION,
+					)
+				);
 
-				$wcap_deativate = new Bkap_TS_deactivate();
-				$wcap_deativate->init( $bkap_file_name, $bkap_plugin_name );
-
-				$user = wp_get_current_user();
-
-				if ( in_array( 'administrator', (array) $user->roles ) ) {
-					// new Bkap_TS_Welcome ( $bkap_plugin_name, $bkap_plugin_prefix, $bkap_locale, $bkap_plugin_folder_name, $bkap_plugin_dir_name, $bkap_get_previous_version );
-				}
 				$ts_pro_faq = self::bkap_get_faq();
 				new Bkap_TS_Faq_Support( $bkap_plugin_name, $bkap_plugin_prefix, $bkap_plugins_page, $bkap_locale, $bkap_plugin_folder_name, $bkap_plugin_slug, $ts_pro_faq, $bkap_slug_for_faq_submenu );
-
 			}
 		}
 
-		/**
-		 * It will retrun the plguin name.
-		 *
-		 * @return string $ts_plugin_name Name of the plugin
-		 */
-		public static function ts_get_plugin_name() {
-			$bkap_plugin_dir  = dirname( dirname( __FILE__ ) );
-			$bkap_plugin_dir .= '/woocommerce-booking.php';
-
-			$ts_plugin_name = '';
-			$plugin_data    = get_file_data( $bkap_plugin_dir, array( 'name' => 'Plugin Name' ) );
-			if ( ! empty( $plugin_data['name'] ) ) {
-				$ts_plugin_name = $plugin_data['name'];
-			}
-			return $ts_plugin_name;
-		}
-
-		/**
-		 * It will retrun the Plugin text Domain
-		 *
-		 * @return string $ts_plugin_domain Name of the Plugin domain
-		 */
-		public static function ts_get_plugin_locale() {
-			$bkap_plugin_dir  = dirname( dirname( __FILE__ ) );
-			$bkap_plugin_dir .= '/woocommerce-booking.php';
-
-			$ts_plugin_domain = '';
-			$plugin_data      = get_file_data( $bkap_plugin_dir, array( 'domain' => 'Text Domain' ) );
-			if ( ! empty( $plugin_data['domain'] ) ) {
-				$ts_plugin_domain = $plugin_data['domain'];
-			}
-			return $ts_plugin_domain;
-		}
 		/**
 		 * It will contain all the FAQ which need to be display on the FAQ page.
 		 *
@@ -166,6 +130,91 @@ if ( ! class_exists( 'BKAP_All_Component' ) ) {
 
 			return $ts_faq;
 		}
+
+		/**
+		 * It will add the settinig, which will allow store owner to reset the tracking data. Which will result into stop trakcing the data.
+		 *
+		 * @hook self::$plugin_prefix . '_add_new_settings'
+		 */
+		public static function ts_add_reset_tracking_setting() {
+
+			add_settings_field(
+				'ts_reset_tracking',
+				__( 'Reset usage tracking', 'woocommerce-booking' ),
+				array( __CLASS__, 'ts_rereset_tracking_callback' ),
+				'bkap_global_settings_page',
+				'bkap_global_settings_section',
+				array( 'This will reset your usage tracking settings, causing it to show the opt-in banner again and not sending any data.', 'woocommerce-booking' )
+			);
+
+			register_setting(
+				'bkap_global_settings',
+				'ts_reset_tracking'
+			);
+		}
+
+		/**
+		 * It will add the Reset button on the settings page.
+		 *
+		 * @param array $args
+		 */
+		public static function ts_rereset_tracking_callback( $args ) {
+			$wcap_restrict_domain_address = get_option( 'wcap_restrict_domain_address' );
+			$domain_value                 = isset( $wcap_restrict_domain_address ) ? esc_attr( $wcap_restrict_domain_address ) : '';
+			// Next, we update the name attribute to access this element's ID in the context of the display options array.
+			// We also access the show_header element of the options collection in the call to the checked() helper function.
+			$ts_action = 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page&ts_action=reset_tracking';
+			printf( '<a href="' . $ts_action . '" class="button button-large reset_tracking">Reset</a>' );
+
+			// Here, we'll take the first argument of the array and add it to a label next to the checkbox.
+			echo '<label for="wcap_restrict_domain_address_label"> ' . $args[0] . '</label>';
+		}
+
+		/**
+		 * Load the js file in the admin
+		 *
+		 * @since 6.8
+		 * @access public
+		 */
+		public static function ts_admin_notices_scripts() {
+
+			wp_enqueue_script(
+				'bkap_ts_dismiss_notice',
+				bkap_load_scripts_class::bkap_asset_url( '/assets/js/dismiss-tracking-notice.js', BKAP_FILE ),
+				'',
+				'',
+				false
+			);
+
+			wp_localize_script(
+				'bkap_ts_dismiss_notice',
+				'bkap_ts_dismiss_notice',
+				array(
+					'ts_prefix_of_plugin' => 'bkap',
+					'ts_admin_url'        => admin_url( 'admin-ajax.php' ),
+				)
+			);
+		}
+
+		/**
+		 * It will delete the tracking option from the database.
+		 */
+		public static function ts_reset_tracking_setting() {
+			if ( isset( $_GET ['ts_action'] ) && 'reset_tracking' == $_GET ['ts_action'] ) {
+				Tyche_Plugin_Tracking::reset_tracker_setting( 'bkap' );
+				$ts_url = remove_query_arg( 'ts_action' );
+				wp_safe_redirect( $ts_url );
+			}
+		}
+
+		/**
+		 * Redirects after initializing the tracker.
+		 */
+		public static function init_tracker_completed() {
+			header( 'Location: ' . admin_url( 'edit.php?post_type=bkap_booking&page=woocommerce_booking_page' ) );
+			exit;
+		}
 	}
+
 	$BKAP_All_Component = new BKAP_All_Component();
 }

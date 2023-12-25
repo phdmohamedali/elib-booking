@@ -28,6 +28,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 		public function __construct() {
 
 			add_action( 'woocommerce_checkout_update_order_meta', array( &$this, 'bkap_order_item_meta' ), 10, 2 );
+			add_action( 'woocommerce_checkout_create_order_line_item', array( &$this, 'bkap_add_booking_item_meta_data' ), 10, 3 );
 
 			// Hide the hardcoded item meta records frm being displayed on the admin orders page.
 			add_filter( 'woocommerce_hidden_order_itemmeta', array( &$this, 'bkap_hidden_order_itemmeta' ), 10, 1 );
@@ -36,6 +37,54 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 			add_action( 'woocommerce_checkout_order_processed', array( &$this, 'bkap_woocommerce_new_order' ), 10, 3 );
 			// Action scheduler for the Global Time Slots Booking.
 			add_action( 'bkap_update_global_lockout_schedule', array( &$this, 'bkap_update_global_lockout_schedule_callback' ), 10, 1 );
+
+			// Create booking from WooCommerce Cart & Checkout blocks.
+			add_action( 'woocommerce_store_api_checkout_update_order_meta', array( &$this, 'bkap_wc_store_api_checkout_order_processed' ), 10, 1 );
+		}
+
+		/**
+		 * This function is Create booking when place order from WooCommerce Cart & Checkout blocks.
+		 *
+		 * @param array $order Order data.
+		 *
+		 * @since 5.22.0
+		 */
+		public static function bkap_wc_store_api_checkout_order_processed( $order ) {
+
+			if ( ! empty( $order ) ) {
+				$order_id = $order->get_id();
+				self::bkap_order_item_meta( $order_id, array() );
+			}
+		}
+
+		/**
+		 * Adding Booking Meta information in the Item Object.
+		 *
+		 * @param object $item Item Object.
+		 * @param string $cart_item_key Cart Item Key.
+		 * @param array  $values Cart Item Array.
+		 * @since 5.21.0
+		 *
+		 * @hook woocommerce_checkout_create_order_line_item
+		 */
+		function bkap_add_booking_item_meta_data( $item, $cart_item_key, $values ) {
+
+			if ( isset( $values['bkap_booking'] ) && isset( $values['bkap_booking'][0]['hidden_date'] ) ) {
+				$booking_count = count( $values['bkap_booking'] );
+				$product_id    = bkap_common::bkap_get_product_id( $values['product_id'] );
+				$item_id       = $item->get_id();
+
+				for ( $i = 0; $i < $booking_count; $i++ ) {
+
+					if ( isset( $values['bkap_booking'][ $i ]['hidden_date'] ) ) {
+						$booking_data = $values['bkap_booking'][ $i ];
+					} else {
+						break;
+					}
+
+					bkap_common::bkap_update_order_item_meta( $item_id, $product_id, $booking_data, false, true, $item ); // Add booking data as item meta.
+				}
+			}
 		}
 
 		/**
@@ -158,7 +207,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 					for ( $i = 0; $i < $quantity; $i++ ) {
 						$new_booking_id = bkap_insert_record_booking_history( $post_id, '', $date_query, $date_checkout_query, '', '' );
-						if ( isset( $parent_id ) && '' != $parent_id ) { // Insert records for parent products - Grouped Products.
+						if ( isset( $parent_id ) && '' != $parent_id && 0 != $parent_id ) { // Insert records for parent products - Grouped Products.
 							bkap_insert_record_booking_history( $parent_id, '', $date_query, $date_checkout_query, '', '' );
 						}
 					}
@@ -286,10 +335,10 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 						$select         = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d AND
 													start_date = %s AND
-													TIME_FORMAT( from_time, '%H:%i' ) = %s AND
-													TIME_FORMAT( to_time, '%H:%i' ) = %s AND
+													TIME_FORMAT( from_time, %s ) = %s AND
+													TIME_FORMAT( to_time, %s ) = %s AND
 													status != 'inactive' ";
-						$select_results = $wpdb->get_results( $wpdb->prepare( $select, $post_id, $date_query, $from_hi, $to_hi ) );
+						$select_results = $wpdb->get_results( $wpdb->prepare( $select, $post_id, $date_query, '%H:%i', $from_hi, '%H:%i', $to_hi ) );
 
 						foreach ( $select_results as $k => $v ) {
 							$details[ $post_id ] = $v;
@@ -360,10 +409,17 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 					}
 				} elseif ( isset( $booking_data['duration_time_slot'] ) && $booking_data['duration_time_slot'] != '' ) {
 
-					$from_time         = date( 'H:i', strtotime( $booking_data['duration_time_slot'] ) );
-					$selected_duration = explode( '-', $booking_data['selected_duration'] );
-					$hour              = $selected_duration[0];
-					$d_type            = $selected_duration[1];
+					$from_time = date( 'H:i', strtotime( $booking_data['duration_time_slot'] ) );
+					if ( isset( $booking_data['selected_duration'] ) && ! empty( $booking_data['selected_duration'] ) ) {
+						$selected_duration = explode( '-', $booking_data['selected_duration'] );
+						$hour              = isset( $selected_duration[0] ) ? $selected_duration[0] : 1;
+						$d_type            = isset( $selected_duration[1] ) ? $selected_duration[1] : '';
+					}
+					if ( isset( $_REQUEST['bkap_duration_field'] ) ) {
+						$hour      = (int) $_REQUEST['bkap_duration_field'];
+						$d_setting = get_post_meta( $post_id, '_bkap_duration_settings', true );
+						$d_type    = isset( $d_setting['duration_type'] ) ? $d_setting['duration_type'] : '';
+					}
 
 					$end_str  = bkap_common::bkap_add_hour_to_date( $hidden_date, $from_time, $hour, $post_id, $d_type ); // return end date timestamp
 					$to_time  = date( 'H:i', $end_str );// getend time in H:i format
@@ -544,17 +600,17 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 								$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 														WHERE post_id = %d AND
 														start_date = %s AND
-														TIME_FORMAT( from_time,'%H:%i' ) = %s AND
-														TIME_FORMAT ( to_time, '%H:%i' ) = %s AND
+														TIME_FORMAT( from_time, %s ) = %s AND
+														TIME_FORMAT ( to_time,  %s ) = %s AND
 														status = ''";
-								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, $from_hi, $to_hi ) );
+								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, '%H:%i', $from_hi, '%H:%i', $to_hi ) );
 							} else {
 								$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 													WHERE post_id = %d AND
 													start_date = %s AND
-													TIME_FORMAT( from_time,'%H:%i' ) = %s AND
+													TIME_FORMAT( from_time, %s ) = %s AND
 													status = ''";
-								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, $from_hi ) );
+								$order_results      = $wpdb->get_results( $wpdb->prepare( $order_select_query, $post_id, $date_query, '%H:%i', $from_hi ) );
 							}
 						} else {
 							$order_select_query = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
@@ -767,7 +823,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 				$fixed_block = $booking_details['fixed_block'];
 			}
 
-			$booking_price = $booking_details['price'];
+			$booking_price = isset( $booking_details['price'] ) ? $booking_details['price'] : 0;
 
 			/*
 			if( isset( $booking_details[ 'Deposit' ] ) && '' != $booking_details[ 'Deposit' ] ) {
@@ -933,7 +989,6 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 						if ( isset( $booking['time_slot'] ) && '' !== $booking['time_slot'] ) {
 
-							bkap_common::bkap_update_order_item_meta( $results[0]->order_item_id, $post_id, $booking, false ); // Add booking data as item meta
 							/**
 							 * Action for updating order item meta for other booking info.
 							 * Partial Deposits Addon : Deposits amounts infomration
@@ -971,8 +1026,6 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							}
 						}
 					} else {
-
-						bkap_common::bkap_update_order_item_meta( $results[0]->order_item_id, $post_id, $booking, false ); // Add booking data as item meta
 
 						/**
 						 * Action for updating order item meta for other booking info.
@@ -1052,6 +1105,83 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 							wp_cache_set( $cache_key, $item_meta_array, 'orders' );
 						}
 					}
+
+					if ( ! empty( $results ) ) {
+
+						$booking_settings = bkap_setting( $post_id );
+						$global_settings  = bkap_global_setting();
+
+						if ( isset( $booking['hidden_date'] ) && '' !== $booking['hidden_date'] ) {
+							$date_field_name  = get_option( 'book_item-meta-date' );
+							$date_field_name  = ( '' == $date_field_name ) ? __( 'Start Date', 'woocommerce-booking' ) : $date_field_name;
+							$date_field_name  = apply_filters( 'bkap_change_checkout_start_date_label', $date_field_name, $booking_settings );
+							$date_field_value = $booking['date'];
+
+							if ( isset( $booking['hidden_date_checkout'] ) && '' !== $booking['hidden_date_checkout'] ) {
+								$checkout_date_name  = ( '' === get_option( 'checkout_item-meta-date' ) ) ? __( 'End Date', 'woocommerce-booking' ) : get_option( 'checkout_item-meta-date' );
+								$checkout_date_value = $booking['date_checkout'];
+								bkap_common::save_booking_information_to_order_note( $results[0]->order_item_id, $order_id, sprintf( __( $date_field_name . ': %s to ' . $checkout_date_name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $date_field_value, true ), sanitize_text_field( $checkout_date_value, true ) ) );
+							} else {
+								bkap_common::save_booking_information_to_order_note( $results[0]->order_item_id, $order_id, sprintf( __( $date_field_name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $date_field_value, true ) ) );
+							}
+						}
+
+						if ( isset( $booking['time_slot'] ) && '' != $booking['time_slot'] ) {
+							$time_select   = $booking['time_slot'];
+							$exploded_time = explode( '<br>', $time_select );
+							$time_format   = $global_settings->booking_time_format;
+
+							$time_field_name = get_option( 'book_item-meta-time' );
+							$time_field_name = ( '' == $time_field_name ) ? __( 'Booking Time', 'woocommerce-booking' ) : $time_field_name;
+
+							$time_field_value = '';
+							foreach ( $exploded_time as $key => $value ) {
+								if ( '' === $value ) {
+									continue;
+								}
+								$time_exploded = explode( ' - ', $value );
+
+								// Storing time details for display.
+								$from_time = trim( $time_exploded[0] );
+								$to_time   = isset( $time_exploded[1] ) ? trim( $time_exploded[1] ) : '';
+								if ( '12' === $time_format ) {
+									$from_time = date( 'h:i A', strtotime( $time_exploded[0] ) );
+									$to_time   = isset( $time_exploded[1] ) ? date( 'h:i A', strtotime( $time_exploded[1] ) ) : '';
+								}
+								if ( '' !== $to_time ) { // preparing timeslot to display.
+									$time_field_value .= $from_time . ' - ' . $to_time;
+								} else {
+									$time_field_value .= $from_time;
+								}
+								$time_field_value .= ',';
+							}
+							$time_field_value = substr( $time_field_value, 0, -1 );
+							bkap_common::save_booking_information_to_order_note( $results[0]->order_item_id, $order_id, sprintf( __( $time_field_name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $time_field_value, true ) ) );
+						}
+
+						if ( isset( $booking['selected_duration'] ) && 0 != $booking['selected_duration'] ) {
+
+							$start_date = isset( $booking['hidden_date'] ) ? $booking['hidden_date'] : '';
+							$time       = isset( $booking['duration_time_slot'] ) ? $booking['duration_time_slot'] : '';
+
+							$selected_duration = explode( '-', $booking['selected_duration'] );
+							$hour              = $selected_duration[0];
+							$d_type            = $selected_duration[1];
+
+							$end_str = bkap_common::bkap_add_hour_to_date( $start_date, $time, $hour, $post_id, $d_type ); // return end date timestamp.
+							$endtime = date( 'H:i', $end_str );// getend time in H:i format.
+
+							$startime = bkap_common::bkap_get_formated_time( $time ); // return start time based on the time format at global.
+							$endtime  = bkap_common::bkap_get_formated_time( $endtime ); // return end time based on the time format at global.
+
+							$dur_field_value = $startime . ' - ' . $endtime; // to store time sting in the timeslot of order item meta.
+
+							// Updating timeslot.
+							$dur_field_name = get_option( 'book_item-meta-time' );
+							$dur_field_name = ( '' == $dur_field_name ) ? __( 'Booking Time', 'woocommerce-booking' ) : $dur_field_name;
+							bkap_common::save_booking_information_to_order_note( $results[0]->order_item_id, $order_id, sprintf( __( $dur_field_name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $dur_field_value, true ) ) );
+						}
+					}
 				}
 			}
 
@@ -1125,7 +1255,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 			$date_query  = date( 'Y-m-d', strtotime( $hidden_date ) );
 
 			$week_day = date( 'l', strtotime( $hidden_date ) );
-			$weekdays = bkap_get_book_arrays( 'bkap_weekdays' );
+			$weekdays = bkap_weekdays();
 			$weekday  = array_search( $week_day, $weekdays );
 
 			if ( isset( $booking_settings['booking_time_settings'] ) && isset( $hidden_date ) ) {
@@ -1286,9 +1416,9 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 									$check_record = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 												   WHERE post_id = %d
 												   AND start_date = %s
-												   AND TIME_FORMAT( from_time, '%H:%i' ) = %s
-												   AND TIME_FORMAT( to_time, '%H:%i' ) = %s";
-									$get_results  = $wpdb->get_col( $wpdb->prepare( $check_record, $duplicate_of, $date_query, $from_hi, $to_hi ) );
+												   AND TIME_FORMAT( from_time, %s ) = %s
+												   AND TIME_FORMAT( to_time, %s ) = %s";
+									$get_results  = $wpdb->get_col( $wpdb->prepare( $check_record, $duplicate_of, $date_query, '%H:%i', $from_hi, '%H:%i', $to_hi ) );
 
 									$query   = 'UPDATE `' . $wpdb->prefix . 'booking_history`
 													SET available_booking = available_booking - ' . $quantity . "
@@ -1304,7 +1434,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 
 										if ( $val['weekday'] == '' ) {
 											$week_day = date( 'l', strtotime( $date_query ) );
-											$weekdays = bkap_get_book_arrays( 'bkap_weekdays' );
+											$weekdays = bkap_weekdays();
 											$weekday  = array_search( $week_day, $weekdays );
 											// echo $weekday;exit;
 										} else {
@@ -1394,9 +1524,9 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 									$check_record = 'SELECT id FROM `' . $wpdb->prefix . "booking_history`
 												   WHERE post_id = %d
 												   AND start_date = %s
-												   AND TIME_FORMAT( from_time, '%H:%i' ) = %s
+												   AND TIME_FORMAT( from_time, %s ) = %s
 												   AND to_time = ''";
-									$get_results  = $wpdb->get_col( $wpdb->prepare( $check_record, $duplicate_of, $date_query, $from_hi ) );
+									$get_results  = $wpdb->get_col( $wpdb->prepare( $check_record, $duplicate_of, $date_query, '%H:%i', $from_hi ) );
 
 									$query = 'UPDATE `' . $wpdb->prefix . 'booking_history`
 													SET available_booking = available_booking - ' . $quantity . "
@@ -1412,7 +1542,7 @@ if ( ! class_exists( 'bkap_checkout' ) ) {
 									if ( isset( $get_results ) && count( $get_results ) == 0 && $updated == 0 ) {
 										if ( $val['weekday'] == '' ) {
 											$week_day = date( 'l', strtotime( $date_query ) );
-											$weekdays = bkap_get_book_arrays( 'bkap_weekdays' );
+											$weekdays = bkap_weekdays();
 											$weekday  = array_search( $week_day, $weekdays );
 
 										} else {

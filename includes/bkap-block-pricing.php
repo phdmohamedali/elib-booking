@@ -19,6 +19,13 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 	class bkap_block_booking {
 
 		/**
+		 * Variable Block Price.
+		 *
+		 * @var string $variable_block_price Variable Block Price.
+		 */
+		public $variable_block_price;
+
+		/**
 		 * Default constructor
 		 *
 		 * @since 4.1.0
@@ -236,21 +243,21 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 
 		static function bkap_updating_fixed_block_data_in_db( $product_id, $clean_fixed_block_data ) {
 
-			$fixed_block_data      = $clean_fixed_block_data->bkap_fixed_block_data;
-			$fixed_block_each_data = explode( ';', $fixed_block_data );
-
-			array_pop( $fixed_block_each_data );
-
 			$array_of_all_fixed_block_data = array();
+			$fixed_block_data              = isset( $clean_fixed_block_data->bkap_fixed_block_data ) ? $clean_fixed_block_data->bkap_fixed_block_data : array();
+			if ( ! empty( $fixed_block_data ) ) {
+				$fixed_block_each_data = explode( ';', $fixed_block_data );
+				array_pop( $fixed_block_each_data );
 
-			foreach ( $fixed_block_each_data as $fixed_block_each_data_value ) {
-				$array_of_individual_fixed_block_data = explode( '&&', $fixed_block_each_data_value );
-				$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['block_name']     = $array_of_individual_fixed_block_data[0];
-				$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['number_of_days'] = $array_of_individual_fixed_block_data[1];
-				$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['start_day']      = $array_of_individual_fixed_block_data[2];
-				$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['end_day']        = $array_of_individual_fixed_block_data[3];
-				$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['price']          = $array_of_individual_fixed_block_data[4];
+				foreach ( $fixed_block_each_data as $fixed_block_each_data_value ) {
+					$array_of_individual_fixed_block_data = explode( '&&', $fixed_block_each_data_value );
+					$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['block_name']     = $array_of_individual_fixed_block_data[0];
+					$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['number_of_days'] = $array_of_individual_fixed_block_data[1];
+					$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['start_day']      = $array_of_individual_fixed_block_data[2];
+					$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['end_day']        = $array_of_individual_fixed_block_data[3];
+					$array_of_all_fixed_block_data[ $array_of_individual_fixed_block_data[5] ]['price']          = $array_of_individual_fixed_block_data[4];
 
+				}
 			}
 
 			return $array_of_all_fixed_block_data;
@@ -269,44 +276,43 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 
 		static function bkap_updating_price_range_data_in_db( $product_id, $clean_price_range_data ) {
 
-			$price_range_data      = $clean_price_range_data->bkap_price_range_data;
-			$price_range_each_data = explode( ';;', $price_range_data );
-
-			array_pop( $price_range_each_data );
-
 			$array_of_all_price_range_data = array();
+			$price_range_data              = isset( $clean_price_range_data->bkap_price_range_data ) ? $clean_price_range_data->bkap_price_range_data : array();
+			if ( ! empty( $price_range_data ) ) {
+				$price_range_each_data = explode( ';;', $price_range_data );
+				array_pop( $price_range_each_data );
 
-			$product_attributes = get_post_meta( $product_id, '_product_attributes', true );
-
-			$product_attributes_keys = array();
-			if ( is_array( $product_attributes ) && $product_attributes > 0 ) {
-				$product_attributes_keys = array_keys( $product_attributes );
-			}
-
-			foreach ( $price_range_each_data as $price_range_each_data_value ) {
-				$array_of_individual_price_range_data = explode( '~~', $price_range_each_data_value );
-
-				$key_of_array = end( $array_of_individual_price_range_data );
-				$count        = count( $array_of_individual_price_range_data );
-
-				if ( $count > 5 ) {
-					$count_new = $count - 6;
-					for ( $i = 0; $i <= $count_new; $i++ ) {
-						$attribute = $product_attributes_keys[ $i ];
-						$array_of_all_price_range_data[ $key_of_array ][ $attribute ] = $array_of_individual_price_range_data[ $i ];
-					}
+				$product_attributes      = get_post_meta( $product_id, '_product_attributes', true );
+				$product_attributes_keys = array();
+				if ( is_array( $product_attributes ) && $product_attributes > 0 ) {
+					$product_attributes_keys = array_keys( $product_attributes );
 				}
 
-				$min_number = ( isset( $array_of_individual_price_range_data[ $count - 5 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 5 ] ) ) ? $array_of_individual_price_range_data[ $count - 5 ] : '';
-				$max_number = ( isset( $array_of_individual_price_range_data[ $count - 4 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 4 ] ) ) ? $array_of_individual_price_range_data[ $count - 4 ] : '';
-				$p_d_price  = ( isset( $array_of_individual_price_range_data[ $count - 3 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 3 ] ) ) ? $array_of_individual_price_range_data[ $count - 3 ] : 0;
-				$f_price    = ( isset( $array_of_individual_price_range_data[ $count - 2 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 2 ] ) ) ? $array_of_individual_price_range_data[ $count - 2 ] : 0;
+				foreach ( $price_range_each_data as $price_range_each_data_value ) {
+					$array_of_individual_price_range_data = explode( '~~', $price_range_each_data_value );
 
-				$array_of_all_price_range_data[ $key_of_array ]['min_number']    = $min_number;
-				$array_of_all_price_range_data[ $key_of_array ]['max_number']    = $max_number;
-				$array_of_all_price_range_data[ $key_of_array ]['per_day_price'] = $p_d_price;
-				$array_of_all_price_range_data[ $key_of_array ]['fixed_price']   = $f_price;
+					$key_of_array = end( $array_of_individual_price_range_data );
+					$count        = count( $array_of_individual_price_range_data );
 
+					if ( $count > 5 ) {
+						$count_new = $count - 6;
+						for ( $i = 0; $i <= $count_new; $i++ ) {
+							$attribute = $product_attributes_keys[ $i ];
+							$array_of_all_price_range_data[ $key_of_array ][ $attribute ] = $array_of_individual_price_range_data[ $i ];
+						}
+					}
+
+					$min_number = ( isset( $array_of_individual_price_range_data[ $count - 5 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 5 ] ) ) ? $array_of_individual_price_range_data[ $count - 5 ] : '';
+					$max_number = ( isset( $array_of_individual_price_range_data[ $count - 4 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 4 ] ) ) ? $array_of_individual_price_range_data[ $count - 4 ] : '';
+					$p_d_price  = ( isset( $array_of_individual_price_range_data[ $count - 3 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 3 ] ) ) ? $array_of_individual_price_range_data[ $count - 3 ] : 0;
+					$f_price    = ( isset( $array_of_individual_price_range_data[ $count - 2 ] ) && ! empty( $array_of_individual_price_range_data[ $count - 2 ] ) ) ? $array_of_individual_price_range_data[ $count - 2 ] : 0;
+
+					$array_of_all_price_range_data[ $key_of_array ]['min_number']    = $min_number;
+					$array_of_all_price_range_data[ $key_of_array ]['max_number']    = $max_number;
+					$array_of_all_price_range_data[ $key_of_array ]['per_day_price'] = $p_d_price;
+					$array_of_all_price_range_data[ $key_of_array ]['fixed_price']   = $f_price;
+
+				}
 			}
 			return $array_of_all_price_range_data;
 		}
@@ -363,9 +369,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 					foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 
 						if ( array_key_exists( 'bkap_booking', $values ) ) {
-								$booking     = $values['bkap_booking'];
+							$booking = $values['bkap_booking'];
+							if ( array_key_exists( 'hidden_date', $booking[0] ) ) {
 								$hidden_date = $booking[0]['hidden_date'];
-
+							}
 							if ( array_key_exists( 'hidden_date_checkout', $booking[0] ) ) {
 								$hidden_date_checkout = $booking[0]['hidden_date_checkout'];
 							}
@@ -661,6 +668,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 		 **/
 
 		public static function bkap_fixed_block_booking_table( $product_id, $booking_settings, $default_booking_settings, $defaults ) {
+			global $post;
 
 			$bkap_fixed_block_option = ( isset( $booking_settings['booking_fixed_block_enable'] ) && '' !== $booking_settings['booking_fixed_block_enable'] ) ? $booking_settings['booking_fixed_block_enable'] : '';
 			$bkap_price_range_option = bkap_get_post_meta_data( $product_id, '_bkap_price_ranges', $default_booking_settings, $defaults );
@@ -688,24 +696,24 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 
 			<table id="bkap_fixed_block_booking_table" >
 				<?php
-				 // add date and time setup.
-				 self::bkap_get_fixed_block_booking_heading( $product_id, $booking_settings );
-				 self::bkap_get_fixed_block_booking_base_data( $product_id, $booking_settings );
-				 self::bkap_get_fixed_block_booking( $product_id, $booking_settings, $default_booking_settings, $defaults );
+				// add date and time setup.
+				self::bkap_get_fixed_block_booking_heading( $product_id, $booking_settings );
+				self::bkap_get_fixed_block_booking_base_data( $product_id, $booking_settings );
+				self::bkap_get_fixed_block_booking( $product_id, $booking_settings, $default_booking_settings, $defaults );
 				?>
 
 				<tr style="padding:5px; border-top:2px solid #eee">
-				   <td colspan="3" style="border-right: 0px;">
-					   <i>
-						   <small><?php _e( 'Create fixed blocks of booking and its price.', 'woocommerce-booking' ); ?></small>
-					   <i>
-				   </td>
-				   <td colspan="3" align="right" style="border-left: none;">
-				   <?php if ( isset( $_GET['action'] ) && $_GET['action'] != 'bulk_booking_settings' ) { ?>
-					   <button type="button" class="button-primary bkap_save_fixed_block" onclick="bkap_save_fixed_blocks()"><i class="fas fa-save fa-lg"></i> <?php _e( 'Save', 'woocommerce-booking' ); ?></button>
+					<td colspan="3" style="border-right: 0px;">
+						<i>
+							<small><?php _e( 'Create fixed blocks of booking and its price.', 'woocommerce-booking' ); ?></small>
+						<i>
+					</td>
+					<td colspan="3" align="right" style="border-left: none;">
+					<?php if ( isset( $_GET['action'] ) && $_GET['action'] != 'bulk_booking_settings' || ! is_null( $post ) && get_post_type() == 'product' ) { ?>
+						<button type="button" class="button-primary bkap_save_fixed_block" onclick="bkap_save_fixed_blocks()"><i class="fas fa-save fa-lg"></i> <?php _e( 'Save', 'woocommerce-booking' ); ?></button>
 					<?php } ?>
 
-				   <button type="button" class="button-primary bkap_add_new_fixed_block"><i class="fa fa-plus" aria-hidden="true"></i> <?php _e( 'Add New Block', 'woocommerce-booking' ); ?></button></td>
+					<button type="button" class="button-primary bkap_add_new_fixed_block"><i class="fa fa-plus" aria-hidden="true"></i> <?php _e( 'Add New Block', 'woocommerce-booking' ); ?></button></td>
 				</tr>
 			</table>
 
@@ -742,11 +750,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 		 *
 		 * @param integer $product_id - Product ID
 		 * @param array   $booking_settings - Booking Settings for the product.
-		 * @global array $bkap_fixed_days array of weeekdays and its number
 		 * @since 4.1.0
 		 **/
 		static function bkap_get_fixed_block_booking_base_data( $product_id, $booking_settings ) {
-			global $bkap_fixed_days;
+
 			?>
 
 		<tr id="bkap_default_fixed_block_row" style="display: none;">
@@ -759,7 +766,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 			<td width="20%">
 				<select id="start_day" name="start_day" style="width:100%">
 					<?php
-					$days = $bkap_fixed_days;
+					$days = bkap_fixed_days();
 					foreach ( $days as $dkey => $dvalue ) {
 						?>
 					<option value="<?php echo $dkey; ?>"><?php echo $dvalue; ?></option>
@@ -994,7 +1001,6 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 		 *
 		 * @param integer $product_id - Product ID
 		 * @param array   $booking_settings - Booking Settings for the product.
-		 * @global array $bkap_fixed_days Array of weekdays and its numbers
 		 * @global object $post WP_Post
 		 * @global object $wpdb Global wpdb object
 		 *
@@ -1002,8 +1008,6 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 		 **/
 
 		static function bkap_get_fixed_block_booking( $product_id, $booking_settings, $default_booking_settings, $defaults ) {
-
-			global $bkap_fixed_days;
 
 			global $post, $wpdb;
 
@@ -1061,7 +1065,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 
 					<select id="start_day_<?php echo $row_number; ?>" name="start_day" style="width:100%">
 						<?php
-						$days = $bkap_fixed_days;
+						$days = bkap_fixed_days();
 						foreach ( $days as $dkey => $dvalue ) {
 							$start_selected = '';
 							// echo gettype( $dkey ) . ' - ' . gettype( $start_day );
@@ -1299,16 +1303,17 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 			$price_range_data = get_post_meta( $product_id, '_bkap_price_range_data', true );
 			$_product         = wc_get_product( $product_id );
 
-			if ( $product_type == 'variable' ) {
+			if ( 'variable' === $product_type ) {
 
-				if ( $price_range == 'booking_block_price_enable' && $price_range_data != '' ) {
+				if ( $price_range === 'booking_block_price_enable' && '' !== $price_range_data ) {
 
-					$bkap_post                = $_POST; // Getting all the data from
+					// Getting all the data from.
+					$bkap_post                = isset( $_POST ) ? $_POST : array(); // phpcs:ignore
 					$attribute_string         = 'attribute_';
 					$attribute_variation_pair = array();
 
-					// Preparing array for attribute and its value
-					// so that in post meta array we can check for that combination
+					// Preparing array for attribute and its value.
+					// so that in post meta array we can check for that combination.
 					foreach ( $bkap_post as $post_key => $post_value ) {
 
 						if ( strpos( $post_key, $attribute_string ) !== false ) {
@@ -1333,11 +1338,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 						}
 					}
 
-					$_POST['fixed_price'] = $_POST['variable_blocks'] = 'N';
+					$_POST['fixed_price']     = 'N';
+					$_POST['variable_blocks'] = 'N';
 
-					$result_array = $results = array();
-
-					// Looping through post meta and checking if there is range available
+					// Looping through post meta and checking if there is range available.
 					// for selected variation and min max numbers of days.
 
 					$e = 0;
@@ -1364,9 +1368,10 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 						 * If set then assign that array in $result_price
 						 */
 
-						if ( $i == $a_v_p_count && $price_range_data_value['min_number'] <= $number && $price_range_data_value['max_number'] >= $number ) {
+						if ( $i === $a_v_p_count && $price_range_data_value['min_number'] <= $number && $price_range_data_value['max_number'] >= $number ) {
 
 							$results_price[ $e ] = $price_range_data_value; // here we got the range for the selection.
+							break;
 						}
 						$e++;
 					}
@@ -1440,6 +1445,7 @@ if ( ! class_exists( 'bkap_block_booking' ) ) {
 						 * Issue was occurring when range of days not added sequencially
 						 */
 
+						$ab = array();
 						foreach ( $results_price as $kk => $val ) {
 							$ab[ $kk ] = $val['max_number'];
 						}

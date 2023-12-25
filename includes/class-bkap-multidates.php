@@ -81,9 +81,9 @@ if ( ! class_exists( 'Bkap_Multidates' ) ) {
 					}
 
 					$total_stock_message = apply_filters( 'bkap_multidates_selection_msg', $total_stock_message, $product_id, $booking_settings );
-					if ( ! is_account_page() && ! isset( $_GET['post'] ) ) {
+					if ( ( is_product() || is_account_page() ) && ! isset( $_GET['post'] ) ) {
 					?>
-					<div id="bkap_multidates_msg" name="bkap_multidates_msg" class="bkap_multidates_msg" >
+					<div id="bkap_multidates_msg" name="bkap_multidates_msg" class="bkap_multidates_msg" style="<?php if ( is_account_page() ) { echo 'display: none;'; } ?>">
 						<?php echo __( $total_stock_message, 'woocommerce-booking' ); ?>
 					</div>
 					<?php
@@ -224,9 +224,9 @@ if ( ! class_exists( 'Bkap_Multidates' ) ) {
 			if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
 
 				$show = apply_filters( 'bkap_show_add_day_button', true, $product_id, $booking_settings );
-				if ( ! is_account_page() && ! isset( $_GET['post'] ) && $show ) {
+				if ( ! isset( $_GET['post'] ) && $show ) {
 					?>
-				<div id="bkap-multidates-button-msg-div" style="">
+				<div id="bkap-multidates-button-msg-div" style="<?php if ( is_account_page() ) { echo 'display: none;'; } ?>">
 					<button type="button" id="bkap-add-days" class="button-primary" onclick='bkap_add_selected_bookings()' disabled>
 					<i class="fa fa-plus" aria-hidden="true"></i>&nbsp<?php esc_html_e( 'Add Day', 'woocommerce-booking' ); ?>
 					</button>

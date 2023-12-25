@@ -37,10 +37,10 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 			// Free up the bookings when an order is trashed.
 			add_action( 'wp_trash_post', array( &$this, 'bkap_trash_order' ), 10, 1 );
 			add_action( 'woocommerce_before_trash_order', array( &$this, 'bkap_trash_order_hpos' ), 10, 2 );
-			
+
 			add_action( 'untrash_post', array( &$this, 'bkap_untrash_order' ), 10, 1 );
 			add_action( 'woocommerce_untrash_order', array( &$this, 'bkap_untrash_order_hpos' ), 10, 2 );
-			
+
 
 			add_filter( 'woocommerce_my_account_my_orders_actions', array( &$this, 'bkap_get_add_cancel_button' ), 10, 3 );
 
@@ -81,7 +81,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 				$from_date         = date( 'Y-m-d', $from_date );
 
 				$result = $wpdb->get_results(
-					"SELECT * FROM $wpdb->posts 
+					"SELECT * FROM $wpdb->posts
 							WHERE post_type = 'shop_order'
 							AND post_date BETWEEN '{$date}  00:00:00' AND '{$from_date} 23:59:59'
 						"
@@ -288,6 +288,18 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 									$delete_order_history = 'DELETE FROM `' . $wpdb->prefix . 'booking_order_history`
 															WHERE order_id = %d AND booking_id = %d';
 									$wpdb->query( $wpdb->prepare( $delete_order_history, $order_id, $item_booking_id ) );
+								} else {
+
+									$product_id   = $booking_post->get_product_id();
+									$booking_type = bkap_type( $product_id );
+
+									if ( 'multiple_days' == $booking_type ) {
+										$new_item_booking_id = $item_booking_id - $item_qty;
+										$order_query = 'UPDATE `' . $wpdb->prefix . "booking_order_history`
+														SET booking_id = '" . $new_item_booking_id . "'
+														WHERE booking_id = '" . $item_booking_id . "'";
+										$result      = $wpdb->query( $order_query );
+									}
 								}
 							}
 						}
@@ -468,10 +480,6 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			$order = wc_get_order( $order_id );
 
-			wp_mail( 'kartik@tychesoftwares.com', 'bkap_untrash_order_hpos', 'bkap_untrash_order_hpos' );
-			wp_mail( 'kartik@tychesoftwares.com', 'ORder', print_r( $order, true ) );
-			wp_mail( 'kartik@tychesoftwares.com', 'previous_status', print_r( $previous_status, true ) );
-			
 			if ( ( 'cancelled' != $previous_status || 'refunded' != $previous_status ) ) {
 
 				// untrash the booking posts as well.
@@ -498,7 +506,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 		 * @since 1.7.0
 		 */
 		public static function bkap_untrash_order( $post_id ) {
-			
+
 			$post_obj = get_post( $post_id );
 
 			if ( 'shop_order' == $post_obj->post_type && ( 'wc-cancelled' != $post_obj->post_status || 'wc-refunded' != $post_obj->post_status ) ) {
@@ -1127,8 +1135,15 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 							// check if the setting is on.
 							if ( isset( $attr_settings['booking_lockout_as_value'] ) && 'on' == $attr_settings['booking_lockout_as_value'] ) {
 
-								if ( array_key_exists( $attr_name, $item_value ) && $item_value[ $attr_name ] != 0 ) {
-									$attr_qty += $item_value[ $attr_name ];
+								$meta_data           = array();
+								$formatted_meta_data = $item_value->get_formatted_meta_data( '_', true );
+								if ( ! empty( $formatted_meta_data ) ) {
+									foreach ( $formatted_meta_data as $key => $value ) {
+										$meta_data[$value->key] = $value->value;
+									}
+									if ( array_key_exists( $attr_name, $meta_data ) && $meta_data[ $attr_name ] != 0 ) {
+										$attr_qty += $meta_data[ $attr_name ];
+									}
 								}
 							}
 						}
@@ -1151,8 +1166,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			switch ( $booking_type ) {
 				case 'multiple_days':
-					if ( isset( $parent_id ) && $parent_id != '' ) {
-
+					if ( isset( $parent_id ) && $parent_id != '' && 0 != $parent_id ) {
 						// double the qty as we need to delete records for the child product as well as the parent product.
 						$qty              += $qty;
 						$booking_id       += 1;
@@ -1250,7 +1264,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 															 start_date = '" . $start_date . "' AND
 															 from_time = '" . $from_time . "' AND
 															 to_time = '" . $to_time . "' AND
-															 status != 'inactive' AND 
+															 status != 'inactive' AND
 															 total_booking > 0";
 
 										$wpdb->query( $parent_query );
@@ -1287,7 +1301,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 												  id = '" . $booking_id . "' AND
 												  start_date = '" . $start_date . "' AND
 												  from_time = '" . $from_time . "' AND
-												  status != 'inactive' AND 
+												  status != 'inactive' AND
 												  total_booking > 0";
 
 									// Update records for parent products - Grouped Products.
@@ -1298,7 +1312,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 															post_id = '" . $parent_id . "' AND
 															start_date = '" . $start_date . "' AND
 															from_time = '" . $from_time . "' AND
-															status != 'inactive' AND 
+															status != 'inactive' AND
 															total_booking > 0";
 
 										$wpdb->query( $parent_query );
@@ -1318,7 +1332,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 									$select         = 'SELECT * FROM `' . $wpdb->prefix . "booking_history`
 														 WHERE post_id = %d AND
 														 start_date = %s AND
-														 from_time = %s AND 
+														 from_time = %s AND
 														 status != 'inactive' ";
 									$select_results = $wpdb->get_results( $wpdb->prepare( $select, $product_id, $start_date, $from_time ) );
 
@@ -1352,7 +1366,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 											start_date = '" . $start_date . "' AND
 											from_time = '' AND
 											to_time = '' AND
-											status != 'inactive' AND 
+											status != 'inactive' AND
 											total_booking > 0";
 						$wpdb->query( $query );
 
@@ -1365,7 +1379,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 												start_date = '" . $start_date . "' AND
 												from_time = '' AND
 												to_time = '' AND
-												status != 'inactive' AND 
+												status != 'inactive' AND
 												total_booking > 0";
 							$wpdb->query( $parent_query );
 						}
@@ -1434,7 +1448,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			if ( count( $lockout_settings ) == 0 ) {
 				$week_day = date( 'l', strtotime( $hidden_date ) );
-				$weekdays = bkap_get_book_arrays( 'bkap_weekdays' );
+				$weekdays = bkap_weekdays();
 				$weekday  = array_search( $week_day, $weekdays );
 				if ( isset( $booking_settings['booking_time_settings'][ $weekday ] ) ) {
 					$lockout_settings = $booking_settings['booking_time_settings'][ $weekday ];
@@ -1445,7 +1459,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 			if ( count( $lockout_settings ) > 0 ) {
 				$week_day = date( 'l', strtotime( $hidden_date ) );
-				$weekdays = bkap_get_book_arrays( 'bkap_weekdays' );
+				$weekdays = bkap_weekdays();
 				$weekday  = array_search( $week_day, $weekdays );
 
 				if ( isset( $booking_settings['booking_time_settings'][ $weekday ] ) ) {
@@ -1565,7 +1579,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 												start_date = '" . $start_date . "' AND
 												TIME_FORMAT( from_time, '%H:%i' ) = '" . $from_time . "' AND
 												TIME_FORMAT( to_time, '%H:%i' ) = '" . $to_time . "' AND
-												status != 'inactive' AND 
+												status != 'inactive' AND
 												total_booking > 0";
 										$wpdb->query( $query );
 									} else {
@@ -1574,7 +1588,7 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 													  WHERE post_id = '" . $duplicate_of . "' AND
 													  start_date = '" . $start_date . "' AND
 													  TIME_FORMAT( from_time, '%H:%i' ) = '" . $from_time . "' AND
-													  status != 'inactive' AND 
+													  status != 'inactive' AND
 													  total_booking > 0";
 										$wpdb->query( $query );
 									}
@@ -1800,14 +1814,40 @@ if ( ! class_exists( 'bkap_cancel_order' ) ) {
 
 				$order_items = $order->get_items();
 				foreach ( $order_items as $item_key => $item_value ) {
-					$booking_status = wc_get_order_item_meta( $item_key, '_wapbk_booking_status' );
-					if ( isset( $booking_status ) && 'confirmed' === $booking_status ) {
-						$status = apply_filters( 'bkap_booking_status_on_create_order', 'paid' );
-						wc_update_order_item_meta( $item_key, '_wapbk_booking_status', $status );
+					$status = wc_get_order_item_meta( $item_key, '_wapbk_booking_status' );
+
+					switch ( $new_status ) {
+						case 'processing':
+							$b_status = 'confirmed';
+							break;
+						case 'completed':
+							$b_status = 'paid';
+							break;
+						case 'cancelled':
+						case 'failed':
+							$b_status = 'cancelled';
+							break;
+						case 'on-hold':
+							if ( bkap_common::bkap_order_requires_confirmation( $order ) ) {
+								$b_status = 'pending-confirmation';
+							} else {
+								$b_status = 'confirmed';
+							}
+							break;
+						case 'pending':
+						case 'refunded':
+						default:
+							$b_status = 'pending-confirmation';
+							break;
+					}
+
+					if ( $b_status != $status ) {
+						$b_status = apply_filters( 'bkap_booking_status_on_create_order', $b_status, $new_status );
+						wc_update_order_item_meta( $item_key, '_wapbk_booking_status', $b_status );
 						$booking_id = bkap_common::get_booking_id( $item_key );
 						if ( $booking_id ) {
 							$new_booking = bkap_checkout::get_bkap_booking( $booking_id );
-							$new_booking->update_status( $status );
+							$new_booking->update_status( $b_status );
 						}
 					}
 				}

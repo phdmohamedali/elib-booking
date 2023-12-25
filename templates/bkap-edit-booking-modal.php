@@ -54,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div style="clear: both;"></div>
 
 		<div id="modal-body-<?php echo $bkap_cart_item_key; ?>" class="modal-body">
-			
+
 			<?php
 
 				bkap_load_scripts_class::include_frontend_scripts_js( $product_id );
@@ -74,10 +74,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				$hidden_dates = bkap_booking_process::bkap_localize_process_script( $product_id );
 
-				$hidden_dates['hidden_date'] = date( 'j-n-Y', strtotime( $bkap_booking['hidden_date'] ) );
+				if ( isset( $bkap_booking['hidden_date'] ) && '' !== $bkap_booking['hidden_date'] ) {
+					$hidden_dates['hidden_date'] = date( 'j-n-Y', strtotime( $bkap_booking['hidden_date'] ) );
+				} else {
+					$hidden_dates['hidden_date'] = date( 'j-n-Y' );
+				}
 
-				if ( isset( $bkap_booking['hidden_date_checkout'] ) ) {
-					$hidden_dates['hidden_checkout'] = $bkap_booking['hidden_date_checkout'];
+				$hidden_dates['hidden_checkout'] = '';
+				if ( isset( $bkap_booking['hidden_date_checkout'] ) && '' !== $bkap_booking['hidden_date_checkout'] ) {
+					$hidden_dates['hidden_checkout'] = date( 'j-n-Y', strtotime( $bkap_booking['hidden_date_checkout'] ) );
+				}
+
+				$hidden_dates['init_isblock'] = false;
+				$booking_type                 = get_post_meta( $duplicate_of, '_bkap_booking_type', true );
+				$order_bookings               = bkap_common::get_booking_ids_from_order_id( $bkap_order_id );
+				if ( is_account_page() && 'multiple_days' === $booking_type && count( $order_bookings ) > 0 ) {
+					$hidden_dates['init_isblock'] = apply_filters( 'bkap_initial_booking_is_locked', false );
 				}
 
 				wc_get_template(
@@ -95,7 +107,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				?>
 			<input type="hidden" class="variation_id" value="<?php echo $variation_id; ?>" />
-			
+
 			<!-- When Editing Bookings with Resource -->
 			<?php
 			if ( isset( $bkap_booking['resource_id'] ) ) :
@@ -170,21 +182,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="modal-footer">
 			<?php $confirm_booking_label = apply_filters( 'bkap_confirm_booking_label', __( 'Confirm Bookings', 'woocommerce-booking' ) ); ?>
-			<input 
-				type="button" 
-				name="confirm_bookings" 
+			<input
+				type="button"
+				name="confirm_bookings"
 				id="confirm_bookings_<?php echo $bkap_cart_item_key; ?>"
 				onclick='bkap_edit_booking_class.bkap_confirm_booking(<?php echo $product_id; ?>, "<?php echo $bkap_cart_item_key; ?>")'
-				value="<?php echo esc_attr( $confirm_booking_label ); ?>" 
-				class="bkap_modal_button_class" 
+				value="<?php echo esc_attr( $confirm_booking_label ); ?>"
+				class="bkap_modal_button_class"
 			/>
 
-			<input 
-				type="button" 
-				name="cancel_modal" 
+			<input
+				type="button"
+				name="cancel_modal"
 				id="cancel_modal"
 				onclick='bkap_edit_booking_class.bkap_close_popup(<?php echo $product_id; ?>, "<?php echo $bkap_cart_item_key; ?>")'
-				value="<?php _e( 'Cancel', 'woocommerce-booking' ); ?>" 
+				value="<?php _e( 'Cancel', 'woocommerce-booking' ); ?>"
 				class="bkap_modal_button_class"
 			/>
 		</div>

@@ -17,8 +17,14 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 	 *
 	 * @since 4.1.0
 	 */
-
 	class BKAP_Bookings_View {
+
+		/**
+		 * Post Type.
+		 *
+		 * @var string $type Post Type.
+		 */
+		public $type;
 
 		/**
 		 * Default constructor
@@ -329,7 +335,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 						echo '<a href="' . admin_url( 'post.php?post=' . ( is_callable( array( $product, 'get_id' ) ) ? $product->get_id() : $product->id ) . '&action=edit' ) . '">' . $product_title . '</a>';
 
-						if ( $resource_id != '' ) {
+						if ( $resource_id != '' && $resource_id != 0 ) {
 
 							$show_resource = apply_filters( 'bkap_display_resource_info_on_view_booking', true, $product, $resource_id );
 
@@ -608,6 +614,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					)
 				);
 
+				$display_name = '';
 				if ( is_object( $customer ) ) {
 					$display_name = $customer->first_name . ' ' . $customer->last_name;
 				}
@@ -666,6 +673,11 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 			if ( $typenow === $this->type ) {
 
+				if ( isset( $_REQUEST['s'] ) && '' !== $_REQUEST['s'] ) {
+					$query->query_vars['s']         = $_REQUEST['s'];
+					$query->query_vars['post_type'] = $this->type;
+					self::bkap_search_custom_fields( $query );
+				}
 				$current_timestamp = current_time( 'timestamp' );
 				$current_time      = date( 'Ymd', $current_timestamp );
 				$current_time      = $current_time . '000000';
@@ -910,6 +922,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 									'value'   => $post_ids,
 									'compare' => 'IN',
 								),
+								$month_array,
 							);
 						}
 					}
@@ -942,6 +955,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					$query->query_vars['order'] = $_REQUEST['order'];
 				}
 			}
+			return $query;
 		}
 
 		/**
@@ -999,6 +1013,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				} else { // else assume the numeric value is an order ID.
 					if ( function_exists( 'wc_order_search' ) ) {
 						$order_ids   = wc_order_search( wc_clean( $wp->query_vars['s'] ) );
+						$order_ids   = ( is_array( $order_ids ) && count( $order_ids ) > 0 ) ? $order_ids[0] : (int) $order_ids;
 						$booking_ids = $order_ids ? bkap_common::get_booking_ids_from_order_id( $order_ids ) : array( 0 );
 
 						if ( is_array( $booking_ids ) && count( $booking_ids ) == 0 ) {
@@ -1351,11 +1366,12 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			$global_settings = bkap_global_setting();
 			$cols            = self::bkap_get_csv_cols();
 
-			$print_data_columns  = '<tr>';
+			$print_data_columns = '<tr>';
 			foreach ( $cols as $col ) {
 				$print_data_columns .= '<th style="border:1px solid black;padding:5px;">' . $col . '</th>';
 			}
-			$print_data_columns  = apply_filters( 'bkap_view_bookings_print_columns', $print_data_columns );
+			$print_data_columns .= '</tr>';
+			$print_data_columns = apply_filters( 'bkap_view_bookings_print_columns', $print_data_columns );
 
 			if ( $col_data ) {
 				return $print_data_columns;
@@ -1394,20 +1410,44 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					'meeting_link' => $meeting_link,
 				);
 
-				$print_data_row_data_td  = '';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $status . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->id . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $product_name . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booked_by . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->order_id . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $start_date . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $end_date . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $persons . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $quantity . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $order_date . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $final_amt . '</td>';
-				$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;"><small>' . $meeting_link . '</small></td>';
-				$print_data_row_data_td  = apply_filters( 'bkap_view_bookings_print_individual_row_data', $print_data_row_data_td, $booking, $booking_id, $data );
+				$print_data_row_data_td = '';
+				if ( isset( $cols['status'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $status . '</td>';
+				}
+				if ( isset( $cols['id'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->id . '</td>';
+				}
+				if ( isset( $cols['booked_product'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $product_name . '</td>';
+				}
+				if ( isset( $cols['booked_by'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booked_by . '</td>';
+				}
+				if ( isset( $cols['order_id'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $booking->order_id . '</td>';
+				}
+				if ( isset( $cols['start_date'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $start_date . '</td>';
+				}
+				if ( isset( $cols['end_date'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $end_date . '</td>';
+				}
+				if ( isset( $cols['persons'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $persons . '</td>';
+				}
+				if ( isset( $cols['quantity'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $quantity . '</td>';
+				}
+				if ( isset( $cols['order_date'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $order_date . '</td>';
+				}
+				if ( isset( $cols['amount'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;">' . $final_amt . '</td>';
+				}
+				if ( isset( $cols['zoom_meeting'] ) ) {
+					$print_data_row_data_td .= '<td style="border:1px solid black;padding:5px;"><small>' . $meeting_link . '</small></td>';
+				}
+				$print_data_row_data_td = apply_filters( 'bkap_view_bookings_print_individual_row_data', $print_data_row_data_td, $booking, $booking_id, $data );
 
 				$print_data_row_data .= '<tr>';
 				$print_data_row_data .= $print_data_row_data_td;
@@ -1581,9 +1621,9 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 
 			$global_settings = bkap_global_setting();
 
-			$csv = '';
+			$csv  = '';
+			$cols = self::bkap_get_csv_cols();
 			if ( $column ) {
-				$cols = self::bkap_get_csv_cols();
 				foreach ( $cols as $col ) {
 					$csv .= $col . ',';
 				}
@@ -1628,7 +1668,43 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				);
 
 				// Create the data row.
-				$row = $status . ',' . $booking_id . ',"' . $product_name . '",' . $booked_by . ',' . $order_id . ',"' . $start_date . '","' . $end_date . '","' . $persons . '",' . $quantity . ',' . $order_date . ',"' . $final_amt . '",' . $meeting_link;
+				$row = '';
+				if ( isset( $cols['status'] ) ) {
+					$row .= $status . ',';
+				}
+				if ( isset( $cols['id'] ) ) {
+					$row .= $booking_id . ',';
+				}
+				if ( isset( $cols['booked_product'] ) ) {
+					$row .= '"' . $product_name . '",';
+				}
+				if ( isset( $cols['booked_by'] ) ) {
+					$row .= $booked_by . ',';
+				}
+				if ( isset( $cols['order_id'] ) ) {
+					$row .= $order_id . ',';
+				}
+				if ( isset( $cols['start_date'] ) ) {
+					$row .= '"' . $start_date . '",';
+				}
+				if ( isset( $cols['end_date'] ) ) {
+					$row .= '"' . $end_date . '",';
+				}
+				if ( isset( $cols['persons'] ) ) {
+					$row .= '"' . $persons . '",';
+				}
+				if ( isset( $cols['quantity'] ) ) {
+					$row .= $quantity . ',';
+				}
+				if ( isset( $cols['order_date'] ) ) {
+					$row .= $order_date . ',';
+				}
+				if ( isset( $cols['amount'] ) ) {
+					$row .= '"' . $final_amt . '",';
+				}
+				if ( isset( $cols['zoom_meeting'] ) ) {
+					$row .= $meeting_link;
+				}
 				$row = apply_filters( 'bkap_bookings_csv_individual_row_data', $row, $booking, $booking_id, $data );
 
 				$csv .= $row;
@@ -1646,6 +1722,7 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 		 * @since 5.2.1
 		 */
 		public function bkap_do_ajax_export() {
+			global $wp_query, $typenow;
 
 			$csv_print = $_POST['csv_print'];
 			if ( 'csv' === $csv_print ) {
@@ -1666,10 +1743,11 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			$total_bookings = (int) $_POST['total_items'];
 			$done_items     = (float) $_POST['done_items'];
 
-			$args           = array(
+			$args = array(
 				'posts_per_page' => 1000,
 				'paged'          => $step,
-				'meta_query'  => array(
+				'meta_query'     => array(
+					'relation' => 'OR',
 					array(
 						'key'     => '_bkap_start',
 						'value'   => $m,
@@ -1685,10 +1763,14 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 			);
 
 			if ( 'all' === $post_status ) {
-				$post_status = array( 'confirmed', 'paid', 'pending-confirmation' );
+				$post_status = array( 'confirmed', 'paid', 'pending-confirmation', 'cancelled' );
 			}
 
-			$report = self::generate_data( $post_status, $args );
+			$typenow = 'bkap_booking';
+			$query   = self::bkap_filters_query( $wp_query );
+			$m_query = ! empty( $query ) && ! empty( $query->query_vars ) && isset( $query->query_vars['meta_query'] ) ? $query->query_vars['meta_query'] : array();
+			$args    = ! empty( $m_query ) ? array_merge( $args['meta_query'], $m_query ) : $args;
+			$report  = self::generate_data( $post_status, $args );
 
 			if ( ! empty( $report ) ) {
 
@@ -1702,7 +1784,9 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 					if ( $step < 2 ) {
 						$done = false;
 						// Make sure we start with a fresh file on step 1.
-						@unlink( $file );
+						if ( file_exists( $file ) ) {
+							@unlink( $file );
+						}
 						self::bkap_print_csv_cols( $file );
 					}
 
@@ -1728,6 +1812,27 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				}
 				$step++;
 				$json_data['step'] = $step;
+
+				if ( $percentage >= 100 ) {
+					if ( 'csv' === $csv_print ) {
+						$args = array(
+							'step'        => $step,
+							'nonce'       => wp_create_nonce( 'bkap-batch-export-csv' ),
+							'bkap_action' => 'bkap_download_csv',
+						);
+
+						$download_url = add_query_arg( $args, admin_url() );
+						$json_data    = array(
+							'step' => 'done',
+							'url'  => $download_url,
+						);
+					} else {
+						if ( $done_items == $total_bookings ) {
+							$json_data = array( 'step' => 'done' );
+						}
+					}
+				}
+
 				wp_send_json( $json_data );
 				wp_die();
 			} elseif ( 1 === $step && empty( $report ) ) {
@@ -1798,6 +1903,53 @@ if ( ! class_exists( 'BKAP_Bookings_View' ) ) {
 				'amount'         => __( 'Amount', 'woocommerce-booking' ),
 				'zoom_meeting'   => __( 'Zoom Meeting', 'woocommerce-booking' ),
 			);
+
+			$user_id = get_current_user_id();
+			if ( ! empty( $user_id ) ) {
+				$h_cols = get_user_meta( $user_id, 'manageedit-bkap_bookingcolumnshidden', true );
+				if ( ! empty( $h_cols ) ) {
+					foreach ( $h_cols as $column ) {
+						switch ( $column ) {
+							case 'bkap_status':
+								unset( $cols['status'] );
+								break;
+							case 'bkap_id':
+								unset( $cols['id'] );
+								break;
+							case 'bkap_product':
+								unset( $cols['booked_product'] );
+								break;
+							case 'bkap_customer':
+								unset( $cols['booked_by'] );
+								break;
+							case 'bkap_order':
+								unset( $cols['order_id'] );
+								break;
+							case 'bkap_start_date':
+								unset( $cols['start_date'] );
+								break;
+							case 'bkap_end_date':
+								unset( $cols['end_date'] );
+								break;
+							case 'bkap_persons':
+								unset( $cols['persons'] );
+								break;
+							case 'bkap_qty':
+								unset( $cols['quantity'] );
+								break;
+							case 'bkap_amt':
+								unset( $cols['amount'] );
+								break;
+							case 'bkap_order_date':
+								unset( $cols['order_date'] );
+								break;
+							case 'bkap_zoom_meeting':
+								unset( $cols['zoom_meeting'] );
+								break;
+						}
+					}
+				}
+			}
 
 			return apply_filters( 'bkap_bookings_csv_columns', $cols );
 		}

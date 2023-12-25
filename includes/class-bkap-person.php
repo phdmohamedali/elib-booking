@@ -46,7 +46,7 @@ class Class_Bkap_Product_Person {
 
 		// add fields in the Resource tab in the Booking meta box.
 		add_action( 'bkap_after_listing_enabled', array( &$this, 'bkap_person_settings' ), 12, 2 );
-		
+
 		// Ajax.
 		add_action( 'admin_init', array( &$this, 'bkap_load_person_ajax_admin' ) );
 
@@ -195,9 +195,11 @@ class Class_Bkap_Product_Person {
 	 * @since 5.11.0
 	 */
 	public static function bkap_person_settings( $product_id, $booking_settings ) {
+		global $post;
 
 		$post_type = get_post_type( $product_id );
-		
+		$post_slug = isset( $post->post_name ) && $post_type === 'page' ? $post->post_name : '';
+
 		// Settings.
 		$min_person = 1;
 		$max_person = 1;
@@ -316,7 +318,7 @@ class Class_Bkap_Product_Person {
 					</td>
 				</tr>
 			</table>
-			
+
 			<div id="bkap_person_type_section" style="<?php echo $bkap_show_person_type; ?>">
 				<hr/>
 				<h4><?php esc_html_e( 'Person Types', 'woocommerce-booking' ); ?></h4>
@@ -353,7 +355,7 @@ class Class_Bkap_Product_Person {
 			</div>
 				<hr />
 				<?php
-				if ( isset( $post_type ) && 'product' === $post_type ) {
+				if ( isset( $post_type ) && ( 'product' === $post_type || 'page' === $post_type && isset( $post_slug ) && 'store-manager' === $post_slug ) ) {
 					bkap_booking_box_class::bkap_save_button( 'bkap_save_person' );
 				}
 				?>
@@ -379,7 +381,7 @@ class Class_Bkap_Product_Person {
 		$type                 = bkap_common::bkap_get_product_type( $product_id );
 		$person_compatibility = array( 'simple', 'subscription', 'variable', 'variable-subscription' );
 		$display              = in_array( $type, $person_compatibility ) ? true : false;
-		
+
 		if ( ! $display ) {
 			return;
 		}
@@ -397,7 +399,7 @@ class Class_Bkap_Product_Person {
 				$max_person  = $value['person_max'];
 				$person_desc = $value['person_desc'];
 				?>
-				<p class="bkap_field_persons">
+				<p class="bkap_field_persons" id="bkap_persons_type_<?php echo esc_attr( $key ); ?>">
 					<label for="bkap_field_persons_<?php echo esc_attr( $key ); ?>"><?php echo esc_html( get_the_title( $key ) ); ?>:</label>
 					<input type="number" data-person-id="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $min_person ); ?>" step="1" min="<?php echo esc_attr( $min_person ); ?>" max="<?php echo esc_attr( $max_person ); ?>" name="bkap_field_persons_<?php echo esc_attr( $key ); ?>" id="bkap_field_persons_<?php echo esc_attr( $key ); ?>"><span class="bkap_person_description"><?php echo esc_html( $person_desc ); ?></span>
 				</p>

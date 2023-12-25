@@ -68,7 +68,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->object       = $this->booking_data;
 		}
 
-		if ( $this->booking_data->product_id ) {
+		if ( isset( $this->booking_data->product_id ) ) {
 			$key = array_search( '{product_title}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -78,7 +78,11 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->product_title;
 		}
 
-		if ( $this->booking_data->order_id ) {
+		// Take care of blogname.
+		$this->find[]    = '{blogname}';
+		$this->replace[] = $this->get_blogname();
+
+		if ( isset( $this->booking_data->order_id ) ) {
 			$key = array_search( '{order_date}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -105,20 +109,22 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			}
 		} else {
 
-			$this->find[]    = '{order_date}';
-			$this->replace[] = date_i18n( wc_date_format(), strtotime( $this->booking_data->item_hidden_date ) );
+			if ( isset( $this->booking_data->item_hidden_date ) ) {
+				$this->find[]    = '{order_date}';
+				$this->replace[] = date_i18n( wc_date_format(), strtotime( $this->booking_data->item_hidden_date ) );
+			}
 
 			$this->find[]    = '{order_number}';
 			$this->replace[] = __( 'N/A', 'woocommerce-booking' );
 
-			if ( $this->booking_data->customer_id && ( $customer = get_user_by( 'id', $this->booking_data->customer_id ) ) ) {
+			if ( isset( $this->booking_data->customer_id ) && ( $customer = get_user_by( 'id', $this->booking_data->customer_id ) ) ) {
 				if ( ! $preview ) {
 					$this->recipient = $customer->user_email;
 				}
 			}
 		}
 
-		if ( $this->booking_data->item_booking_date ) {
+		if ( isset( $this->booking_data->item_booking_date ) ) {
 			$key = array_search( '{start_date}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -128,7 +134,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->item_booking_date;
 		}
 
-		if ( $this->booking_data->item_checkout_date ) {
+		if ( isset( $this->booking_data->item_checkout_date ) ) {
 			$key = array_search( '{end_date}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -138,7 +144,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->item_checkout_date;
 		}
 
-		if ( $this->booking_data->item_booking_time ) {
+		if ( isset(  $this->booking_data->item_booking_time ) ) {
 			$key = array_search( '{booking_time}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -148,7 +154,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->item_booking_time;
 		}
 
-		if ( $this->booking_data->resource_title ) {
+		if ( isset( $this->booking_data->resource_title ) ) {
 			$key = array_search( '{booking_resource}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -158,7 +164,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->resource_title;
 		}
 
-		if ( $this->booking_data->person_data ) {
+		if ( isset( $this->booking_data->person_data ) ) {
 			$key = array_search( '{booking_persons}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -168,7 +174,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->replace[] = $this->booking_data->person_data;
 		}
 
-		if ( $this->booking_data->zoom_meeting ) {
+		if ( isset( $this->booking_data->zoom_meeting ) ) {
 			$key = array_search( '{zoom_link}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -185,19 +191,22 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			unset( $this->replace[ $key ] );
 		}
 
-		if ( $this->booking_data->customer_id ) {
-			$customer = get_user_by( 'id', $this->booking_data->customer_id );
+		$first_name = $last_name = '';
+		if ( isset( $this->booking_data->customer_id ) ) {
+			if ( $this->booking_data->customer_id ) {
+				$customer = get_user_by( 'id', $this->booking_data->customer_id );
 
-			if ( $customer ) {
-				$display_name = $customer->display_name;
-				$first_name   = $customer->first_name;
-				$last_name    = $customer->last_name;
+				if ( $customer ) {
+					$display_name = $customer->display_name;
+					$first_name   = $customer->first_name;
+					$last_name    = $customer->last_name;
+				}
+			} else {
+				$order        = wc_get_order( $this->booking_data->order_id );
+				$first_name   = $order->get_billing_first_name();
+				$last_name    = $order->get_billing_last_name();
+				$display_name = $first_name . ' ' . $last_name;
 			}
-		} else {
-			$order        = wc_get_order( $this->booking_data->order_id );
-			$first_name   = $order->get_billing_first_name();
-			$last_name    = $order->get_billing_last_name();
-			$display_name = $first_name . ' ' . $last_name;
 		}
 
 		if ( $preview ) {
@@ -230,7 +239,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 		$this->find[]    = '{customer_last_name}';
 		$this->replace[] = $last_name;
 
-		if ( $this->booking_data->booking_id ) {
+		if ( isset( $this->booking_data->booking_id ) ) {
 			$key = array_search( '{booking_id}', $this->find );
 			if ( false !== $key ) {
 				unset( $this->find[ $key ] );
@@ -271,7 +280,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->template_html,
 			array(
 				'booking'            => $this->booking_data,
-				'email_heading'      => $this->get_heading(),
+				'email_heading'      => $this->heading,
 				'additional_content' => $this->get_additional_content(),
 				'message'            => $this->message,
 				'sent_to_admin'      => false,
@@ -298,7 +307,7 @@ class BKAP_Email_Booking_Reminder extends WC_Email {
 			$this->template_plain,
 			array(
 				'booking'            => $this->booking_data,
-				'email_heading'      => $this->get_heading(),
+				'email_heading'      => $this->heading,
 				'additional_content' => $this->get_additional_content(),
 				'message'            => $this->message,
 				'sent_to_admin'      => false,

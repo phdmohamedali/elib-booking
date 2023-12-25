@@ -92,6 +92,74 @@ if ( true === $availability_display ) {
 do_action( 'bkap_after_availability_message', $product_id, $booking_settings, $booking_type );
 
 $display_start = apply_filters( 'bkap_check_to_show_start_date_field', true, $product_id, $booking_settings, $hidden_dates, $global_settings );
+$booking_type  = get_post_meta( $product_id, '_bkap_booking_type', true);
+
+if ( isset( $booking_settings['bkap_date_in_dropdown'] ) && 'on' === $booking_settings['bkap_date_in_dropdown'] && isset( $booking_type ) && ! in_array( $booking_type, array( 'multiple_days' ) ) ) {
+
+	$bkap_weekdays   = bkap_weekdays();
+	$date_array      = array();
+	$date_formats    = bkap_date_formats();
+	$date_format_set = $date_formats[ $global_settings->booking_date_format ];
+	$lockout_dates   = $hidden_dates['additional_data']['wapbk_lockout_days'];
+	$select_date     = apply_filters( 'bkap_choose_date_dropdown_option', __( 'Choose a date', 'woocommerce-booking' ), $product_id );
+
+	if ( isset( $hidden_dates['additional_data']['specific_dates'] ) && "" != $hidden_dates['additional_data']['specific_dates'] ) {
+		$specific_dates_str   = $hidden_dates['additional_data']['specific_dates'];
+		$specific_dates_array = explode( ',', $specific_dates_str );
+		$specific_array       = array();
+
+		foreach ( $specific_dates_array as $key => $value ) {
+			$value = trim( $value, '"' );
+			array_push( $specific_array, $value );
+		}
+		$date_array = array_merge( $date_array, $specific_array );
+	}
+
+	if ( isset( $booking_type ) && '' != $booking_type ) {
+		$max_days_display = $booking_settings['booking_maximum_number_days'];
+
+		if ( $max_days_display > 50 ) {
+			$max_days_display = apply_filters( 'bkap_modify_maximum_number_days', $max_days_display );
+		}
+		
+		$start_date = date( 'j-n-Y', strtotime( $hidden_dates['additional_data']['default_date'] ) );
+
+		if ( 'on' == $booking_settings['booking_recurring_booking'] ) {
+			$singleday_array = array();
+
+			$fixed_range = false;
+			if ( isset( $hidden_dates['additional_data']['fixed_ranges'] ) && '' != $hidden_dates['additional_data']['fixed_ranges'] ) {
+				$fixed_range    = true;
+				$fixed_ranges   = str_replace( '"', "", $hidden_dates['additional_data']['fixed_ranges'] );
+				$explode_ranges = explode( ',', $fixed_ranges );
+				$ranges         = array_chunk( $explode_ranges, 2 );
+				foreach ( $ranges as $key => $value ) {
+					$dates           = bkap_common::bkap_get_betweendays( $value[0], $value[1], 'j-n-Y', $booking_settings['booking_recurring'] );
+					$singleday_array = array_merge( $singleday_array, $dates );
+				}
+			} else {
+				$max_booking_date = calback_bkap_max_date( $hidden_dates['additional_data']['default_date'], $max_days_display, $booking_settings );
+				$singleday_array  = bkap_common::bkap_get_betweendays( $start_date, $max_booking_date, 'j-n-Y', $booking_settings['booking_recurring'] );
+			}
+
+			$date_array = array_merge( $date_array, $singleday_array );
+		}
+	}
+
+	usort(
+		$date_array,
+		function ( $a, $b ) {
+			return strtotime ( $a ) - strtotime( $b );
+		}
+	);
+	$date_array = array_unique( $date_array );
+
+	$holiday_string = $hidden_dates['additional_data']['holidays'];
+	$holidays       = explode( ',', $holiday_string );
+
+	$min_date = strtotime( $start_date );
+	$selected = '';
+}
 
 if ( $display_start ) {
 	?>
@@ -103,7 +171,38 @@ if ( $display_start ) {
 				echo __( $bkap_start_date_label, 'woocommerce-booking' );
 			?>
 		</label>
+		<?php
+		if ( isset( $booking_settings['bkap_date_in_dropdown'] ) && 'on' === $booking_settings['bkap_date_in_dropdown'] && isset( $booking_type ) && ! in_array( $booking_type, array( 'multiple_days' ) ) ) {
+			?>
+		<select name="booking_calender" id="booking_calender">
+			<option value=""><?php echo $select_date; ?></option>
+			<?php
+			foreach ( $date_array as $date_range_key => $date_range_value ) {
 
+				$date           = strtotime( trim( $date_range_value, '"' ) );
+				$check_in_date  = date_i18n( $date_format_set, $date ); 
+				$locout_compare = date( 'j-n-Y', strtotime( $date_range_value ) );
+
+				if ( $min_date <= $date) {
+					if ( ! preg_match( '/' . $locout_compare . '/', $lockout_dates ) ) {
+						if ( !in_array( '"' . $date_range_value . '"', $holidays ) ) {
+							if ( $locout_compare == $hidden_dates['hidden_date'] ) {
+								$selected = 'selected';
+							} else {
+								$selected = '';
+							}
+							?>
+				<option value='<?php echo $date_range_value; ?>' <?php echo $selected; ?> ><?php echo $check_in_date; ?></option>
+							<?php
+						}
+					}
+				}
+			}
+			?>
+		</select><br/>
+			<?php
+		} else {
+			?>
 		<input 
 			type="text" 
 			id="booking_calender" 
@@ -127,6 +226,8 @@ if ( $display_start ) {
 		endif;
 		?>
 		<div id="inline_calendar"></div>
+
+		<?php } ?>
 	</div>
 
 	<?php
@@ -143,7 +244,7 @@ if ( isset( $booking_settings['booking_enable_multiple_day'] ) && 'on' === $book
 				$bkap_end_date_label = apply_filters( 'bkap_change_end_date_label', $bkap_end_date_label, $booking_settings, $product_id );
 				echo __( $bkap_end_date_label, 'woocommerce-booking' );
 				?>
-				 
+
 			</label>
 			<input 
 				type="text" 

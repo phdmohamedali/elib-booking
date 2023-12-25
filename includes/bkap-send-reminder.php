@@ -51,6 +51,40 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 			add_action( 'wp_ajax_bkap_reminder_preview_email_in_browser', array( $this, 'bkap_reminder_preview_email_in_browser' ), 10 );
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'bkap_reminder_remove_autosave') );
+
+			// Added tiny mce filter.
+			add_action( 'mce_buttons_2', array( $this, 'bkap_mce_buttons_2_callback' ), 10, 1 );
+			add_action( 'tiny_mce_before_init', array( $this, 'bkap_tiny_mce_before_init_callback' ), 10, 1 );
+		}
+
+		/**
+		 * Add custom font size select button for wp editor.
+		 *
+		 * @param array $buttons Array.
+		 */
+		public static function bkap_mce_buttons_2_callback( $buttons ) {
+			?>
+			<style>
+				.mce-stack-layout-item {
+					display: block !important;
+				}
+			</style>
+			<?php
+			array_unshift( $buttons, 'fontsizeselect' );
+
+			return $buttons;
+		}
+
+		/**
+		 * Add custom font size for wp editor.
+		 *
+		 * @param array $init_array Array.
+		 */
+		public static function bkap_tiny_mce_before_init_callback( $init_array ) {
+			$fontsizes                      = '8px 10px 12px 14px 16px 18px 20px 22px 24px 28px 32px 36px';
+			$init_array['fontsize_formats'] = apply_filters( 'bkap_fontsize_for_wp_editor', $fontsizes );
+
+			return $init_array;
 		}
 
 		/**
@@ -398,8 +432,8 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 		 */
 		public static function bkap_manual_reminder_email_settings() {
 
-			$format       = bkap_common::bkap_get_date_format();
-			$current_date = date( $format ); // phpcs:ignore
+			$current_time = current_time( 'timestamp' );
+			$current_date = date( 'Y-m-d', $current_time );
 
 			if ( ! empty( $_POST ) ) {
 
@@ -462,26 +496,65 @@ if ( ! class_exists( 'Bkap_Send_Reminder' ) ) {
 				}
 			}
 
+			/* Bookable Products List */
 			$product_args      = apply_filters( 'bkap_get_product_args_for_manual_reminder', array() );
 			$bookable_products = bkap_common::ts_get_all_bookable_products( $product_args );
-			$additional_args   = apply_filters( 'bkap_get_bookings_args_for_manual_reminder', array() );
-			$all_booking_ids   = array();
-			$bookings          = bkap_common::bkap_get_bookings( array( 'paid', 'confirmed' ), $additional_args );
 
-			foreach ( $bookings as $key => $value ) {
-				array_push( $all_booking_ids, $value->get_id() );
+			/* Bookings and Orders List */
+			$additional_args   = apply_filters( 'bkap_get_bookings_args_for_manual_reminder', array() );
+			$meta_query = array();
+			if ( ! empty( $additional_args ) ) {
+				$meta_query = array(
+					'key'     => $additional_args['meta_key'],
+					'value'   => $additional_args['meta_value'],
+					'compare' => '=',
+				);
 			}
 
-			$all_order_ids = bkap_common::bkap_get_orders_with_bookings( $additional_args );
+			$wp_args = array(
+				'post_status'    => array( 'confirmed', 'paid' ),
+				'post_type'      => 'bkap_booking',
+				'posts_per_page' => -1,
+				'fields'         => 'id=>parent', // to get booking id and order id[parent id].
+				'meta_query'     => array(
+					'relation' => 'AND',
+					array(
+						'key'     => '_bkap_start',
+						'value'   => date( 'YmdHis', strtotime( $current_date ) ),
+						'compare' => '>=',
+					),
+					$meta_query
+				),
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			);
+
+			$booking      = new WP_Query( $wp_args );
+			$booking_data = $booking->posts;
+			$booking_ids  = array();
+			$order_ids    = array();
+			foreach ( $booking_data as $key => $value) {
+				$booking_ids[] = $value->ID;
+				$order_ids[]   = $value->post_parent;
+			}
+
+			if ( empty( $booking_ids ) ) {
+				$booking_ids[] = __( 'No future bookings', 'woocommerce-booking' );
+				$order_ids[]   = __( 'No orders with future bookings', 'woocommerce-booking' );
+			} else {
+				$order_ids = array_unique( $order_ids );
+			}
+
+			/* Email Subject */
 			$saved_subject = get_option( 'reminder_subject' );
 			if ( isset( $saved_subject ) && '' != $saved_subject ) {
 				$email_subject = $saved_subject;
 			} else {
 				$email_subject = __( 'Booking Reminder', 'woocommerce-booking' );
 			}
-
 			$email_subject = apply_filters( 'bkap_manual_reminder_email_subject', $email_subject );
 
+			/* Email Body */
 			$saved_message = get_option( 'reminder_message' );
 			if ( isset( $saved_message ) && '' != $saved_message ) {
 				$content = $saved_message;
@@ -502,8 +575,8 @@ Your booking id is: {booking_id}
 				array(
 					'bkap_heading'      => __( 'Manual Reminders', 'woocommerce-booking' ),
 					'bookable_products' => $bookable_products,
-					'booking_ids'       => $all_booking_ids,
-					'order_ids'         => array_unique( $all_order_ids ),
+					'booking_ids'       => $booking_ids,
+					'order_ids'         => $order_ids,
 					'email_subject'     => $email_subject,
 					'content'           => $content,
 				),
@@ -601,7 +674,7 @@ Your booking id is: {booking_id}
 					}
 
 					foreach ( $booking_posts as $key => $booking ) {
-						$booked_date  = date( 'Y-m-d H', strtotime( $booking->get_start() ) );
+						$booked_date  = apply_filters( 'bkap_date_compare_for_sending_reminder', date( 'Y-m-d H', strtotime( $booking->get_start() ) ), $booking, $value );
 						$booked_date  = $booked_date . ':00';
 						$booking_date = strtotime( $booked_date );
 

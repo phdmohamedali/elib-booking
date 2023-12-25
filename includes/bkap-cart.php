@@ -87,12 +87,13 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 					if ( isset( $cart_item['bundled_by'] ) ) {
 
-						if ( isset( $cart_item['variation_id'] ) && '' != $cart_item['variation_id'] ) {
+						if ( isset( $cart_item['variation_id'] ) && absint( $cart_item['variation_id'] ) > 0 ) {
 							$_bundle_child = wc_get_product( $cart_item['variation_id'] );
 						} else {
 							$_bundle_child = wc_get_product( $cart_item['product_id'] );
 						}
 
+						$booking_type       = get_post_meta( $cart_item['product_id'], '_bkap_booking_type', true );
 						$bundle_child_price = ( $_bundle_child ) ? $_bundle_child->get_price() : 0;
 						$start              = ! empty( $cart_item['bkap_booking'][0]['hidden_date'] ) ? strtotime( $cart_item['bkap_booking'][0]['hidden_date'] ) : 0;
 						$end                = ! empty( $cart_item['bkap_booking'][0]['hidden_date_checkout'] ) ? strtotime( $cart_item['bkap_booking'][0]['hidden_date_checkout'] ) : 0;
@@ -105,7 +106,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 							$diff = 1;
 						}
 
-						if ( isset( $cart_item['bkap_booking'][0]['price'] ) ) {
+						if ( isset( $cart_item['bkap_booking'][0]['price'] ) && in_array( $booking_type, array( 'multiple_days' ) ) ) {
 							if ( $extra_cost === $cart_item['bkap_booking'][0]['price'] ) { // If no additional cost added.
 								if ( $diff > 1 ) {
 									$net_cost = $bundle_child_price * $diff;
@@ -117,24 +118,12 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 								// @ TODO Handling the case when extra cost does not match item price.
 							}
 						}
+						$cart_item['diff_days'] = $diff;
 					} // Check if discount has been done by Advanced Dynamic Pricing for WooCommerce Pro plugin.
 					elseif ( isset( $cart_item['adp'] ) ) {
 
-						// If it has, then we can be sure that the discount has been applied on the product price twice.
-						// So we need to recalculate the original price and thereafter have adp remove the discount price just once. Not the best approach but doable fo rnow.
+						// Do not set price when it is set from advanced dynamic pricing is there.
 
-						$new_price = $extra_cost;
-						$discounts = $cart_item['adp']['discount'];
-
-						if ( is_array( $discounts ) && count( $discounts ) > 0 ) {
-							foreach ( $discounts as $discount ) {
-								foreach ( $discount as $discount_price ) {
-									$new_price += $discount_price;
-								}
-							}
-						}
-
-						$cart_item['data']->set_price( $new_price );
 					} else {
 						$cart_item['data']->set_price( $extra_cost );
 					}
@@ -171,8 +160,14 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 			$allow_bookings = apply_filters( 'bkap_cart_allow_add_bookings', true, $cart_item_meta );
 
 			if ( $is_bookable && ( ! array_key_exists( 'bundled_by', $cart_item_meta ) ) && $allow_bookings ) {
+				if ( isset( $_POST['wapbk_dropdown_hidden_date'] ) && '' !== $_POST['wapbk_dropdown_hidden_date'] ) {
+					$booking_calendar = $_POST['wapbk_dropdown_hidden_date'];
+					$booking_date     = $_POST['wapbk_dropdown_hidden_date'];
+				}else {
+					$booking_calendar = ( isset( $_POST['booking_calender'] ) && '' !== $_POST['booking_calender'] );
+					$booking_date     = $_POST['booking_calender'];
+				}
 
-				$booking_calendar = ( isset( $_POST['booking_calender'] ) && '' !== $_POST['booking_calender'] );
 				$bkap_multidates  = ( isset( $_POST['bkap_multidate_data'] ) && '' != $_POST['bkap_multidate_data'] );
 
 				if ( $booking_calendar || $bkap_multidates ) { // If booking start date is set then only prepare the cart array.
@@ -208,7 +203,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 						}
 					} else {
 						$date_checks[]   = isset( $_POST['wapbk_hidden_date'] ) ? $_POST['wapbk_hidden_date'] : '';
-						$booking_dates[] = $_POST['booking_calender'];
+						$booking_dates[] = $booking_date;
 						$price_charged[] = ( isset( $_POST['bkap_price_charged'] ) && '' != $_POST['bkap_price_charged'] ) ? $_POST['bkap_price_charged'] : '';
 						if ( isset( $_POST['time_slot'] ) ) {
 							$time_slots[] = $_POST['time_slot'];
@@ -237,6 +232,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 								if ( isset( $_POST['wapbk_diff_days'] ) ) {
 									$diff_days = $_POST['wapbk_diff_days'];
 								}
+								$cart_arr['diff_days'] = $diff_days;
 								break;
 							case 'date_time':
 							case 'multidates_fixedtime':
@@ -346,8 +342,8 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 							} else {
 								if ( wp_doing_ajax() ) {
 									// Calculating the price when adding to cart from Calendar.
-									$price = $_POST['bkap_price'];
-									$price = $price * $_POST['quantity'];
+									$price = (float) $_POST['bkap_price'];
+									$price = $price * (int) $_POST['quantity'];
 								} else {
 									$price = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type );
 								}
@@ -405,7 +401,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 						$cart_item_meta['bkap_booking'][] = $cart_arr;
 					}
 				}
-			} elseif ( array_key_exists( 'bundled_by', $cart_item_meta ) && $cart_item_meta['bundled_by'] !== '' ) {
+			} elseif ( $is_bookable && array_key_exists( 'bundled_by', $cart_item_meta ) && '' !== $cart_item_meta['bundled_by'] ) {
 
 				$cart_arr = array();
 
@@ -427,6 +423,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 					if ( ! empty( $_POST['wapbk_diff_days'] ) ) {
 						$wapbk_diff_days = (int) $_POST['wapbk_diff_days'];
 					}
+					$cart_arr['diff_days'] = $wapbk_diff_days;
 
 					if ( isset( $bundle_stamp['variation_id'] ) && $bundle_stamp['variation_id'] !== '' ) {
 						$variation_id     = $bundle_stamp['variation_id'];
@@ -596,6 +593,7 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 							}
 							$cost                               = $cost * $diff;
 							$values['bkap_booking'][0]['price'] = $cost;
+							$values['diff_days']                = $diff;
 						} else {
 							if ( ! isset( $cart_item['bundled_by'] ) ) {
 
@@ -613,9 +611,11 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 
 										$cost                               = $cost * $diff;
 										$values['bkap_booking'][0]['price'] = $cost;
+										$values['diff_days']                = $diff;
 									} else {
 										if ( 'simple' === $cart_item['data']->get_type() ) {
-											$cost                               = $cart_item['data']->get_price();
+											$product_child                      = wc_get_product( $cart_item['data']->get_id() );
+											$cost                               = ( $product_child ) ? $product_child->get_price() : $cart_item['data']->get_price();
 											$values['bkap_booking'][0]['price'] = $cost;
 										}
 									}
@@ -694,6 +694,19 @@ if ( ! class_exists( 'bkap_cart' ) ) {
 							$other_data[]   = array(
 								'name'    => $name_checkout,
 								'display' => $booking['date_checkout'],
+							);
+						}
+
+						if ( isset( $booking['diff_days'] ) && $booking['diff_days'] >= 1 ) {
+							$name_days    = __( 'No. of Days', 'woocommerce-booking' );
+							$other_data[] = array(
+								'name'    => $name_days,
+								'display' => $booking['diff_days'],
+							);
+							$day_price    = __( 'Per Day Price', 'woocommerce-booking' );
+							$other_data[] = array(
+								'name'    => $day_price,
+								'display' => wc_price( $booking['price'] / $booking['diff_days'] ),
 							);
 						}
 					}

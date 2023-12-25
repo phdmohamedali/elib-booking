@@ -34,7 +34,7 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 			// add_filter( 'bkap_time_slot_filter', 			array( $this, 'bkap_time_slot_filter_callback'), 10, 1 );
 			add_filter( 'bkap_addon_add_cart_item_data', array( $this, 'bkap_addon_add_cart_item_data_callback' ), 10, 6 );
 			add_filter( 'bkap_get_item_data', array( $this, 'bkap_get_item_data_callback' ), 10, 2 );
-			add_action( 'bkap_update_item_meta', array( $this, 'bkap_update_item_meta_callback' ), 10, 3 );
+			add_action( 'bkap_update_item_meta', array( $this, 'bkap_update_item_meta_callback' ), 10, 6 );
 			
 			// enabling appropriate specific dates based on timezone selected.
 			add_filter( 'bkap_specific_dates', array( $this, 'bkap_specific_dates_callback' ), 10, 3 );
@@ -169,13 +169,20 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		 * @param array   $booking_data Booking Data.
 		 * @since 4.15.0
 		 */
-		public static function bkap_update_item_meta_callback( $item_id, $product_id, $booking_data ) {
+		public static function bkap_update_item_meta_callback( $item_id, $product_id, $booking_data, $gcal_import, $add_item_meta, $item ) {
 
 			if ( isset( $booking_data['timezone_name'] ) && '' !== $booking_data['timezone_name'] ) {
 				$timezone_str = __( 'Time Zone', 'woocommerce-booking' );
-				wc_add_order_item_meta( $item_id, '_wapbk_timezone', sanitize_text_field( $booking_data['timezone_name'], true ) );
-				wc_add_order_item_meta( $item_id, '_wapbk_timeoffset', sanitize_text_field( $booking_data['timezone_offset'], true ) );
-				wc_add_order_item_meta( $item_id, $timezone_str, sanitize_text_field( $booking_data['timezone_name'], true ) );
+
+				if ( $add_item_meta ) {
+					$item->add_meta_data( '_wapbk_timezone', sanitize_text_field( $booking_data['timezone_name'] ) );
+					$item->add_meta_data( '_wapbk_timeoffset', sanitize_text_field( $booking_data['timezone_offset'] ) );
+					$item->add_meta_data( $timezone_str, sanitize_text_field( $booking_data['timezone_name'] ) );
+				} else {
+					wc_add_order_item_meta( $item_id, '_wapbk_timezone', sanitize_text_field( $booking_data['timezone_name'], true ) );
+					wc_add_order_item_meta( $item_id, '_wapbk_timeoffset', sanitize_text_field( $booking_data['timezone_offset'], true ) );
+					wc_add_order_item_meta( $item_id, $timezone_str, sanitize_text_field( $booking_data['timezone_name'], true ) );
+				}
 			}
 		}
 
@@ -305,7 +312,7 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 			$global_settings = bkap_global_setting();
 			$timezone_check  = bkap_timezone_check( $global_settings );
 
-			if ( $timezone_check && '' === self::get_timezone_var( 'bkap_timezone_name' ) ) {
+			if ( $timezone_check ) {
 				$nonce   = wp_create_nonce( 'bkap_set_user_timezone' );
 				$ajaxurl = admin_url( 'admin-ajax.php' );
 				?>
@@ -408,7 +415,7 @@ if ( ! class_exists( 'Bkap_Timezone_Conversion' ) ) {
 		 */
 		public static function get_timezone_var( $timezone_var ) {
 
-			if ( isset( $_COOKIE[ $timezone_var ] ) && ! empty( $_COOKIE[ $timezone_var ] ) && '' !== $_COOKIE[ $timezone_var ] ) {
+			if ( isset( $_COOKIE[ $timezone_var ] ) && '' !== $_COOKIE[ $timezone_var ] ) {
 				return wp_unslash( $_COOKIE[ $timezone_var ] );
 			}
 

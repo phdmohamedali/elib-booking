@@ -41,13 +41,15 @@ if ( ! class_exists( 'Bkap_Rescheduled_Order_Class' ) ) {
 
 			$order_items = $order->get_items();
 
+			$booking_ids   = '';
 			$booking_types = array();
 			foreach ( $order_items as $order_item ) {
 				$product_id      = $order_item->get_product_id();
 				$booking_types[] = bkap_type( $product_id );
+				$booking_ids     = bkap_common::get_booking_id( $order_item->get_id() );
 			}
 
-			if ( is_account_page() && ( in_array( 'multidates_fixedtime', $booking_types, true ) || in_array( 'multidates', $booking_types, true ) ) ) {
+			if ( is_account_page() && ! empty( $booking_ids ) && ( in_array( 'multidates_fixedtime', $booking_types, true ) || in_array( 'multidates', $booking_types, true ) ) ) {
 
 				?>
 			<header>

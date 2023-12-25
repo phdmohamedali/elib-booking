@@ -14,6 +14,9 @@ do_action( 'bkap_cancel_booking_actions' );
 
 if ( $has_bookings ) :
 
+	$book_item_meta_date     = ( '' == get_option( 'book_item-meta-date' ) ) ? __( 'Start Date', 'woocommerce-booking' ) : get_option( 'book_item-meta-date' );
+	$checkout_item_meta_date = ( '' == get_option( 'checkout_item-meta-date' ) ) ? __( 'End Date', 'woocommerce-booking' ) : get_option( 'checkout_item-meta-date' );
+
 	foreach ( $bookings as $booking_group_title => $booking_group ) :
 		if ( 0 === count( $booking_group ) ) {
 			continue;
@@ -48,8 +51,20 @@ if ( $has_bookings ) :
 					$order_id                       = $booking->get_order_id();
 					$_order                         = wc_get_order( $order_id );
 					$booking_status                 = ucwords( $booking->get_status() );
-					$booking_start_date             = $booking->get_start_date() . ' ' . $booking->get_start_time();
-					$booking_end_date               = $booking->get_end_date() . ' ' . $booking->get_end_time();
+					$item_id                        = $booking->get_item_id();
+
+					$start_date                     = $booking->get_start_date();
+					if ( $start_date ) {
+						$start_date = wc_get_order_item_meta( $item_id, $book_item_meta_date, true );
+					}
+					$booking_start_date = $start_date . ' ' . $booking->get_start_time();
+
+					$end_date = $booking->get_end_date();
+					if ( $end_date ) {
+						$end_date = wc_get_order_item_meta( $item_id, $checkout_item_meta_date, true );
+					}
+					$booking_end_date = $end_date . ' ' . $booking->get_end_time();
+
 					$order_url                      = $_order->get_view_order_url();
 					$order_number                   = $_order->get_order_number();
 					$zoom_meeting_link              = Bkap_Cancel_Booking::bkap_get_zoom_meeting_link( $booking_id );

@@ -15,21 +15,21 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 			<a id="settings" class="bkap_tab"><i class="fa fa-calendar" aria-hidden="true"></i><?php esc_html_e( 'Availability', 'woocommerce-booking' ); ?></a>
 		</li>
 		<?php
-			do_action( 'bkap_add_tabs', $duplicate_of, $booking_settings ); 
+			do_action( 'bkap_add_tabs', $duplicate_of, $booking_settings );
 		?>
 	</ul>
 	<div class="tstab-container">
-		<!-- General tab starts here -->  
+		<!-- General tab starts here -->
 
 		<div id="booking_options" class="tstab-content tstab-active" style="position: relative;display:block;">
 
 			<?php do_action( 'bkap_before_enable_bookingoption', $duplicate_of, $booking_settings ); ?>
 
-			<!-- Enable Booking div starts here -->           
+			<!-- Enable Booking div starts here -->
 
 			<div id="enable_booking_options_section" class="booking_options-flex-main">
 
-				<?php do_action( 'bkap_before_enable_booking', $duplicate_of, $booking_settings ); ?>    
+				<?php do_action( 'bkap_before_enable_booking', $duplicate_of, $booking_settings ); ?>
 
 				<div class="booking_options-flex-child">
 					<label for="booking_enable_date"> <?php esc_html_e( 'Enable Booking', 'woocommerce-booking' ); ?> </label>
@@ -106,9 +106,9 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 				</div>
 
 			</div>
-			<hr/>                    
+			<hr/>
 			<!-- Booking Type div starts here -->
-			<?php do_action( 'bkap_before_booking_method_select', $duplicate_of, $booking_settings ); ?>    
+			<?php do_action( 'bkap_before_booking_method_select', $duplicate_of, $booking_settings ); ?>
 			<div id="enable_booking_types_section" class="booking_types-flex-main">
 
 				<div class="booking_types-flex-child">
@@ -150,7 +150,7 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 
 				<!-- Booking Type Dropdown Ends -->
 
-				<!-- <div class="booking_types-flex-child"> 
+				<!-- <div class="booking_types-flex-child">
 					<div class="booking_types-flex-child-day">
 						<input type="radio" id="enable_booking_day_type" name="booking_enable_type" class="enable_booking_type" value="booking_enable_only_day" <?php echo $only_day;?>></input>
 						<label for="enable_booking_day_type"> <?php //_e( 'Only Day', 'woocommerce-booking' );?> </label>
@@ -222,7 +222,7 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 					<label for="enable_inline_calendar"> <?php esc_html_e( 'Enable Inline Calendar', 'woocommerce-booking' ); ?> </label>
 				</div>
 
-				<?php 
+				<?php
 				$enable_inline_calendar = '';
 				if ( isset( $booking_settings['enable_inline_calendar'] ) && 'on' === $booking_settings['enable_inline_calendar'] ) {
 					$enable_inline_calendar = 'checked';
@@ -272,7 +272,30 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 
 			</div>
 
-			<?php 
+			<div id="date_in_dropdown_section" class="booking_options-flex-main">
+				<div class="booking_options-flex-child">
+					<label for="bkap_date_in_dropdown"><?php _e( 'Show dates in dropdown?', 'woocommerce-booking' ); ?></label>
+				</div>
+
+				<?php
+				$bkap_date_in_dropdown = '';
+				if ( isset( $booking_settings[ 'bkap_date_in_dropdown' ] ) && 'on' == $booking_settings[ 'bkap_date_in_dropdown' ] ) {
+					$bkap_date_in_dropdown = 'checked';
+				}
+				?>
+				<div class="booking_options-flex-child">
+					<label class="bkap_switch">
+						<input type="checkbox" name="bkap_date_in_dropdown" id="bkap_date_in_dropdown" <?php echo $bkap_date_in_dropdown; ?>>
+						<div class="bkap_slider round"></div>
+					</label>
+				</div>
+
+				<div class="booking_options-flex-child bkap_help_class">
+					<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'Enable this setting if you want to show dates in dropdown instead of calendar (This option will not work with Multiple Nights Booking Type.)', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url() ;?>/woocommerce/assets/images/help.png" />
+				</div>
+			</div>
+
+			<?php
 				do_action( 'bkap_after_purchase_wo_date', $duplicate_of, $booking_settings );
 				do_action( 'bkap_before_product_holidays', $duplicate_of, $booking_settings );
 				do_action( 'bkap_after_product_holidays', $duplicate_of, $booking_settings );
@@ -281,17 +304,17 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 			<hr style="margin-top:20px;" />
 
 			<?php
-			if ( isset( $post_type ) && $post_type === 'product' ) {
+			if ( isset( $post_type ) && ( 'product' === $post_type || 'page' === $post_type && isset( $post_slug ) && 'store-manager' === $post_slug ) ) {
 				bkap_booking_box_class::bkap_save_button( 'bkap_save_booking_options' );
 			}
 			?>
 
-			<div id='general_update_notification' style='display:none;'></div>          
+			<div id='general_update_notification' style='display:none;'></div>
 		</div>
 		<!-- Booking Options tab ends here -->
 
 		<div id="booking_settings" class="tstab-content" style="position: relative; display: none;">
-					  
+
 			<table class="form-table bkap-form-table">
 
 				<?php do_action( 'bkap_before_minimum_days', $duplicate_of, $booking_settings ); ?>
@@ -301,7 +324,7 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<label for="booking_minimum_number_days"><?php _e( 'Advance Booking Period (in hours)', 'woocommerce-booking' ); ?></label>
 					</th>
 					<td>
-						<?php 
+						<?php
 						$min_days = 0;
 						if ( isset( $booking_settings['booking_minimum_number_days'] ) && $booking_settings['booking_minimum_number_days'] != "" ) {
 							$min_days = $booking_settings['booking_minimum_number_days'];
@@ -321,13 +344,13 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<label for="booking_maximum_number_days"><?php _e( 'Number of dates to choose', 'woocommerce-booking' ); ?></label>
 					</th>
 					<td>
-						<?php 
+						<?php
 						$max_date                       = apply_filters( 'bkap_number_of_dates_to_choose', '30', $duplicate_of, $booking_settings );
-						$readonly_no_of_dates_to_choose = "";
+						$readonly_no_of_dates_to_choose = '';
 
-						// if custom range is added then readonly number of dates to choose field. 
+						// if custom range is added then readonly number of dates to choose field.
 						if( isset( $booking_settings[ 'booking_date_range' ] ) && $booking_settings[ 'booking_date_range' ] != "" && count( $booking_settings[ 'booking_date_range' ]) > 0 ){
-							$readonly_no_of_dates_to_choose = "readonly";
+							$readonly_no_of_dates_to_choose = 'readonly';
 						}
 
 						if ( isset( $booking_settings[ 'booking_maximum_number_days' ] ) && $booking_settings[ 'booking_maximum_number_days' ] != "" ) {
@@ -340,7 +363,7 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'The maximum number of booking dates you want to be available for your customers to choose from. For example, if you take only 2 months booking in advance, enter 60 here.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url() ;?>/woocommerce/assets/images/help.png" />
 					</td>
 				</tr>
-				<?php 
+				<?php
 				do_action( 'bkap_after_number_of_dates', $duplicate_of, $booking_settings );
 				?>
 				<tr id="booking_lockout_date_row" class="multiple_days_setup" <?php echo $multiple_days_setup; ?>>
@@ -348,13 +371,13 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<label for="booking_lockout_date"><?php _e( 'Maximum Bookings On Any Date', 'woocommerce-booking' ); ?></label>
 					</th>
 					<td>
-						<?php 
-						$lockout_date = "";
+						<?php
+						$lockout_date = '';
 						if ( isset( $booking_settings['booking_date_lockout'] ) ) {
 							$lockout_date = $booking_settings['booking_date_lockout'];
 							// sanitize_text_field( $lockout_date, true )
 						} else {
-							$lockout_date = "60";
+							$lockout_date = '60';
 						}
 						?>
 						<input type="number" style="width:90px;" name="booking_lockout_date" id="booking_lockout_date" min="0" max="9999" value="<?php echo sanitize_text_field( $lockout_date, true );?>" >
@@ -371,13 +394,13 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<label for="booking_minimum_number_days_multiple"><?php _e( 'Minimum number of nights to book', 'woocommerce-booking' ); ?></label>
 					</th>
 					<td>
-						<?php 
-						$minimum_day_multiple = "";
+						<?php
+						$minimum_day_multiple = '';
 						if ( isset( $booking_settings[ 'booking_minimum_number_days_multiple' ] ) && $booking_settings[ 'booking_minimum_number_days_multiple' ] != "" ) {
 							$minimum_day_multiple = $booking_settings[ 'booking_minimum_number_days_multiple' ];
 						} else {
-							$minimum_day_multiple = "0";
-						}   
+							$minimum_day_multiple = '0';
+						}
 						?>
 						<input type="number" style="width:90px;" name="booking_minimum_number_days_multiple" id="booking_minimum_number_days_multiple" min="0" max="9999" value="<?php echo $minimum_day_multiple;?>" >
 					</td>
@@ -393,12 +416,12 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 						<label for="booking_maximum_number_days_multiple"><?php _e( 'Maximum number of nights to book', 'woocommerce-booking' ); ?></label>
 					</th>
 					<td>
-						<?php 
+						<?php
 						$maximum_day_multiple = '';
 						if ( isset( $booking_settings['booking_maximum_number_days_multiple'] ) && $booking_settings[ 'booking_maximum_number_days_multiple' ] != "" ) {
 							$maximum_day_multiple = $booking_settings['booking_maximum_number_days_multiple'];
 						} else {
-							$maximum_day_multiple = "365";
+							$maximum_day_multiple = '365';
 						}
 						?>
 						<input type="number" style="width:90px;" name="booking_maximum_number_days_multiple" id="booking_maximum_number_days_multiple" min="0" max="9999" value="<?php echo $maximum_day_multiple;?>" >
@@ -416,7 +439,7 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 
 			<?php
 			// call function to display the weekdays and availablility setup.
-			if ( 'checked' == $multiple_days || $booking_type == "duration_time" ) {
+			if ( 'checked' == $multiple_days || 'duration_time' == $booking_type ) {
 				bkap_booking_box_class::bkap_get_weekdays_html( $duplicate_of, false, true, $booking_settings, $individual_booking_settings, $has_defaults );
 			} else {
 				bkap_booking_box_class::bkap_get_weekdays_html( $duplicate_of, true, true, $booking_settings, $individual_booking_settings, $has_defaults );
@@ -430,14 +453,14 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 
 			<?php
 			// add specific setup.
-			bkap_booking_box_class::bkap_get_specific_html( $duplicate_of, $booking_settings, $individual_booking_settings, $has_defaults ); 
+			bkap_booking_box_class::bkap_get_specific_html( $duplicate_of, $booking_settings, $individual_booking_settings, $has_defaults );
 			?>
 
 			<div style="clear: both;"></div>
 
 			<?php
 			// add date and time setup.
-			bkap_booking_box_class::bkap_get_date_time_html( $duplicate_of, $booking_settings, $individual_booking_settings, $has_defaults ); 
+			bkap_booking_box_class::bkap_get_date_time_html( $duplicate_of, $booking_settings, $individual_booking_settings, $has_defaults );
 			?>
 
 			<?php
@@ -456,12 +479,12 @@ do_action( 'bkap_add_resource_section', $duplicate_of, $booking_settings, $indiv
 			<hr style="margin-top:20px"/>
 
 			<?php
-			if ( isset( $post_type ) && 'product' === $post_type ) {
+			if ( isset( $post_type ) && ( 'product' === $post_type || 'page' === $post_type && isset( $post_slug ) && 'store-manager' === $post_slug ) ) {
 				bkap_booking_box_class::bkap_save_button( 'bkap_save_settings' );
 			}
 			?>
 
-			<div id='availability_update_notification' style='display:none;'></div>                    
+			<div id='availability_update_notification' style='display:none;'></div>
 		</div>
 
 		<?php do_action( 'bkap_after_listing_enabled', $duplicate_of, $booking_settings, $individual_booking_settings, $has_defaults ); ?>

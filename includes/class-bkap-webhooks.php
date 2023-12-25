@@ -53,7 +53,7 @@ class Bkap_Webhooks {
 			'booking.deleted',
 		);
 
-		if ( in_array( $webhook->topic, $bookable_webhook_topics, true ) ) {
+		if ( in_array( $webhook->get_topic(), $bookable_webhook_topics, true ) ) {
 			return false;
 		}
 
@@ -134,39 +134,41 @@ class Bkap_Webhooks {
 	 *
 	 * @param array  $payload payload.
 	 * @param string $resource resource name.
-	 * @param array  $resource_data resource data.
+	 * @param int    $resource_id resource id.
 	 * @param int    $id webhook id.
 	 * @return array
 	 */
-	public static function generate_payload( $payload, $resource, $resource_data, $id ) {
+	public static function generate_payload( $payload, $resource, $resource_id, $id ) {
 
-		switch ( $resource_data['action'] ) {
-			case 'created':
-			case 'updated':
-					$webhook_meta = array(
-						'webhook_id'          => $id,
-						'webhook_action'      => $resource_data['action'],
-						'webhook_resource'    => $resource,
-						'webhook_resource_id' => $resource_data['id'],
-					);
-					$post_meta    = get_post_meta( $resource_data['id'], '', true );
+		if ( is_array( $payload ) && isset( $payload['action'] ) ) {
+			switch ( $payload['action'] ) {
+				case 'created':
+				case 'updated':
+						$webhook_meta = array(
+							'webhook_id'          => $id,
+							'webhook_action'      => $payload['action'],
+							'webhook_resource'    => $resource,
+							'webhook_resource_id' => $payload['id'],
+						);
+						$post_meta    = get_post_meta( $payload['id'], '', true );
 
-					$post_metadata = array();
-				foreach ( $post_meta as $key => $value ) {
-					$post_metadata[ $key ] = maybe_unserialize( $value[0] );
-				}
+						$post_metadata = array();
+						foreach ( $post_meta as $key => $value ) {
+							$post_metadata[ $key ] = maybe_unserialize( $value[0] );
+						}
 
-					$payload = array_merge( $webhook_meta, $resource_data['data'], $post_metadata );
-				break;
+						$payload = array_merge( $webhook_meta, $payload['data'], $post_metadata );
+					break;
 
-			case 'deleted':
-					$payload = array(
-						'webhook_id'          => $id,
-						'webhook_action'      => 'deleted',
-						'webhook_resource'    => $resource,
-						'webhook_resource_id' => $resource_data['id'],
-					);
-				break;
+				case 'deleted':
+						$payload = array(
+							'webhook_id'          => $id,
+							'webhook_action'      => 'deleted',
+							'webhook_resource'    => $resource,
+							'webhook_resource_id' => $payload['id'],
+						);
+					break;
+			}
 		}
 
 		return $payload;

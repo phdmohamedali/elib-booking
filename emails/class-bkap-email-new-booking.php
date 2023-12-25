@@ -26,11 +26,25 @@ class BKAP_Email_New_Booking extends WC_Email {
 	public $booking_data;
 
 	/**
+	 * Heading Confirmation Message.
+	 *
+	 * @var String
+	 */
+	public $heading_confirmation;
+
+	/**
+	 * Subject Confirmation Message.
+	 *
+	 * @var String
+	 */
+	public $subject_confirmation;
+
+	/**
 	 * Default constructor
 	 *
 	 * @since 2.5
 	 */
-	function __construct() {
+	public function __construct() {
 
 		$this->id          = 'bkap_new_booking';
 		$this->title       = __( 'New Booking', 'woocommerce-booking' );

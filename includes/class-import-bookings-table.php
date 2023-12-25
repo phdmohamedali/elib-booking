@@ -176,7 +176,7 @@ class WAPBK_Import_Bookings_Table extends WP_List_Table {
 
 	public function bkap_create_data( $results ) {
 
-		global $bkap_date_formats;
+		$bkap_date_formats = bkap_date_formats();
 
 		$i = 0;
 

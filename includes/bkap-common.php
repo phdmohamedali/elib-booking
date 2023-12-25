@@ -210,85 +210,20 @@ class bkap_common {
 	 * @return array $plugin_data All data to send to server
 	 */
 	public static function bkap_ts_add_plugin_tracking_data( $data ) {
+
+		global $booking_plugin_version;
+
 		if ( isset( $_GET['bkap_tracker_optin'] ) && isset( $_GET['bkap_tracker_nonce'] ) && wp_verify_nonce( $_GET['bkap_tracker_nonce'], 'bkap_tracker_optin' ) ) {
-
-			global $booking_plugin_version;
-			$plugin_data['ts_meta_data_table_name'] = 'ts_tracking_bkap_meta_data';
-			$plugin_data['ts_plugin_name']          = 'Booking & Appointment Plugin for WooCommerce';
-
-			/**
-			 * Write your opt out plugin specific data below.
-			 * $plugin_data [ 'total_bookable_products' ] = self::bkap_get_count_of_bookable_products();
-			 */
-
-			$plugin_data ['total_bookable_products']   = json_encode( self::ts_get_all_bookable_products() );
-			$plugin_data ['total_gcal_count']          = self::ts_get_event_counts();
-			$plugin_data ['total_global_setting']      = json_encode( self::ts_global_booking_setting() );
-			$plugin_data ['bookable_products_setting'] = json_encode( self::ts_get_all_bookable_products_settings() );
-			$plugin_data ['booking_counts']            = self::ts_get_booking_counts();
-
-			// Get all plugin options info
-
-			$plugin_data['plugin_version']      = $booking_plugin_version;
-			$plugin_data['bkap_allow_tracking'] = get_option( 'bkap_allow_tracking' );
-			$data['plugin_data']                = $plugin_data;
+			$data['plugin_data'] = array(
+				'total_bookable_products'   => wp_json_encode( self::ts_get_all_bookable_products() ),
+				'total_gcal_count'          => self::ts_get_event_counts(),
+				'total_global_setting'      => wp_json_encode( self::ts_global_booking_setting() ),
+				'bookable_products_setting' => wp_json_encode( self::ts_get_all_bookable_products_settings() ),
+				'booking_counts'            => self::ts_get_booking_counts(),
+			);
 		}
+
 		return $data;
-	}
-
-	/**
-	 * This function used to send the data to the server. It is used for tracking the data when admin do not wish to share the tarcking informations.
-	 *
-	 * @hook ts_tracker_opt_out_data
-	 * @param array $params Parameters
-	 * @return array $params Parameters
-	 */
-	public static function bkap_get_data_for_opt_out( $params ) {
-		$plugin_data['ts_meta_data_table_name'] = 'ts_tracking_bkap_meta_data';
-		$plugin_data['ts_plugin_name']          = 'Booking & Appointment Plugin for WooCommerce';
-
-		$params ['plugin_data'] = $plugin_data;
-
-		return $params;
-	}
-
-	/**
-	 * It will add the Questions while admin deactivate the plugin.
-	 *
-	 * @hook ts_deativate_plugin_questions
-	 * @param array $bkap_add_questions Blank array
-	 * @return array $bkap_add_questions List of all questions.
-	 */
-	public static function bkap_deactivate_add_questions( $bkap_add_questions ) {
-
-		$bkap_add_questions = array(
-			0 => array(
-				'id'                => 4,
-				'text'              => __( 'Facing some major issues on site due to this plugin.', 'woocommerce-booking' ),
-				'input_type'        => '',
-				'input_placeholder' => '',
-			),
-			1 => array(
-				'id'                => 5,
-				'text'              => __( 'Unable to setup the bookings as per my requirements.', 'woocommerce-booking' ),
-				'input_type'        => '',
-				'input_placeholder' => '',
-			),
-			2 => array(
-				'id'                => 6,
-				'text'              => __( 'Required feature is not working as per my expectation.', 'woocommerce-booking' ),
-				'input_type'        => 'textfield',
-				'input_placeholder' => 'Which Feature?',
-			),
-			3 => array(
-				'id'                => 7,
-				'text'              => __( 'The plugin is not compatible with another plugin.', 'woocommerce-booking' ),
-				'input_type'        => 'textfield',
-				'input_placeholder' => 'Which Plugin?',
-			),
-
-		);
-		return $bkap_add_questions;
 	}
 
 	/**
@@ -775,7 +710,7 @@ class bkap_common {
 		}
 
 		// Check if ADP Plugin is activated. No need to continue if it isn't present.
-		if ( ! is_plugin_active( 'advanced-dynamic-pricing-for-woocommerce-pro/advanced-dynamic-pricing-for-woocommerce-pro.php' ) ) {
+		if ( ! is_plugin_active( 'advanced-dynamic-pricing-pro/advanced-dynamic-pricing-for-woocommerce-pro.php' ) ) {
 			return $price;
 		}
 
@@ -965,7 +900,8 @@ class bkap_common {
 							$child_price = $child_price * $_POST['quantity'];
 						}
 
-						if ( isset( $_POST['diff_days'] ) && $_POST['diff_days'] > 0 ) {
+						$booking_type = get_post_meta( $bundle_child_id, '_bkap_booking_type', true );
+						if ( isset( $_POST['diff_days'] ) && $_POST['diff_days'] > 0 && in_array( $booking_type, array( 'multiple_days' ) ) ) {
 							$is_bookable = self::bkap_get_bookable_status( $bundle_child_id );
 
 							// Added filter hook to make non bookable product price repeatable for multiple days.
@@ -1140,14 +1076,13 @@ class bkap_common {
 		if ( class_exists( 'WC_Product_Addons' ) ) {
 			if ( isset( $cart_item_meta['addons'] ) && isset( $_POST['total_price_calculated'] ) ) {
 				$product_addons = $cart_item_meta['addons'];
-				$price          = $_POST['total_price_calculated'];
+				$price          = $_POST['total_price_calculated'] / $product_quantity;
 				$wpaprice       = array();
 				foreach ( $product_addons as $key => $val ) {
 					$price_type = $val['price_type'];
 					switch ( $price_type ) {
 						case 'percentage_based':
-							$price_percentage = ( $price * $val['price'] / 100 );
-							$wpaprice[ $key ] = $price_percentage * $product_quantity;
+							$wpaprice[ $key ] = ( $price * $val['price'] / 100 );
 							break;
 						case 'flat_fee':
 							$wpaprice[ $key ] = $val['price'];
@@ -1444,12 +1379,14 @@ class bkap_common {
 			$booking_object->person_data  = $booking->get_persons_info();
 		}
 
-		if ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) {
-			$booking_object->billing_email = $order->billing_email;
-			$booking_object->customer_id   = $order->user_id;
-		} else {
-			$booking_object->billing_email = $order->get_billing_email();
-			$booking_object->customer_id   = $order->get_user_id();
+		if ( ! empty( $order ) ) {
+			if ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) {
+				$booking_object->billing_email = $order->billing_email;
+				$booking_object->customer_id   = $order->user_id;
+			} else {
+				$booking_object->billing_email = $order->get_billing_email();
+				$booking_object->customer_id   = $order->get_user_id();
+			}
 		}
 
 		$zoom_label                   = bkap_zoom_join_meeting_label( $product_id );
@@ -1674,7 +1611,7 @@ class bkap_common {
 	 * @since 4.1.0
 	 */
 
-	public static function bkap_update_order_item_meta( $item_id, $product_id, $booking_data, $gcal_import = false ) {
+	public static function bkap_update_order_item_meta( $item_id, $product_id, $booking_data, $gcal_import = false, $add_item_meta = false, $item = array() ) {
 
 		global $wpdb;
 
@@ -1702,28 +1639,43 @@ class bkap_common {
 			}
 		}
 		$status = apply_filters( 'bkap_booking_status_on_create_order', $status );
-		wc_add_order_item_meta( $item_id, '_wapbk_booking_status', $status );
+		if ( $add_item_meta ) {
+			$item->add_meta_data( '_wapbk_booking_status', $status );
+		} else {
+			wc_add_order_item_meta( $item_id, '_wapbk_booking_status', $status );
+		}
 
 		/**
-		 * Storing Start Date Information
+		 * Storing Start Date Information.
 		 */
-
-		if ( $booking_data['date'] != '' ) {
+		if ( isset( $booking_data['hidden_date'] ) && '' !== $booking_data['hidden_date'] ) {
 
 			$name        = get_option( 'book_item-meta-date' );
 			$name        = ( '' == $name ) ? __( 'Start Date', 'woocommerce-booking' ) : $name;
 			$name        = apply_filters( 'bkap_change_checkout_start_date_label', $name, $booking_settings );
 			$date_select = $booking_data['date'];
 
-			wc_add_order_item_meta( $item_id, $name, sanitize_text_field( $date_select, true ) );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( $name, sanitize_text_field( $date_select, true ) );
+			} else {
+				wc_add_order_item_meta( $item_id, $name, sanitize_text_field( $date_select, true ) );
+			}
 
-			// Save Start Date Information to Order Note.
-			self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $date_select, true ) ) );
-		}
+			if ( ! $add_item_meta ) {
+				// Save Start Date Information to Order Note.
+				self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $name . ': %s', 'woocommerce-booking' ), sanitize_text_field( $date_select, true ) ) );
+			}
 
-		if ( isset( $booking_data['hidden_date'] ) && $booking_data['hidden_date'] != '' ) {
 			$date_booking = bkap_date_as_format( $booking_data['hidden_date'], 'Y-m-d' );
-			wc_add_order_item_meta( $item_id, '_wapbk_booking_date', sanitize_text_field( $date_booking, true ) );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( '_wapbk_booking_date', sanitize_text_field( $date_booking, true ) );
+			} else {
+				wc_add_order_item_meta( $item_id, '_wapbk_booking_date', sanitize_text_field( $date_booking, true ) );
+			}
+
+			if ( function_exists( 'is_bkap_deposits_active' ) && is_bkap_deposits_active() ) {
+				Pdbkap_Price_Calc::pdbkap_order_item_meta( $booking_data, wc_get_order( $order_id ) );
+			}
 		}
 
 		/**
@@ -1737,14 +1689,22 @@ class bkap_common {
 				$name_checkout        = ( '' == $name_checkout ) ? __( 'End Date', 'woocommerce-booking' ) : $name_checkout;
 				$date_select_checkout = $booking_data['date_checkout'];
 
-				wc_add_order_item_meta( $item_id, $name_checkout, sanitize_text_field( $date_select_checkout, true ) );
+				if ( $add_item_meta ) {
+					$item->add_meta_data( $name_checkout, sanitize_text_field( $date_select_checkout, true ) );
+				} else {
+					wc_add_order_item_meta( $item_id, $name_checkout, sanitize_text_field( $date_select_checkout, true ) );
+				}
 			}
 		}
 
 		if ( isset( $booking_data['hidden_date_checkout'] ) && $booking_data['hidden_date_checkout'] != '' ) {
 			if ( $booking_settings['booking_enable_multiple_day'] == 'on' ) {
 				$date_booking = bkap_date_as_format( $booking_data['hidden_date_checkout'], 'Y-m-d' );
-				wc_add_order_item_meta( $item_id, '_wapbk_checkout_date', sanitize_text_field( $date_booking, true ) );
+				if ( $add_item_meta ) {
+					$item->add_meta_data( '_wapbk_checkout_date', sanitize_text_field( $date_booking, true ) );
+				} else {
+					wc_add_order_item_meta( $item_id, '_wapbk_checkout_date', sanitize_text_field( $date_booking, true ) );
+				}
 			}
 		}
 
@@ -1800,11 +1760,18 @@ class bkap_common {
 			$meta_data_format     = substr( $meta_data_format, 0, -1 );
 
 			$time_slot_to_display = apply_filters( 'bkap_update_order_item_meta_timeslot', $time_slot_to_display, $item_id, $product_id, $booking_data );
-			wc_add_order_item_meta( $item_id, $name_time_slot, $time_slot_to_display );
-			wc_add_order_item_meta( $item_id, '_wapbk_time_slot', $meta_data_format );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( $name_time_slot, $time_slot_to_display );
+				$item->add_meta_data( '_wapbk_time_slot', $meta_data_format );
+			} else {
+				wc_add_order_item_meta( $item_id, $name_time_slot, $time_slot_to_display );
+				wc_add_order_item_meta( $item_id, '_wapbk_time_slot', $meta_data_format );
+			}
 
-			// Save Booking Time Information to Order Note.
-			self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $name_time_slot . ': %s', 'woocommerce-booking' ), $time_slot_to_display ) );
+			if ( ! $add_item_meta ) {
+				// Save Booking Time Information to Order Note.
+				self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $name_time_slot . ': %s', 'woocommerce-booking' ), $time_slot_to_display ) );
+			}
 		}
 
 		/**
@@ -1822,8 +1789,13 @@ class bkap_common {
 			$resource_title = Class_Bkap_Product_Resource::get_resource_name( $booking_data['resource_id'] );
 			$resource_title = apply_filters( 'bkap_change_resource_title_in_order_item_meta', $resource_title, $product_id );
 
-			wc_add_order_item_meta( $item_id, $resource_label, $resource_title );
-			wc_add_order_item_meta( $item_id, '_resource_id', $booking_data['resource_id'] );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( $resource_label, $resource_title );
+				$item->add_meta_data( '_resource_id', $booking_data['resource_id'] );
+			} else {
+				wc_add_order_item_meta( $item_id, $resource_label, $resource_title );
+				wc_add_order_item_meta( $item_id, '_resource_id', $booking_data['resource_id'] );
+			}
 		}
 
 		/**
@@ -1831,13 +1803,25 @@ class bkap_common {
 		 */
 		if ( isset( $booking_data['persons'] ) && $booking_data['persons'] ) {
 			if ( isset( $booking_data['persons'][0] ) ) {
-				wc_add_order_item_meta( $item_id, Class_Bkap_Product_Person::bkap_get_person_label( $product_id ), $booking_data['persons'][0] );
+				if ( $add_item_meta ) {
+					$item->add_meta_data( Class_Bkap_Product_Person::bkap_get_person_label( $product_id ), $booking_data['persons'][0] );
+				} else {
+					wc_add_order_item_meta( $item_id, Class_Bkap_Product_Person::bkap_get_person_label( $product_id ), $booking_data['persons'][0] );
+				}
 			} else {
 				foreach ( $booking_data['persons'] as $key => $value ) {
-					wc_add_order_item_meta( $item_id, get_the_title( $key ), $value );
+					if ( $add_item_meta ) {
+						$item->add_meta_data( get_the_title( $key ), $value );
+					} else {
+						wc_add_order_item_meta( $item_id, get_the_title( $key ), $value );
+					}
 				}
 			}
-			wc_add_order_item_meta( $item_id, '_person_ids', $booking_data['persons'] );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( '_person_ids', $booking_data['persons'] );
+			} else {
+				wc_add_order_item_meta( $item_id, '_person_ids', $booking_data['persons'] );
+			}
 		}
 
 		/**
@@ -1870,9 +1854,14 @@ class bkap_common {
 
 				$end_date_string = $date_select . ' - ' . $end_date_string;
 
-				// Updating end date field in order item meta
-				wc_update_order_item_meta( $item_id, '_wapbk_booking_date', sanitize_text_field( $end_date_str, true ) );
-				wc_update_order_item_meta( $item_id, $name, sanitize_text_field( $end_date_string, true ) );
+				if ( $add_item_meta ) {
+					$item->update_meta_data( '_wapbk_booking_date', sanitize_text_field( $end_date_str, true ) );
+					$item->update_meta_data( $name, sanitize_text_field( $end_date_string, true ) );
+				} else {
+					// Updating end date field in order item meta
+					wc_update_order_item_meta( $item_id, '_wapbk_booking_date', sanitize_text_field( $end_date_str, true ) );
+					wc_update_order_item_meta( $item_id, $name, sanitize_text_field( $end_date_string, true ) );
+				}
 			}
 
 			$endtime        = date( 'H:i', $end_str );// getend time in H:i format
@@ -1887,14 +1876,21 @@ class bkap_common {
 			$time_slot_label = get_option( 'book_item-meta-time' );
 			$time_slot_label = ( '' == $time_slot_label ) ? __( 'Booking Time', 'woocommerce-booking' ) : $time_slot_label;
 
-			wc_add_order_item_meta( $item_id, $time_slot_label, $time_slot, true );
-			wc_add_order_item_meta( $item_id, '_wapbk_time_slot', $back_time_slot, true );
+			if ( $add_item_meta ) {
+				$item->add_meta_data( $time_slot_label, $time_slot );
+				$item->add_meta_data( '_wapbk_time_slot', $back_time_slot );
+			} else {
+				wc_add_order_item_meta( $item_id, $time_slot_label, $time_slot, true );
+				wc_add_order_item_meta( $item_id, '_wapbk_time_slot', $back_time_slot, true );
+			}
 
-			// Save Booking Time Information to Order Note.
-			self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $time_slot_label . ': %s', 'woocommerce-booking' ), $time_slot ) );
+			if ( ! $add_item_meta ) {
+				// Save Booking Time Information to Order Note.
+				self::save_booking_information_to_order_note( $item_id, $order_id, sprintf( __( $time_slot_label . ': %s', 'woocommerce-booking' ), $time_slot ) );
+			}
 		}
 
-		do_action( 'bkap_update_item_meta', $item_id, $product_id, $booking_data );
+		do_action( 'bkap_update_item_meta', $item_id, $product_id, $booking_data, $gcal_import, $add_item_meta, $item );
 	}
 
 	/**
@@ -2405,10 +2401,10 @@ class bkap_common {
 
 	public static function bkap_check_specific_date_has_timeslot( $product_id ) {
 
-		$booking_settings       = get_post_meta( $product_id, 'woocommerce_booking_settings', true );
+		$booking_settings       = bkap_setting( $product_id );
 		$booking_specific_dates = ( isset( $booking_settings['booking_specific_date'] ) ) ? $booking_settings['booking_specific_date'] : array();
-
-		$day = strtotime( date( 'Y-m-d', current_time( 'timestamp' ) ) );
+		$current_time           = current_time( 'timestamp' );
+		$day                    = strtotime( date( 'Y-m-d', $current_time ) );
 
 		if ( '' != $booking_specific_dates && count( $booking_specific_dates ) > 0 ) {
 			$booking_time_settings_key = array();
@@ -2417,15 +2413,23 @@ class bkap_common {
 			}
 
 			foreach ( $booking_specific_dates as $booking_specific_dates_key => $booking_specific_dates_value ) {
-
-				if ( strtotime( $booking_specific_dates_key ) <= $day ) {
+				if ( strtotime( $booking_specific_dates_key ) < $day ) {
 					continue;
 				}
 
 				if ( is_array( $booking_time_settings_key ) && count( $booking_time_settings_key ) > 0 ) {
 					if ( in_array( $booking_specific_dates_key, $booking_time_settings_key ) ) {
-
-						return true;
+						$time_data = $booking_settings['booking_time_settings'][ $booking_specific_dates_key ];
+						foreach ( $time_data as $key => $value ) {
+							if ( '' != $value['from_slot_hrs'] ) {
+								$from_time = $value['from_slot_hrs'];
+								$to_time   = ( '' != $value['from_slot_min'] ) ? $value['from_slot_min'] : '00';
+								$time      = $value['from_slot_hrs'] . ':' . $value['from_slot_min'];
+								if ( strtotime( $booking_specific_dates_key . ' ' . $time ) > strtotime( date( 'Y-m-d H:s', $current_time ) ) ) {
+									return true;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -2536,13 +2540,13 @@ class bkap_common {
 
 			switch ( $price_type ) {
 				case 'percentage_based':
-					$wpa_addons_total  += (float) ( $price * ( $addon_price / 100 ) );
+					$wpa_addons_total += (float) ( $price * ( $addon_price / 100 ) );
 					break;
 				case 'flat_fee':
-					$wpa_addons_total  += (float) ( $addon_price / $quantity );
+					$wpa_addons_total += (float) ( $addon_price / $quantity );
 					break;
 				default:
-					$wpa_addons_total  += (float) $addon_price;
+					$wpa_addons_total += (float) $addon_price;
 					break;
 			}
 		}
@@ -2802,6 +2806,7 @@ class bkap_common {
 			'post_status' => $post_status,
 			's'           => $search,
 			'meta_query'  => array(
+				'relation' => 'OR',
 				array(
 					'key'     => '_bkap_start',
 					'value'   => $date,
@@ -2888,7 +2893,7 @@ class bkap_common {
 	 */
 	public static function bkap_get_date_format( $global_settings = array() ) {
 
-		$date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+		$date_formats = bkap_date_formats();
 
 		if ( empty( $global_settings ) ) {
 			$global_settings = bkap_global_setting(); // get the global settings to find the date formats
@@ -2953,26 +2958,41 @@ class bkap_common {
 	 * @return array
 	 * @since 4.10.0
 	 */
-
 	public static function bkap_get_bookings_by_product( $product_id ) {
 
-		$bookings            = self::bkap_get_bookings( array( 'paid', 'confirmed' ) );
-		$bookings_by_product = array();
-		$current_time        = current_time( 'timestamp' );
-		$format              = self::bkap_get_date_format();
-		$current_date        = date( $format );
+		$current_time   = current_time( 'timestamp' );
+		$current_date   = date( 'Y-m-d', $current_time );
+		$bookings_array = array();
+		$args           = array(
+			'fields'      => 'ids',
+			'post_type'   => 'bkap_booking',
+			'post_status' => array( 'paid', 'confirmed' ),
+			'meta_query'  => array(
+				'relation' => 'AND',
+				array(
+					'key'     => '_bkap_product_id',
+					'value'   => $product_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => '_bkap_start',
+					'value'   => date( 'YmdHis', strtotime( $current_date ) ),
+					'compare' => '>=',
+				),
+			),
+		);
 
-		foreach ( $bookings as $booking ) {
-			// $booking         = new BKAP_Booking( $value->get_id() );
-			$booking_product = $booking->get_product_id();
-			$start_date      = $booking->get_start_date();
+		$booking        = new WP_Query( $args );
+		$bookings_array = $booking->posts;
 
-			if ( $booking_product == $product_id && strtotime( $start_date ) > strtotime( $current_date ) ) {
-				array_push( $bookings_by_product, $booking );
-			}
+		$bookings = array();
+		foreach ( $bookings_array as $key => $value ) {
+			$bookings[] = new BKAP_Booking( $value );
 		}
 
-		return $bookings_by_product;
+		wp_reset_query();
+
+		return $bookings;
 	}
 
 	/**
@@ -3085,47 +3105,49 @@ class bkap_common {
 
 		// Get Order Object.
 		$order = wc_get_order( $order_id );
+		if ( ! empty( $order ) ) {
 
-		// Check if function is called with $item_id set. If $item_id has not been set, then get $item_id.
-		if ( empty( $item_id ) ) {
-			$order_items = $order->get_items();
-			$order_item  = reset( $order_items ); // Get first index in array as we are not concerned with the rest since they would basically contain the same information.
-			$item_id     = $order_item->get_id(); // Get only the first index.
-		}
-
-		// Check if Order Note ID has been saved. This is necessary to ensure that a single note is used to save booking information.
-		$order_note_id = (int) wc_get_order_item_meta( $item_id, '_wapbk_order_note_id', true );
-
-		if ( $order_note_id > 0 ) {
-			// Order Note already exists for this Order. Now we update note instead.
-			// But we need to fetch previous data already existing in the Order Note.
-			$previous_note = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT comment_content FROM {$wpdb->prefix}comments WHERE comment_ID = %d",
-					$order_note_id
-				)
-			);
-
-			// Merge previous note with new note.
-			// Check if Zoom Meeting Link already exists in Previous Note (in cases where Order Status is changed to processing more than once).
-			if ( strpos( $previous_note, 'Zoom Meeting' ) !== false ) {
-				// Append New text to ZOom Meeting label to differentitate
-				$note = 'New ' . $note;
+			// Check if function is called with $item_id set. If $item_id has not been set, then get $item_id.
+			if ( empty( $item_id ) ) {
+				$order_items = $order->get_items();
+				$order_item  = reset( $order_items ); // Get first index in array as we are not concerned with the rest since they would basically contain the same information.
+				$item_id     = $order_item->get_id(); // Get only the first index.
 			}
 
-			$note = $previous_note . "\n" . $note;
+			// Check if Order Note ID has been saved. This is necessary to ensure that a single note is used to save booking information.
+			$order_note_id = (int) wc_get_order_item_meta( $item_id, '_wapbk_order_note_id', true );
 
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE {$wpdb->prefix}comments SET comment_content = %s WHERE comment_ID = %d",
-					$note,
-					$order_note_id
-				)
-			);
-		} else {
-			// Order Note does not exist. Create new note and save the note ID to database.
-			$order_note_id = $order->add_order_note( $note );
-			wc_add_order_item_meta( $item_id, '_wapbk_order_note_id', $order_note_id );
+			if ( $order_note_id > 0 ) {
+				// Order Note already exists for this Order. Now we update note instead.
+				// But we need to fetch previous data already existing in the Order Note.
+				$previous_note = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT comment_content FROM {$wpdb->prefix}comments WHERE comment_ID = %d",
+						$order_note_id
+					)
+				);
+
+				// Merge previous note with new note.
+				// Check if Zoom Meeting Link already exists in Previous Note (in cases where Order Status is changed to processing more than once).
+				if ( strpos( $previous_note, 'Zoom Meeting' ) !== false ) {
+					// Append New text to ZOom Meeting label to differentitate
+					$note = 'New ' . $note;
+				}
+
+				$note = $previous_note . "\n" . $note;
+
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE {$wpdb->prefix}comments SET comment_content = %s WHERE comment_ID = %d",
+						$note,
+						$order_note_id
+					)
+				);
+			} else {
+				// Order Note does not exist. Create new note and save the note ID to database.
+				$order_note_id = $order->add_order_note( $note );
+				wc_add_order_item_meta( $item_id, '_wapbk_order_note_id', $order_note_id );
+			}
 		}
 	}
 
@@ -3180,10 +3202,11 @@ class bkap_common {
 
 		if ( count( $array_values ) === count( $array_values, COUNT_RECURSIVE ) ) {
 			foreach ( $array_values as $value ) {
-				$all_values[] = $value;
+				if ( ! empty( $value ) ) {
+					$all_values[] = $value;
+				}
 			}
 		} else {
-
 			array_walk(
 				$array_values,
 				function( $value, $key ) use ( &$all_values ) {
@@ -3192,13 +3215,15 @@ class bkap_common {
 			);
 		}
 
-		$count_values   = array_count_values( $all_values );
-		$unique_values  = array_unique( $all_values );
+		$count_values   = ! empty( $all_values ) ? array_count_values( $all_values ) : array();
+		$unique_values  = ! empty( $all_values ) ? array_unique( $all_values ) : array();
 		$uniform_values = array();
 
-		foreach ( $unique_values as $_value ) {
-			if ( $count_values[ $_value ] >= $array_count ) {
-				$uniform_values[] = $_value;
+		if ( ! empty( $unique_values ) ) {
+			foreach ( $unique_values as $_value ) {
+				if ( $count_values[ $_value ] >= $array_count ) {
+					$uniform_values[] = $_value;
+				}
 			}
 		}
 
@@ -3230,6 +3255,7 @@ class bkap_common {
 			wc_update_order_item_meta( $item_id, '_line_tax', $amount_tax );
 		}
 
+		$old_price = 0;
 		if ( in_array( $booking_type, array( 'multidates', 'multidates_fixedtime' ), true ) ) {
 			$get_subtotal = $item->get_subtotal();
 			$get_subtotal = $get_subtotal - $old_price;

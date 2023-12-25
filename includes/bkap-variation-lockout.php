@@ -217,50 +217,40 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 		 *
 		 * @since 2.5.3
 		 * @hook bkap_multiple_days_product_validation
-		 * @global array $bkap_date_formats Array of Date Format
 		 */
+		public function validate_multiple_days_product_page() {
 
-		function validate_multiple_days_product_page() {
+			$bkap_date_formats          = bkap_date_formats();
+			$saved_settings             = bkap_global_setting();
+			$date_format_to_display     = isset( $saved_settings ) ? $saved_settings->booking_date_format : 'mm/dd/y';
+			$quantity_check_pass        = ( ! isset( $_POST['quantity_check_pass'] ) ) ? 'yes' : $_POST['quantity_check_pass']; // phpcs:ignore
+			$_POST['validated']         = 'NO';
+			$wapbk_hidden_date          = isset( $_POST['wapbk_hidden_date'] ) ? sanitize_text_field( wp_unslash( $_POST['wapbk_hidden_date'] ) ) : ''; // phpcs:ignore
+			$quantity                   = isset( $_POST['quantity'] ) ? sanitize_text_field( wp_unslash( $_POST['quantity'] ) ) : 1; // phpcs:ignore
+			$wapbk_hidden_date_checkout = isset( $_POST['wapbk_hidden_date_checkout'] ) ? sanitize_text_field( wp_unslash( $_POST['wapbk_hidden_date_checkout'] ) ) : ''; // phpcs:ignore
+			$product_id                 = isset( $_POST['product_id'] ) ? sanitize_text_field( wp_unslash( $_POST['product_id'] ) ) : ''; // phpcs:ignore
+			$variation_id               = isset( $_POST['variation_id'] ) ? sanitize_text_field( wp_unslash( $_POST['variation_id'] ) ) : 0; // phpcs:ignore
+			$_product                   = wc_get_product( $product_id );
+			$product_type               = $_product->get_type();
+			$booking_settings           = bkap_setting( $product_id );
+			$post_title                 = get_post( $product_id );
 
-			global $bkap_date_formats;
-
-			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
-
-			if ( isset( $saved_settings ) ) {
-				$date_format_to_display = $saved_settings->booking_date_format;
-			} else {
-				$date_format_to_display = 'mm/dd/y';
-			}
-
-			if ( ! isset( $_POST['quantity_check_pass'] ) ) {
-				$quantity_check_pass = 'yes';
-			} else {
-				$quantity_check_pass = $_POST['quantity_check_pass'];
-			}
-
-			$_POST['validated'] = 'NO';
-
-			$_product = wc_get_product( $_POST['product_id'] );
-
-			$post_title = get_post( $_POST['product_id'] );
-			// get the product type
-			$product_type = $_product->get_type();
-			$variation_id = 0;
-			// get variation Id for a variable product & its lockout value if set
-			if ( isset( $_POST['variation_id'] ) && $_POST['variation_id'] != '' ) {
-				$variation_id      = $_POST['variation_id'];
+			// get variation Id for a variable product & its lockout value if set.
+			if ( 0 !== $variation_id ) {
 				$variation_lockout = get_post_meta( $variation_id, '_booking_lockout_field', true );
 			}
-			// if variable product and lockout is set at the variation level
-			if ( isset( $product_type ) && $product_type == 'variable' && isset( $variation_lockout ) && $variation_lockout > 0 ) {
+
+			// if variable product and lockout is set at the variation level.
+			if ( isset( $product_type ) && 'variable' === $product_type && isset( $variation_lockout ) && $variation_lockout > 0 ) {
 				$_POST['validated'] = 'YES';
 				$field_name         = 'wapbk_bookings_placed_' . $variation_id;
 				$bookings_placed    = '';
 				if ( isset( $_POST[ $field_name ] ) ) {
 					$bookings_placed = $_POST[ $field_name ];
 				}
-				// create an array of dates for which orders have already been placed and the qty for each date
-				if ( isset( $bookings_placed ) && $bookings_placed != '' ) {
+
+				// create an array of dates for which orders have already been placed and the qty for each date.
+				if ( isset( $bookings_placed ) && '' !== $bookings_placed ) {
 					$list_dates = explode( ',', $bookings_placed );
 					foreach ( $list_dates as $list_key => $list_value ) {
 						$explode_date = explode( '=>', $list_value );
@@ -270,12 +260,18 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						}
 					}
 				}
-				// create an array of the current dates selected by the user
-				$bookings_array   = bkap_common::bkap_get_betweendays( $_POST['wapbk_hidden_date'], $_POST['wapbk_hidden_date_checkout'] );
+
+				// create an array of the current dates selected by the user.
+				if ( isset( $booking_settings['booking_charge_per_day'] ) && 'on' === $booking_settings['booking_charge_per_day'] ) {
+					$bookings_array = bkap_common::bkap_get_betweendays_when_flat( $wapbk_hidden_date, $wapbk_hidden_date_checkout, $product_id );
+				} else {
+					$bookings_array = bkap_common::bkap_get_betweendays( $wapbk_hidden_date, $wapbk_hidden_date_checkout );
+				}
 				$date_availablity = array();
+
 				foreach ( $bookings_array as $date_key => $date_value ) {
-					$final_qty = $_POST['quantity'];
-					// add the number of already placed orders for that date
+					$final_qty = $quantity;
+					// add the number of already placed orders for that date.
 					if ( isset( $date_array ) && is_array( $date_array ) && count( $date_array ) > 0 ) {
 						if ( array_key_exists( $date_value, $date_array ) ) {
 							$qty        = $date_array[ $date_value ];
@@ -294,13 +290,13 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 					}
 				}
 
-				if ( $quantity_check_pass == 'no' ) {
+				if ( 'no' === $quantity_check_pass ) {
 
 					if ( is_array( $date_availablity ) && count( $date_availablity ) > 0 ) {
 						$least_availability = '';
-						// find the least availability
+						// find the least availability.
 						foreach ( $date_availablity as $date => $available ) {
-							if ( '' == $least_availability ) {
+							if ( '' === $least_availability ) {
 								$least_availability = $available;
 							}
 
@@ -318,8 +314,9 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 						wc_add_notice( $message, $notice_type = 'error' );
 					}
 				}
-				// check if the same product has been added to the cart for the same dates
-				if ( $quantity_check_pass == 'yes' ) {
+
+				// check if the same product has been added to the cart for the same dates.
+				if ( 'yes' === $quantity_check_pass ) {
 					foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
 						if ( isset( $values['bkap_booking'] ) ) {
 							$booking = $values['bkap_booking'];
@@ -332,19 +329,19 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 							$hidden_date_checkout = $booking[0]['hidden_date_checkout'];
 							$dates                = bkap_common::bkap_get_betweendays( $booking[0]['hidden_date'], $booking[0]['hidden_date_checkout'] );
 
-							if ( $variation_id == $variation_id_added ) {
+							if ( $variation_id === $variation_id_added ) {
 								$date_availablity = array();
 								foreach ( $bookings_array as $date_key => $date_value ) {
 									$date_availablity[ $date_value ] = $variation_lockout;
-									$final_qty                       = $_POST['quantity'];
-									// add the number of already placed orders for that date
+									$final_qty                       = $quantity;
+									// add the number of already placed orders for that date.
 									if ( isset( $date_array ) && is_array( $date_array ) && count( $date_array ) > 0 ) {
 										if ( array_key_exists( $date_value, $date_array ) ) {
 											$qty        = $date_array[ $date_value ];
 											$final_qty += $qty;
 										}
 									}
-									// add the qty from the item in the cart
+									// add the qty from the item in the cart.
 									if ( isset( $dates ) && is_array( $dates ) && count( $dates ) > 0 ) {
 										if ( in_array( $date_value, $dates ) ) {
 											$qty        = $quantity;
@@ -362,13 +359,13 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 									}
 								}
 
-								if ( $quantity_check_pass == 'no' ) {
+								if ( 'no' === $quantity_check_pass ) {
 
 									if ( is_array( $date_availablity ) && count( $date_availablity ) > 0 ) {
 										$least_availability = '';
-										// find the least availability
+										// find the least availability.
 										foreach ( $date_availablity as $date => $available ) {
-											if ( '' == $least_availability ) {
+											if ( '' === $least_availability ) {
 												$least_availability = $available;
 											}
 
@@ -399,12 +396,11 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 		 *
 		 * @since 2.5.3
 		 * @hook bkap_single_days_product_validation
-		 * @global array $bkap_date_formats Array of Date Format
 		 */
 
 		function validate_single_days_product_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -538,7 +534,7 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 
 		function validate_date_time_product_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -677,14 +673,14 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 		 *
 		 * @since 2.5.3
 		 * @hook bkap_multiple_days_cart_validation
-		 * @global array $bkap_date_formats Array of Date Format
+		 *
 		 * @global array $wpdb Global wpdb Object
 		 */
 
 		function validate_multiple_days_cart_page() {
 			global $wpdb;
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -954,12 +950,10 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 		 *
 		 * @since 2.5.3
 		 * @hook bkap_single_days_cart_validation
-		 * @global array $bkap_date_formats Array of Date Format
 		 */
-
 		function validate_single_days_cart_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1126,12 +1120,10 @@ if ( ! class_exists( 'bkap_variations' ) ) {
 		 *
 		 * @since 2.5.3
 		 * @hook bkap_date_time_cart_validation
-		 * @global array $bkap_date_formats Array of Date Format
 		 */
-
 		function validate_date_time_cart_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 

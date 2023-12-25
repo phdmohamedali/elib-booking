@@ -63,10 +63,29 @@ class Bkap_Calendar_View {
 		);
 
 		if ( isset( $_GET['vendor_id'] ) ) {
-			$booking_args['meta_key']   = '_bkap_vendor_id';
-			$booking_args['meta_value'] = $_GET['vendor_id'];
+			$booking_args['meta_query'][] = array(
+				'relation' => 'AND',
+				array(
+					'key'     => '_bkap_vendor_id',
+					'value'   => $_GET['vendor_id'],
+					'compare' => '=',
+				),
+			);
 			$vendor_id                  = isset( $_GET['vendor_id'] ) ? sanitize_text_field( wp_unslash( $_GET['vendor_id'] ) ) : 0; //phpcs:ignore
 			$vendor_global_holidays     = ( $vendor_id > 0 ) ? get_user_meta( $vendor_id, '_bkap_vendor_holidays', true ) : array();
+		}
+
+		if ( isset( $_REQUEST['product_ids'] ) && ! empty( $_REQUEST['product_ids'] ) ) {
+			$product_ids = explode( ',', $_REQUEST['product_ids'] );
+
+			$booking_args['meta_query'][] = array(
+				'relation' => 'AND',
+				array(
+					'key'     => '_bkap_product_id',
+					'value'   => $product_ids,
+					'compare' => 'IN',
+				),
+			);
 		}
 
 		$bkap_posts_array = get_posts( $booking_args );
@@ -222,6 +241,9 @@ class Bkap_Calendar_View {
 				);
 			}
 		}
+
+		$data = apply_filters( 'bkap_calendar_view_events_data', $data );
+
 		wp_send_json( $data );
 	}
 
@@ -250,7 +272,7 @@ class Bkap_Calendar_View {
 	 */
 	public static function bkap_booking_calender_content() {
 		$content      = '';
-		$date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+		$date_formats = bkap_date_formats();
 		// get the global settings to find the date formats
 		$global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 		$date_format_set = $date_formats[ $global_settings->booking_date_format ];
@@ -291,9 +313,8 @@ class Bkap_Calendar_View {
 			foreach ( $order_items as $item_id => $item ) {
 
 				if ( $item['variation_id'] != '' && $value[0]['post_id'] == $item['product_id'] && $value[0]['order_item_id'] == $item_id ) {
-					$variation_product              = get_post_meta( $item['product_id'] );
-					$product_variation_array_string = $variation_product['_product_attributes'];
-					$product_variation_array        = isset( $variation_product['_product_attributes'] ) && isset( $variation_product['_product_attributes'][0] ) ? unserialize( $variation_product['_product_attributes'][0] ) : array();
+					$variation_product       = get_post_meta( $item['product_id'] );
+					$product_variation_array = isset( $variation_product['_product_attributes'] ) && isset( $variation_product['_product_attributes'][0] ) ? unserialize( $variation_product['_product_attributes'][0] ) : array();
 
 					foreach ( $product_variation_array as $product_variation_key => $product_variation_value ) {
 						if ( isset( $item[ $product_variation_key ] ) && '' !== $item[ $product_variation_key ] ) {

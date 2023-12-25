@@ -82,11 +82,10 @@ class BKAP_Resource_Details_Meta_Box {
 	 */
 	public static function meta_box_inner( $post = '' ) {
 
-		$bkap_intervals  = bkap_intervals();
-		$zoom_api_key    = get_option( 'bkap_zoom_api_key', '' );
-		$zoom_api_secret = get_option( 'bkap_zoom_api_secret', '' );
-		$response        = new stdClass();
-		if ( '' !== $zoom_api_key && '' !== $zoom_api_secret && BKAP_License::enterprise_license() ) {
+		$bkap_intervals       = bkap_intervals();
+		$response             = new stdClass();
+		$zoom_connection_type = bkap_zoom_connection_type();
+		if ( '' !== $zoom_connection_type && BKAP_License::enterprise_license() ) {
 			$zoom_connection = bkap_zoom_connection();
 			$response        = json_decode( $zoom_connection->bkap_list_users() );
 		}

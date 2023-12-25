@@ -25,14 +25,13 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 		 *
 		 * @since 4.10.0
 		 */
-
 		public function __construct() {
 
-			// Vertical tabs
+			// Vertical tabs.
 			add_action( 'admin_head', array( $this, 'bkap_vertical_my_enqueue_scripts_css' ) );
 			add_action( 'admin_footer', array( $this, 'bkap_print_js' ) );
 
-			// Scripts
+			// Scripts.
 			add_action( 'admin_enqueue_scripts', array( &$this, 'bkap_my_enqueue_scripts_css' ) );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'bkap_my_enqueue_scripts_js' ) );
 			add_action( 'woocommerce_before_single_product', array( &$this, 'bkap_front_side_scripts_js' ) );
@@ -47,7 +46,6 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 		 * @globals WP_Post $post Post Object
 		 * @since 1.0.0
 		 */
-
 		function bkap_front_side_scripts_css() {
 			global $post;
 
@@ -172,6 +170,16 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 			$plugin_version_number = get_option( 'woocommerce_booking_db_version' );
 			$type_of_post          = get_post_type();
 			$ajax_url              = get_admin_url() . 'admin-ajax.php';
+
+			wp_register_script(
+				'tyche',
+				self::bkap_asset_url( '/assets/js/tyche.js', BKAP_FILE ),
+				array( 'jquery' ),
+				BKAP_VERSION,
+				true
+			);
+
+			wp_enqueue_script( 'tyche' );
 
 			if ( get_post_type() == 'product' || get_post_type() == 'bkap_resource' ||
 				( isset( $_GET['page'] ) && $_GET['page'] == 'woocommerce_booking_page' ) ||
@@ -561,6 +569,11 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 						'weekday_timeslot_validation' => __( 'The FROM Weekday timeslot must be less than the TO timeslot.', 'woocommerce-booking' ),
 						'validation_alert_message'    => __( 'One or more fields have incorrect START/END or FROM/TO values.', 'woocommerce-booking' ),
 					),
+					'uploading'                    => __( 'Uploading...', 'woocommerce-booking' ),
+					'disconnecting'                => __( 'Disconnecting...', 'woocommerce-booking' ),
+					'file_uploaded'                => __( 'File uploaded successfully!', 'woocommerce-booking' ),
+					'upload_error'                 => __( 'There was an error uploading the file.', 'woocommerce-booking' ),
+					'disconnected'                 => __( 'Successfully disconnected..!', 'woocommerce-booking' ),
 				)
 			);
 
@@ -820,10 +833,16 @@ if ( ! class_exists( 'bkap_load_scripts_class' ) ) {
 				array( 'jquery', 'bkap-qtip', 'full-js', 'locales-js', 'bkap-images-loaded', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-position', 'jquery-ui-selectmenu' )
 			);
 
+			$timeslots = apply_filters( 'bkap_calendar_timeslot_params', '00:00', '24:00' );
+			$timeslots = ( ! is_array( $timeslots ) ) ? array( '00:00', '24:00' ) : $timeslots;
+
 			wp_localize_script(
 				'booking-calender-js',
 				'booking_calendar_params',
-				array( 'lang' => $global_settings->booking_language )
+				array(
+					'lang'      => $global_settings->booking_language,
+					'timeslots' => $timeslots,
+				)
 			);
 
 			wp_enqueue_script( 'booking-calender-js' );

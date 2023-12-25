@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name: Booking & Appointment Plugin for WooCommerce
- * Plugin URI: http://www.tychesoftwares.com/store/premium-plugins/woocommerce-booking-plugin
+ * Plugin URI: https://www.tychesoftwares.com/products/woocommerce-booking-and-appointment-plugin/
  * Description: This plugin lets you capture the Booking Date & Booking Time for each product thereby allowing your WooCommerce store to effectively function as a Booking system. It allows you to add different time slots for different days, set maximum bookings per time slot, set maximum bookings per day, set global & product specific holidays and much more.
- * Version: 5.18.1
+ * Version: 5.23.1
  * Author: Tyche Softwares
- * Author URI: http://www.tychesoftwares.com/
+ * Author URI: https://www.tychesoftwares.com/
  * Text Domain: woocommerce-booking
- * Requires PHP: 5.6
+ * Requires PHP: 7.3
  * WC requires at least: 3.9
- * WC tested up to: 7.1.0
+ * WC tested up to: 8.0
  *
  * @package BKAP
  */
@@ -17,8 +17,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-require_once 'includes/bkap-config.php';
 
 if ( ! class_exists( 'Woocommerce_Booking' ) ) {
 
@@ -103,7 +101,7 @@ if ( ! class_exists( 'Woocommerce_Booking' ) ) {
 			 */
 			define( 'EDD_SL_ITEM_NAME_BOOK', 'Booking & Appointment Plugin for WooCommerce' );
 
-			define( 'BKAP_VERSION', '5.18.1' );
+			define( 'BKAP_VERSION', '5.23.1' );
 
 			define( 'BKAP_CDN', 'https://static.tychesoftwares.com/woocommerce-booking' );
 

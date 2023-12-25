@@ -73,6 +73,7 @@ class product_gcal_settings {
 	 * @since 2.6.3
 	 */
 	public function bkap_gcal_show_field_settings( $product_id, $booking_settings ) {
+		global $post;
 
 		$user_id  = get_current_user_id();
 		$_product = wc_get_product( $product_id );
@@ -89,11 +90,12 @@ class product_gcal_settings {
 			$gcal_msg      = 'block';
 		}
 		$post_type = get_post_type( $product_id );
+		$post_slug = isset( $post->post_name ) && $post_type === 'page' ? $post->post_name : '';
 		?>
 		<div id="gcal_tab" class="tstab-content" style="position: relative; display: none;">
 			<button type="button" class="bkap-integrations-accordion"><b><?php esc_html_e( 'Google Calendar Sync', 'woocommerce-booking' ); ?></b></button>
 			<div class="bkap_google_sync_settings_content bkap_integrations_panel">
-				
+
 				<div id="bkap_gcal_msg" class="bkap-gcal-info" style="display:<?php echo $gcal_msg; ?>;" >
 					<?php esc_html_e( 'Google Calendar Sync cannot be set up for a Grouped Product. Please set up the sync settings for individual child products.', 'woocommerce-booking' ); ?>
 				</div>
@@ -108,7 +110,7 @@ class product_gcal_settings {
 								$sync_directly = '';
 								$sync_oauth    = '';
 								$sync_disable  = 'checked';
-								$oauth_options = bkap_get_oauth_google_calendar_options( $product_id, $user_id );					
+								$oauth_options = bkap_get_oauth_google_calendar_options( $product_id, $user_id );
 
 								if ( isset( $booking_settings['product_sync_integration_mode'] ) ) {
 									$sync_mode = $booking_settings['product_sync_integration_mode'];
@@ -206,37 +208,40 @@ class product_gcal_settings {
 
 							<tr class="bkap_directly_mode">
 								<?php
-								$gcal_key_file = '';
-								if ( isset( $booking_settings['product_sync_key_file_name'] ) && '' !== $booking_settings['product_sync_key_file_name'] ) {
-									$gcal_key_file = $booking_settings['product_sync_key_file_name'];
+
+								$bkap_calendar_json_data = isset( $booking_settings['bkap_calendar_json_file_data'] ) ? $booking_settings['bkap_calendar_json_file_data'] : '';
+
+								$json_file_title = '';
+								if ( isset( $booking_settings['bkap_calendar_json_file_name'] ) ) {
+									$json_file_title = $booking_settings['bkap_calendar_json_file_name'];
+								}
+
+								$show_form       = '';
+								$show_connection = '';
+								if ( '' == $bkap_calendar_json_data ) {
+									$show_form       = 'style="display:block;"';
+									$show_connection = 'style="display:none;"';
+								} else {
+									$show_form       = 'style="display:none;"';
+									$show_connection = 'style="display:block;"';
 								}
 								?>
 								<th >
-									<label for="product_sync_key_file_name"><?php _e( 'Key File Name:', 'woocommerce-booking' ); ?></label>
+									<label for="bkap_calendar_json_data"><?php _e( 'Upload JSON File:', 'woocommerce-booking' ); ?></label>
 								</th>
 								<td>
-									<input id="product_sync_key_file_name" name= "product_sync_key_file_name" value="<?php echo $gcal_key_file; ?>" size="40" type="text" />
+									<div id="bkap_save_json_data_field" <?php echo $show_form; ?>>
+										<input type="file" name="bkap_calendar_json_data" id="bkap_calendar_json_data" style="width: 60%;">
+										<input type="button" value="<?php echo __( 'Upload', 'woocommerce-booking' ); ?>" id="bkap_save_json_data" class="save_button" name="0">
+									</div>
+									<div id="bkap_save_json_data_connection" <?php echo $show_connection; ?>>
+										<a id="bkap_connect_json_data" name="bkap_connect_json_data"><?php printf( __( '<b>Uploaded File:</b> <span id="bkap_json_file_name">%s</span>', 'woocommerce-booking' ), $json_file_title ) ?></a>
+										<input type="button" value="<?php echo __( 'Remove', 'woocommerce-booking' ); ?>" id="bkap_disconnect_json_data" class="button-secondary" name="0">
+									</div>
+									<div id="bkap-json-upload-message"></div>
 								</td>
 								<td>
-									<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'Enter key file name here without extention, e.g. ab12345678901234567890-privatekey.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
-								</td>
-							</tr>
-
-							<tr class="bkap_directly_mode">
-								<?php
-								$gcal_service_acc_email_addr = '';
-								if ( isset( $booking_settings['product_sync_service_acc_email_addr'] ) && $booking_settings['product_sync_service_acc_email_addr'] ) {
-									$gcal_service_acc_email_addr = $booking_settings['product_sync_service_acc_email_addr'];
-								}
-								?>
-								<th>
-									<label for="product_sync_service_acc_email_addr"><?php _e( 'Service Account Email Address:', 'woocommerce-booking' ); ?></label>
-								</th>
-								<td>
-									<input id="product_sync_service_acc_email_addr" name= "product_sync_service_acc_email_addr" value="<?php echo $gcal_service_acc_email_addr; ?>" size="40" type="text" />
-								</td>
-								<td>
-									<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'Enter Service account email address here, e.g. 1234567890@developer.gserviceaccount.com.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
+									<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'Upload the JSON key file using this option. After selecting the JSON file, click on Upload button to upload it.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
 								</td>
 							</tr>
 
@@ -261,10 +266,10 @@ class product_gcal_settings {
 							<tr class="bkap_directly_mode">
 								<th></th>
 								<td>
-								<a href='post.php?post=<?php echo $product_id; ?>&action=edit' id='test_connection'><?php _e( 'Test Connection', 'woocommerce-booking' ); ?></a>
+								<a href='post.php?post=<?php echo $product_id; ?>&action=edit' id='test_connection' class='button button-secondary'><?php _e( 'Test Connection', 'woocommerce-booking' ); ?></a>
 								<img src='<?php echo plugins_url(); ?>/woocommerce-booking/assets/images/ajax-loader.gif' id='test_connection_ajax_loader'>
 								<div id='test_connection_message'></div>
-								</td>				  
+								</td>
 							</tr>
 
 							<tr class="bkap_directly_mode">
@@ -294,7 +299,7 @@ class product_gcal_settings {
 								<td>
 									<label class="bkap_switch">
 										<input id="enable_automated_mapping" name= "enable_automated_mapping" type="checkbox" <?php echo $enable_mapping; ?>/>
-									<div class="bkap_slider round"></div> 
+									<div class="bkap_slider round"></div>
 								</td>
 								<td>
 									<img class="help_tip" width="16" height="16" data-tip="<?php _e( 'Enable if you wish to allow for imported events to be automatically mapped to the product.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -393,11 +398,11 @@ class product_gcal_settings {
 								<td>
 									<input type='button' class='save_button' id='add_new_ics_feed' name='add_new_ics_feed' value='Add New Ics feed url'>
 								</td>
-							</tr>				
+							</tr>
 						</table>
 					</div>
 					<br>
-					<br>					
+					<br>
 				</fieldset>
 			</div> <!-- Google Calendar Sync -->
 
@@ -422,7 +427,7 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="enable_zoom_meeting" name= "enable_zoom_meeting" type="checkbox" <?php esc_attr_e( $enable_zoom_meeting ); ?>/>
-								<div class="bkap_slider round"></div> 
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enable Zoom Meetings.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -430,12 +435,10 @@ class product_gcal_settings {
 						</tr>
 
 						<?php
+						$response             = new stdClass();
+						$zoom_connection_type = bkap_zoom_connection_type();
 
-						$zoom_api_key    = get_option( 'bkap_zoom_api_key', '' );
-						$zoom_api_secret = get_option( 'bkap_zoom_api_secret', '' );
-						$response        = new stdClass();
-
-						if ( '' !== $zoom_api_key && '' !== $zoom_api_secret ) {
+						if ( '' !== $zoom_connection_type ) {
 							$zoom_connection = bkap_zoom_connection();
 							$response        = json_decode( $zoom_connection->bkap_list_users() );
 						}
@@ -510,7 +513,7 @@ class product_gcal_settings {
 									printf( "<option value='%s' %s>%s</option>", esc_attr( $user->id ), esc_attr( $zoom_host_selected ), esc_html( $zoom_display ) );
 								}
 								?>
-								</select>							
+								</select>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Selected user will be assgined as host for created meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -526,7 +529,7 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="bkap_zoom_meeting_authentication" name= "bkap_zoom_meeting_authentication" type="checkbox" <?php esc_attr_e( $zoom_meeting_auth ); ?>/>
-								<div class="bkap_slider round"></div>					
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will allow only authenticated users to join the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -542,7 +545,7 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="bkap_zoom_meeting_join_before_host" name= "bkap_zoom_meeting_join_before_host" type="checkbox" <?php esc_attr_e( $zoom_meeting_jbh ); ?>/>
-								<div class="bkap_slider round"></div>						
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will allow participants to join the meeting before the host starts the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -558,10 +561,10 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="bkap_zoom_meeting_host_video" name= "bkap_zoom_meeting_host_video" type="checkbox" <?php esc_attr_e( $zoom_meeting_host_video ); ?>/>
-								<div class="bkap_slider round"></div>							
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
-								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enaling this option will start the video when the host joins the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
+								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will start the video when the host joins the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
 							</td>
 						</tr>
 
@@ -574,10 +577,10 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="bkap_zoom_meeting_participant_video" name= "bkap_zoom_meeting_participant_video" type="checkbox" <?php esc_attr_e( $zoom_meeting_pv ); ?>/>
-								<div class="bkap_slider round"></div>							
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
-								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enaling this option will start the video when the participants join the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
+								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will start the video when the participants join the meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
 							</td>
 						</tr>
 
@@ -590,7 +593,7 @@ class product_gcal_settings {
 							<td>
 								<label class="bkap_switch">
 									<input id="bkap_zoom_meeting_mute_upon_entry" name= "bkap_zoom_meeting_mute_upon_entry" type="checkbox" <?php esc_attr_e( $zoom_meeting_mua ); ?>/>
-								<div class="bkap_slider round"></div>						
+								<div class="bkap_slider round"></div>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enabling this option will mute the participants upon entry.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -608,7 +611,7 @@ class product_gcal_settings {
 									<option value='none' <?php selected( $zoom_meeting_ar, 'none' ); ?>><?php esc_html_e( 'None', 'woocommerce-booking' ); ?></option>
 									<option value='local' <?php selected( $zoom_meeting_ar, 'local' ); ?>><?php esc_html_e( 'Local', 'woocommerce-booking' ); ?></option>
 									<option value='cloud' <?php selected( $zoom_meeting_ar, 'cloud' ); ?>><?php esc_html_e( 'Cloud', 'woocommerce-booking' ); ?></option>
-								</select>							
+								</select>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Enable this option for automatic recording of meeting.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -633,7 +636,7 @@ class product_gcal_settings {
 									printf( "<option value='%s' %s>%s</option>", esc_attr( $user->id ), esc_attr( $zoom_host_selected ), esc_html( $zoom_display ) );
 								}
 								?>
-								</select>							
+								</select>
 							</td>
 							<td>
 								<img class="help_tip" width="16" height="16" data-tip="<?php esc_attr_e( 'Here you can select the alternative host\'s emails.', 'woocommerce-booking' ); ?>" src="<?php echo plugins_url(); ?>/woocommerce/assets/images/help.png"/>
@@ -648,22 +651,20 @@ class product_gcal_settings {
 							<td colspan="2">
 								<p><i>
 									<?php
-									$apikey        = get_option( 'bkap_zoom_api_key', '' );
-									$apisecret     = get_option( 'bkap_zoom_api_secret', '' );
 									$redirect_args = array(
 										'page'    => 'woocommerce_booking_page',
 										'action'  => 'calendar_sync_settings',
 										'section' => 'zoom_meeting',
 									);
 									$url           = add_query_arg( $redirect_args, admin_url( '/admin.php?' ) );
-									if ( '' === $apikey || '' === $apisecret ) {
+									if ( '' === $zoom_connection_type ) {
 										/* translators: %s: Zoom Meeting Settings page link */
-										$api_msg = sprintf( __( 'Set App API Key and API Secret for Zoom connection <a href="%s" target="_blank">here.</a>', 'woocommerce-booking' ), $url );
+										$api_msg = sprintf( __( 'Configure the Zoom connection <a href="%s" target="_blank">here.</a>', 'woocommerce-booking' ), $url );
 										echo $api_msg; // phpcs:ignore
 									}
 									?>
 									</i>
-								</p> 
+								</p>
 							</td>
 						</tr>
 					</table>
@@ -677,7 +678,7 @@ class product_gcal_settings {
 
 			<hr />
 			<?php
-			if ( isset( $post_type ) && 'product' === $post_type ) {
+			if ( isset( $post_type ) && ( 'product' === $post_type || 'page' === $post_type && isset( $post_slug ) && 'store-manager' === $post_slug ) ) {
 				bkap_booking_box_class::bkap_save_button( 'bkap_save_gcal_settings' );
 			}
 			?>
@@ -707,22 +708,6 @@ class product_gcal_settings {
 		if ( isset( $_POST['product_sync_integration_mode'] ) ) {
 			$booking_settings['product_sync_integration_mode'] = $_POST['product_sync_integration_mode'];
 		}
-
-		$file_name = '';
-		if ( isset( $_POST['product_sync_key_file_name'] ) ) {
-			$file_name = $_POST['product_sync_key_file_name'];
-		} elseif ( isset( $bkap_settings['product_sync_key_file_name'] ) && '' != $bkap_settings['product_sync_key_file_name'] ) {
-			$file_name = $bkap_settings['product_sync_key_file_name'];
-		}
-		$booking_settings['product_sync_key_file_name'] = $file_name;
-
-		$acc_email = '';
-		if ( isset( $_POST['product_sync_service_acc_email_addr'] ) ) {
-			$acc_email = $_POST['product_sync_service_acc_email_addr'];
-		} elseif ( isset( $bkap_settings['product_sync_service_acc_email_addr'] ) && '' != $bkap_settings['product_sync_service_acc_email_addr'] ) {
-			$acc_email = $bkap_settings['product_sync_service_acc_email_addr'];
-		}
-		$booking_settings['product_sync_service_acc_email_addr'] = $acc_email;
 
 		$calendar_id = '';
 		if ( isset( $_POST['product_sync_calendar_id'] ) ) {

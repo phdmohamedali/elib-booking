@@ -105,7 +105,7 @@ class BKAP_Details_Meta_Box {
 		}
 
 		// check if update errors exist
-		$update_errors = get_post_meta( $post->ID, '_bkap_update_errors' );
+		$update_errors = get_post_meta( $post->ID, '_bkap_update_errors', true );
 		if ( is_array( $update_errors ) && count( $update_errors ) > 0 ) {
 			foreach ( $update_errors as $msg ) {
 				echo '<div class="error"><p>' . __( $msg, 'woocommerce-booking' ) . '</p></div>';

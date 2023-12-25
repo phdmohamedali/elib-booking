@@ -166,7 +166,7 @@ if ( class_exists( 'WP_Widget' ) ) {
 			$end_date_value   = '';
 			$category_value   = '';
 			$resource_value   = '';
-			$date_formats     = bkap_get_book_arrays( 'bkap_date_formats' );
+			$date_formats     = bkap_date_formats();
 			$php_date_format  = $date_formats[ $date_format ];
 
 			$session_start_date = bkap_common::bkap_date_from_session_cookie( 'start_date' );

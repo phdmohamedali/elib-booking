@@ -102,8 +102,14 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 			$variation_id,
 			$gf_options = 0,
 			$resource_id = '',
-			$person_data = array()
+			$person_data = array(),
+			$post_data = array(),
+			$is_only_price = false
 		) {
+
+			if ( ! empty( $post_data ) ) {
+				$_POST = array_merge( $_POST, $post_data );
+			}
 
 			$global_settings     = bkap_global_setting();
 			$product_type        = $_product->get_type();
@@ -308,11 +314,17 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 					$time_slot_price = bkap_common::bkap_get_price( $product_id, $variation_id, $product_type, $booking_date );
 				}
 
+				$is_new = apply_filters( 'bkap_apply_new_price_on_edit_booking', false );
+				if ( ! $is_new && isset( $_POST['booking_id'] ) && ! empty( $_POST['booking_id'] ) ) {
+					$booking_id      = (int) $_POST['booking_id'];
+					$time_slot_price = get_post_meta( $booking_id, '_bkap_cost', true );
+				}
+
 				if ( ! is_array( $time_slot_price ) ) {
 
 					$time_slot_price = $time_slot_price + $resource_price;
 					if ( apply_filters( 'bkap_apply_person_settings_on_other_prices', $product_id ) ) {
-						if ( isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_price_per_person'] ) {
+						if ( isset( $booking_settings['bkap_person'] ) && 'on' == $booking_settings['bkap_person'] && isset( $booking_settings['bkap_price_per_person'] ) && 'on' === $booking_settings['bkap_price_per_person'] ) {
 							$time_slot_price = $time_slot_price * $person_total;
 						}
 					}
@@ -454,7 +466,11 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 				$wp_send_json['bkap_price'] = $display_price;
 				$wp_send_json               = apply_filters( 'bkap_final_price_json_data', $wp_send_json, $product_id );
 
-				wp_send_json( $wp_send_json );
+				if ( $is_only_price ) {
+					return $wp_send_json['total_price_calculated'];
+				} else {
+					wp_send_json( $wp_send_json );
+				}
 			}
 		}
 
@@ -504,7 +520,7 @@ if ( ! class_exists( 'bkap_timeslot_price' ) ) {
 						$gmt_offset = $gmt_offset * 60 * 60;
 
 						$bkap_offset = Bkap_Timezone_Conversion::get_timezone_var( 'bkap_offset' );
-						$bkap_offset = $bkap_offset * 60;
+						$bkap_offset = (int)$bkap_offset * 60;
 						$offset      = $bkap_offset - $gmt_offset;
 
 						$site_timezone     = bkap_booking_get_timezone_string();

@@ -64,7 +64,7 @@ class BKAP_Email_Imported_Event extends WC_Email {
 
 		if ( isset( $option_name ) && '' != $option_name && $enabled ) {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$imported_event_details = json_decode( get_option( $option_name ) );
 

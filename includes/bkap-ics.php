@@ -119,6 +119,13 @@ if ( ! class_exists( 'Bkap_Ics' ) ) {
 									$start_date = $results_date[ $c ]->start_date;
 									$from_time  = $results_date[ $c ]->from_time;
 									$to_time    = $results_date[ $c ]->to_time;
+									$today_date = gmdate( 'Y-m-d' );
+
+									$start_date_stime = strtotime( $start_date );
+									$today_date_stime = strtotime( $today_date );
+									if ( $start_date_stime < $today_date_stime ) {
+										continue;
+									}
 
 									if ( $timezone_check && '' !== $customer_timezone ) {
 

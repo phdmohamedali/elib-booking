@@ -43,7 +43,73 @@ class bkap_global_settings {
 			$language_selected = 'en-GB';
 		}
 
-		$languages = bkap_get_book_arrays( 'bkap_languages' );
+		$languages = array(
+			'af'    => 'Afrikaans',
+			'ar'    => 'Arabic',
+			'ar-DZ' => 'Algerian Arabic',
+			'az'    => 'Azerbaijani',
+			'id'    => 'Indonesian',
+			'ms'    => 'Malaysian',
+			'nl-BE' => 'Dutch Belgian',
+			'bs'    => 'Bosnian',
+			'bg'    => 'Bulgarian',
+			'ca'    => 'Catalan',
+			'cs'    => 'Czech',
+			'cy-GB' => 'Welsh',
+			'da'    => 'Danish',
+			'de'    => 'German',
+			'et'    => 'Estonian',
+			'el'    => 'Greek',
+			'en-AU' => 'English Australia',
+			'en-NZ' => 'English New Zealand',
+			'en-GB' => 'English UK',
+			'en-us' => 'English US',
+			'es'    => 'Spanish',
+			'eo'    => 'Esperanto',
+			'eu'    => 'Basque',
+			'fo'    => 'Faroese',
+			'fr'    => 'French',
+			'fr-CH' => 'French Swiss',
+			'gl'    => 'Galician',
+			'sq'    => 'Albanian',
+			'ko'    => 'Korean',
+			'he'    => 'Hebrew',
+			'hi'    => 'Hindi India',
+			'hr'    => 'Croatian',
+			'hy'    => 'Armenian',
+			'is'    => 'Icelandic',
+			'it'    => 'Italian',
+			'ka'    => 'Georgian',
+			'km'    => 'Khmer',
+			'lv'    => 'Latvian',
+			'lt'    => 'Lithuanian',
+			'mk'    => 'Macedonian',
+			'hu'    => 'Hungarian',
+			'ml'    => 'Malayam',
+			'nl'    => 'Dutch',
+			'ja'    => 'Japanese',
+			'no'    => 'Norwegian',
+			'th'    => 'Thai',
+			'pl'    => 'Polish',
+			'pt'    => 'Portuguese',
+			'pt-BR' => 'Portuguese Brazil',
+			'ro'    => 'Romanian',
+			'rm'    => 'Romansh',
+			'ru'    => 'Russian',
+			'sk'    => 'Slovak',
+			'sl'    => 'Slovenian',
+			'sr'    => 'Serbian',
+			'fi'    => 'Finnish',
+			'sv'    => 'Swedish',
+			'ta'    => 'Tamil',
+			'vi'    => 'Vietnamese',
+			'tr'    => 'Turkish',
+			'uk'    => 'Ukrainian',
+			'zh-HK' => 'Chinese Hong Kong',
+			'zh-CN' => 'Chinese Simplified',
+			'zh-TW' => 'Chinese Traditional',
+		);
+
 		foreach ( $languages as $key => $value ) {
 			$sel = '';
 			if ( $key == $language_selected ) {
@@ -75,7 +141,10 @@ class bkap_global_settings {
 			$selected_booking_ts_dm = 'dropdown-view';
 		}
 
-		$timeslot_list_views = bkap_get_book_arrays( 'bkap_timeslot_display_modes' );
+		$timeslot_list_views = array(
+			'dropdown-view' => __( 'Dropdown View', 'woocommerce-booking' ),
+			'list-view'     => __( 'List View', 'woocommerce-booking' ),
+		);
 		foreach ( $timeslot_list_views as $key => $value ) {
 			$sel = '';
 			if ( $key == $selected_booking_ts_dm ) {
@@ -105,7 +174,8 @@ class bkap_global_settings {
 		} else {
 			$date_format = '';
 		}
-		$date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+		$date_formats = bkap_date_formats();
+
 		foreach ( $date_formats as $k => $format ) {
 			printf(
 				"<option %s value='%s'>%s</option>\n",
@@ -133,7 +203,10 @@ class bkap_global_settings {
 		if ( isset( $saved_settings ) ) {
 			$time_format = $saved_settings->booking_time_format;
 		}
-		$time_formats = bkap_get_book_arrays( 'bkap_time_formats' );
+		$time_formats = array(
+			'12' => __( '12 hour', 'woocommerce-booking' ),
+			'24' => __( '24 hour', 'woocommerce-booking' ),
+		);
 		foreach ( $time_formats as $k => $format ) {
 			printf(
 				"<option %s value='%s'>%s</option>\n",
@@ -194,7 +267,7 @@ class bkap_global_settings {
 		if ( $day_selected == '' ) {
 			$day_selected = get_option( 'start_of_week' );
 		}
-		$days = bkap_get_book_arrays( 'bkap_days' );
+		$days = bkap_days();
 		foreach ( $days as $key => $value ) {
 			$sel = '';
 			if ( $key == $day_selected ) {
@@ -460,7 +533,7 @@ class bkap_global_settings {
 		$html .= '<br><input type="checkbox" id="same_bookings_in_cart" name="woocommerce_booking_global_settings[same_bookings_in_cart]" ' . $same_bookings_in_cart . '/>';
 		$html .= '<label for="same_bookings_in_cart"> ' . $same_bookings_in_cart_desc . '</label>';
 		echo $html;
-		
+
 	}
 
 	/**
@@ -554,12 +627,12 @@ class bkap_global_settings {
 		echo '<script type="text/javascript">
             function minimum_days_method( chk ) {
                 if ( jQuery( "input[id=\'minimum_day_booking\']").prop( "checked" ) ) {
-                    jQuery( "#global_booking_minimum_number_days" ).removeAttr( "disabled" );        
-            
+                    jQuery( "#global_booking_minimum_number_days" ).removeAttr( "disabled" );
+
                 }
-                
+
                 if ( !jQuery( "input[id=\'minimum_day_booking\' ]" ).prop( "checked" ) ) {
-                    jQuery( "#global_booking_minimum_number_days" ).prop( "disabled", true );        
+                    jQuery( "#global_booking_minimum_number_days" ).prop( "disabled", true );
                 }
             }
         </script>';
@@ -660,11 +733,15 @@ class bkap_global_settings {
 	 */
 
 	public static function bkap_calendar_icon_label_callback( $args ) {
+
 		$calendar_icon_label = '';
 		if ( get_option( 'bkap_calendar_icon_file' ) != '' ) {
 			$calendar_icon_label = get_option( 'bkap_calendar_icon_file' );
 		}
-		$calendar_icons = bkap_get_book_arrays( 'bkap_calendar_icons' );
+		$calendar_icons = array(
+			'calendar1.gif',
+			'none',
+		);
 
 		$html = '';
 		foreach ( $calendar_icons as $ckey => $cvalue ) {
@@ -1226,9 +1303,9 @@ class bkap_global_settings {
 		}
 
 		?>
-			<input 
-				type="number" 
-				id="bkap_auto_cancel_booking" 
+			<input
+				type="number"
+				id="bkap_auto_cancel_booking"
 				min=0
 				name="woocommerce_booking_global_settings[bkap_auto_cancel_booking]"
 				value="<?php echo $bkap_auto_cancel_booking; ?>"

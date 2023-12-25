@@ -63,7 +63,7 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 			add_action( 'bkap_admin_booking_data_after_booking_details', array( &$this, 'bkap_display_zoom_meeting_info_booking_details' ), 10, 2 );
 			add_action( 'bkap_after_delete_booking', array( &$this, 'bkap_delete_zoom_meeting' ), 10, 2 );
 
-			add_action( 'admin_init', array( &$this, 'bkap_assign_meetings' ) );
+			add_action( 'admin_init', array( &$this, 'bkap_assign_meetings' ), 9 );
 			add_action( 'bkap_assign_meetings', array( &$this, 'bkap_assign_meetings_to_booking' ) );
 
 			add_action( 'admin_notices', array( &$this, 'bkap_assign_meetings_to_booking_notice' ) );
@@ -81,6 +81,40 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 			}
 
 			if ( 'page' !== get_post_type() && 'post' !== get_post_type() ) {
+
+				if ( isset( $_GET['section'] ) && 'zoom_meeting' === $_GET['section'] ) { // phpcs:ignore
+
+					if ( isset( $_GET['success'] ) && wp_unslash( $_GET['success'] ) ) {  // phpcs:ignore
+						$message = __( 'Connected to Zoom successfully.', 'woocommerce-booking' );
+						$class   = 'notice notice-success';
+						printf( '<div class="%s"><p>%s</p></div>', esc_attr( $class ), esc_html( $message ) );
+					}
+
+					if ( isset( $_GET['logout'] ) && wp_unslash( $_GET['logout'] ) ) { // phpcs:ignore
+
+						$message = __( 'Successfully logged out from Zoom.', 'woocommerce-booking' );
+						$class   = 'notice notice-success';
+						printf( '<div class="%s"><p>%s</p></div>', esc_attr( $class ), esc_html( $message ) );
+					}
+				}
+
+				$key    = get_option( 'bkap_zoom_api_key', '' );
+				$secret = get_option( 'bkap_zoom_api_secret', '' );
+
+				if ( '' !== $key && '' !== $secret ) {
+					$client_id      = get_option( 'bkap_zoom_client_id', '' );
+					$client_secret  = get_option( 'bkap_zoom_client_secret', '' );
+					$migrate_notice = get_option( 'bkap_zoom_access_token', '' );
+					if ( '' === $client_id || '' === $client_secret ) {
+						$class          = 'notice notice-info';
+						$zoom_page_link = bkap_zoom_redirect_url();
+
+						/* translators: %s: URL Zoom Meeting page */
+						$message = sprintf( __( 'Urgent Notification: Attention, please! By September 8, 2023, Zoom will no longer support JWT app type authorization. Your site is currently benefiting from the Zoom integration offered by the Booking & Appointment Plugin for WooCommerce. To continue enjoying uninterrupted service, we recommend transitioning from JWT app type to OAuth app type <a href="%s">here.</a>', 'woocommerce-booking' ), $zoom_page_link );
+
+						printf( '<div class="%s"><p>%s</p></div>', $class, $message ); // phpcs:ignore	
+					}
+				}
 
 				$option = get_option( 'bkap_assign_meeting_scheduled', false );
 				if ( $option ) {
@@ -101,8 +135,6 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 				}
 
 				if ( isset( $_GET['section'] ) && 'zoom_meeting' === $_GET['section'] && ! bkap_zoom_meeting_enable() ) { // phpcs:ignore
-					$key    = get_option( 'bkap_zoom_api_key', '' );
-					$secret = get_option( 'bkap_zoom_api_secret', '' );
 
 					if ( '' !== $key && '' !== $secret ) {
 						$message = __( 'Zoom Meetings - Connection Failed.', 'woocommerce-booking' );
@@ -119,6 +151,41 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 		 * @since 5.2.0
 		 */
 		public function bkap_assign_meetings() {
+
+			if ( isset( $_GET['section'] ) && 'zoom_meeting' === $_GET['section'] ) { // phpcs:ignore
+
+				if ( isset( $_GET['code'] ) && '' !== $_GET['code'] ) { // phpcs:ignore
+					$zoom_connection = bkap_zoom_connection();
+					$data            = $zoom_connection->bkap_exchange_code_for_token( sanitize_text_field( wp_unslash( $_GET['code'] ) ) ); // phpcs:ignore
+
+					if ( $data ) {
+						if ( isset( $data['access_token'] ) && '' !== $data['access_token'] ) {
+							update_option( 'bkap_zoom_access_token', $data['access_token'] );
+							update_option( 'bkap_zoom_token_expiry', time() + $data['expires_in'] );
+							update_option( 'bkap_zoom_access_data', $data );
+
+							delete_option( 'bkap_zoom_api_key' );
+							delete_option( 'bkap_zoom_api_secret' );
+
+							$zoom_meeting_page = bkap_zoom_redirect_url();
+							$query_args        = array(
+								'success' => '1',
+							);
+							$zoom_page_link    = add_query_arg( $query_args, $zoom_meeting_page );
+
+							wp_safe_redirect( $zoom_page_link );
+							exit();
+						}
+					}
+				}
+
+				if ( isset( $_GET['logout'] ) && $_GET['logout'] ) { // phpcs:ignore
+
+					delete_option( 'bkap_zoom_access_token' );
+					delete_option( 'bkap_zoom_token_expiry' );
+					delete_option( 'bkap_zoom_access_data' );
+				}
+			}
 
 			if ( isset( $_POST['bkap_assign_meeting_to_booking'] ) && '' != $_POST['bkap_assign_meeting_to_booking'] ) { // phpcs:ignore
 				if ( bkap_zoom_meeting_enable() ) {
@@ -206,9 +273,11 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 		 */
 		protected function bkap_zoom_init_api() {
 			// Load the Credentials.
-			$bkap_zoom_connection                  = bkap_zoom_connection();
-			$bkap_zoom_connection->zoom_api_key    = get_option( 'bkap_zoom_api_key' );
-			$bkap_zoom_connection->zoom_api_secret = get_option( 'bkap_zoom_api_secret' );
+			$bkap_zoom_connection                     = bkap_zoom_connection();
+			$bkap_zoom_connection->zoom_api_key       = get_option( 'bkap_zoom_api_key' );
+			$bkap_zoom_connection->zoom_api_secret    = get_option( 'bkap_zoom_api_secret' );
+			$bkap_zoom_connection->zoom_client_id     = get_option( 'bkap_zoom_client_id' );
+			$bkap_zoom_connection->zoom_client_secret = get_option( 'bkap_zoom_client_secret' );
 		}
 
 		/**
@@ -502,16 +571,35 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 		 */
 		public static function bkap_zoom_meeting_instructions_callback() {
 			?>
-			<div id="bkap_zoom_meeting_steps"><?php _e( 'To find your <b>API Key</b> and <b>API Secret</b> do the following:', 'woocommerce-booking' ); // phpcs:ignore ?>
+			<div id="bkap_zoom_meeting_steps"><?php echo wp_kses( __( 'To find your <b>Client ID</b> and <b>Client Secret</b> do the following:', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
 				<div class="description zoom-instructions">
 					<ul style="list-style-type:decimal;">
-						<li><?php esc_html_e( 'Sign in to your Zoom account.', 'woocommerce-booking' ); ?></li>
-						<li><?php printf( __( 'Visit the <b>%s</b>.', 'woocommerce-booking' ), '<a href="https://marketplace.zoom.us/" target="_blank">Zoom App Marketplace</a>' ); // phpcs:ignore?></li>
-						<li><?php _e( 'Click on the <b>Develop</b> option in the dropdown on the top-right corner and select <b>Build App</b>.', 'woocommerce-booking' ); // phpcs:ignore?></li>
-						<li><?php _e( 'A page with various app types will be displayed. Select <b>JWT</b> as the app type and click on <b>Create</b>.', 'woocommerce-booking' ); // phpcs:ignore?></li>
-						<li><?php _e( 'After creating your app, fill out descriptive and contact information.', 'woocommerce-booking' ); // phpcs:ignore?></li>
-						<li><?php _e( 'Go to <b>App Credentials</b> tab and look for the <b>API Key</b> and <b>API Secret</b>. Use them in the form below on this page.', 'woocommerce-booking' ); // phpcs:ignore?></li>
-						<li><?php _e( 'Once you\'ve copied over your API Key and Secret, go to <b>Activation</b> tab and make sure your app is activated.', 'woocommerce-booking' ); // phpcs:ignore?></li>
+						<li>
+						<?php
+						printf(
+							wp_kses(
+								/* translators: %s: Zoom Meeting Settings page link */
+								__( 'Sign in to your Zoom account and visit the %s.', 'woocommerce-booking' ),
+								array(
+									'b' => array(),
+									'a' => array(),
+								)
+							),
+							'<b><a href="https://marketplace.zoom.us/" target="_blank">Zoom App Marketplace</a></b>'
+						);
+						?>
+						</li>
+						<li><?php echo wp_kses( __( 'Click on the <b>Develop</b> option on the top-right corner and select <b>Build App</b>.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
+						<li><?php echo wp_kses( __( 'A page with various app types will be displayed. Select <b>OAuth</b> as the app type and click on <b>Create</b>.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
+						<li><?php echo wp_kses( __( 'Fill out the <b>App Name</b> and choose the app type as <b>Account-level</b> app and switch off the option for publishing Zoom App to Marketplace and click on the <b>Create</b> button.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
+						<li><?php echo wp_kses( __( 'The <b>Client ID</b> and <b>Client Secret</b> information will be available in the <b>App Credentials</b> tab. Use them in the form below on this page and click on the Save Settings button.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
+						<li><?php echo wp_kses( __( 'Once you\'ve copied over your Client ID and Client Secret, copy the <b>Redirect URL</b> and set it to <b>Redirect URL for the OAuth</b> option in the App Credentials section and <b>Add Allow List</b> option in the OAuth Allow List section. Click on Continue for the next step.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?>
+						<li><?php echo wp_kses( __( 'In the Information tab, fill data in the required fields like Short description, Long description, Company name, and Developer Contact Information and click on the Continue button.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
+						<li><?php echo wp_kses( __( 'In the Features tab, enable the required features and click on the Continue button.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
+						<li><?php echo wp_kses( __( 'You will now be on the <b>Scopes</b> tab. Click on the <b>Add Scopes</b> button select all the scopes in <b>Meeting</b> and <b>User</b> tabs and click on the <b>Done</b> button.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
+						<li><?php echo wp_kses( __( 'Click on the Continue button and if there are no error messages for missing fields on the Activation tab then your app is ready.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
+						<li><?php echo wp_kses( __( 'Now you can connect the store with the created Zoom App by clicking on the <b>Connect to Zoom</b> button below.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
+						<li><?php echo wp_kses( __( 'On click of <b>Connect to Zoom</b> button, you will be redirected to the permission page of Zoom for using the app. Click on <b>Allow</b> button to give the permission and you will be redirected back to store upon the successful connection.', 'woocommerce-booking' ), array( 'b' => array() ) ); ?></li>
 					</ul>
 				</div>
 			</div>
@@ -519,38 +607,83 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Settings' ) ) {
 		}
 
 		/**
-		 * Callback function for Booking->Settings->Zoom Meetings->API Key.
+		 * Callback function for Booking->Settings->Zoom Meetings->Client ID.
 		 *
-		 * @param array $args - Setting Label Array.
+		 * @param Array $args Array of Additional Data.
 		 * @since 5.2.0
 		 */
-		public static function bkap_zoom_api_key_callback( $args ) {
-			$bkap_zoom_api_key = get_option( 'bkap_zoom_api_key' );
-			echo '<input type="text" name="bkap_zoom_api_key" id="bkap_zoom_api_key" value="' . esc_attr( $bkap_zoom_api_key ) . '" size="60" />';
-			$html = sprintf( '<br><label for="bkap_zoom_api_key">%s</label>', __( 'The API Key obtained from your JWT app.', 'woocommerce-booking' ) );
+		public static function bkap_zoom_client_id_callback( $args ) {
+
+			$readonly            = 'oauth' === $args['type'] ? 'readonly' : '';
+			$bkap_zoom_client_id = get_option( 'bkap_zoom_client_id' );
+			echo '<input type="text" name="bkap_zoom_client_id" id="bkap_zoom_client_id" value="' . esc_attr( $bkap_zoom_client_id ) . '" size="60" ' . esc_attr( $readonly ) . '/>';
+			$html = sprintf( '<br><label for="bkap_zoom_client_id">%s</label>', __( 'The Client ID obtained from your OAuth app.', 'woocommerce-booking' ) );
 			echo $html; // phpcs:ignore
 		}
 
 		/**
-		 * Callback function for Booking->Settings->Zoom Meetings->API Secret.
+		 * Callback function for Booking->Settings->Zoom Meetings->Client Secret.
 		 *
-		 * @param array $args - Setting Label Array.
+		 * @param Array $args Array of Additional Data.
 		 * @since 5.2.0
 		 */
-		public static function bkap_zoom_api_secret_callback( $args ) {
-			$bkap_zoom_api_secret = get_option( 'bkap_zoom_api_secret' );
-			echo '<input type="text" id="bkap_zoom_api_secret" name="bkap_zoom_api_secret" value="' . esc_attr( $bkap_zoom_api_secret ) . '" size="60" />';
-			$html = sprintf( '<br><label for="bkap_zoom_api_secret">%s</label>', __( 'The API Secret obtained from your JWT app.', 'woocommerce-booking' ) );
+		public static function bkap_zoom_client_secret_callback( $args ) {
+
+			$readonly                = 'oauth' === $args['type'] ? 'readonly' : '';
+			$bkap_zoom_client_secret = get_option( 'bkap_zoom_client_secret' );
+			echo '<input type="text" id="bkap_zoom_client_secret" name="bkap_zoom_client_secret" value="' . esc_attr( $bkap_zoom_client_secret ) . '" size="60" ' . esc_attr( $readonly ) . ' />';
+			$html = sprintf( '<br><label for="bkap_zoom_client_secret">%s</label>', __( 'The Client Secret obtained from your OAuth app.', 'woocommerce-booking' ) );
 			echo $html; // phpcs:ignore
+		}
+
+		/**
+		 * Callback function for Booking->Settings->Zoom Meetings->Redirect URL.
+		 *
+		 * @since 5.23.0
+		 */
+		public static function bkap_zoom_redirect_url_callback() {
+
+			$copy_clipboard_str = __( 'Copied!', 'woocommerce-booking' );
+			$redirect_uri       = bkap_zoom_redirect_url();
+
+			printf( '<input type="text" class="bkap-auth-redirect-uri" id="bkap_zoom_redirect_uri" name="bkap_zoom_redirect_uri" value="%s" size="60" readonly />', esc_attr( $redirect_uri ) );
+			printf( '<a href="javascript:void(0)" style="border: 1px solid #eee;padding: 4px;" id="bkap_copy_redirect_uri" data-selector-to-copy="#bkap-zoom-redirect-uri" data-tip="%s" class="dashicons dashicons-admin-page bkap-zoom-url-copy-to-clipboard"></a><span id="bkap_redirect_uri_copied"></span>', esc_html( $copy_clipboard_str ) );
+		}
+
+		/**
+		 * Connect to Zoom Link.
+		 *
+		 * @since 5.23.0
+		 */
+		public static function bkap_zoom_connect_callback() {
+
+			$zoom_connection     = bkap_zoom_connection();
+			$connect_to_zoom     = $zoom_connection->bkap_redirect_url();
+			$connect_to_zoom_str = __( 'Connect to Zoom', 'woocommerce-booking' );
+
+			printf( '<a class="button button-primary" href="%s">%s</a>', esc_url( $connect_to_zoom ), esc_html( $connect_to_zoom_str ) );
+		}
+
+		/**
+		 * Zoom logout link.
+		 *
+		 * @since 5.23.0
+		 */
+		public static function bkap_zoom_logout_callback() {
+
+			$logout_url = bkap_zoom_redirect_url() . '&logout=1';
+			$logout_str = __( 'Logout', 'woocommerce-booking' );
+			$connected  = __( 'Connected to Zoom.', 'woocommerce-booking' );
+
+			printf( '<span style="color:green;font-weight:500;margin-right: 8px;">%s</span><a class="button button-secondary" href="%s">%s</a>', esc_html( $connected ), esc_url( $logout_url ), esc_html( $logout_str ) );
 		}
 
 		/**
 		 * Callback function for Booking->Settings->Zoom Meetings->Assign Meeting to Booking.
 		 *
-		 * @param array $args - Setting Label Array.
 		 * @since 5.2.0
 		 */
-		public static function bkap_zoom_adding_zoom_meetings_callback( $args ) {
+		public static function bkap_zoom_adding_zoom_meetings_callback() {
 			?>
 			<input type="submit" name="bkap_assign_meeting_to_booking" class="button-secondary" id="bkap_assign_meeting_to_booking" value="<?php esc_attr_e( 'Assign Meeting to Bookings', 'woocommerce-booking' ); ?>">
 			<br><?php esc_html_e( 'Click on Assign Meeting to Booking button to Create/Add meeting links for the Bookings which doesn\'t have the meetings.', 'woocommerce-booking' ); ?>

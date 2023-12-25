@@ -115,7 +115,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 										enable_qty += 'checked' + ',';
 									} else {
 										enable_qty += 'undefined' + ',';
-									}									
+									}
 									attr_lockout += jQuery( "[name='attribute_bkap_lockout[<?php echo $position; ?>]']" ).val() + ',';
 
 									<?php
@@ -125,7 +125,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 								var data = {
 										enable_qty: enable_qty,
 										attr_lockout: attr_lockout,
-										post_id: <?php echo $duplicate_of; ?>, 
+										post_id: <?php echo $duplicate_of; ?>,
 										action: "bkap_save_attribute_data"
 										};
 								jQuery.post("<?php get_admin_url(); ?>admin-ajax.php", data, function(response) {
@@ -134,7 +134,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 							}
 							?>
 						});
-		
+
 					});
 
 					// Enable/Disable the lockout text field based on the checkbox value
@@ -178,12 +178,12 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 			$attributes = get_post_meta( $product_id, '_product_attributes', true );
 
+			$booking_data = array();
 			// Output All Set Attributes
 			if ( ! empty( $attributes ) ) {
 				$attribute_keys  = array_keys( $attributes );
 				$attribute_total = sizeof( $attribute_keys );
 
-				$booking_data = array();
 				for ( $i = 0; $i < $attribute_total; $i ++ ) {
 					$attribute_name = $attribute_keys[ $i ];
 					$attribute      = $attributes[ $attribute_keys[ $i ] ];
@@ -662,7 +662,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 		function validate_attribute_multiple_days_product_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -891,7 +891,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 		function validate_attribute_single_days_product_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1076,7 +1076,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 		function validate_attribute_date_time_product_page() {
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1159,7 +1159,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 								$final_qty = isset( $_POST['quantity'] ) ? $_POST['quantity'] : 0;
 
 								if ( isset( $_POST[ $attr_post_name ] ) && $_POST[ $attr_post_name ] > 0 ) {
-									$final_qty = $final_qty * $_POST[ $attr_post_name ];
+									$final_qty = (int) $final_qty * (float) $_POST[ $attr_post_name ];
 								}
 
 								// add the number of already placed orders for that date.
@@ -1270,7 +1270,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 			global $wpdb;
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1357,7 +1357,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 										$order_status = $order->get_status();
 										$order_status = "wc-$order_status";
-										
+
 										if ( ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 											// get the booking status
@@ -1543,7 +1543,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 			global $wpdb;
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1629,7 +1629,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 											$order_status = $order->get_status();
 											$order_status = "wc-$order_status";
 										}
-										
+
 										if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 											// get the booking status
@@ -1771,7 +1771,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 
 			global $wpdb;
 
-			global $bkap_date_formats;
+			$bkap_date_formats = bkap_date_formats();
 
 			$saved_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
@@ -1866,7 +1866,7 @@ if ( ! class_exists( 'bkap_attributes' ) ) {
 											$order_status = $order->get_status();
 											$order_status = "wc-$order_status";
 										}
-										
+
 										if ( isset( $order_status ) && ( $order_status != '' ) && ( $order_status != 'wc-cancelled' ) && ( $order_status != 'wc-refunded' ) && ( $order_status != 'wc-trash' ) && ( $order_status != 'wc-failed' ) && 'trash' !== $booking_status && 'cancelled' !== $booking_status ) {
 
 											// get the booking status

@@ -576,26 +576,148 @@ function bkap_get_booked_checkout( $product_id, $min_date, $days ) {
 
 function get_bookings_for_range( $product_id, $min_date, $end_date, $include_start = true, $resource_id = '' ) {
 
-	$meta_query = array(
-		'key'     => '_bkap_product_id',
-		'value'   => $product_id,
-		'compare' => '=',
-	);
+	$is_global_overlapping = false;
+	$booking_type = get_post_meta( $product_id, '_bkap_booking_type', true );
+	if ( 'date_time' === $booking_type ) {
+		$booking_settings     = get_post_meta( $product_id, 'woocommerce_booking_settings', true );
+		$book_global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 
-	if ( '' !== $resource_id ) {
+		$week_day = date( 'l', strtotime( $min_date ) );
+		$weekdays = bkap_weekdays();
+		$weekday  = array_search( $week_day, $weekdays );
 
+		if ( isset( $booking_settings['booking_time_settings'] ) && isset( $min_date ) ) {
+			$lockout_settings = array();
+			if ( isset( $booking_settings['booking_time_settings'][ $min_date ] ) ) {
+				$lockout_settings = $booking_settings['booking_time_settings'][ $min_date ];
+			}
+			if ( count( $lockout_settings ) == 0 ) {
+				if ( isset( $booking_settings['booking_time_settings'][ $weekday ] ) ) {
+					$lockout_settings = $booking_settings['booking_time_settings'][ $weekday ];
+				}
+			}
+
+			if ( ! empty( $lockout_settings ) ) {
+				foreach ( $lockout_settings as $l_key => $l_value ) {
+					if ( isset( $l_value['global_time_check'] ) ) {
+						$global_timeslot_lockout = $l_value['global_time_check'];
+					} else {
+						$global_timeslot_lockout = '';
+					}
+				}
+			}
+		}
+
+		if ( isset( $book_global_settings->booking_global_timeslot ) && 'on' === $book_global_settings->booking_global_timeslot || isset( $global_timeslot_lockout ) && 'on' === $global_timeslot_lockout ) {
+			$args    = array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'meta_query'     => array(
+					'relation'   => 'AND',
+					array(
+						'key'     => '_bkap_booking_type',
+						'value'   => $booking_type,
+						'compare' => '=',
+					),
+				),
+				'fields'         => 'ids',
+			);
+			$product_ids = get_posts( $args );
+			$dup_ids     = array();
+
+			foreach ( $product_ids as $k => $v ) {
+				$booking_settings = get_post_meta( $v, 'woocommerce_booking_settings', true );
+
+				if ( isset( $booking_settings['booking_enable_time'] ) && $booking_settings['booking_enable_time'] == 'on' ) {
+					if ( isset( $booking_settings['booking_time_settings'] ) && isset( $min_date ) ) {
+						$lockout_settings = array();
+						if ( isset( $booking_settings['booking_time_settings'][ $min_date ] ) ) {
+							$lockout_settings = $booking_settings['booking_time_settings'][ $min_date ];
+						}
+						if ( count( $lockout_settings ) == 0 ) {
+							if ( isset( $booking_settings['booking_time_settings'][ $weekday ] ) ) {
+								$lockout_settings = $booking_settings['booking_time_settings'][ $weekday ];
+							}
+						}
+
+						if ( ! empty( $lockout_settings ) ) {
+							foreach ( $lockout_settings as $l_key => $l_value ) {
+								if ( isset( $l_value['global_time_check'] ) ) {
+									$global_timeslot_lockout = $l_value['global_time_check'];
+								} else {
+									$global_timeslot_lockout = '';
+								}
+							}
+						}
+
+						if ( isset( $book_global_settings->booking_global_timeslot ) && 'on' === $book_global_settings->booking_global_timeslot || isset( $global_timeslot_lockout ) && 'on' === $global_timeslot_lockout ) {
+							$dup_ids[] = $v;
+						}
+					}
+				}
+			}
+
+			if ( ! empty( $dup_ids ) ) {
+				$pids_array            = array_values( $dup_ids );
+				$is_global_overlapping = true;
+
+				$meta_query = array(
+					'relation' => 'AND',
+					array(
+						'key'     => '_bkap_product_id',
+						'value'   => $pids_array,
+						'compare' => 'IN',
+					),
+				);
+
+				if ( '' !== $resource_id ) {
+					if ( is_array( $resource_id ) ) {
+						$meta_query[] = array(
+							'key'     => '_bkap_resource_id',
+							'value'   => $resource_id,
+							'compare' => 'IN',
+						);
+					} else {
+						$meta_query[] = array(
+							'key'     => '_bkap_resource_id',
+							'value'   => $resource_id,
+							'compare' => '=',
+						);
+					}
+				}
+			}
+		}
+	}
+
+	if ( ! $is_global_overlapping ) {
 		$meta_query = array(
-			'key'     => '_bkap_resource_id',
-			'value'   => $resource_id,
-			'compare' => '=',
+			'relation' => 'AND',
+			array(
+				'key'     => '_bkap_product_id',
+				'value'   => $product_id,
+				'compare' => '=',
+			),
 		);
 
-		if ( is_array( $resource_id ) ) {
-			foreach ( $resource_id as $id ) {
+		if ( '' !== $resource_id ) {
+			if ( is_array( $resource_id ) ) {
 				$meta_query[] = array(
-					'key'     => '_bkap_resource_id',
-					'value'   => $id,
-					'compare' => '=',
+					'relation' => 'AND',
+					array(
+						'key'     => '_bkap_resource_id',
+						'value'   => $resource_id,
+						'compare' => 'IN',
+					),
+				);
+			} else {
+				$meta_query[] = array(
+					'relation' => 'AND',
+					array(
+						'key'     => '_bkap_resource_id',
+						'value'   => $resource_id,
+						'compare' => '=',
+					),
 				);
 			}
 		}
@@ -676,7 +798,7 @@ function get_bookings_for_range( $product_id, $min_date, $end_date, $include_sta
 							if ( strtotime( $end_time ) > strtotime( $bstimeexplode[0] ) && strtotime( $start_time ) < strtotime( $bstimeexplode[1] ) ) {
 
 								if ( strtotime( $start_time ) != strtotime( $bstimeexplode[0] ) || strtotime( $end_time ) != strtotime( $bstimeexplode[1] ) ) {
-									if ( isset( $dates[ $start ] ) && isset( $dates[ $start ][ "$start_time - $end_time" ] ) /* array_key_exists( "$start_time - $end_time", $dates[ $start ] ) */ ) {
+									if ( isset( $dates[ $start ] ) && isset( $dates[ $start ][ $value ] ) /* array_key_exists( "$start_time - $end_time", $dates[ $start ] ) */ ) {
 										$dates[ $start ][ $value ] += $qty;
 									} else {
 										$dates[ $start ][ $value ] = $qty;
@@ -820,7 +942,7 @@ function bkap_check_duration_available( $product_id, $booking_settings, $start_s
 
 		if ( $d_setting['duration_max_booking'] != 0 || $d_setting['duration_max_booking'] != '' ) {
 
-			$between_duration = bkap_get_between_timestamp( $start_str, $end_str );
+			$between_duration = bkap_get_between_timestamp( $start_str + 1, $end_str - 1 );
 
 			foreach ( $between_duration as $key => $value ) {
 
@@ -985,7 +1107,7 @@ function bkap_get_duration_lockout_fixing( $product_id, $min_date, $days ) {
 	}
 
 	$d_setting     = get_post_meta( $product_id, '_bkap_duration_settings', true );
-	$d_max_booking = $d_setting['duration_max_booking'];
+	$d_max_booking = ( ! empty( $d_setting ) && isset( $d_setting['duration_max_booking'] ) ) ? $d_setting['duration_max_booking'] : 0;
 
 	if ( $d_max_booking == 0 || $d_max_booking == '' ) {
 		return array();
@@ -1449,15 +1571,15 @@ function get_date_lockout( $product_id, $date, $check = true, $unlimited_string 
 	$unlimited_str = $unlimited_string ? 'unlimited' : 0;
 
 	if ( is_array( $specific_dates ) && isset( $specific_dates[ $date_jny ] ) ) {
-		$lockout = ( absint( $specific_dates[ $date_jny ] ) > 0 ) ? $specific_dates[ $date_jny ] : $unlimited_str;
+		$lockout = ( absint( $specific_dates[ $date_jny ] ) > 0 ) ? (int) $specific_dates[ $date_jny ] : $unlimited_str;
 	} elseif ( is_array( $recurring_weekdays ) && 'on' === $recurring_weekdays[ $weekday ] &&
 		is_array( $recurring_lockout ) && isset( $recurring_lockout[ $weekday ] ) && 'multiple_days' !== $booking_type ) {
-		$lockout = ( absint( $recurring_lockout[ $weekday ] ) > 0 ) ? $recurring_lockout[ $weekday ] : $unlimited_str;
+		$lockout = ( absint( $recurring_lockout[ $weekday ] ) > 0 ) ? (int) $recurring_lockout[ $weekday ] : $unlimited_str;
 	} else {
 		if ( 'multiple_days' === $booking_type ) {
 			// get the Lockout Date after X orders
 			$any_date_lockout = get_post_meta( $product_id, '_bkap_date_lockout', true );
-			$lockout          = ( absint( $any_date_lockout ) > 0 ) ? $any_date_lockout : $unlimited_str;
+			$lockout          = ( absint( $any_date_lockout ) > 0 ) ? (int) $any_date_lockout : $unlimited_str;
 		}
 	}
 
@@ -1980,7 +2102,8 @@ function bkap_delete_from_order_hitory( $order_id, $booking_id ) {
  */
 
 function bkap_get_month_range( $start, $end ) {
-	global $bkap_months;
+	$bkap_intervals = bkap_intervals();
+	$bkap_months    = $bkap_intervals['months'];
 
 	$current_year = date( 'Y', current_time( 'timestamp' ) );
 	$next_year    = date( 'Y', strtotime( '+1 year' ) );
@@ -2024,7 +2147,8 @@ function bkap_get_month_range( $start, $end ) {
 
 function bkap_get_week_range( $week1, $week2, $format = 'j-n-Y' ) {
 
-	global $bkap_months;
+	$bkap_intervals = bkap_intervals();
+	$bkap_months    = $bkap_intervals['months'];
 
 	$week_date_range = array();
 
@@ -2779,6 +2903,7 @@ function bkap_get_disabled_date_labels() {
 				__( 'Please select another date.', 'woocommerce-booking' ),
 			),
 			'rent_label'               => __( 'On Rent', 'woocommerce-booking' ),
+			'time_slot_not_selected'   => __( 'Please select time slot...', 'woocommerce-booking' ),
 		)
 	);
 }
@@ -2854,13 +2979,16 @@ function bkap_get_page() {
 function bkap_get_future_bookings() {
 	$current_date = Date( 'Y-m-d', current_time( 'timestamp' ) );
 
-	$args          = array(
-		'post_type'    => 'bkap_booking',
-		'numberposts'  => -1,
-		'post_status'  => array( 'paid', 'pending-confirmation', 'confirmed' ),
-		'meta_key'     => '_bkap_start',
-		'meta_value'   => date( 'YmdHis', strtotime( $current_date ) ),
-		'meta_compare' => '>=',
+	$args          = apply_filters(
+		'bkap_get_future_bookings',
+		array(
+			'post_type'    => 'bkap_booking',
+			'numberposts'  => -1,
+			'post_status'  => array( 'paid', 'pending-confirmation', 'confirmed' ),
+			'meta_key'     => '_bkap_start',
+			'meta_value'   => date( 'YmdHis', strtotime( $current_date ) ),
+			'meta_compare' => '>=',
+		)
 	);
 	$booking_posts = get_posts( $args );
 
@@ -2882,13 +3010,16 @@ function bkap_get_past_bookings() {
 
 	$current_date = Date( 'Y-m-d H:i:s', current_time( 'timestamp' ) );
 
-	$args          = array(
-		'post_type'    => 'bkap_booking',
-		'numberposts'  => -1,
-		'post_status'  => array( 'paid', 'pending-confirmation', 'confirmed' ),
-		'meta_key'     => '_bkap_start',
-		'meta_value'   => date( 'YmdHis', strtotime( $current_date ) ),
-		'meta_compare' => '<',
+	$args          = apply_filters(
+		'bkap_get_past_bookings',
+		array(
+			'post_type'    => 'bkap_booking',
+			'numberposts'  => -1,
+			'post_status'  => array( 'paid', 'pending-confirmation', 'confirmed' ),
+			'meta_key'     => '_bkap_start',
+			'meta_value'   => date( 'YmdHis', strtotime( $current_date ) ),
+			'meta_compare' => '<',
+		)
 	);
 	$booking_posts = get_posts( $args );
 
@@ -2912,10 +3043,12 @@ function bkap_get_past_bookings() {
 function bkap_sort_time_in_chronological( $timeslotarray ) {
 	$tmp = array();
 	foreach ( $timeslotarray as $times ) {
-		if ( strpos( $times, '-' ) ) {
-			$tmp[ $times ] = strtotime( substr( $times, 0, strpos( $times, '-' ) ) );
-		} else {
-			$tmp[ $times ] = strtotime( $times );
+		if ( ! empty( $times ) ) {
+			if ( strpos( $times, '-' ) ) {
+				$tmp[ $times ] = strtotime( substr( $times, 0, strpos( $times, '-' ) ) );
+			} else {
+				$tmp[ $times ] = strtotime( $times );
+			}
 		}
 	}
 	asort( $tmp );
@@ -3421,22 +3554,24 @@ function bkap_fetch_date_records( $product_id, $date, $from_time = '', $to_time 
  * @return string Insert Id of the record
  * @since 4.15.0
  */
-
 function bkap_insert_record_booking_history( $post_id, $weekday, $start_date, $end_date, $from_time, $to_time, $total_booking = 0, $available_booking = 0 ) {
+
 	global $wpdb;
 
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.SlowDBQuery -- Upgrade routines are only used intermittently.
 	$query = 'INSERT INTO `' . $wpdb->prefix . "booking_history`
-                (post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
-                VALUES (
-                '" . $post_id . "',
-                '" . $weekday . "',
-                '" . $start_date . "',
-                '" . $end_date . "',
-                '" . $from_time . "',
-                '" . $to_time . "',
-                '" . $total_booking . "',
-                '" . $available_booking . "' )";
+				(post_id,weekday,start_date,end_date,from_time,to_time,total_booking,available_booking)
+				VALUES (
+				'" . $post_id . "',
+				'" . $weekday . "',
+				'" . $start_date . "',
+				'" . $end_date . "',
+				'" . $from_time . "',
+				'" . $to_time . "',
+				'" . $total_booking . "',
+				'" . $available_booking . "' )";
 	$wpdb->query( $query );
+	// phpcs:enable
 
 	return $wpdb->insert_id;
 }
@@ -3717,7 +3852,7 @@ function bkap_get_offset( $bkap_offset_value ) {
 	$gmt_offset = $gmt_offset * 60 * 60;
 	// $bkap_offset    = Bkap_Timezone_Conversion::get_timezone_var( 'bkap_offset' );
 	$bkap_offset = $bkap_offset_value;
-	$bkap_offset = $bkap_offset * 60;
+	$bkap_offset = (int)$bkap_offset * 60;
 	$offset      = $bkap_offset - $gmt_offset;
 
 	return $offset;
@@ -5589,6 +5724,7 @@ function bkap_event_data( $event_details, $event_id ) {
 
 		if ( get_option( 'woocommerce_calc_shipping' ) == 'yes' ) {
 
+			$billing_postcode = isset( $event_details['billing_postcode'] ) ? $event_details['billing_postcode'] : '';
 			if ( get_option( 'woocommerce_ship_to_destination' ) == 'shipping' ) {
 
 				if ( ( isset( $event_details['shipping_first_name'] ) && $event_details['shipping_first_name'] != '' ) && ( isset( $event_details['shipping_last_name'] ) && $event_details['shipping_last_name'] != '' ) ) {
@@ -5600,13 +5736,21 @@ function bkap_event_data( $event_details, $event_id ) {
 				if ( ( isset( $event_details['shipping_address_1'] ) && $event_details['shipping_address_1'] != '' ) && ( isset( $event_details['shipping_address_2'] ) && $event_details['shipping_address_2'] != '' ) ) {
 					$bkap->client_address = $event_details['shipping_address_1'] . ' ' . $event_details['shipping_address_2'] . ' ' . $event_details['shipping_postcode'];
 				} else {
-					$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $event_details['billing_postcode'];
+					$address = '';
+					if ( isset( $event_details['billing_address_1'] ) ) {
+						$address = $event_details['billing_address_1'] . ' ';
+					}
+					if ( isset( $event_details['billing_address_2'] ) ) {
+						$address .= $event_details['billing_address_2'] . ' ';
+					}
+					$address .= $billing_postcode;
+					$bkap->client_address = $address;
 				}
 
 				if ( isset( $event_details['shipping_city'] ) && $event_details['shipping_city'] != '' ) {
 					$bkap->client_city = $event_details['shipping_city'];
 				} else {
-					$bkap->client_city = $event_details['billing_city'];
+					$bkap->client_city = isset( $event_details['billing_city'] ) ? $event_details['billing_city'] : '';
 				}
 			} elseif ( get_option( 'woocommerce_ship_to_destination' ) == 'billing' ) {
 
@@ -5631,7 +5775,7 @@ function bkap_event_data( $event_details, $event_id ) {
 					$bkap->client_address = $shippig_address;
 
 				} else {
-					$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $event_details['billing_postcode'];
+					$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $billing_postcode;
 				}
 
 				if ( isset( $event_details['shipping_city'] ) && $event_details['shipping_city'] != '' ) {
@@ -5641,12 +5785,11 @@ function bkap_event_data( $event_details, $event_id ) {
 				}
 			} elseif ( get_option( 'woocommerce_ship_to_destination' ) == 'billing_only' ) {
 				$bkap->client_name    = $event_details['billing_first_name'] . ' ' . $event_details['billing_last_name'];
-				$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $event_details['billing_postcode'];
+				$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $billing_postcode;
 				$bkap->client_city    = $event_details['billing_city'];
 			}
 		} else {
 			$bkap->client_name    = $event_details['billing_first_name'] . ' ' . $event_details['billing_last_name'];
-			$billing_postcode     = isset( $event_details['billing_postcode'] ) ? $event_details['billing_postcode'] : '';
 			$bkap->client_address = $event_details['billing_address_1'] . ' ' . $event_details['billing_address_2'] . ' ' . $billing_postcode;
 			$bkap->client_city    = $event_details['billing_city'];
 		}
@@ -5995,8 +6138,6 @@ function bkap_get_post_meta( $product_id ) {
 			'_bkap_fixed_blocks',
 			'_bkap_price_ranges',
 			'_bkap_gcal_integration_mode',
-			'_bkap_gcal_key_file_name',
-			'_bkap_gcal_service_acc',
 			'_bkap_gcal_calendar_id',
 			'_bkap_enable_automated_mapping',
 			'_bkap_default_variation',
@@ -6090,12 +6231,6 @@ function bkap_get_post_meta( $product_id ) {
 					break;
 				case '_bkap_gcal_integration_mode':
 					$booking_settings['product_sync_integration_mode'] = $temp;
-					break;
-				case '_bkap_gcal_key_file_name':
-					$booking_settings['product_sync_key_file_name'] = $temp;
-					break;
-				case '_bkap_gcal_service_acc':
-					$booking_settings['product_sync_service_acc_email_addr'] = $temp;
 					break;
 				case '_bkap_gcal_calendar_id':
 					$booking_settings['product_sync_calendar_id'] = $temp;
@@ -6464,7 +6599,7 @@ function bkap_wc_hpos_enabled() {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -6475,7 +6610,7 @@ function bkap_wc_hpos_enabled() {
  * return string $order_url
  */
 function bkap_order_url( $order_id ) {
-	
+
 	if ( bkap_wc_hpos_enabled() ) {
 		$order_url = admin_url( 'admin.php?page=wc-orders&id=' . ( $order_id ) . '&action=edit' );
 	} else {
@@ -6483,4 +6618,106 @@ function bkap_order_url( $order_id ) {
 	}
 
 	return $order_url;
+}
+
+/**
+ * Options for the Types of Ranges in Set availability by dates/months table.
+ *
+ * @since 5.20.0
+ */
+function bkap_type_of_ranges_options() {
+
+	$type_of_ranges = array(
+		'custom_range'    => __( 'Custom Range', 'woocommerce-booking' ),
+		'specific_dates'  => __( 'Specific Dates', 'woocommerce-booking' ),
+		'range_of_months' => __( 'Range of Months', 'woocommerce-booking' ),
+		'holidays'        => __( 'Holidays', 'woocommerce-booking' ),
+	);
+
+	return $type_of_ranges;
+}
+
+function bkap_weekdays() {
+
+	$bkap_weekdays = array(
+		'booking_weekday_0' => __( 'Sunday', 'woocommerce-booking' ),
+		'booking_weekday_1' => __( 'Monday', 'woocommerce-booking' ),
+		'booking_weekday_2' => __( 'Tuesday', 'woocommerce-booking' ),
+		'booking_weekday_3' => __( 'Wednesday', 'woocommerce-booking' ),
+		'booking_weekday_4' => __( 'Thursday', 'woocommerce-booking' ),
+		'booking_weekday_5' => __( 'Friday', 'woocommerce-booking' ),
+		'booking_weekday_6' => __( 'Saturday', 'woocommerce-booking' ),
+	);
+
+	return $bkap_weekdays;
+}
+
+/**
+ * Start day/ End Day options in Fixed Blocks.
+ *
+ * @since 5.20.0
+ */
+function bkap_fixed_days() {
+
+	$bkap_fixed_days = array(
+		'any_days' => __( 'Any Days', 'woocommerce-booking' ),
+		'0'        => __( 'Sunday', 'woocommerce-booking' ),
+		'1'        => __( 'Monday', 'woocommerce-booking' ),
+		'2'        => __( 'Tuesday', 'woocommerce-booking' ),
+		'3'        => __( 'Wednesday', 'woocommerce-booking' ),
+		'4'        => __( 'Thursday', 'woocommerce-booking' ),
+		'5'        => __( 'Friday', 'woocommerce-booking' ),
+		'6'        => __( 'Saturday', 'woocommerce-booking' ),
+	);
+
+	return $bkap_fixed_days;
+}
+
+/**
+ * Weekdays options for Booking.
+ *
+ * @since 5.20.0
+ */
+function bkap_days() {
+
+	$bkap_days = array(
+		'0' => 'Sunday',
+		'1' => 'Monday',
+		'2' => 'Tuesday',
+		'3' => 'Wednesday',
+		'4' => 'Thursday',
+		'5' => 'Friday',
+		'6' => 'Saturday',
+	);
+
+	return $bkap_days;
+}
+
+/**
+ * Booking Date Formats.
+ *
+ * @since 5.20.0
+ */
+function bkap_date_formats() {
+
+	$bkap_date_formats = array(
+		'mm/dd/y'      => 'm/d/y',
+		'dd/mm/y'      => 'd/m/y',
+		'y/mm/dd'      => 'y/m/d',
+		'dd.mm.y'      => 'd.m.y',
+		'y.mm.dd'      => 'y.m.d',
+		'yy-mm-dd'     => 'Y-m-d',
+		'dd-mm-y'      => 'd-m-y',
+		'd M, y'       => 'j M, y',
+		'd M, yy'      => 'j M, Y',
+		'd MM, y'      => 'j F, y',
+		'd MM, yy'     => 'j F, Y',
+		'DD, d MM, yy' => 'l, j F, Y',
+		'D, M d, yy'   => 'D, M j, Y',
+		'DD, M d, yy'  => 'l, M j, Y',
+		'DD, MM d, yy' => 'l, F j, Y',
+		'D, MM d, yy'  => 'D, F j, Y',
+	);
+
+	return $bkap_date_formats;
 }

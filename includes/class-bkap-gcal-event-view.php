@@ -26,11 +26,17 @@ if ( ! class_exists( 'BKAP_Google_Events_View' ) ) {
 	class BKAP_Google_Events_View {
 
 		/**
+		 * Post Type.
+		 *
+		 * @var string $type Post Type.
+		 */
+		public $type;
+
+		/**
 		 * Default constructor.
 		 *
 		 * @since 4.2.0
 		 */
-
 		public function __construct() {
 
 			$this->type = 'bkap_gcal_event';
@@ -408,7 +414,7 @@ if ( ! class_exists( 'BKAP_Google_Events_View' ) ) {
 				return $wp;
 			}
 			 // strtotime does not support all date formats. hence it is suggested to use the "DateTime date_create_from_format" fn
-			 $date_formats = bkap_get_book_arrays( 'bkap_date_formats' );
+			 $date_formats = bkap_date_formats();
 			 // get the global settings to find the date formats
 			 $global_settings = json_decode( get_option( 'woocommerce_booking_global_settings' ) );
 			 $date_format_set = $date_formats[ $global_settings->booking_date_format ];

@@ -330,43 +330,32 @@ class bkap_gcal_sync_settings {
 	public static function bkap_sync_calendar_instructions_callback() {
 
 		?>
-		<div id="bkap_sync_service_account_steps"><?php esc_html_e( 'To set up Key file name, Service account email address, and Calendar to be used, please click on "Show me how" link and carefully follow these steps:', 'woocommerce-booking' ); ?>
+		<div id="bkap_sync_service_account_steps"><?php esc_html_e( 'To set up Service Account Sync and Calendar to be used, please click on "Show me how" link and carefully follow these steps:', 'woocommerce-booking' ); ?>
 			<span class="description">
 				<a href="#bkap-instructions" id="show_instructions" data-target="api-instructions" class="bkap-info_trigger" title="<?php esc_attr_e( 'Click to toggle instructions', 'woocommerce-booking' ); ?>"><?php esc_html_e( 'Show me how', 'woocommerce-booking' ); ?></a>
 			</span>
 			<div class="description bkap-info_target api-instructions" style="display: none;">
-				<ul style="list-style-type:decimal;">
-					<li><?php _e( 'Google Calendar API requires php V5.3+ and some php extensions.', 'woocommerce-booking' ); ?> </li>
-					<li><?php printf( __( 'Go to Google APIs console by clicking %s. Login to your Google account if you are not already logged in.', 'woocommerce-booking' ), '<a href="https://code.google.com/apis/console/" target="_blank">https://code.google.com/apis/console/</a>' ); ?></li>
-					<li><?php _e( 'Create a new project. Click on \'Create Project\' button. Name the project "Bookings" (or use your chosen name instead).', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click on API Manager from left side pane.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click "Calendar API" under Google Apps APIs and click on Enable button.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Go to "Credentials" menu in the left side pane and click on "Create Credentials" dropdown.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click on "OAuth client ID" option. Then click on Configure consent screen.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Enter a Product Name, e.g. Bookings and Appointments, inside the opening pop-up. Click Save.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Select "Web Application" option, enter the Web client name and create the client ID.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click on New Credentials dropdown and select "Service account key".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click "Service account" and select "New service account" and enter the name. Set the Role to "Owner".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Now select key type as "P12" and create the service account.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'A file with extension .p12 will be downloaded.', 'woocommerce-booking' ); ?></li>
-					<li><?php printf( __( 'Using your FTP client program, copy this key file to folder: %s . This file is required as you will grant access to your Google Calendar account even if you are not online. So this file serves as a proof of your consent to access to your Google calendar account. Note: This file cannot be uploaded in any other way. If you do not have FTP access, ask the website admin to do it for you.', 'woocommerce-booking' ), plugin_dir_path( __FILE__ ) . 'gcal/key/' ); ?></li>
-					<li><?php _e( 'Enter the name of the key file to "Key file name" field of Booking Settings. Exclude the extention .p12.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Copy "Email address" setting from Manage service account of Google apis console and paste it to "Service account email address" setting of Booking.', 'woocommerce-booking' ); ?></li>
-					<li><?php printf( __( 'Open your Google Calendar by clicking this link: %s', 'woocommerce-booking' ), '<a href="https://www.google.com/calendar/render" target="_blank">https://www.google.com/calendar/render</a>' ); ?></li>
-					<li><?php _e( 'Create a new Calendar by selecting "my Calendars > Create new calendar" on left side pane. <b>Try NOT to use your primary calendar.</b>', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Give a name to the new calendar, e.g. Bookings calendar. <b>Check that Calendar Time Zone setting matches with time zone setting of your WordPress website.</b> Otherwise there will be a time shift.', 'woocommerce-booking' ); ?></li>		
-					<li><?php _e( 'Paste already copied "Email address" setting from Manage service account of Google apis console to "Person" field under "Share with specific person".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Set "Permission Settings" of this person as "Make changes to events".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click "Add Person".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click "Create Calendar".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Select the created calendar and click "Calendar settings".', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Copy "Calendar ID" value on Calendar Address row.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Paste this value to "Calendar to be used" field of Booking Settings.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Select the desired Integration mode: Sync Automatically or Sync Manually.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'Click "Save Settings" on Booking settings.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'After these stages, you have set up Google Calendar API. To test the connection, click the "Test Connection" link.', 'woocommerce-booking' ); ?></li>
-					<li><?php _e( 'If you get a success message, you should see a test event inserted to the Google Calendar and you are ready to go. If you get an error message, double check your settings.', 'woocommerce-booking' ); ?></li>
-				</ul>
+			<ul style="list-style-type:decimal;">
+				<li><?php esc_html_e( 'Google Calendar API requires PHP V5.3+ and some PHP extensions.', 'woocommerce-booking' ); ?> </li>
+				<li><?php esc_html_e( 'Go to Google APIs console by clicking ', 'woocommerce-booking' ); ?><a href="https://code.google.com/apis/console/" target="_blank">https://code.google.com/apis/console/</a><?php esc_html_e( '. Login to your Google account if you are not already logged in.', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Click on 'Create Project'. Name the project 'Booking & Appointment' (or use your chosen name instead) and create the project.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'Click on APIs & Services from the left side panel. Select the Project created. ', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Click on 'Enable APIs and services' on the dashboard. Search for 'Google Calendar API' and enable this API.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Go to 'Credentials' menu in the left side pane and click on 'CREATE CREDENTIALS' link and from the dropdown that appears select 'Service account.'", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'Enter Service account name, id, and description and Create the service account.', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'In the next step assign Owner role under Service account permissions, keep options in the third optional step empty and click on Done button.', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Now edit the Service account that you have created and under the 'Keys' section click on Add Key>> Create New Key, in the popup that opens select 'JSON' option and click on the CREATE button. A file with extension .json will be downloaded.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'The JSON file is required as you will grant access to your Google Calendar account. So this file serves as a proof of your consent to access to your Google calendar account.', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'Select the downloaded JSON file in Upload JSON File option below and click on Upload button.', 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'Open your Google Calendar by clicking this link: ', 'woocommerce-booking' ); ?><a href="https://www.google.com/calendar/render" target="_blank">https://www.google.com/calendar/render</a></li>
+				<li><?php esc_html_e( "Create a new Calendar by clicking on '+' sign next to 'Other Calendars' section on left side pane. Try NOT to use your primary calendar.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'Give a name to the new calendar, e.g. Booking calendar. Check that Calendar Time Zone setting matches with time zone setting of your WordPress website. Otherwise there will be a time shift.', 'woocommerce-booking' ); ?></li>		
+				<li><?php esc_html_e( "Create the calendar and once it is created click on the Configure link which will appear at the end of the page, this will redirect you to Calendar Settings section. Paste already copied 'Service Account ID' from Manage service account of Google APIs console to 'Add People' field under 'Share with specific people'.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Set 'Permission Settings' of this person as 'Make changes to events' and add the person.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "Now copy 'Calendar ID' value from Integrate Calendar section and paste the value to 'Calendar to be used' field.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( "After saving the settings, you can test the connection by clicking on the 'Test Connection' link.", 'woocommerce-booking' ); ?></li>
+				<li><?php esc_html_e( 'If you get a success message, you should see a test event inserted into the Google Calendar and you are ready to go. If you get an error message, double check your settings.', 'woocommerce-booking' ); ?></li>
+			</ul>
 			</div>
 		</div>
 
@@ -420,23 +409,118 @@ class bkap_gcal_sync_settings {
 	}
 
 	/**
-	 * Callback function for Booking->Settings->Google Calendar Sync->Sync Directly->Key File Name.
+	 * Callback function for Booking->Settings->Google Calendar Sync->Sync Directly->Upload Json File.
 	 *
 	 * @param array $args - Setting Label Array.
 	 * @since 2.6
 	 */
 	public static function bkap_calendar_key_file_name_callback( $args ) {
-		$gcal_key_file_arr = get_option( 'bkap_calendar_details_1' );
-		if ( isset( $gcal_key_file_arr['bkap_calendar_key_file_name'] ) ) {
-			$gcal_key_file = $gcal_key_file_arr['bkap_calendar_key_file_name'];
-		} else {
-			$gcal_key_file = '';
-		}
 
-		$label = __( '<br>Enter key file name here without extention, e.g. ab12345678901234567890-privatekey.', 'woocommerce-booking' );
-		echo '<input id="bkap_calendar_details_1[bkap_calendar_key_file_name]" name= "bkap_calendar_details_1[bkap_calendar_key_file_name]" value="' . esc_attr( $gcal_key_file ) . '" size="90" name="gcal_key_file" type="text" />';
-		$html = '<label for="bkap_calendar_key_file_name">' . $label . '</label>';
-		echo $html;
+		$bkap_calendar_json_data = get_option( 'bkap_calendar_json_file_data', '' );
+		$gcal_array              = get_option( 'bkap_calendar_details_1', array() );
+		$json_file_title         = isset( $gcal_array['bkap_calendar_json_file_name'] ) ? $gcal_array['bkap_calendar_json_file_name'] : '';
+		$gcal_service_account    = isset( $gcal_array['bkap_calendar_service_acc_email_address'] ) ? $gcal_array['bkap_calendar_service_acc_email_address'] : '';
+		$show_form               = ( '' == $bkap_calendar_json_data ) ? 'style="display:block;"' : 'style="display:none;"';
+		$show_connection         = ( '' == $bkap_calendar_json_data ) ? 'style="display:none;"' : 'style="display:block;"';
+
+		$uploading     = __( 'Uploading...', 'woocommerce-booking' );
+		$disconnecting = __( 'Disconnecting...', 'woocommerce-booking' );
+		$file_uploaded = __( 'File uploaded successfully!', 'woocommerce-booking' );
+		$upload_error  = __( 'There was an error uploading the file.', 'woocommerce-booking' );
+		$disconnected  = __( 'Successfully disconnected..!', 'woocommerce-booking' );
+
+		?>
+		<div id="bkap_save_json_data_field" <?php echo $show_form; ?>>
+			<input type="file" name="bkap_calendar_json_data" id="bkap_calendar_json_data">
+			<input type="button" value="<?php echo __( 'Upload', 'woocommerce-booking' ); ?>" id="bkap_save_json_data" class="save_button" name="0">
+		</div>
+		<div id="bkap_save_json_data_connection" <?php echo $show_connection; ?>>
+			<a id="bkap_connect_json_data" name="bkap_connect_json_data"><?php printf( __( '<b>Uploaded File:</b> <span id="bkap_json_file_name">%s</span>', 'woocommerce-booking' ), $json_file_title ) ?></a>
+			<input type="button" value="<?php echo __( 'Remove', 'woocommerce-booking' ); ?>" id="bkap_disconnect_json_data" class="button-secondary" name="0">
+		</div>
+		<input type="hidden" id="bkap_calendar_service_acc_email_address" name="bkap_calendar_details_1[bkap_calendar_service_acc_email_address]" value="<?php echo esc_attr( $gcal_service_account ); ?>">
+		<input type="hidden" id="bkap_calendar_json_file_name" name="bkap_calendar_details_1[bkap_calendar_json_file_name]" value="<?php echo esc_attr( $json_file_title ); ?>">
+		<div id="bkap-json-upload-message"></div>
+		<script type='text/javascript'>
+		jQuery( document ).ready( function( $ ) {
+			// Handle the form submission
+			$( '#bkap_save_json_data' ).click( function(e) {
+				e.preventDefault();
+
+				// Get the file data
+				var file_data = $( '#bkap_calendar_json_data' ).prop('files')[0];
+				var form_data = new FormData();
+				form_data.append( 'bkap_calendar_json_data', file_data );
+				form_data.append( 'action', 'bkap_calendar_json_upload' );
+
+				// Submit the file via AJAX
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data: form_data,
+					dataType: 'json',
+					processData: false,
+					contentType: false,
+					beforeSend: function(){
+						$('#bkap-json-upload-message').html('<div class="notice"><p><?php echo $uploading; ?></p></div>');
+					},
+					success: function(data) {
+						if ( data.success === true ) {
+
+							$('#bkap-json-upload-message').html('<div class="notice notice-success"><p><?php echo $file_uploaded; ?></p></div>');
+							$( '#bkap_calendar_json_data' ).val('');
+							$( '#bkap-json-upload-message' ).html('');
+							$( '#bkap_save_json_data_field' ).hide();
+							$( '#bkap_json_file_name' ).html( data.data.name );
+							$( '#bkap_save_json_data_connection' ).show();
+							$( '#bkap_calendar_service_acc_email_address' ).val( data.data.bkap_calendar_service_acc_email_address );
+							$( '#bkap_calendar_json_file_name' ).val( data.data.bkap_calendar_json_file_name );
+						} else {
+							$( '#bkap-json-upload-message' ).html( '<div class="notice notice-error"><p>' + data.data +'</p></div>' );
+						}
+					},
+					error: function(data) {
+						$('#bkap-json-upload-message').html('<div class="notice notice-error"><p><?php echo $upload_error; ?></p></div>');
+						setInterval(() => {
+							$( '#bkap-json-upload-message' ).html('');
+						}, 3000 );
+					}
+				});
+			});
+
+			$( '#bkap_disconnect_json_data' ).click( function(e) {
+				e.preventDefault();
+
+				var data = { action : 'bkap_disconnect_json_data' };
+
+				// Submit the file via AJAX
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data,
+					beforeSend: function(){
+						$( '#bkap-json-upload-message' ).html('<div class="notice"><p><?php echo $disconnecting; ?></p></div>');
+					},
+					success: function(data) {
+						$( '#bkap-json-upload-message' ).html('<div class="notice notice-success"><p><?php echo $disconnected; ?></p></div>');
+						$( '#bkap_save_json_data_field' ).show();
+						$( '#bkap_save_json_data_connection' ).hide();
+						$( '#bkap-json-upload-message' ).html('');
+						$( '#bkap_calendar_service_acc_email_address' ).val('');
+						$( '#bkap_calendar_json_file_name' ).val('');
+					},
+					error: function(data) {
+						$( '#bkap-json-upload-message' ).html('<div class="notice notice-error"><p><?php echo $upload_error; ?></p></div>');
+						setInterval(() => {
+							$( '#bkap-json-upload-message' ).html('');
+						}, 3000 );
+					}
+				});
+			});
+		});
+		</script>
+
+		<?php
 	}
 
 	/**
@@ -498,7 +582,7 @@ class bkap_gcal_sync_settings {
                         gcal_api_test: 1,
                         user_id: " . $user_id . ",
                         product_id: 0,
-                        action: 'display_nag'
+                        action: 'bkap_test_connection_msg'
                     };
                     jQuery( '#test_connection_ajax_loader' ).show();
                     jQuery.post( '" . get_admin_url() . "/admin-ajax.php', data, function( response ) {
@@ -509,7 +593,7 @@ class bkap_gcal_sync_settings {
             
             });
             </script>";
-		print "<a href='edit.php?post_type=bkap_booking&page=woocommerce_booking_page&action=calendar_sync_settings' id='test_connection'>" . __( 'Test Connection', 'woocommerce-booking' ) . "</a>
+		print "<a href='edit.php?post_type=bkap_booking&page=woocommerce_booking_page&action=calendar_sync_settings' id='test_connection' class='button button-secondary'>" . __( 'Test Connection', 'woocommerce-booking' ) . "</a>
                 <img src='" . plugins_url() . "/woocommerce-booking/assets/images/ajax-loader.gif' id='test_connection_ajax_loader'>";
 		print "<div id='test_connection_message'></div>";
 	}

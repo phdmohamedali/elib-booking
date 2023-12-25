@@ -93,8 +93,9 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 			$customer_name       = '';
 			$customer_first_name = '';
 			$customer_last_name  = '';
+			$to_phone            = '';
 			$order_obj           = wc_get_order( $item_obj->order_id );
-			$user_id             = $item_obj->customer_id;
+			$user_id             = ! empty( $item_obj->customer_id ) ? $item_obj->customer_id : 0;
 			if ( $user_id > 0 ) {
 				$customer            = get_user_by( 'id', $item_obj->customer_id );
 				$customer_name       = $customer->display_name;
@@ -102,23 +103,25 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 				$customer_last_name  = $customer->last_name;
 				$to_phone            = self::bkap_get_phone( $item_obj->customer_id );
 			} else {
-				$to_phone        = $order_obj->get_billing_phone();
-				$country_map     = bkap_country_code_map();
-				$billing_country = $order_obj->get_billing_country();
-				$dial_code       = isset( $country_map[ $billing_country ] ) ? $country_map[ $billing_country ]['dial_code'] : '';
-				if ( is_numeric( $to_phone ) ) {
-					// if first character is not a +, add it.
-					if ( substr( $to_phone, 0, 1 ) !== '+' ) {
-						if ( '' !== $dial_code ) {
-							$to_phone = $dial_code . $to_phone;
-						} else {
-							$to_phone = '+' . $to_phone;
+				if ( ! empty( $order_obj ) ) {
+					$to_phone        = $order_obj->get_billing_phone();
+					$country_map     = bkap_country_code_map();
+					$billing_country = $order_obj->get_billing_country();
+					$dial_code       = isset( $country_map[ $billing_country ] ) ? $country_map[ $billing_country ]['dial_code'] : '';
+					if ( is_numeric( $to_phone ) ) {
+						// if first character is not a +, add it.
+						if ( substr( $to_phone, 0, 1 ) !== '+' ) {
+							if ( '' !== $dial_code ) {
+								$to_phone = $dial_code . $to_phone;
+							} else {
+								$to_phone = '+' . $to_phone;
+							}
 						}
 					}
+					$customer_name       = $order_obj->get_formatted_billing_full_name();
+					$customer_first_name = $order_obj->get_billing_first_name();
+					$customer_last_name  = $order_obj->get_billing_last_name();
 				}
-				$customer_name       = $order_obj->get_formatted_billing_full_name();
-				$customer_first_name = $order_obj->get_billing_first_name();
-				$customer_last_name  = $order_obj->get_billing_last_name();
 			}
 
 			$body = str_replace(
@@ -224,7 +227,7 @@ if ( ! class_exists( 'Bkap_SMS_Settings' ) ) {
 		 * @since 7.9
 		 */
 		public static function bkap_send_sms_reminders() {
-			
+
 			$sms_settings = get_option( 'bkap_sms_settings' );
 			$sms_settings = apply_filters( 'bkap_sms_settings', $sms_settings );
 

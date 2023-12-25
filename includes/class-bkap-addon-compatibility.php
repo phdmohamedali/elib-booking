@@ -280,7 +280,8 @@ if ( ! class_exists( 'bkap_addon_compatibility_class' ) ) {
 
 			if ( array_key_exists( 'composite_parent', $cart_item_meta ) && $cart_item_meta['composite_parent'] !== '' ) {
 
-				$cart_arr = array();
+				$cart_arr                 = array();
+				$composite_parent_booking = array();
 
 				if ( isset( WC()->cart->cart_contents[ $cart_item_meta['composite_parent'] ]['bkap_booking'] ) ) {
 					$composite_parent_booking = WC()->cart->cart_contents[ $cart_item_meta['composite_parent'] ]['bkap_booking'][0];
@@ -315,20 +316,21 @@ if ( ! class_exists( 'bkap_addon_compatibility_class' ) ) {
 						$price        = $composite_product->get_regular_price();
 						$booking_type = bkap_type( $composite_data['product_id'] );
 
-						if ( 'multiple_days' === $booking_type ) {
-							$param = array(
-								date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date'] ) ),
-								date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date_checkout'] ) ),
-								$booking_type,
-							);
-						} else {
-							$param = array(
-								date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date'] ) ),
-								date( 'w', strtotime( $composite_parent_booking['hidden_date'] ) ),
-								$booking_type,
-							);
+						if ( ! empty( $composite_parent_booking ) ) {
+							if ( 'multiple_days' === $booking_type ) {
+								$param = array(
+									date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date'] ) ),
+									date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date_checkout'] ) ),
+									$booking_type,
+								);
+							} else {
+								$param = array(
+									date( 'Y-m-d', strtotime( $composite_parent_booking['hidden_date'] ) ),
+									date( 'w', strtotime( $composite_parent_booking['hidden_date'] ) ),
+									$booking_type,
+								);
+							}
 						}
-
 
 						$price = bkap_get_special_price( $composite_data['product_id'], $param, $price );
 

@@ -74,8 +74,15 @@ class BKAP_Bookable_Query {
 			'post_type'   => self::$posttype,
 			'status'      => self::$bookable_status,
 			'numberposts' => ! empty( $args['numberposts'] ) ? $args['numberposts'] : self::$numberpost,
-			'meta_query'  => self::get_meta_query_args( $args ),
 		);
+
+		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+			$current_language   = apply_filters( 'wpml_current_language', NULL );
+			$query_args['lang'] = $current_language;
+		}
+
+		$query_args['suppress_filters'] = 0;
+		$query_args['meta_query']       = self::get_meta_query_args( $args );
 
 		if ( ! empty( $tax_args ) ) {
 			$query_args['tax_query'] = $tax_args;
@@ -309,7 +316,7 @@ class BKAP_Bookable_Query {
 					$first         = ( isset( $duration_settings['first_duration'] ) && '' !== $duration_settings['first_duration'] ) ? $duration_settings['first_duration'] : '00:10';
 					$first_explode = explode( ':', $first );
 					$last          = ( isset( $duration_settings['end_duration'] ) && '' !== $duration_settings['end_duration'] ) ? $duration_settings['end_duration'] : '23:59';
-					$start         = gmdate( "Y-m-d\T${first}" );
+					$start         = gmdate( "Y-m-d\T{$first}" );
 					$interval      = ( isset( $duration_settings['duration'] ) && '' !== $duration_settings['duration'] ) ? $duration_settings['duration'] : '';
 
 					// Calculate number of hours and mins for end time.
@@ -559,7 +566,7 @@ class BKAP_Bookable_Query {
 					if ( $is_date_based ) {
 						$availability[ $date_ ] = bkap_booking_process::bkap_date_lockout( $post );
 					} elseif ( $is_time_based ) {
-						$post['timeslot_value'] = $event['extendedProps']['timeslot_value'];
+						$post['timeslot_value'] = ( isset( $event['extendedProps'] ) && isset( $event['extendedProps']['timeslot_value'] ) ) ? $event['extendedProps']['timeslot_value'] : '';
 						$post['date_time_type'] = 'on';
 						$availability[ $date_ ] = bkap_booking_process::bkap_get_time_lockout( $post );
 					}

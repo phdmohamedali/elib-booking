@@ -49,9 +49,9 @@ function bkap_zoom_meeting_enable( $product_id = 0, $resource_id = 0 ) {
 		return false;
 	}
 
-	$zoom_api_key    = get_option( 'bkap_zoom_api_key' );
-	$zoom_api_secret = get_option( 'bkap_zoom_api_secret' );
-	if ( empty( $zoom_api_key ) || empty( $zoom_api_secret ) ) {
+	$zoom_type = bkap_zoom_connection_type();
+
+	if ( '' === $zoom_type ) {
 		return false;
 	}
 
@@ -128,4 +128,55 @@ function bkap_get_bookings_to_assign_zoom_meeting( $product_ids = array() ) {
 	$posts = get_posts( $args );
 
 	return $posts;
+}
+
+/**
+ * Zoom Redirect URL.
+ *
+ * @since 5.23.0
+ */
+function bkap_zoom_redirect_url() {
+
+	$query_args     = array(
+		'post_type' => 'bkap_booking',
+		'page'      => 'woocommerce_booking_page',
+		'action'    => 'calendar_sync_settings',
+		'section'   => 'zoom_meeting',
+	);
+	$zoom_page_link = add_query_arg( $query_args, admin_url( 'edit.php' ) );
+
+	return $zoom_page_link;
+}
+
+/**
+ * Zoom Connection Type.
+ *
+ * @since 5.23.0
+ */
+function bkap_zoom_connection_type() {
+
+	$type               = '';
+	$zoom_api_key       = get_option( 'bkap_zoom_api_key' );
+	$zoom_api_secret    = get_option( 'bkap_zoom_api_secret' );
+	$zoom_client_id     = get_option( 'bkap_zoom_client_id', '' );
+	$zoom_client_secret = get_option( 'bkap_zoom_client_secret', '' );
+
+	if ( '' !== $zoom_client_id && '' !== $zoom_client_secret ) {
+		$bkap_zoom_access_token = get_option( 'bkap_zoom_access_token', '' );
+		if ( '' === $bkap_zoom_access_token ) {
+			if ( empty( $zoom_api_key ) || empty( $zoom_api_secret ) ) {
+				return '';
+			} else {
+				$type = 'jwt';
+			}
+		} else {
+			$type = 'oauth';
+		}
+	} elseif ( empty( $zoom_api_key ) || empty( $zoom_api_secret ) ) {
+		$type = '';
+	} else {
+		$type = 'jwt';
+	}
+
+	return $type;
 }

@@ -21,6 +21,13 @@ if ( ! class_exists( 'BKAP_Resource_Listing' ) ) {
 	class BKAP_Resource_Listing {
 
 		/**
+		 * Post Type.
+		 *
+		 * @var string $type Post Type.
+		 */
+		public $type;
+
+		/**
 		 * Default constructor
 		 *
 		 * @since 5.13.0

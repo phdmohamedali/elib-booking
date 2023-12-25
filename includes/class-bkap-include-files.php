@@ -153,8 +153,9 @@ if ( ! class_exists( 'Bkap_Include_Files' ) ) {
 				include_once BKAP_PLUGIN_PATH . '/includes/class-bkap-onepage-checkout.php';
 			}
 
+			include_once BKAP_PLUGIN_PATH . '/includes/bkap-all-component.php';
+
 			if ( true === is_admin() ) {
-				include_once BKAP_PLUGIN_PATH . '/includes/bkap-all-component.php';
 				include_once BKAP_PLUGIN_PATH . '/includes/class-bkap-system-status.php';
 			}
 		}

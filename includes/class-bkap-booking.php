@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Bookings and Appointment Plugin for WooCommerce
  *
@@ -12,56 +12,173 @@
 
 class BKAP_Booking {
 
-	/** @public int */
+	/**
+	 * Booking ID.
+	 *
+	 * @var Integer
+	 */
 	public $id;
 
-	/** @public string */
+	/**
+	 * Booking Data.
+	 *
+	 * @var Array
+	 */
 	public $booking_date;
 
-	/** @public string */
+	/**
+	 * Booking Start Date.
+	 *
+	 * @var string
+	 */
 	public $start;
 
-	/** @public string */
+	/**
+	 * Booking End Date.
+	 *
+	 * @var string
+	 */
 	public $end;
 
-	/** @public bool */
+	/**
+	 * Booking All Day.
+	 *
+	 * @var string
+	 */
 	public $all_day;
 
-	/** @public string */
+	/**
+	 * Booking Modified date.
+	 *
+	 * @var string
+	 */
 	public $modified_date;
 
-	/** @public object */
+	/**
+	 * Post object.
+	 *
+	 * @var Object
+	 */
 	public $post;
 
-	/** @public int */
+	/**
+	 * Product ID.
+	 *
+	 * @var Integer
+	 */
 	public $product_id;
 
-	/** @public object */
+	/**
+	 * Product Object.
+	 *
+	 * @var Object
+	 */
 	public $product;
 
-	/** @public int */
+	/**
+	 * Order ID.
+	 *
+	 * @var Integer
+	 */
 	public $order_id;
 
-	/** @public object */
+	/**
+	 * Order Object.
+	 *
+	 * @var Object
+	 */
 	public $order;
 
-	/** @public int */
+	/**
+	 * Customer ID.
+	 *
+	 * @var Integer
+	 */
 	public $customer_id;
 
-	/** @public string */
+	/**
+	 * Booking Status.
+	 *
+	 * @var String
+	 */
 	public $status;
 
-	/** @public string */
+	/**
+	 * Google Calendar Event UID.
+	 *
+	 * @var String
+	 */
 	public $gcal_event_uid;
-	
-	/** @public array - contains all post meta values for this booking */
+
+	/**
+	 * Contains all post meta values for this booking.
+	 *
+	 * @var Array
+	 */
 	public $custom_fields;
 
-	/** @public bool */
+	/**
+	 * Booking Data Populated.
+	 *
+	 * @var bool
+	 */
 	public $populated;
 
-	/** @private array - used to temporarily hold order data for new bookings */
+	/**
+	 * Used to temporarily hold order data for new bookings.
+	 *
+	 * @var Array
+	 */
 	private $order_data;
+
+	/**
+	 * Booking Quantity.
+	 *
+	 * @var String
+	 */
+	public $qty;
+
+	/**
+	 * Resource ID.
+	 *
+	 * @var String
+	 */
+	public $resource_id;
+
+	/**
+	 * Fixed Block data.
+	 *
+	 * @var String
+	 */
+	public $fixed_block;
+
+	/**
+	 * Persons.
+	 *
+	 * @var String
+	 */
+	public $persons;
+
+	/**
+	 * Booking Cost.
+	 *
+	 * @var String
+	 */
+	public $cost;
+
+	/**
+	 * Parent ID.
+	 *
+	 * @var String
+	 */
+	public $parent_id;
+
+	/**
+	 * Variation ID.
+	 *
+	 * @var String
+	 */
+	public $variation_id;
 
 	/**
 	 * Constructor, possibly sets up with post or id belonging to existing booking
@@ -175,7 +292,7 @@ class BKAP_Booking {
 		$order_data = wp_parse_args(
 			$order_data,
 			array(
-				'user_id'         => 0,
+				'user_id'         => isset( $order_data['user_id'] ) ? $order_data['user_id'] : 0,
 				'resource_id'     => '',
 				'fixed_block'     => '',
 				'product_id'      => '',
@@ -202,6 +319,7 @@ class BKAP_Booking {
 			'post_status' => $status,
 			'ping_status' => 'closed',
 			'post_parent' => $order_id,
+			'post_author' => isset( $order_data['user_id'] ) ? $order_data['user_id'] : 0,
 		);
 
 		$this->id = wp_insert_post( $booking_data );
@@ -321,7 +439,7 @@ class BKAP_Booking {
 	 * @since 4.1.0
 	 */
 	public function get_order() {
-		
+
 		if ( empty( $this->order ) ) {
 			if ( $this->populated && ! empty( $this->order_id ) ) {
 				$this->order = wc_get_order( $this->order_id );
@@ -534,7 +652,7 @@ class BKAP_Booking {
 	function get_start_date( $global_settings = array() ) {
 
 		$start           = $this->get_start();
-		$date_formats    = bkap_get_book_arrays( 'bkap_date_formats' );
+		$date_formats    = bkap_date_formats();
 		$global_settings = empty( $global_settings ) ? bkap_global_setting() : $global_settings;
 		$date_format_set = $date_formats[ $global_settings->booking_date_format ];
 		return date( $date_format_set, strtotime( $start ) );
@@ -554,7 +672,7 @@ class BKAP_Booking {
 		$end      = $this->get_end();
 
 		if ( $start !== $end ) {
-			$date_formats    = bkap_get_book_arrays( 'bkap_date_formats' );
+			$date_formats    = bkap_date_formats();
 			$global_settings = empty( $global_settings ) ? bkap_global_setting() : $global_settings;
 			$date_format_set = $date_formats[ $global_settings->booking_date_format ];
 			$end_date        = date( $date_format_set, strtotime( $end ) );
@@ -697,9 +815,9 @@ class BKAP_Booking {
 			if ( isset( $person[0] ) ) {
 				$person_info = Class_Bkap_Product_Person::bkap_get_person_label() . ' : ' . $person[0];
 			} else {
-				
+
 				foreach ( $person as $p_key => $p_value ) {
-					$person_info .= get_the_title( $p_key ) . ' : ' . $p_value . ' | '; 
+					$person_info .= get_the_title( $p_key ) . ' : ' . $p_value . ' | ';
 				}
 
 				if ( '' !== $person_info ) {
@@ -797,4 +915,3 @@ class BKAP_Booking {
 		return $vendor_id;
 	}
 }
-

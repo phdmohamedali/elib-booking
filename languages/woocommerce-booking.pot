@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: includes/class-bkap-edit-bookings.php:358
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-09 18:37+0530\n"
+"POT-Creation-Date: 2023-08-29 17:00+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: woocommerce-booking.php:125
+#: woocommerce-booking.php:123
 #, php-format
 msgid "WooCommerce not found. %s requires a minimum of WooCommerce v3.3.0."
 msgstr ""
@@ -44,13 +45,13 @@ msgstr ""
 #: emails/class-bkap-email-booking-confirmed.php:205
 #: emails/class-bkap-email-booking-pending.php:115
 #: emails/class-bkap-email-booking-pending.php:204
-#: emails/class-bkap-email-booking-reminder.php:112
-#: emails/class-bkap-email-booking-reminder.php:346
+#: emails/class-bkap-email-booking-reminder.php:118
+#: emails/class-bkap-email-booking-reminder.php:355
 #: emails/class-bkap-email-booking-rescheduled-admin.php:81
 #: emails/class-bkap-email-booking-rescheduled-admin.php:176
 #: emails/class-bkap-email-imported-events.php:240
-#: emails/class-bkap-email-new-booking.php:148
-#: emails/class-bkap-email-new-booking.php:277
+#: emails/class-bkap-email-new-booking.php:162
+#: emails/class-bkap-email-new-booking.php:291
 #: templates/meta-boxes/class-bkap-customer-meta-box.php:124
 #: templates/meta-boxes/class-bkap-details-meta-box.php:149
 msgid "N/A"
@@ -59,30 +60,30 @@ msgstr ""
 #: emails/class-bkap-email-booking-cancelled.php:186
 #: emails/class-bkap-email-booking-confirmed.php:176
 #: emails/class-bkap-email-booking-pending.php:181
-#: emails/class-bkap-email-booking-reminder.php:323
+#: emails/class-bkap-email-booking-reminder.php:332
 #: emails/class-bkap-email-booking-rescheduled-admin.php:147
 #: emails/class-bkap-email-imported-events.php:211
-#: emails/class-bkap-email-new-booking.php:248
+#: emails/class-bkap-email-new-booking.php:262
 msgid "Enable/Disable"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:188
 #: emails/class-bkap-email-booking-confirmed.php:178
 #: emails/class-bkap-email-booking-pending.php:183
-#: emails/class-bkap-email-booking-reminder.php:325
+#: emails/class-bkap-email-booking-reminder.php:334
 #: emails/class-bkap-email-booking-rescheduled-admin.php:149
 #: emails/class-bkap-email-imported-events.php:213
-#: emails/class-bkap-email-new-booking.php:250
+#: emails/class-bkap-email-new-booking.php:264
 msgid "Enable this email notification"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:192
 #: emails/class-bkap-email-booking-confirmed.php:182
 #: emails/class-bkap-email-booking-pending.php:187
-#: emails/class-bkap-email-booking-reminder.php:329
+#: emails/class-bkap-email-booking-reminder.php:338
 #: emails/class-bkap-email-booking-rescheduled-admin.php:159
 #: emails/class-bkap-email-imported-events.php:223
-#: emails/class-bkap-email-new-booking.php:260
+#: emails/class-bkap-email-new-booking.php:274
 #: templates/reminders/bkap-manual-reminder-email-settings.php:69
 msgid "Subject"
 msgstr ""
@@ -90,10 +91,10 @@ msgstr ""
 #: emails/class-bkap-email-booking-cancelled.php:194
 #: emails/class-bkap-email-booking-confirmed.php:184
 #: emails/class-bkap-email-booking-pending.php:189
-#: emails/class-bkap-email-booking-reminder.php:331
+#: emails/class-bkap-email-booking-reminder.php:340
 #: emails/class-bkap-email-booking-rescheduled-admin.php:161
 #: emails/class-bkap-email-imported-events.php:225
-#: emails/class-bkap-email-new-booking.php:262
+#: emails/class-bkap-email-new-booking.php:276
 #, php-format
 msgid ""
 "This controls the email subject line. Leave blank to use the default "
@@ -114,20 +115,20 @@ msgstr ""
 #: emails/class-bkap-email-booking-cancelled.php:205
 #: emails/class-bkap-email-booking-confirmed.php:195
 #: emails/class-bkap-email-booking-pending.php:194
-#: emails/class-bkap-email-booking-reminder.php:336
+#: emails/class-bkap-email-booking-reminder.php:345
 #: emails/class-bkap-email-booking-rescheduled-admin.php:166
 #: emails/class-bkap-email-imported-events.php:230
-#: emails/class-bkap-email-new-booking.php:267
+#: emails/class-bkap-email-new-booking.php:281
 msgid "Email Heading"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:207
 #: emails/class-bkap-email-booking-confirmed.php:197
 #: emails/class-bkap-email-booking-pending.php:196
-#: emails/class-bkap-email-booking-reminder.php:338
+#: emails/class-bkap-email-booking-reminder.php:347
 #: emails/class-bkap-email-booking-rescheduled-admin.php:168
 #: emails/class-bkap-email-imported-events.php:232
-#: emails/class-bkap-email-new-booking.php:269
+#: emails/class-bkap-email-new-booking.php:283
 #, php-format
 msgid ""
 "This controls the main heading contained within the email notification. "
@@ -137,70 +138,70 @@ msgstr ""
 #: emails/class-bkap-email-booking-cancelled.php:212
 #: emails/class-bkap-email-booking-confirmed.php:202
 #: emails/class-bkap-email-booking-pending.php:201
-#: emails/class-bkap-email-booking-reminder.php:343
+#: emails/class-bkap-email-booking-reminder.php:352
 #: emails/class-bkap-email-booking-rescheduled-admin.php:173
 #: emails/class-bkap-email-imported-events.php:237
-#: emails/class-bkap-email-new-booking.php:274
+#: emails/class-bkap-email-new-booking.php:288
 msgid "Additional content"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:213
 #: emails/class-bkap-email-booking-confirmed.php:203
 #: emails/class-bkap-email-booking-pending.php:202
-#: emails/class-bkap-email-booking-reminder.php:344
+#: emails/class-bkap-email-booking-reminder.php:353
 #: emails/class-bkap-email-booking-rescheduled-admin.php:174
 #: emails/class-bkap-email-imported-events.php:238
-#: emails/class-bkap-email-new-booking.php:275
+#: emails/class-bkap-email-new-booking.php:289
 msgid "Text to appear below the main email content."
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:221
 #: emails/class-bkap-email-booking-confirmed.php:211
 #: emails/class-bkap-email-booking-pending.php:210
-#: emails/class-bkap-email-booking-reminder.php:352
+#: emails/class-bkap-email-booking-reminder.php:361
 #: emails/class-bkap-email-booking-rescheduled-admin.php:182
 #: emails/class-bkap-email-imported-events.php:246
-#: emails/class-bkap-email-new-booking.php:283
+#: emails/class-bkap-email-new-booking.php:297
 msgid "Email type"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:223
 #: emails/class-bkap-email-booking-confirmed.php:213
 #: emails/class-bkap-email-booking-pending.php:212
-#: emails/class-bkap-email-booking-reminder.php:354
+#: emails/class-bkap-email-booking-reminder.php:363
 #: emails/class-bkap-email-booking-rescheduled-admin.php:184
 #: emails/class-bkap-email-imported-events.php:248
-#: emails/class-bkap-email-new-booking.php:285
+#: emails/class-bkap-email-new-booking.php:299
 msgid "Choose which format of email to send."
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:227
 #: emails/class-bkap-email-booking-confirmed.php:217
 #: emails/class-bkap-email-booking-pending.php:216
-#: emails/class-bkap-email-booking-reminder.php:358
+#: emails/class-bkap-email-booking-reminder.php:367
 #: emails/class-bkap-email-booking-rescheduled-admin.php:188
 #: emails/class-bkap-email-imported-events.php:252
-#: emails/class-bkap-email-new-booking.php:289
+#: emails/class-bkap-email-new-booking.php:303
 msgid "Plain text"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:228
 #: emails/class-bkap-email-booking-confirmed.php:218
 #: emails/class-bkap-email-booking-pending.php:217
-#: emails/class-bkap-email-booking-reminder.php:359
+#: emails/class-bkap-email-booking-reminder.php:368
 #: emails/class-bkap-email-booking-rescheduled-admin.php:189
 #: emails/class-bkap-email-imported-events.php:253
-#: emails/class-bkap-email-new-booking.php:290
+#: emails/class-bkap-email-new-booking.php:304
 msgid "HTML"
 msgstr ""
 
 #: emails/class-bkap-email-booking-cancelled.php:229
 #: emails/class-bkap-email-booking-confirmed.php:219
 #: emails/class-bkap-email-booking-pending.php:218
-#: emails/class-bkap-email-booking-reminder.php:360
+#: emails/class-bkap-email-booking-reminder.php:369
 #: emails/class-bkap-email-booking-rescheduled-admin.php:190
 #: emails/class-bkap-email-imported-events.php:254
-#: emails/class-bkap-email-new-booking.php:291
+#: emails/class-bkap-email-new-booking.php:305
 msgid "Multipart"
 msgstr ""
 
@@ -224,7 +225,7 @@ msgstr ""
 #: emails/class-bkap-email-booking-confirmed.php:189
 #: emails/class-bkap-email-booking-rescheduled-admin.php:153
 #: emails/class-bkap-email-imported-events.php:217
-#: emails/class-bkap-email-new-booking.php:254
+#: emails/class-bkap-email-new-booking.php:268
 #: templates/reminders/bkap-reminder-sms-view.php:86
 msgid "Recipient"
 msgstr ""
@@ -260,7 +261,7 @@ msgstr ""
 
 #: emails/class-bkap-email-booking-reminder.php:36
 #: emails/class-bkap-email-booking-reminder.php:38
-#: includes/bkap-send-reminder.php:92 includes/bkap-send-reminder.php:480
+#: includes/bkap-send-reminder.php:126 includes/bkap-send-reminder.php:553
 #: includes/class-bkap-reminder.php:274 includes/class-bkap-reminder.php:314
 #: includes/vendors/class-bkap-vendor-compatibility.php:208
 msgid "Booking Reminder"
@@ -293,7 +294,7 @@ msgstr ""
 
 #: emails/class-bkap-email-booking-rescheduled-admin.php:155
 #: emails/class-bkap-email-imported-events.php:219
-#: emails/class-bkap-email-new-booking.php:256
+#: emails/class-bkap-email-new-booking.php:270
 #, php-format
 msgid "Enter recipients (comma separated) for this email. Defaults to %s"
 msgstr ""
@@ -316,38 +317,38 @@ msgstr ""
 msgid "[{blogname}] New event imported from Google Calendar"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:36
+#: emails/class-bkap-email-new-booking.php:50
 #: includes/class-bkap-custom-post-types.php:72
 msgid "New Booking"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:37
+#: emails/class-bkap-email-new-booking.php:51
 msgid ""
 "New booking emails are sent to the admin for a new booking. This email is "
 "received when a Pending confirmation booking is created."
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:39
+#: emails/class-bkap-email-new-booking.php:53
 msgid "New booking"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:40
+#: emails/class-bkap-email-new-booking.php:54
 msgid "Confirm booking"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:41
+#: emails/class-bkap-email-new-booking.php:55
 msgid ""
 "[{blogname}] New booking for {product_title} (Order {order_number}) - "
 "{order_date}"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:42
+#: emails/class-bkap-email-new-booking.php:56
 msgid ""
 "[{blogname}] A new booking for {product_title} (Order {order_number}) is "
 "awaiting your approval - {order_date}"
 msgstr ""
 
-#: emails/class-bkap-email-new-booking.php:304
+#: emails/class-bkap-email-new-booking.php:318
 msgid "Congratulations on receiving booking."
 msgstr ""
 
@@ -376,6 +377,10 @@ msgstr ""
 msgid "Invalid order ID provided"
 msgstr ""
 
+#: includes/bkap-all-component.php:143
+msgid "Reset usage tracking"
+msgstr ""
+
 #: includes/bkap-attribute-lockout.php:91
 msgid "Equate Booking Lockout with Attribute value(s)"
 msgstr ""
@@ -384,25 +389,27 @@ msgstr ""
 msgid "Booking Lockout for Attribute"
 msgstr ""
 
-#: includes/bkap-availability-search.php:273 includes/bkap-common.php:1275
-#: includes/bkap-common.php:1714 includes/bkap-lang.php:32
-#: includes/bkap-lang.php:38 includes/bkap-lang.php:43
-#: includes/bkap-process-functions.php:5273
+#: includes/bkap-availability-search.php:280 includes/bkap-checkout.php:1116
+#: includes/bkap-common.php:1210 includes/bkap-common.php:1654
+#: includes/bkap-lang.php:32 includes/bkap-lang.php:38
+#: includes/bkap-lang.php:43 includes/bkap-process-functions.php:5424
 #: includes/bkap-widget-product-search.php:93
-#: includes/class-bkap-booking-view-bookings.php:267
-#: includes/class-bkap-booking-view-bookings.php:645
-#: includes/class-bkap-booking-view-bookings.php:1793
-#: includes/class-bkap-cancel-booking.php:298
-#: includes/class-bkap-cancel-booking.php:659
-#: includes/class-bkap-edit-booking-post.php:74
+#: includes/class-bkap-booking-view-bookings.php:273
+#: includes/class-bkap-booking-view-bookings.php:652
+#: includes/class-bkap-booking-view-bookings.php:1898
+#: includes/class-bkap-cancel-booking.php:300
+#: includes/class-bkap-cancel-booking.php:662
+#: includes/class-bkap-edit-booking-post.php:75
 #: includes/class-bkap-edit-bookings.php:222
-#: includes/class-bkap-edit-bookings.php:470
-#: includes/class-bkap-gcal-event-view.php:97
+#: includes/class-bkap-edit-bookings.php:479
+#: includes/class-bkap-gcal-event-view.php:103
 #: includes/class-bkap-plugin-activate.php:89
 #: includes/class-bkap-plugin-activate.php:97
 #: includes/class-bkap-plugin-activate.php:102
-#: includes/class-bkap-rescheduled-order.php:77
-#: templates/bookings/bkap-bookings-date.php:101
+#: includes/class-bkap-rescheduled-order.php:79
+#: templates/bookings/bkap-bookings-date.php:169
+#: templates/bookings/bkap-cancel-booking.php:17
+#: templates/emails/customer-booking-reminder.php:20
 #: templates/vendors-integration/bkap-view-bookings.php:202
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:52
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:45
@@ -410,26 +417,28 @@ msgstr ""
 msgid "Start Date"
 msgstr ""
 
-#: includes/bkap-availability-search.php:274 includes/bkap-common.php:1276
-#: includes/bkap-common.php:1737 includes/bkap-common.php:1863
-#: includes/bkap-lang.php:33 includes/bkap-lang.php:39
-#: includes/bkap-lang.php:44 includes/bkap-process-functions.php:5274
+#: includes/bkap-availability-search.php:281 includes/bkap-checkout.php:1121
+#: includes/bkap-common.php:1211 includes/bkap-common.php:1689
+#: includes/bkap-common.php:1847 includes/bkap-lang.php:33
+#: includes/bkap-lang.php:39 includes/bkap-lang.php:44
+#: includes/bkap-process-functions.php:5425
 #: includes/bkap-widget-product-search.php:94
-#: includes/class-bkap-booking-view-bookings.php:268
-#: includes/class-bkap-booking-view-bookings.php:646
-#: includes/class-bkap-booking-view-bookings.php:1794
-#: includes/class-bkap-cancel-booking.php:299
-#: includes/class-bkap-cancel-booking.php:660
-#: includes/class-bkap-edit-booking-post.php:76
-#: includes/class-bkap-edit-booking-post.php:594
+#: includes/class-bkap-booking-view-bookings.php:274
+#: includes/class-bkap-booking-view-bookings.php:653
+#: includes/class-bkap-booking-view-bookings.php:1899
+#: includes/class-bkap-cancel-booking.php:301
+#: includes/class-bkap-cancel-booking.php:663
+#: includes/class-bkap-edit-booking-post.php:77
+#: includes/class-bkap-edit-booking-post.php:607
 #: includes/class-bkap-edit-bookings.php:223
-#: includes/class-bkap-edit-bookings.php:472
-#: includes/class-bkap-edit-bookings.php:979
-#: includes/class-bkap-gcal-event-view.php:98
+#: includes/class-bkap-edit-bookings.php:481
+#: includes/class-bkap-edit-bookings.php:1045
+#: includes/class-bkap-gcal-event-view.php:104
 #: includes/class-bkap-plugin-activate.php:98
 #: includes/class-bkap-plugin-activate.php:103
-#: includes/class-bkap-rescheduled-order.php:78
-#: templates/bookings/bkap-bookings-date.php:142
+#: includes/class-bkap-rescheduled-order.php:80
+#: templates/bookings/bkap-bookings-date.php:243
+#: templates/bookings/bkap-cancel-booking.php:18
 #: templates/vendors-integration/bkap-view-bookings.php:203
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:53
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:46
@@ -437,107 +446,107 @@ msgstr ""
 msgid "End Date"
 msgstr ""
 
-#: includes/bkap-availability-search.php:275
+#: includes/bkap-availability-search.php:282
 #: includes/bkap-widget-product-search.php:95
 msgid "Search"
 msgstr ""
 
-#: includes/bkap-availability-search.php:276
+#: includes/bkap-availability-search.php:283
 msgid "Clear"
 msgstr ""
 
-#: includes/bkap-availability-search.php:278
+#: includes/bkap-availability-search.php:285
 msgid "Select Category"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:190 includes/bkap-block-pricing.php:502
+#: includes/bkap-block-pricing.php:197 includes/bkap-block-pricing.php:509
 msgid "Block Pricing"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:508
+#: includes/bkap-block-pricing.php:515
 msgid "Fixed Block Booking"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:513
+#: includes/bkap-block-pricing.php:520
 msgid "Price By Range Of Nights"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:520
+#: includes/bkap-block-pricing.php:527
 msgid ""
 "Select Fixed Block Booking option if you want customers to book or rent this "
 "product for fixed number of days. Select Price By Range Of Nights option if "
 "you want to charge customers different prices for different day ranges."
 msgstr ""
 
-#: includes/bkap-block-pricing.php:568
+#: includes/bkap-block-pricing.php:575
 msgid "Price by range of nights :"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:584
+#: includes/bkap-block-pricing.php:591
 msgid "Create block ranges and its per day and/or fixed price."
 msgstr ""
 
-#: includes/bkap-block-pricing.php:589 includes/bkap-block-pricing.php:705
+#: includes/bkap-block-pricing.php:596 includes/bkap-block-pricing.php:713
 #: templates/vendors-integration/dokan/bkap-dokan-vendor-global-availability.php:54
 msgid "Save"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:591 includes/bkap-booking-box.php:354
+#: includes/bkap-block-pricing.php:598 includes/bkap-booking-box.php:353
 msgid "Add New Range"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:645
+#: includes/bkap-block-pricing.php:652
 msgid "Minimum Day"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:646
+#: includes/bkap-block-pricing.php:653
 msgid "Maximum Day"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:686
+#: includes/bkap-block-pricing.php:694
 msgid "Fixed Blocks Booking :"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:700
+#: includes/bkap-block-pricing.php:708
 msgid "Create fixed blocks of booking and its price."
 msgstr ""
 
-#: includes/bkap-block-pricing.php:708
+#: includes/bkap-block-pricing.php:716
 msgid "Add New Block"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:729
+#: includes/bkap-block-pricing.php:737
 msgid "Block Name"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:730
+#: includes/bkap-block-pricing.php:738
 msgid "Days"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:731
+#: includes/bkap-block-pricing.php:739
 msgid "Start Day"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:732
+#: includes/bkap-block-pricing.php:740
 msgid "End Day"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:733
+#: includes/bkap-block-pricing.php:741
 msgid "Price ("
 msgstr ""
 
-#: includes/bkap-block-pricing.php:982 includes/bkap-block-pricing.php:1109
-#: includes/bkap-booking-box.php:874
+#: includes/bkap-block-pricing.php:989 includes/bkap-block-pricing.php:1113
+#: includes/bkap-booking-box.php:872
 msgid "Expand"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:982 includes/bkap-block-pricing.php:1109
-#: includes/bkap-booking-box.php:874 includes/class-bkap-scripts.php:846
+#: includes/bkap-block-pricing.php:989 includes/bkap-block-pricing.php:1113
+#: includes/bkap-booking-box.php:872 includes/class-bkap-scripts.php:865
 msgid "Close"
 msgstr ""
 
-#: includes/bkap-block-pricing.php:1146 includes/bkap-booking-process.php:3749
-#: includes/bkap-special-booking-price.php:477
+#: includes/bkap-block-pricing.php:1150 includes/bkap-booking-process.php:3681
+#: includes/bkap-special-booking-price.php:502
 msgid "Please select an option."
 msgstr ""
 
@@ -554,177 +563,183 @@ msgstr ""
 msgid "Booking"
 msgstr ""
 
-#: includes/bkap-booking-box.php:176
+#: includes/bkap-booking-box.php:178
 #: templates/vendors-integration/bkap-manage-reminders.php:80
 #: templates/vendors-integration/bkap-manage-resources.php:41
 msgid "Save Changes"
 msgstr ""
 
-#: includes/bkap-booking-box.php:229 includes/bkap-booking-box.php:1416
+#: includes/bkap-booking-box.php:228 includes/bkap-booking-box.php:1415
 msgid "Weekday"
 msgstr ""
 
-#: includes/bkap-booking-box.php:230 includes/bkap-booking-box.php:388
-#: includes/bkap-booking-box.php:1354
+#: includes/bkap-booking-box.php:229 includes/bkap-booking-box.php:387
+#: includes/bkap-booking-box.php:1353
 #: templates/meta-boxes/html-bkap-resource-details.php:52
 msgid "Bookable"
 msgstr ""
 
-#: includes/bkap-booking-box.php:239
+#: includes/bkap-booking-box.php:238
 msgid "Maximum bookings"
 msgstr ""
 
-#: includes/bkap-booking-box.php:290
+#: includes/bkap-booking-box.php:280 includes/bkap-booking-box.php:523
+#: includes/bkap-booking-box.php:856 includes/bkap-booking-box.php:1517
+#: templates/meta-boxes/html-bkap-time-slots-meta-box.php:103
+msgid "Max bookings"
+msgstr ""
+
+#: includes/bkap-booking-box.php:289
 msgid "Special Price"
 msgstr ""
 
-#: includes/bkap-booking-box.php:334
+#: includes/bkap-booking-box.php:333
 msgid "Set Availability by Dates/Months"
 msgstr ""
 
-#: includes/bkap-booking-box.php:353
+#: includes/bkap-booking-box.php:352
 msgid "Create custom ranges, holidays and more here."
 msgstr ""
 
-#: includes/bkap-booking-box.php:376
+#: includes/bkap-booking-box.php:375
 msgid "Range Type"
 msgstr ""
 
-#: includes/bkap-booking-box.php:380 includes/bkap-booking-box.php:1351
-#: includes/bkap-booking-box.php:1420
+#: includes/bkap-booking-box.php:379 includes/bkap-booking-box.php:1350
+#: includes/bkap-booking-box.php:1419
 #: templates/meta-boxes/html-bkap-resource-details.php:49
 #: templates/reminders/bkap-reminder-sms-view.php:36
 msgid "From"
 msgstr ""
 
-#: includes/bkap-booking-box.php:384 includes/bkap-booking-box.php:1353
-#: includes/bkap-booking-box.php:1424
+#: includes/bkap-booking-box.php:383 includes/bkap-booking-box.php:1352
+#: includes/bkap-booking-box.php:1423
 #: templates/meta-boxes/html-bkap-resource-details.php:51
 msgid "To"
 msgstr ""
 
-#: includes/bkap-booking-box.php:392
+#: includes/bkap-booking-box.php:391
 msgid "Max bookings/<br>No. of Years"
 msgstr ""
 
-#: includes/bkap-booking-box.php:946
+#: includes/bkap-booking-box.php:945
 msgid "time slot"
 msgid_plural "time slots"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/bkap-booking-box.php:950
+#: includes/bkap-booking-box.php:949
 msgid "Go to the first page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:951
+#: includes/bkap-booking-box.php:950
 msgid "Go to the previous page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:953
+#: includes/bkap-booking-box.php:952
 msgid "Select Page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:954
+#: includes/bkap-booking-box.php:953
 msgid "Current page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:959
+#: includes/bkap-booking-box.php:958
 msgctxt "number of pages"
 msgid "of"
 msgstr ""
 
-#: includes/bkap-booking-box.php:961
+#: includes/bkap-booking-box.php:960
 msgid "Go to the next page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:962
+#: includes/bkap-booking-box.php:961
 msgid "Go to the last page"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1091
+#: includes/bkap-booking-box.php:1090
 msgid "Set Weekdays/Dates And It's Timeslots :"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1134
+#: includes/bkap-booking-box.php:1133
 msgid "Create timeslots for the days/dates selected above."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1135
+#: includes/bkap-booking-box.php:1134
 msgid "Enter time in 24 hours format e.g. 14:00."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1136
+#: includes/bkap-booking-box.php:1135
 msgid ""
 "Leave \"To time\" unchanged if you do not wish to create a fixed time "
 "duration slot."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1139
+#: includes/bkap-booking-box.php:1138
 msgid "Delete All Timeslots"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1139
+#: includes/bkap-booking-box.php:1138
 msgid "Add New Timeslot"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1151
+#: includes/bkap-booking-box.php:1150
 msgid "Set Duration Based Bookings"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1157
+#: includes/bkap-booking-box.php:1156
 #: templates/meta-boxes/html-bkap-resources.php:26
 msgid "Label:"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1166
+#: includes/bkap-booking-box.php:1165
 msgid "Set label for the duration field on the front end"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1170 includes/bkap-cart.php:748
+#: includes/bkap-booking-box.php:1169 includes/bkap-cart.php:761
 #: includes/class-bkap-duration-time.php:66
 msgid "Duration"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1198
+#: includes/bkap-booking-box.php:1197
 msgid ""
 "Lengh of the time. Set value to 2 hours/minutes if the duration of your "
 "service is 2 hours/minutes. All the 2 hours/minutes durations will be "
 "created from mindnight till end of the day."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1202
+#: includes/bkap-booking-box.php:1201
 msgid "Gap between durations"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1230
+#: includes/bkap-booking-box.php:1229
 msgid ""
 "Set gap between two times. Set value to 2 hours/minutes if the gap between "
 "your service is 2 hours/minutes. All the duration will be created "
 "considering the gap time."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1234
+#: includes/bkap-booking-box.php:1233
 msgid "Minimum duration"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1244
+#: includes/bkap-booking-box.php:1243
 msgid "Minimum duration value a customer can select to book the service."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1248
+#: includes/bkap-booking-box.php:1247
 msgid "Maximum duration"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1259
+#: includes/bkap-booking-box.php:1258
 msgid "Maximum duration value a customer can select to book the service."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1263
+#: includes/bkap-booking-box.php:1262
 msgid "Maximum booking"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1274
+#: includes/bkap-booking-box.php:1273
 msgid ""
 "Set this field if you want to place a limit on maximum bookings on the "
 "duration. If you can manage up to 15 bookings in a duration, set this value "
@@ -732,19 +747,19 @@ msgid ""
 "available for further bookings."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1278
+#: includes/bkap-booking-box.php:1277
 msgid "Duration price"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1291
+#: includes/bkap-booking-box.php:1290
 msgid "Price for the duration. "
 msgstr ""
 
-#: includes/bkap-booking-box.php:1295
+#: includes/bkap-booking-box.php:1294
 msgid "Duration start & end range for days"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1312
+#: includes/bkap-booking-box.php:1311
 msgid ""
 "Set this field if you want to start the duration from perticular time. If "
 "your day starts at 10:00am then you can set this value to 10:00. All the "
@@ -753,86 +768,86 @@ msgid ""
 "time will be considered till end of the day."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1328
+#: includes/bkap-booking-box.php:1327
 #: includes/class-bkap-import-export-bookable-products.php:105
 msgid "Manage Time Availability"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1333
+#: includes/bkap-booking-box.php:1332
 msgid "Make all data block unavailable"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1337
+#: includes/bkap-booking-box.php:1336
 msgid ""
 "Enable this option to make all the day/date and time unavailable except the "
 "ranges added in the below table"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1342
+#: includes/bkap-booking-box.php:1341
 msgid ""
 "Enabling this option will disable all the dates in the calendar. Usign this "
 "option with below table, you can enable desired dates for booking."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1350
+#: includes/bkap-booking-box.php:1349
 #: templates/meta-boxes/html-bkap-resource-details.php:48
 msgid "Range type"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1355
+#: includes/bkap-booking-box.php:1354
 #: templates/meta-boxes/html-bkap-resource-details.php:53
 msgid "Priority"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1363
+#: includes/bkap-booking-box.php:1362
 #: templates/meta-boxes/html-bkap-resource-details.php:60
 msgid ""
 "Rules with lower priority numbers will override rules with a higher priority "
 "(e.g. 9 overrides 10 )."
 msgstr ""
 
-#: includes/bkap-booking-box.php:1373
+#: includes/bkap-booking-box.php:1372
 #: templates/meta-boxes/html-bkap-resource-details.php:70
 msgid "Add Range"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1428
+#: includes/bkap-booking-box.php:1427
 #: includes/class-bkap-import-export-bookable-products.php:95
 msgid "Maximum Bookings"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1432
+#: includes/bkap-booking-box.php:1431
 #: includes/class-bkap-bulk-booking-settings.php:1310
 #: includes/class-bkap-list-booking.php:303
 #: templates/emails/customer-booking-confirmed.php:93
 msgid "Price"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1436
+#: includes/bkap-booking-box.php:1435
 msgid "Global"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1440
+#: includes/bkap-booking-box.php:1439
 #: includes/class-bkap-bulk-booking-settings.php:1313
 msgid "Note"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1452
+#: includes/bkap-booking-box.php:1451
 msgid "Delete all timeslots"
 msgstr ""
 
-#: includes/bkap-booking-box.php:1504 includes/bkap-common.php:2294
+#: includes/bkap-booking-box.php:1502 includes/bkap-common.php:2290
 #: includes/class-import-bookings-table.php:144
 #: templates/html-bkap-bulk-booking-rules.php:16
-#: templates/meta-boxes/html-bkap-time-slots-meta-box.php:99
+#: templates/meta-boxes/html-bkap-time-slots-meta-box.php:98
 msgid "All"
 msgstr ""
 
-#: includes/bkap-booking-box.php:3962
+#: includes/bkap-booking-box.php:3991
 msgid "Oops! something wrong happens, please contact admin."
 msgstr ""
 
-#: includes/bkap-booking-box.php:4007
+#: includes/bkap-booking-box.php:4036
 msgid "Timeslot updated successfully."
 msgstr ""
 
@@ -881,13 +896,13 @@ msgstr ""
 msgid "Day(s)"
 msgstr ""
 
-#: includes/bkap-booking-confirmation.php:786 includes/bkap-cart.php:751
+#: includes/bkap-booking-confirmation.php:786 includes/bkap-cart.php:764
 #: includes/class-bkap-duration-time.php:63
 #: templates/reminders/html-bkap-reminder-settings.php:3
 msgid "Hour(s)"
 msgstr ""
 
-#: includes/bkap-booking-confirmation.php:787 includes/bkap-cart.php:751
+#: includes/bkap-booking-confirmation.php:787 includes/bkap-cart.php:764
 msgid "Minute(s)"
 msgstr ""
 
@@ -895,35 +910,35 @@ msgstr ""
 msgid "clear selection"
 msgstr ""
 
-#: includes/bkap-booking-process.php:61
+#: includes/bkap-booking-process.php:59
 msgid "Clear booking details"
 msgstr ""
 
-#: includes/bkap-booking-process.php:328
+#: includes/bkap-booking-process.php:243
 msgid "Please update the cart before editing the Booking details."
 msgstr ""
 
-#: includes/bkap-booking-process.php:1903
+#: includes/bkap-booking-process.php:1814
 msgid "Number of Days Selected: "
 msgstr ""
 
-#: includes/bkap-booking-process.php:1955
+#: includes/bkap-booking-process.php:1866
 msgid "This date is already added. Please select some other date."
 msgstr ""
 
-#: includes/bkap-booking-process.php:2153
+#: includes/bkap-booking-process.php:2064
 msgid "Please choose product options&hellip;"
 msgstr ""
 
-#: includes/bkap-booking-process.php:2244
+#: includes/bkap-booking-process.php:2155
 msgid "Please select a date."
 msgstr ""
 
-#: includes/bkap-booking-process.php:2306
+#: includes/bkap-booking-process.php:2217
 msgid "Bookings are full."
 msgstr ""
 
-#: includes/bkap-booking-process.php:2309
+#: includes/bkap-booking-process.php:2220
 #, php-format
 msgid ""
 "Available bookings for date %1$s are already added in the cart. You can add "
@@ -931,37 +946,37 @@ msgid ""
 "href=\"%2$s\">%3$s</a>."
 msgstr ""
 
-#: includes/bkap-booking-process.php:2312
-#: includes/bkap-booking-process.php:3350
-#: includes/bkap-booking-process.php:3380 includes/bkap-validation.php:464
-#: includes/bkap-validation.php:475
+#: includes/bkap-booking-process.php:2223
+#: includes/bkap-booking-process.php:3278
+#: includes/bkap-booking-process.php:3308 includes/bkap-validation.php:463
+#: includes/bkap-validation.php:474
 msgid "cart"
 msgstr ""
 
-#: includes/bkap-booking-process.php:2409
+#: includes/bkap-booking-process.php:2320
 msgid "Please select an option to display booking information."
 msgstr ""
 
-#: includes/bkap-booking-process.php:2578
-#: includes/bkap-booking-process.php:2868
-#: includes/bkap-booking-process.php:3339
-#: includes/bkap-booking-process.php:3355
-#: includes/bkap-booking-process.php:3538
-#: includes/bkap-import-bookings.php:1174
-#: includes/bkap-import-bookings.php:1215
-#: includes/bkap-process-functions.php:3148
+#: includes/bkap-booking-process.php:2489
+#: includes/bkap-booking-process.php:2781
+#: includes/bkap-booking-process.php:3267
+#: includes/bkap-booking-process.php:3283
+#: includes/bkap-booking-process.php:3466
+#: includes/bkap-import-bookings.php:1201
+#: includes/bkap-import-bookings.php:1242
+#: includes/bkap-process-functions.php:3281
 msgid "Unlimited"
 msgstr ""
 
-#: includes/bkap-booking-process.php:3340
+#: includes/bkap-booking-process.php:3268
 #, php-format
 msgid ""
 "Available bookings for timeslot %s are either fully booked or already added "
 "in the cart"
 msgstr ""
 
-#: includes/bkap-booking-process.php:3350
-#: includes/bkap-booking-process.php:3380
+#: includes/bkap-booking-process.php:3278
+#: includes/bkap-booking-process.php:3308
 #, php-format
 msgid ""
 "Available bookings for this timeslot are already added in the cart. You can "
@@ -969,31 +984,31 @@ msgid ""
 "in the <a href=\"%1$s\">%2$s</a>."
 msgstr ""
 
-#: includes/bkap-booking-process.php:4005
-#: includes/bkap-booking-process.php:4104
+#: includes/bkap-booking-process.php:3946
+#: includes/bkap-booking-process.php:4045
 #, php-format
 msgid "Store time is %1$s %2$s"
 msgstr ""
 
-#: includes/bkap-booking-process.php:4043
-#: includes/bkap-booking-process.php:4147
-#: includes/bkap-booking-process.php:4213
-#: includes/bkap-booking-process.php:4282
+#: includes/bkap-booking-process.php:3984
+#: includes/bkap-booking-process.php:4088
+#: includes/bkap-booking-process.php:4154
+#: includes/bkap-booking-process.php:4223
 msgid "There are no timeslots available for the selected date."
 msgstr ""
 
-#: includes/bkap-booking-process.php:4918
+#: includes/bkap-booking-process.php:4888
 msgid "The selected resource is not available for the selected date"
 msgstr ""
 
-#: includes/bkap-booking-process.php:4918
+#: includes/bkap-booking-process.php:4888
 msgid ""
 "One or more of the resources selected are not available for the selected "
 "date."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:123
-#: includes/product-calendar-sync-settings.php:103
+#: includes/product-calendar-sync-settings.php:105
 msgid "Export Bookings to Google Calendar"
 msgstr ""
 
@@ -1004,12 +1019,12 @@ msgid ""
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:173
-#: includes/product-calendar-sync-settings.php:132
+#: includes/product-calendar-sync-settings.php:134
 msgid "OAuth Sync (Recommended)"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:174
-#: includes/product-calendar-sync-settings.php:133
+#: includes/product-calendar-sync-settings.php:135
 msgid "Service Account Sync"
 msgstr ""
 
@@ -1018,341 +1033,339 @@ msgid "Sync Manually"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:176
-#: includes/product-calendar-sync-settings.php:134
+#: includes/product-calendar-sync-settings.php:136
 msgid "Disabled"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:333
 msgid ""
-"To set up Key file name, Service account email address, and Calendar to be "
-"used, please click on \"Show me how\" link and carefully follow these steps:"
+"To set up Service Account Sync and Calendar to be used, please click on "
+"\"Show me how\" link and carefully follow these steps:"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:335
-#: includes/bkap-calendar-sync-settings.php:375
-#: includes/bkap-calendar-sync-settings.php:588
+#: includes/bkap-calendar-sync-settings.php:364
+#: includes/bkap-calendar-sync-settings.php:672
 msgid "Click to toggle instructions"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:335
-#: includes/bkap-calendar-sync-settings.php:375
-#: includes/bkap-calendar-sync-settings.php:588
+#: includes/bkap-calendar-sync-settings.php:364
+#: includes/bkap-calendar-sync-settings.php:672
 msgid "Show me how"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:339
-msgid "Google Calendar API requires php V5.3+ and some php extensions."
+msgid "Google Calendar API requires PHP V5.3+ and some PHP extensions."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:340
-#, php-format
-msgid ""
-"Go to Google APIs console by clicking %s. Login to your Google account if "
-"you are not already logged in."
+msgid "Go to Google APIs console by clicking "
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:340
+msgid ". Login to your Google account if you are not already logged in."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:341
 msgid ""
-"Create a new project. Click on 'Create Project' button. Name the project "
-"\"Bookings\" (or use your chosen name instead)."
+"Click on 'Create Project'. Name the project 'Booking & Appointment' (or use "
+"your chosen name instead) and create the project."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:342
-msgid "Click on API Manager from left side pane."
+msgid ""
+"Click on APIs & Services from the left side panel. Select the Project "
+"created. "
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:343
 msgid ""
-"Click \"Calendar API\" under Google Apps APIs and click on Enable button."
+"Click on 'Enable APIs and services' on the dashboard. Search for 'Google "
+"Calendar API' and enable this API."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:344
 msgid ""
-"Go to \"Credentials\" menu in the left side pane and click on \"Create "
-"Credentials\" dropdown."
+"Go to 'Credentials' menu in the left side pane and click on 'CREATE "
+"CREDENTIALS' link and from the dropdown that appears select 'Service "
+"account.'"
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:345
 msgid ""
-"Click on \"OAuth client ID\" option. Then click on Configure consent screen."
+"Enter Service account name, id, and description and Create the service "
+"account."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:346
 msgid ""
-"Enter a Product Name, e.g. Bookings and Appointments, inside the opening pop-"
-"up. Click Save."
+"In the next step assign Owner role under Service account permissions, keep "
+"options in the third optional step empty and click on Done button."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:347
 msgid ""
-"Select \"Web Application\" option, enter the Web client name and create the "
-"client ID."
+"Now edit the Service account that you have created and under the 'Keys' "
+"section click on Add Key>> Create New Key, in the popup that opens select "
+"'JSON' option and click on the CREATE button. A file with extension .json "
+"will be downloaded."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:348
-msgid "Click on New Credentials dropdown and select \"Service account key\"."
+msgid ""
+"The JSON file is required as you will grant access to your Google Calendar "
+"account. So this file serves as a proof of your consent to access to your "
+"Google calendar account."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:349
 msgid ""
-"Click \"Service account\" and select \"New service account\" and enter the "
-"name. Set the Role to \"Owner\"."
+"Select the downloaded JSON file in Upload JSON File option below and click "
+"on Upload button."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:350
-msgid "Now select key type as \"P12\" and create the service account."
+msgid "Open your Google Calendar by clicking this link: "
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:351
-msgid "A file with extension .p12 will be downloaded."
+msgid ""
+"Create a new Calendar by clicking on '+' sign next to 'Other Calendars' "
+"section on left side pane. Try NOT to use your primary calendar."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:352
-#, php-format
 msgid ""
-"Using your FTP client program, copy this key file to folder: %s . This file "
-"is required as you will grant access to your Google Calendar account even if "
-"you are not online. So this file serves as a proof of your consent to access "
-"to your Google calendar account. Note: This file cannot be uploaded in any "
-"other way. If you do not have FTP access, ask the website admin to do it for "
-"you."
+"Give a name to the new calendar, e.g. Booking calendar. Check that Calendar "
+"Time Zone setting matches with time zone setting of your WordPress website. "
+"Otherwise there will be a time shift."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:353
 msgid ""
-"Enter the name of the key file to \"Key file name\" field of Booking "
-"Settings. Exclude the extention .p12."
+"Create the calendar and once it is created click on the Configure link which "
+"will appear at the end of the page, this will redirect you to Calendar "
+"Settings section. Paste already copied 'Service Account ID' from Manage "
+"service account of Google APIs console to 'Add People' field under 'Share "
+"with specific people'."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:354
 msgid ""
-"Copy \"Email address\" setting from Manage service account of Google apis "
-"console and paste it to \"Service account email address\" setting of Booking."
+"Set 'Permission Settings' of this person as 'Make changes to events' and add "
+"the person."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:355
-#: includes/bkap-calendar-sync-settings.php:593
-#, php-format
-msgid "Open your Google Calendar by clicking this link: %s"
+msgid ""
+"Now copy 'Calendar ID' value from Integrate Calendar section and paste the "
+"value to 'Calendar to be used' field."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:356
 msgid ""
-"Create a new Calendar by selecting \"my Calendars > Create new calendar\" on "
-"left side pane. <b>Try NOT to use your primary calendar.</b>"
+"After saving the settings, you can test the connection by clicking on the "
+"'Test Connection' link."
 msgstr ""
 
 #: includes/bkap-calendar-sync-settings.php:357
 msgid ""
-"Give a name to the new calendar, e.g. Bookings calendar. <b>Check that "
-"Calendar Time Zone setting matches with time zone setting of your WordPress "
-"website.</b> Otherwise there will be a time shift."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:358
-msgid ""
-"Paste already copied \"Email address\" setting from Manage service account "
-"of Google apis console to \"Person\" field under \"Share with specific person"
-"\"."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:359
-msgid ""
-"Set \"Permission Settings\" of this person as \"Make changes to events\"."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:360
-msgid "Click \"Add Person\"."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:361
-msgid "Click \"Create Calendar\"."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:362
-msgid "Select the created calendar and click \"Calendar settings\"."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:363
-msgid "Copy \"Calendar ID\" value on Calendar Address row."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:364
-msgid "Paste this value to \"Calendar to be used\" field of Booking Settings."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:365
-msgid ""
-"Select the desired Integration mode: Sync Automatically or Sync Manually."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:366
-msgid "Click \"Save Settings\" on Booking settings."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:367
-msgid ""
-"After these stages, you have set up Google Calendar API. To test the "
-"connection, click the \"Test Connection\" link."
-msgstr ""
-
-#: includes/bkap-calendar-sync-settings.php:368
-msgid ""
-"If you get a success message, you should see a test event inserted to the "
+"If you get a success message, you should see a test event inserted into the "
 "Google Calendar and you are ready to go. If you get an error message, double "
 "check your settings."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:373
+#: includes/bkap-calendar-sync-settings.php:362
 msgid ""
 "To set up <b>Client ID</b> and <b>Client Secret</b> please click on \"Show "
 "me how\" link and carefully follow these steps:"
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:379
+#: includes/bkap-calendar-sync-settings.php:368
 #, php-format
 msgid ""
 "Go to the <b>%s</b> and select a project, or create a new one. Login to your "
 "Google account if you are not already logged in."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:380
+#: includes/bkap-calendar-sync-settings.php:369
 msgid ""
 "If creating a new project, give the Project name e.g 'My Booking Project' "
 "and click on the Create button."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:381
+#: includes/bkap-calendar-sync-settings.php:370
 msgid ""
 "Once the project is created, the Calendar API needs to be enabled. To do so, "
 "click on <b>ENABLE API AND SERVICES</b> link and search for <b>Google "
 "Calendar API</b>, and enable it by clicking the ENABLE button."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:382
+#: includes/bkap-calendar-sync-settings.php:371
 msgid ""
 "On the left, click <b>Credentials</b>. If this is your first time creating a "
 "client ID, you'll be prompted to configure the consent screen. Click on "
 "<b>Configure Consent Screen</b>."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:383
+#: includes/bkap-calendar-sync-settings.php:372
 msgid ""
 "Go to the <b>OAuth consent screen</b>. Select User Type as <b>Internal</b> "
 "and click on the CREATE button. After that, set the <b>Application name</b> "
 "and click on the Create button."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:384
+#: includes/bkap-calendar-sync-settings.php:373
 msgid ""
 "Go back to the <b>Credentials</b> tab, click <b>Create credentials</b>, then "
 "select <b>OAuth client ID</b>."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:385
+#: includes/bkap-calendar-sync-settings.php:374
 msgid ""
 "Select <b>Web application</b> under Application type and provide the "
 "necessary information to create your project's credentials."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:386
+#: includes/bkap-calendar-sync-settings.php:375
 msgid ""
 "For <b>Authorized redirect URIs</b> enter the Redirect URI (Can be found in "
 "Booking menu > Settings > Google Calendar Sync). Then click Create button."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:387
+#: includes/bkap-calendar-sync-settings.php:376
 msgid ""
 "On the dialog that appears, you'll see your <b>Client ID</b> and <b>Client "
 "Secret</b>. Fill the details in below fields and click on Save Settings."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:388
+#: includes/bkap-calendar-sync-settings.php:377
 msgid ""
 "Once the Successful Connection to Google, <b>Calendar to be used</b> option "
 "will appear. Here select the calendar to which the event should get created "
 "for the booking."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:436
-msgid ""
-"<br>Enter key file name here without extention, e.g. ab12345678901234567890-"
-"privatekey."
+#: includes/bkap-calendar-sync-settings.php:426
+#: includes/class-bkap-scripts.php:572
+msgid "Uploading..."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:456
+#: includes/bkap-calendar-sync-settings.php:427
+#: includes/class-bkap-scripts.php:573
+msgid "Disconnecting..."
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:428
+#: includes/class-bkap-scripts.php:574
+msgid "File uploaded successfully!"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:429
+#: includes/class-bkap-scripts.php:575
+msgid "There was an error uploading the file."
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:430
+#: includes/class-bkap-scripts.php:576
+msgid "Successfully disconnected..!"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:435
+#: includes/product-calendar-sync-settings.php:235
+msgid "Upload"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:438
+#: includes/product-calendar-sync-settings.php:238
+#, php-format
+msgid "<b>Uploaded File:</b> <span id=\"bkap_json_file_name\">%s</span>"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:439
+#: includes/product-calendar-sync-settings.php:239
+msgid "Remove"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:540
 msgid ""
 "<br>Enter Service account email address here, e.g. 1234567890@developer."
 "gserviceaccount.com."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:477
+#: includes/bkap-calendar-sync-settings.php:561
 msgid ""
 "<br>Enter the ID of the calendar in which your bookings will be saved, e.g. "
 "abcdefg1234567890@group.calendar.google.com."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:512
+#: includes/bkap-calendar-sync-settings.php:596
 #: includes/bkap-global-menu.php:290
-#: includes/product-calendar-sync-settings.php:264
+#: includes/product-calendar-sync-settings.php:269
 msgid "Test Connection"
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:528
+#: includes/bkap-calendar-sync-settings.php:612
 msgid ""
 "Show \"Add to Calendar\" button on the Booking -> View Bookings page."
 "<br><i>Note: This button can be used to export the already placed orders "
 "with future bookings from the current date to the calendar used above.</i>"
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:546
+#: includes/bkap-calendar-sync-settings.php:630
 msgid "Show \"Add to Calendar\" button in the New Order email notification."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:594
+#: includes/bkap-calendar-sync-settings.php:677
+#, php-format
+msgid "Open your Google Calendar by clicking this link: %s"
+msgstr ""
+
+#: includes/bkap-calendar-sync-settings.php:678
 msgid "Select the calendar to be imported and click \"Calendar settings\"."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:595
+#: includes/bkap-calendar-sync-settings.php:679
 msgid ""
 "Click on \"ICAL\" button in Calendar Address option. Please note that you "
 "need to select the Private Calendar Address \"ICAL\" if your calendar is not "
 "public."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:596
+#: includes/bkap-calendar-sync-settings.php:680
 msgid "Copy the basic.ics file URL."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:597
+#: includes/bkap-calendar-sync-settings.php:681
 msgid ""
 "Paste this link in the text box under Google Calendar Sync tab->Import "
 "Events->iCalendar/.ics Feed URL."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:598
+#: includes/bkap-calendar-sync-settings.php:682
 msgid "Save the URL."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:599
+#: includes/bkap-calendar-sync-settings.php:683
 msgid ""
 "Click on \"Import Events\" button to import the events from the calendar."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:600
+#: includes/bkap-calendar-sync-settings.php:684
 msgid ""
 "You can import multiple calendars by using ICS feeds. Add them using the Add "
 "New ICS Feed URL button."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:757
+#: includes/bkap-calendar-sync-settings.php:841
 msgid ""
 "Leaving the Event Summary (name) blank will result in a blank event summary "
 "in your Google Calendar event, thereby making it difficult for you to "
 "identify your booking in the Calendar."
 msgstr ""
 
-#: includes/bkap-calendar-sync-settings.php:774
+#: includes/bkap-calendar-sync-settings.php:858
 msgid ""
 "Leaving the Event Description blank will result in a blank event description "
 "in your Google Calendar event, thereby making it difficult for you to "
@@ -1363,11 +1376,34 @@ msgstr ""
 msgid "Booking & Appointment - GCal Import Events"
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:143
+#: includes/bkap-calendar-sync.php:201
+msgid "You do not have permission to upload files."
+msgstr ""
+
+#: includes/bkap-calendar-sync.php:206
+msgid "No file was uploaded."
+msgstr ""
+
+#: includes/bkap-calendar-sync.php:212
+msgid "The uploaded file is not a JSON file."
+msgstr ""
+
+#: includes/bkap-calendar-sync.php:223
+msgid "The uploaded file does not contain valid JSON data."
+msgstr ""
+
+#: includes/bkap-calendar-sync.php:347
+msgid ""
+"The Google Calendar integration settings need to be updated to use JSON key "
+"file instead of p12 file from Google. Please update your settings at Global "
+"and Product level both to keep your site secured."
+msgstr ""
+
+#: includes/bkap-calendar-sync.php:366
 msgid "Successfully connected."
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:151
+#: includes/bkap-calendar-sync.php:374
 #, php-format
 msgid ""
 "Failed to connect to your account, please try again, if the problem "
@@ -1375,35 +1411,35 @@ msgid ""
 "please contact Support team."
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:160
+#: includes/bkap-calendar-sync.php:383
 msgid "Google Calendar Account disconnected successfully!"
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:625
+#: includes/bkap-calendar-sync.php:846
 msgid " "
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:728 includes/bkap-calendar-sync.php:752
-#: includes/class-bkap-scripts.php:333
+#: includes/bkap-calendar-sync.php:949 includes/bkap-calendar-sync.php:973
+#: includes/class-bkap-scripts.php:341
 msgid "Add to Google Calendar"
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:731 includes/bkap-calendar-sync.php:753
+#: includes/bkap-calendar-sync.php:952 includes/bkap-calendar-sync.php:974
 msgid "Add to other Calendar"
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:750
+#: includes/bkap-calendar-sync.php:971
 msgid "Add To Calendar"
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:1344 includes/class-bkap-scripts.php:337
+#: includes/bkap-calendar-sync.php:1565 includes/class-bkap-scripts.php:345
 #, php-format
 msgid ""
 "%s bookings have been exported to your Google Calendar. Please refresh your "
 "Google Calendar."
 msgstr ""
 
-#: includes/bkap-calendar-sync.php:1348
+#: includes/bkap-calendar-sync.php:1569
 msgid ""
 "No bookings have been exported to your Google Calendar. Please check the "
 "Google Calendar Sync Settings."
@@ -1414,92 +1450,99 @@ msgstr ""
 msgid "Booking #%d has been successsfully cancelled."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:359
-#: includes/class-bkap-cancel-booking.php:538
+#: includes/bkap-cancel-order.php:371
+#: includes/class-bkap-cancel-booking.php:540
 msgid "Booking has been successsfully cancelled."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:361
+#: includes/bkap-cancel-order.php:373
 msgid "This Booking can no longer be cancelled."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:364
+#: includes/bkap-cancel-order.php:376
 msgid "Unable to perform operation."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:373
-#: includes/class-bkap-cancel-booking.php:388
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:84
-#: templates/bkap-edit-booking-modal.php:187
+#: includes/bkap-cancel-order.php:385
+#: includes/class-bkap-cancel-booking.php:390
+#: templates/bkap-edit-booking-modal.php:199
 #: templates/meta-boxes/class-bkap-save-meta-box.php:95
 #: templates/vendors-integration/dokan/bkap-dokan-vendor-global-availability.php:52
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:186
 msgid "Cancel"
 msgstr ""
 
-#: includes/bkap-cancel-order.php:1973
+#: includes/bkap-cancel-order.php:2013
 msgid "Quantity being set is not available for the desired date."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:1981
+#: includes/bkap-cancel-order.php:2021
 msgid "The Booking details are incorrect. Please fill them up correctly."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:2131
+#: includes/bkap-cancel-order.php:2171
 #, php-format
 msgid "Booking #%1$d for %2$s has been trashed."
 msgstr ""
 
-#: includes/bkap-cancel-order.php:2133
+#: includes/bkap-cancel-order.php:2173
 msgid "The booking has been trashed."
 msgstr ""
 
-#: includes/bkap-cart.php:765 includes/bkap-common.php:1819
-#: includes/class-bkap-product-resource.php:1475
+#: includes/bkap-cart.php:701
+msgid "No. of Days"
+msgstr ""
+
+#: includes/bkap-cart.php:706
+msgid "Per Day Price"
+msgstr ""
+
+#: includes/bkap-cart.php:778 includes/bkap-common.php:1786
+#: includes/class-bkap-product-resource.php:1478
 msgid "Resource Type"
 msgstr ""
 
-#: includes/bkap-cart.php:832 includes/class-bkap-multidates.php:251
+#: includes/bkap-cart.php:845 includes/class-bkap-multidates.php:251
 msgid "Booking Summary"
 msgstr ""
 
-#: includes/bkap-common.php:267
-msgid "Facing some major issues on site due to this plugin."
+#: includes/bkap-checkout.php:1123
+#, php-format
+msgid ": %s to "
 msgstr ""
 
-#: includes/bkap-common.php:273
-msgid "Unable to setup the bookings as per my requirements."
+#: includes/bkap-checkout.php:1125 includes/bkap-checkout.php:1159
+#: includes/bkap-checkout.php:1182 includes/bkap-common.php:1666
+#: includes/bkap-common.php:1773 includes/bkap-common.php:1889
+#: includes/class-bkap-zoom-meeting-settings.php:369
+#: includes/class-bkap-zoom-meeting-settings.php:468
+#: includes/class-bkap-zoom-meeting-settings.php:812
+#, php-format
+msgid ": %s"
 msgstr ""
 
-#: includes/bkap-common.php:279
-msgid "Required feature is not working as per my expectation."
-msgstr ""
-
-#: includes/bkap-common.php:285
-msgid "The plugin is not compatible with another plugin."
-msgstr ""
-
-#: includes/bkap-common.php:1277 includes/bkap-common.php:1764
-#: includes/bkap-common.php:1888 includes/bkap-lang.php:34
+#: includes/bkap-checkout.php:1135 includes/bkap-checkout.php:1181
+#: includes/bkap-common.php:1212 includes/bkap-common.php:1724
+#: includes/bkap-common.php:1877 includes/bkap-lang.php:34
 #: includes/bkap-lang.php:40 includes/bkap-lang.php:45
-#: includes/bkap-process-functions.php:5275
-#: includes/class-bkap-cancel-booking.php:661
-#: includes/class-bkap-edit-booking-post.php:78
-#: includes/class-bkap-edit-booking-post.php:616
+#: includes/bkap-process-functions.php:5426
+#: includes/class-bkap-cancel-booking.php:664
+#: includes/class-bkap-edit-booking-post.php:79
+#: includes/class-bkap-edit-booking-post.php:629
 #: includes/class-bkap-edit-bookings.php:224
-#: includes/class-bkap-edit-bookings.php:474
-#: includes/class-bkap-edit-bookings.php:996
+#: includes/class-bkap-edit-bookings.php:483
+#: includes/class-bkap-edit-bookings.php:1062
 #: includes/class-bkap-plugin-activate.php:92
 #: includes/class-bkap-plugin-activate.php:99
 #: includes/class-bkap-plugin-activate.php:104
-#: includes/class-bkap-rescheduled-order.php:79
-#: templates/bookings/bkap-bookings-date.php:189
+#: includes/class-bkap-rescheduled-order.php:81
+#: templates/bookings/bkap-bookings-date.php:290
 msgid "Booking Time"
 msgstr ""
 
-#: includes/bkap-common.php:1443 includes/bkap-fluentcrm-functions.php:207
-#: includes/class-bkap-booking-view-bookings.php:269
-#: includes/class-bkap-booking-view-bookings.php:1795
+#: includes/bkap-common.php:1378 includes/bkap-fluentcrm-functions.php:207
+#: includes/class-bkap-booking-view-bookings.php:275
+#: includes/class-bkap-booking-view-bookings.php:1900
 #: includes/class-bkap-custom-post-types.php:341
 #: includes/class-bkap-person.php:182
 #: includes/class-bkap-product-resource.php:957
@@ -1507,188 +1550,46 @@ msgstr ""
 msgid "Persons"
 msgstr ""
 
-#: includes/bkap-common.php:1721 includes/bkap-common.php:1807
-#: includes/bkap-common.php:1894
-#: includes/class-bkap-zoom-meeting-settings.php:300
-#: includes/class-bkap-zoom-meeting-settings.php:399
-#: includes/class-bkap-zoom-meeting-settings.php:679
-#, php-format
-msgid ": %s"
-msgstr ""
-
-#: includes/bkap-common.php:2295
+#: includes/bkap-common.php:2291
 msgid "Complete"
 msgstr ""
 
-#: includes/bkap-common.php:2296
+#: includes/bkap-common.php:2292
 msgid "Paid & Confirmed"
 msgstr ""
 
-#: includes/bkap-common.php:2297 includes/bkap-common.php:2319
-#: includes/bkap-common.php:2863
+#: includes/bkap-common.php:2293 includes/bkap-common.php:2315
+#: includes/bkap-common.php:2868
 msgid "Confirmed"
 msgstr ""
 
-#: includes/bkap-common.php:2298 includes/bkap-common.php:2316
-#: includes/bkap-common.php:2867
+#: includes/bkap-common.php:2294 includes/bkap-common.php:2312
+#: includes/bkap-common.php:2872
 msgid "Pending Confirmation"
 msgstr ""
 
-#: includes/bkap-common.php:2299 includes/bkap-common.php:2325
-#: includes/bkap-common.php:2871 includes/class-bkap-edit-bookings.php:354
-#: includes/class-bkap-rescheduled-order.php:168
+#: includes/bkap-common.php:2295 includes/bkap-common.php:2321
+#: includes/bkap-common.php:2876 includes/class-bkap-edit-bookings.php:363
+#: includes/class-bkap-rescheduled-order.php:170
 msgid "Cancelled"
 msgstr ""
 
-#: includes/bkap-common.php:2322
+#: includes/bkap-common.php:2318
 msgid "Paid"
 msgstr ""
 
-#: includes/bkap-common.php:2859 includes/bkap-common.php:2879
+#: includes/bkap-common.php:2864 includes/bkap-common.php:2884
 msgid "Paid and Confirmed"
 msgstr ""
 
-#: includes/bkap-common.php:2875
+#: includes/bkap-common.php:2880
 msgid "Draft"
 msgstr ""
 
-#: includes/bkap-common.php:3278
-#: includes/class-bkap-zoom-meeting-settings.php:184
+#: includes/bkap-common.php:3304
+#: includes/class-bkap-zoom-meeting-settings.php:251
 #, php-format
 msgid "Updated Zoom Meeting Link for Booking #%1$s - %2$s"
-msgstr ""
-
-#: includes/bkap-config.php:15 includes/bkap-config.php:29
-#: includes/bkap-process-functions.php:2187
-#: includes/bkap-process-functions.php:2197
-#: templates/html-bkap-bulk-booking-rules.php:17
-msgid "Sunday"
-msgstr ""
-
-#: includes/bkap-config.php:16 includes/bkap-config.php:30
-#: includes/bkap-process-functions.php:2181
-#: includes/bkap-process-functions.php:2198
-#: templates/html-bkap-bulk-booking-rules.php:18
-msgid "Monday"
-msgstr ""
-
-#: includes/bkap-config.php:17 includes/bkap-config.php:31
-#: includes/bkap-process-functions.php:2182
-#: includes/bkap-process-functions.php:2199
-#: templates/html-bkap-bulk-booking-rules.php:19
-msgid "Tuesday"
-msgstr ""
-
-#: includes/bkap-config.php:18 includes/bkap-config.php:32
-#: includes/bkap-process-functions.php:2183
-#: includes/bkap-process-functions.php:2200
-#: templates/html-bkap-bulk-booking-rules.php:20
-msgid "Wednesday"
-msgstr ""
-
-#: includes/bkap-config.php:19 includes/bkap-config.php:33
-#: includes/bkap-process-functions.php:2184
-#: includes/bkap-process-functions.php:2201
-#: templates/html-bkap-bulk-booking-rules.php:21
-msgid "Thursday"
-msgstr ""
-
-#: includes/bkap-config.php:20 includes/bkap-config.php:34
-#: includes/bkap-process-functions.php:2185
-#: includes/bkap-process-functions.php:2202
-#: templates/html-bkap-bulk-booking-rules.php:22
-msgid "Friday"
-msgstr ""
-
-#: includes/bkap-config.php:21 includes/bkap-config.php:35
-#: includes/bkap-process-functions.php:2186
-#: includes/bkap-process-functions.php:2203
-#: templates/html-bkap-bulk-booking-rules.php:23
-msgid "Saturday"
-msgstr ""
-
-#: includes/bkap-config.php:28
-msgid "Any Days"
-msgstr ""
-
-#: includes/bkap-config.php:42
-msgid "Dropdown View"
-msgstr ""
-
-#: includes/bkap-config.php:43
-msgid "List View"
-msgstr ""
-
-#: includes/bkap-config.php:63 includes/bkap-process-functions.php:2167
-msgid "January"
-msgstr ""
-
-#: includes/bkap-config.php:64 includes/bkap-process-functions.php:2168
-msgid "February"
-msgstr ""
-
-#: includes/bkap-config.php:65 includes/bkap-process-functions.php:2169
-msgid "March"
-msgstr ""
-
-#: includes/bkap-config.php:66 includes/bkap-process-functions.php:2170
-msgid "April"
-msgstr ""
-
-#: includes/bkap-config.php:67 includes/bkap-process-functions.php:2171
-msgid "May"
-msgstr ""
-
-#: includes/bkap-config.php:68 includes/bkap-process-functions.php:2172
-msgid "June"
-msgstr ""
-
-#: includes/bkap-config.php:69 includes/bkap-process-functions.php:2173
-msgid "July"
-msgstr ""
-
-#: includes/bkap-config.php:70 includes/bkap-process-functions.php:2174
-msgid "August"
-msgstr ""
-
-#: includes/bkap-config.php:71 includes/bkap-process-functions.php:2175
-msgid "September"
-msgstr ""
-
-#: includes/bkap-config.php:72 includes/bkap-process-functions.php:2176
-msgid "October"
-msgstr ""
-
-#: includes/bkap-config.php:73 includes/bkap-process-functions.php:2177
-msgid "November"
-msgstr ""
-
-#: includes/bkap-config.php:74 includes/bkap-process-functions.php:2178
-msgid "December"
-msgstr ""
-
-#: includes/bkap-config.php:81
-msgid "Custom Range"
-msgstr ""
-
-#: includes/bkap-config.php:82 includes/class-bkap-scripts.php:537
-msgid "Specific Dates"
-msgstr ""
-
-#: includes/bkap-config.php:83
-msgid "Range of Months"
-msgstr ""
-
-#: includes/bkap-config.php:84
-msgid "Holidays"
-msgstr ""
-
-#: includes/bkap-config.php:190
-msgid "12 hour"
-msgstr ""
-
-#: includes/bkap-config.php:191
-msgid "24 hour"
 msgstr ""
 
 #: includes/bkap-fluentcrm-functions.php:51
@@ -1711,8 +1612,8 @@ msgstr ""
 msgid "Calednar View"
 msgstr ""
 
-#: includes/bkap-global-menu.php:66 includes/class-bkap-calendar-view.php:235
-#: includes/class-bkap-scripts.php:316 includes/vendors/vendors-common.php:915
+#: includes/bkap-global-menu.php:66 includes/class-bkap-calendar-view.php:257
+#: includes/class-bkap-scripts.php:324 includes/vendors/vendors-common.php:915
 msgid "Calendar View"
 msgstr ""
 
@@ -1731,9 +1632,9 @@ msgid "Settings"
 msgstr ""
 
 #: includes/bkap-global-menu.php:92 includes/bkap-global-menu.php:93
-#: includes/bkap-send-reminder.php:230
-#: includes/class-bkap-booking-view-bookings.php:262
-#: includes/class-bkap-booking-view-bookings.php:1788
+#: includes/bkap-send-reminder.php:264
+#: includes/class-bkap-booking-view-bookings.php:268
+#: includes/class-bkap-booking-view-bookings.php:1893
 #: templates/vendors-integration/bkap-reminders.php:50
 #: templates/vendors-integration/bkap-reminders.php:75
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:48
@@ -1786,12 +1687,12 @@ msgid ""
 msgstr ""
 
 #: includes/bkap-global-menu.php:244
-#: includes/product-calendar-sync-settings.php:94
+#: includes/product-calendar-sync-settings.php:96
 msgid "Google Calendar Sync"
 msgstr ""
 
 #: includes/bkap-global-menu.php:247 includes/bkap-global-menu.php:1034
-#: includes/product-calendar-sync-settings.php:409
+#: includes/product-calendar-sync-settings.php:414
 msgid "Zoom Meetings"
 msgstr ""
 
@@ -2091,7 +1992,7 @@ msgid ""
 "DATE, TIME placeholders which will be replaced by their real values.</i>"
 msgstr ""
 
-#: includes/bkap-global-menu.php:775 includes/bkap-global-menu.php:1090
+#: includes/bkap-global-menu.php:775 includes/bkap-global-menu.php:1127
 msgid "General Settings"
 msgstr ""
 
@@ -2356,26 +2257,29 @@ msgid ""
 "setting."
 msgstr ""
 
-#: includes/bkap-global-menu.php:1041 includes/bkap-global-menu.php:1181
-#: includes/bkap-global-menu.php:1269
+#: includes/bkap-global-menu.php:1043 includes/bkap-global-menu.php:1218
+#: includes/bkap-global-menu.php:1297
 #: includes/class-bkap-fluentcrm-settings.php:439
 msgid "Instructions"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1050
-#: includes/class-bkap-fluentcrm-settings.php:460
-msgid "API Key"
+#: includes/bkap-global-menu.php:1052 includes/bkap-oauth-gcal-options.php:78
+msgid "Client ID"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1058
-msgid "API Secret"
+#: includes/bkap-global-menu.php:1061 includes/bkap-oauth-gcal-options.php:86
+msgid "Client Secret"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1097
+#: includes/bkap-global-menu.php:1070
+msgid "Redirect URL"
+msgstr ""
+
+#: includes/bkap-global-menu.php:1134
 msgid "Event Location"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1101
+#: includes/bkap-global-menu.php:1138
 msgid ""
 "<br>Enter the text that will be used as location field in event of the "
 "Calendar. If left empty, website description is sent instead. <br><i>Note: "
@@ -2383,54 +2287,54 @@ msgid ""
 "real values.</i>"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1106
+#: includes/bkap-global-menu.php:1143
 msgid "Event summary (name)"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1114
+#: includes/bkap-global-menu.php:1151
 #: includes/class-import-bookings-table.php:99
 #: templates/emails/admin-gcal-import-event.php:20
 msgid "Event Description"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1123
+#: includes/bkap-global-menu.php:1160
 msgid "Customer Add to Calendar button Settings"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1130
+#: includes/bkap-global-menu.php:1167
 msgid "Show Add to Calendar button on Order received page"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1134
+#: includes/bkap-global-menu.php:1171
 msgid ""
 "Show Add to Calendar button on the Order Received page for the customers."
 msgstr ""
 
-#: includes/bkap-global-menu.php:1139
+#: includes/bkap-global-menu.php:1176
 msgid "Show Add to Calendar button in the Customer notification email"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1143
+#: includes/bkap-global-menu.php:1180
 msgid "Show Add to Calendar button in the Customer notification email."
 msgstr ""
 
-#: includes/bkap-global-menu.php:1148
+#: includes/bkap-global-menu.php:1185
 msgid "Show Add to Calendar button on My account"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1152
+#: includes/bkap-global-menu.php:1189
 msgid "Show Add to Calendar button on My account page for the customers."
 msgstr ""
 
-#: includes/bkap-global-menu.php:1165
+#: includes/bkap-global-menu.php:1202
 msgid "Admin Calendar Sync Settings"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1172
+#: includes/bkap-global-menu.php:1209
 msgid "Integration Mode"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1176
+#: includes/bkap-global-menu.php:1213
 msgid ""
 "<br><div class=\"bkap_sync_mode_info\"><b>OAuth Sync</b> - Recommended "
 "method to sync events with Google Calendar with minimal steps.<br><b>Service "
@@ -2442,39 +2346,36 @@ msgid ""
 "integration with Google Calendar."
 msgstr ""
 
-#: includes/bkap-global-menu.php:1190
-msgid "Key file name"
+#: includes/bkap-global-menu.php:1227
+#: includes/product-calendar-sync-settings.php:230
+msgid "Upload JSON File:"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1199
-msgid "Service account email address"
-msgstr ""
-
-#: includes/bkap-global-menu.php:1208 includes/bkap-oauth-gcal-options.php:107
+#: includes/bkap-global-menu.php:1236 includes/bkap-oauth-gcal-options.php:107
 msgid "Calendar to be used"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1235
+#: includes/bkap-global-menu.php:1263
 msgid "Show Add to Calendar button on View Bookings page"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1244
+#: includes/bkap-global-menu.php:1272
 msgid "Show Add to Calendar button in New Order email notification"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1253
+#: includes/bkap-global-menu.php:1281
 msgid "Import Events"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1260
+#: includes/bkap-global-menu.php:1288
 msgid "Run Automated Cron after X minutes"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1277
+#: includes/bkap-global-menu.php:1305
 msgid "iCalendar/.ics Feed URL"
 msgstr ""
 
-#: includes/bkap-global-menu.php:1380
+#: includes/bkap-global-menu.php:1408
 msgid ""
 "Happy with our Booking &amp; Appointment plugin? A review will help us "
 "immensely. You can review this plugin at <a href=\"https://www.facebook.com/"
@@ -2483,13 +2384,29 @@ msgid ""
 "www.tychesoftwares.com/submit-review/\" target=\"_blank\"><b> here.</b></a>"
 msgstr ""
 
-#: includes/bkap-global-settings.php:455
+#: includes/bkap-global-settings.php:145
+msgid "Dropdown View"
+msgstr ""
+
+#: includes/bkap-global-settings.php:146
+msgid "List View"
+msgstr ""
+
+#: includes/bkap-global-settings.php:207
+msgid "12 hour"
+msgstr ""
+
+#: includes/bkap-global-settings.php:208
+msgid "24 hour"
+msgstr ""
+
+#: includes/bkap-global-settings.php:528
 msgid ""
 "Enable this option to force the same booking details for all the bookable "
 "products in the cart."
 msgstr ""
 
-#: includes/bkap-global-settings.php:680 includes/bkap-global-settings.php:682
+#: includes/bkap-global-settings.php:757 includes/bkap-global-settings.php:759
 msgid "Remove Icon"
 msgstr ""
 
@@ -2561,6 +2478,7 @@ msgid ""
 msgstr ""
 
 #: includes/bkap-oauth-gcal-options.php:27
+#: includes/class-bkap-zoom-meeting-settings.php:646
 msgid "Copied!"
 msgstr ""
 
@@ -2576,14 +2494,6 @@ msgstr ""
 msgid "Successfully authenticated."
 msgstr ""
 
-#: includes/bkap-oauth-gcal-options.php:78
-msgid "Client ID"
-msgstr ""
-
-#: includes/bkap-oauth-gcal-options.php:86
-msgid "Client Secret"
-msgstr ""
-
 #: includes/bkap-oauth-gcal-options.php:95
 msgid "Redirect URI"
 msgstr ""
@@ -2595,225 +2505,363 @@ msgstr ""
 
 #: includes/bkap-oauth-gcal-options.php:128
 #: includes/bkap-oauth-gcal-options.php:129
+#: includes/class-bkap-zoom-meeting-settings.php:675
 msgid "Logout"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2190
+#: includes/bkap-process-functions.php:2291
+msgid "January"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2292
+msgid "February"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2293
+msgid "March"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2294
+msgid "April"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2295
+msgid "May"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2296
+msgid "June"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2297
+msgid "July"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2298
+msgid "August"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2299
+msgid "September"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2300
+msgid "October"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2301
+msgid "November"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2302
+msgid "December"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2305
+#: includes/bkap-process-functions.php:2322
+#: includes/bkap-process-functions.php:6660
+#: includes/bkap-process-functions.php:6681
+#: templates/html-bkap-bulk-booking-rules.php:18
+msgid "Monday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2306
+#: includes/bkap-process-functions.php:2323
+#: includes/bkap-process-functions.php:6661
+#: includes/bkap-process-functions.php:6682
+#: templates/html-bkap-bulk-booking-rules.php:19
+msgid "Tuesday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2307
+#: includes/bkap-process-functions.php:2324
+#: includes/bkap-process-functions.php:6662
+#: includes/bkap-process-functions.php:6683
+#: templates/html-bkap-bulk-booking-rules.php:20
+msgid "Wednesday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2308
+#: includes/bkap-process-functions.php:2325
+#: includes/bkap-process-functions.php:6663
+#: includes/bkap-process-functions.php:6684
+#: templates/html-bkap-bulk-booking-rules.php:21
+msgid "Thursday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2309
+#: includes/bkap-process-functions.php:2326
+#: includes/bkap-process-functions.php:6664
+#: includes/bkap-process-functions.php:6685
+#: templates/html-bkap-bulk-booking-rules.php:22
+msgid "Friday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2310
+#: includes/bkap-process-functions.php:2327
+#: includes/bkap-process-functions.php:6665
+#: includes/bkap-process-functions.php:6686
+#: templates/html-bkap-bulk-booking-rules.php:23
+msgid "Saturday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2311
+#: includes/bkap-process-functions.php:2321
+#: includes/bkap-process-functions.php:6659
+#: includes/bkap-process-functions.php:6680
+#: templates/html-bkap-bulk-booking-rules.php:17
+msgid "Sunday"
+msgstr ""
+
+#: includes/bkap-process-functions.php:2314
 msgid "Date range"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2191
+#: includes/bkap-process-functions.php:2315
 msgid "Range of months"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2192
+#: includes/bkap-process-functions.php:2316
 msgid "Range of weeks"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2193
+#: includes/bkap-process-functions.php:2317
 msgid "Range of days"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2195
+#: includes/bkap-process-functions.php:2319
 msgid "Time Range (all week)"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2196
+#: includes/bkap-process-functions.php:2320
 msgid "Date range with recurring time"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2210
+#: includes/bkap-process-functions.php:2334
 #, php-format
 msgid "Week %s"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2772
+#: includes/bkap-process-functions.php:2896
 msgid "Holiday"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2773
+#: includes/bkap-process-functions.php:2897
 msgid "Unavailable for Booking"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2774
+#: includes/bkap-process-functions.php:2898
 msgid "Blocked"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2775
+#: includes/bkap-process-functions.php:2899
 msgid "Booked"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2776
+#: includes/bkap-process-functions.php:2900
 msgid ""
 "Some of the dates in the selected range are unavailable. Please try another "
 "date range."
 msgstr ""
 
-#: includes/bkap-process-functions.php:2778
+#: includes/bkap-process-functions.php:2902
 msgid "is unavailable for booking on"
 msgstr ""
 
-#: includes/bkap-process-functions.php:2779
+#: includes/bkap-process-functions.php:2903
 msgid "Please select another date."
 msgstr ""
 
-#: includes/bkap-process-functions.php:2781
+#: includes/bkap-process-functions.php:2905
 msgid "On Rent"
 msgstr ""
 
-#: includes/bkap-process-functions.php:3017
+#: includes/bkap-process-functions.php:2906
+msgid "Please select time slot..."
+msgstr ""
+
+#: includes/bkap-process-functions.php:3150
 msgid ""
 "The product is currently unavailable for booking. Please try again later."
 msgstr ""
 
-#: includes/bkap-process-functions.php:3142
+#: includes/bkap-process-functions.php:3275
 msgid "Select a date to view available bookings."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4890
+#: includes/bkap-process-functions.php:5041
 msgid ""
 "Use this merge code to replace the Start Date infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4891
+#: includes/bkap-process-functions.php:5042
 msgid "Use this merge code to replace the End Date infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4892
+#: includes/bkap-process-functions.php:5043
 msgid "Use this merge code to replace the Time infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4893
+#: includes/bkap-process-functions.php:5044
 msgid ""
 "Use this merge code to replace the Booking ID infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4894
+#: includes/bkap-process-functions.php:5045
 msgid "Use this merge code to replace the Resource infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4895
+#: includes/bkap-process-functions.php:5046
 msgid "Use this merge code to replace the Persons infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4896
+#: includes/bkap-process-functions.php:5047
 msgid ""
 "Use this merge code to replace the Zoom Link infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4897
+#: includes/bkap-process-functions.php:5048
 msgid "Use this merge code to replace the Product Title of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4898
+#: includes/bkap-process-functions.php:5049
 msgid ""
 "Use this merge code to replace the Order Number infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4899
+#: includes/bkap-process-functions.php:5050
 msgid ""
 "Use this merge code to replace the Order Date infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4900
+#: includes/bkap-process-functions.php:5051
 msgid ""
 "Use this merge code to replace the Customer Name infomration of the Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4901
+#: includes/bkap-process-functions.php:5052
 msgid ""
 "Use this merge code to replace the Customer First Name infomration of the "
 "Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4902
+#: includes/bkap-process-functions.php:5053
 msgid ""
 "Use this merge code to replace the Customer Last Name infomration of the "
 "Booking."
 msgstr ""
 
-#: includes/bkap-process-functions.php:4903
+#: includes/bkap-process-functions.php:5054
 msgid "Use this merge code to show the all booking infomration in the table."
 msgstr ""
 
-#: includes/bkap-process-functions.php:5199
+#: includes/bkap-process-functions.php:5350
 #: includes/class-bkap-product-filter.php:43
 msgid "Single Day"
 msgstr ""
 
-#: includes/bkap-process-functions.php:5204
+#: includes/bkap-process-functions.php:5355
 #: includes/class-bkap-product-filter.php:44
 msgid "Multiple Nights"
 msgstr ""
 
-#: includes/bkap-process-functions.php:5209
+#: includes/bkap-process-functions.php:5360
 #: includes/class-bkap-product-filter.php:45
 msgid "Fixed Time"
 msgstr ""
 
-#: includes/bkap-process-functions.php:5214
+#: includes/bkap-process-functions.php:5365
 #: includes/class-bkap-product-filter.php:46
 msgid "Duration Based Time"
 msgstr ""
 
-#: includes/bkap-process-functions.php:5219
+#: includes/bkap-process-functions.php:5370
 msgid "Dates"
 msgstr ""
 
-#: includes/bkap-process-functions.php:5224
+#: includes/bkap-process-functions.php:5375
 msgid "Dates & Fixed Time"
 msgstr ""
 
-#: includes/bkap-process-functions.php:6229
+#: includes/bkap-process-functions.php:6380
 #, php-format
 msgid "The maximum persons per group is %d"
 msgstr ""
 
-#: includes/bkap-process-functions.php:6230
+#: includes/bkap-process-functions.php:6381
 #, php-format
 msgid "The minimum persons per group is %d"
 msgstr ""
 
-#: includes/bkap-process-functions.php:6271
+#: includes/bkap-process-functions.php:6422
 #, php-format
 msgid "There are a maximum of %1$s places remaining on %2$s - %3$s"
 msgstr ""
 
-#: includes/bkap-process-functions.php:6273
+#: includes/bkap-process-functions.php:6424
 #, php-format
 msgid "There are a maximum of %1$s places remaining on %2$s"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:229
+#: includes/bkap-process-functions.php:6647
+msgid "Custom Range"
+msgstr ""
+
+#: includes/bkap-process-functions.php:6648
+#: includes/class-bkap-scripts.php:545
+msgid "Specific Dates"
+msgstr ""
+
+#: includes/bkap-process-functions.php:6649
+msgid "Range of Months"
+msgstr ""
+
+#: includes/bkap-process-functions.php:6650
+msgid "Holidays"
+msgstr ""
+
+#: includes/bkap-process-functions.php:6679
+msgid "Any Days"
+msgstr ""
+
+#: includes/bkap-send-reminder.php:263
 #: templates/vendors-integration/bkap-reminders.php:49
 msgid "Reminder Title"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:231
+#: includes/bkap-send-reminder.php:265
 #: templates/vendors-integration/bkap-reminders.php:51
 #: templates/vendors-integration/bkap-reminders.php:76
 msgid "Send time after/before Booking Date"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:305 includes/bkap-send-reminder.php:306
-#: includes/bkap-send-reminder.php:342
+#: includes/bkap-send-reminder.php:339 includes/bkap-send-reminder.php:340
+#: includes/bkap-send-reminder.php:376
 #: templates/vendors-integration/bkap-reminders.php:44
 msgid "Manual Reminder"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:373
+#: includes/bkap-send-reminder.php:407
 msgid "Twilio SMS"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:414
+#: includes/bkap-send-reminder.php:448
 msgid "Reminder sent successfully"
 msgstr ""
 
-#: includes/bkap-send-reminder.php:503
+#: includes/bkap-send-reminder.php:542
+msgid "No future bookings"
+msgstr ""
+
+#: includes/bkap-send-reminder.php:543
+msgid "No orders with future bookings"
+msgstr ""
+
+#: includes/bkap-send-reminder.php:576
 msgid "Manual Reminders"
 msgstr ""
 
-#: includes/bkap-timeslot-price.php:218 includes/bkap-timeslot-price.php:240
+#: includes/bkap-timeslot-price.php:224 includes/bkap-timeslot-price.php:246
 msgid "Booking is not available for selected quantity"
 msgstr ""
 
@@ -2822,11 +2870,11 @@ msgid ""
 "Product can't be added to cart. Please select booking details to continue."
 msgstr ""
 
-#: includes/bkap-validation.php:422
+#: includes/bkap-validation.php:421
 msgid "Please select the resource to add the product to cart."
 msgstr ""
 
-#: includes/bkap-validation.php:458
+#: includes/bkap-validation.php:457
 #, php-format
 msgid ""
 "Available bookings for %1$s on date %2$s for %3$s timeslot are already added "
@@ -2834,7 +2882,7 @@ msgid ""
 "place the order that is currently in the <a href=\"%5$s\">%6$s</a>."
 msgstr ""
 
-#: includes/bkap-validation.php:470
+#: includes/bkap-validation.php:469
 #, php-format
 msgid ""
 "Available bookings for %1$s for date %2$s are already added in the cart. You "
@@ -2842,20 +2890,25 @@ msgid ""
 "currently in the <a href=\"%4$s\">%5$s</a>."
 msgstr ""
 
-#: includes/bkap-validation.php:1094
+#: includes/bkap-validation.php:1093
 msgid ""
 "This product cannot be added to cart. Please contact Store Manager for "
 "further information"
 msgstr ""
 
-#: includes/bkap-validation.php:2041 includes/bkap-validation.php:2058
-#: includes/bkap-validation.php:2072 includes/bkap-validation.php:2079
-#: includes/bkap-validation.php:2111
+#: includes/bkap-validation.php:2063 includes/bkap-validation.php:2083
+#: includes/bkap-validation.php:2097 includes/bkap-validation.php:2104
+#: includes/bkap-validation.php:2136
 #, php-format
 msgid "Please select %1$s to %2$s to book %3$s."
 msgstr ""
 
-#: includes/bkap-validation.php:2098
+#: includes/bkap-validation.php:2065
+#, php-format
+msgid "Please select %1$s to book %2$s."
+msgstr ""
+
+#: includes/bkap-validation.php:2123
 #, php-format
 msgid "Please select %1$s and %2$s to book %3$s."
 msgstr ""
@@ -2932,7 +2985,7 @@ msgid "Search By Resource"
 msgstr ""
 
 #: includes/bkap-widget-product-search.php:611
-#: includes/class-bkap-resource-listing.php:51
+#: includes/class-bkap-resource-listing.php:58
 #: templates/meta-boxes/html-bkap-resources.php:173
 msgid "Resource Title"
 msgstr ""
@@ -2950,9 +3003,9 @@ msgid "Text (appears below Search button)"
 msgstr ""
 
 #: includes/bkap-zoom-meeting-functions.php:81
-#: includes/class-bkap-booking-view-bookings.php:273
-#: includes/class-bkap-booking-view-bookings.php:1799
-#: includes/class-bkap-cancel-booking.php:301
+#: includes/class-bkap-booking-view-bookings.php:279
+#: includes/class-bkap-booking-view-bookings.php:1904
+#: includes/class-bkap-cancel-booking.php:303
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:56
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:47
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:144
@@ -3086,7 +3139,7 @@ msgid "Every %d Second(s)"
 msgstr ""
 
 #: includes/class-bkap-booking-dashboard-widget.php:39
-#: includes/class-bkap-cancel-booking.php:170
+#: includes/class-bkap-cancel-booking.php:172
 #: includes/class-bkap-privacy-exporter.php:45
 #: includes/class-bkap-privacy-exporter.php:127
 #: includes/vendors/wc-vendors/wc-vendors.php:132
@@ -3125,24 +3178,24 @@ msgstr ""
 msgid "Consumer secret is invalid."
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:189
+#: includes/class-bkap-booking-view-bookings.php:195
 msgid "Booking Title"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:263
+#: includes/class-bkap-booking-view-bookings.php:269
 #: includes/class-bkap-privacy-exporter.php:217
-#: includes/class-bkap-rescheduled-order.php:60
+#: includes/class-bkap-rescheduled-order.php:62
 #: templates/reminders/bkap-manual-reminder-email-settings.php:21
 msgid "Booking ID"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:264
-#: includes/class-bkap-booking-view-bookings.php:1790
-#: includes/class-bkap-cancel-booking.php:296
+#: includes/class-bkap-booking-view-bookings.php:270
+#: includes/class-bkap-booking-view-bookings.php:1895
+#: includes/class-bkap-cancel-booking.php:298
 #: templates/emails/admin-new-booking.php:26
 #: templates/emails/customer-booking-cancelled.php:22
 #: templates/emails/customer-booking-confirmed.php:22
-#: templates/emails/customer-booking-reminder.php:13
+#: templates/emails/customer-booking-reminder.php:16
 #: templates/emails/customer-pending-confirmation.php:29
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:49
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:42
@@ -3150,13 +3203,13 @@ msgstr ""
 msgid "Booked Product"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:265
-#: includes/class-bkap-booking-view-bookings.php:1791
+#: includes/class-bkap-booking-view-bookings.php:271
+#: includes/class-bkap-booking-view-bookings.php:1896
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:50
 msgid "Booked By"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:266
+#: includes/class-bkap-booking-view-bookings.php:272
 #: templates/emails/customer-booking-confirmed.php:87
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:51
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:44
@@ -3164,27 +3217,27 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:270
-#: includes/class-bkap-booking-view-bookings.php:1796
+#: includes/class-bkap-booking-view-bookings.php:276
+#: includes/class-bkap-booking-view-bookings.php:1901
 #: templates/emails/customer-booking-confirmed.php:92
 msgid "Quantity"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:271
-#: includes/class-bkap-booking-view-bookings.php:1798
+#: includes/class-bkap-booking-view-bookings.php:277
+#: includes/class-bkap-booking-view-bookings.php:1903
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:55
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:48
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:145
 msgid "Amount"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:272
-#: includes/class-bkap-booking-view-bookings.php:1797
+#: includes/class-bkap-booking-view-bookings.php:278
+#: includes/class-bkap-booking-view-bookings.php:1902
 msgid "Order Date"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:274
-#: includes/class-bkap-gcal-event-view.php:102
+#: includes/class-bkap-booking-view-bookings.php:280
+#: includes/class-bkap-gcal-event-view.php:108
 #: includes/class-import-bookings-table.php:102
 #: includes/api/zapier/class-bkap-api-zapier-settings.php:197
 #: templates/vendors-integration/bkap-reminders.php:52
@@ -3196,116 +3249,117 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:304
+#: includes/class-bkap-booking-view-bookings.php:310
 #, php-format
 msgid "#%d"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:400
+#: includes/class-bkap-booking-view-bookings.php:406
 msgid "View"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:408
+#: includes/class-bkap-booking-view-bookings.php:414
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:173
 msgid "Confirm"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:528
+#: includes/class-bkap-booking-view-bookings.php:534
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:122
 msgid "Confirm Booking"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:529
+#: includes/class-bkap-booking-view-bookings.php:535
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:125
 msgid "Cancel Booking"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:573
+#: includes/class-bkap-booking-view-bookings.php:579
+#: templates/bkap-calendar-view.php:56
 #: templates/vendors-integration/bkap-view-bookings.php:130
 msgid "All Bookable Products"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:623
+#: includes/class-bkap-booking-view-bookings.php:630
 #: templates/vendors-integration/bkap-view-bookings.php:180
 msgid "List bookings by"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1146
+#: includes/class-bkap-booking-view-bookings.php:1161
 msgid "Confirm bookings"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1147
+#: includes/class-bkap-booking-view-bookings.php:1162
 msgid "Cancel bookings"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1241
+#: includes/class-bkap-booking-view-bookings.php:1256
 #, php-format
 msgid "Booking status changed."
 msgid_plural "%s booking statuses changed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-bkap-booking-view-bookings.php:1259
+#: includes/class-bkap-booking-view-bookings.php:1274
 msgid "You have taken too long. Please go back and retry."
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1423
+#: includes/class-bkap-booking-view-bookings.php:1463
 msgid "Print Bookings"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1657
+#: includes/class-bkap-booking-view-bookings.php:1734
 msgid "Export location or file not writable"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1737
+#: includes/class-bkap-booking-view-bookings.php:1842
 msgid "No data found for export parameters."
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1789
-#: includes/class-bkap-cancel-booking.php:295
-#: includes/class-bkap-rescheduled-order.php:149
-#: includes/class-bkap-rescheduled-order.php:221
+#: includes/class-bkap-booking-view-bookings.php:1894
+#: includes/class-bkap-cancel-booking.php:297
+#: includes/class-bkap-rescheduled-order.php:151
+#: includes/class-bkap-rescheduled-order.php:223
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:47
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:41
 #: templates/vendors-integration/wc-vendors/bkap-wcv-view-bookings.php:138
 msgid "ID"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1792
-#: includes/class-bkap-cancel-booking.php:297
+#: includes/class-bkap-booking-view-bookings.php:1897
+#: includes/class-bkap-cancel-booking.php:299
 #: includes/class-bkap-privacy-exporter.php:218
 #: includes/class-bkap-privacy-exporter.php:324
 msgid "Order ID"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1852
+#: includes/class-bkap-booking-view-bookings.php:2004
 msgid "Nonce verification failed"
 msgstr ""
 
-#: includes/class-bkap-booking-view-bookings.php:1852
+#: includes/class-bkap-booking-view-bookings.php:2004
 msgid "Error"
 msgstr ""
 
-#: includes/class-bkap-booking.php:201
+#: includes/class-bkap-booking.php:318
 #, php-format
 msgid "Booking &ndash; %s"
 msgstr ""
 
-#: includes/class-bkap-booking.php:201 includes/class-bkap-gcal-event.php:162
+#: includes/class-bkap-booking.php:318 includes/class-bkap-gcal-event.php:162
 msgctxt "Booking date parsed by strftime"
 msgid "%1$b %2$d, %Y @ %I:%M %p"
 msgstr ""
 
-#: includes/class-bkap-booking.php:307
+#: includes/class-bkap-booking.php:425
 #, php-format
 msgid "Booking #%1$d status changed from \"%2$s\" to \"%3$s\""
 msgstr ""
 
-#: includes/class-bkap-booking.php:418
+#: includes/class-bkap-booking.php:536
 msgid "Order date not available"
 msgstr ""
 
-#: includes/class-bkap-booking.php:472
+#: includes/class-bkap-booking.php:590
 #, php-format
 msgctxt "Guest string with name from booking order in brackets"
 msgid "%s (Guest)"
@@ -3326,7 +3380,7 @@ msgid ""
 msgstr ""
 
 #: includes/class-bkap-bulk-booking-settings.php:1140
-#: includes/class-bkap-gcal-event-view.php:170
+#: includes/class-bkap-gcal-event-view.php:176
 #: includes/class-import-bookings-table.php:284
 msgid "Select a Product"
 msgstr ""
@@ -3416,8 +3470,8 @@ msgid "For which day or date you want to manage the availability."
 msgstr ""
 
 #: includes/class-bkap-bulk-booking-settings.php:1301
-#: includes/class-bkap-cancel-booking.php:302
-#: includes/class-bkap-rescheduled-order.php:69
+#: includes/class-bkap-cancel-booking.php:304
+#: includes/class-bkap-rescheduled-order.php:71
 #: includes/api/zapier/class-bkap-api-zapier-log.php:107
 #: templates/vendors-integration/dokan/bkap-dokan-view-booking.php:57
 msgid "Action"
@@ -3504,39 +3558,39 @@ msgid ""
 "Bulk Booking Settings Process could not be cancelled due to some errors."
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:258
+#: includes/class-bkap-calendar-view.php:280
 msgid "Order:"
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:259
+#: includes/class-bkap-calendar-view.php:281
 msgid "Product Name:"
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:260
+#: includes/class-bkap-calendar-view.php:282
 msgid "Customer Name: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:261
+#: includes/class-bkap-calendar-view.php:283
 msgid "Quantity: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:262
+#: includes/class-bkap-calendar-view.php:284
 msgid "Start Date: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:263
+#: includes/class-bkap-calendar-view.php:285
 msgid "End Date: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:264
+#: includes/class-bkap-calendar-view.php:286
 msgid "Time: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:265
+#: includes/class-bkap-calendar-view.php:287
 msgid "Resource: "
 msgstr ""
 
-#: includes/class-bkap-calendar-view.php:266
+#: includes/class-bkap-calendar-view.php:288
 msgid "Person Info: "
 msgstr ""
 
@@ -3557,20 +3611,20 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: includes/class-bkap-cancel-booking.php:300
+#: includes/class-bkap-cancel-booking.php:302
 msgid "Booking Status"
 msgstr ""
 
-#: includes/class-bkap-cancel-booking.php:529
+#: includes/class-bkap-cancel-booking.php:531
 #, php-format
 msgid "%1$s has cancelled Booking #%2$d"
 msgstr ""
 
-#: includes/class-bkap-cancel-booking.php:540
+#: includes/class-bkap-cancel-booking.php:542
 msgid "This Booking cannot be cancelled."
 msgstr ""
 
-#: includes/class-bkap-cancel-booking.php:581
+#: includes/class-bkap-cancel-booking.php:584
 msgid "Reschedule"
 msgstr ""
 
@@ -4018,17 +4072,17 @@ msgstr[1] ""
 msgid "No bookings available for selected date"
 msgstr ""
 
-#: includes/class-bkap-edit-booking-post.php:298
+#: includes/class-bkap-edit-booking-post.php:302
 msgid "You can't update booking details of cancelled booking."
 msgstr ""
 
-#: includes/class-bkap-edit-booking-post.php:646
+#: includes/class-bkap-edit-booking-post.php:659
 #, php-format
 msgid "The person data for %1$s was modified by %2$s"
 msgstr ""
 
 #: includes/class-bkap-edit-bookings.php:337
-#: includes/class-bkap-rescheduled-order.php:162
+#: includes/class-bkap-rescheduled-order.php:164
 msgid "Reschedule Booking"
 msgstr ""
 
@@ -4036,78 +4090,78 @@ msgstr ""
 msgid "Add Booking Date"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:656
+#: includes/class-bkap-edit-bookings.php:666
 #, php-format
 msgid "Please pay difference amount via Order #%s"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:658
+#: includes/class-bkap-edit-bookings.php:668
 msgid "Please contact shop manager for differences in amount"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:785
+#: includes/class-bkap-edit-bookings.php:848
 #, php-format
 msgid "Booking #%1$d has been created for Resource %2$s. Product: %3$s"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1236
+#: includes/class-bkap-edit-bookings.php:1303
 #, php-format
 msgid ""
 "Booking has been rescheduled from <strong>%1$s</strong> to <strong>%2$s</"
 "strong> for <strong>%3$s</strong>."
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1239
+#: includes/class-bkap-edit-bookings.php:1306
 #, php-format
 msgid ""
 "Booking has been added on <strong>%1$s</strong> for <strong>%2$s</strong>."
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1275
+#: includes/class-bkap-edit-bookings.php:1342
 msgid "Allow Bookings to be editable:"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1279
+#: includes/class-bkap-edit-bookings.php:1346
 msgid ""
 "Enabling this option will allow Bookings to be editable from Cart and "
 "Checkout page"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1284
+#: includes/class-bkap-edit-bookings.php:1351
 msgid "Allow Bookings to be reschedulable:"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1288
+#: includes/class-bkap-edit-bookings.php:1355
 msgid ""
 "Enabling this option will allow Bookings to be reschedulable from My Account "
 "page"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1293
+#: includes/class-bkap-edit-bookings.php:1360
 msgid "Allow adding bookings date:"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1297
+#: includes/class-bkap-edit-bookings.php:1364
 msgid ""
 "Enabling this option will allow you to add booking date from my account "
 "page, when purchased without choosing a date."
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1302
+#: includes/class-bkap-edit-bookings.php:1369
 msgid "Minimum number of hours for rescheduling:"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1306
+#: includes/class-bkap-edit-bookings.php:1373
 msgid ""
 "Minimum number of hours before the booking date, after which Booking cannot "
 "be rescheduled. <em>(24 hours = 1 day)</em>"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1311
+#: includes/class-bkap-edit-bookings.php:1378
 msgid "Minimum number of hours for cancelling booking:"
 msgstr ""
 
-#: includes/class-bkap-edit-bookings.php:1315
+#: includes/class-bkap-edit-bookings.php:1382
 msgid ""
 "Minimum number of hours before the booking date, after which Booking cannot "
 "be cancelled."
@@ -4147,6 +4201,10 @@ msgstr ""
 
 #: includes/class-bkap-fluentcrm-settings.php:451
 msgid "API Name"
+msgstr ""
+
+#: includes/class-bkap-fluentcrm-settings.php:460
+msgid "API Key"
 msgstr ""
 
 #: includes/class-bkap-fluentcrm-settings.php:561
@@ -4221,27 +4279,27 @@ msgid ""
 "as we've confirmed availability."
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:95
+#: includes/class-bkap-gcal-event-view.php:101
 #: includes/class-import-bookings-table.php:98
 #: templates/emails/admin-gcal-import-event.php:15
 msgid "Event Summary"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:96
-#: includes/class-bkap-person.php:331
+#: includes/class-bkap-gcal-event-view.php:102
+#: includes/class-bkap-person.php:333
 msgid "Description"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:99
+#: includes/class-bkap-gcal-event-view.php:105
 msgid "Timeslot"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:100
+#: includes/class-bkap-gcal-event-view.php:106
 msgid "Reason of Failure"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:101
-#: includes/class-bkap-rescheduled-order.php:63
+#: includes/class-bkap-gcal-event-view.php:107
+#: includes/class-bkap-rescheduled-order.php:65
 #: includes/class-import-bookings-table.php:101
 #: templates/emails/customer-booking-confirmed.php:91
 #: templates/reminders/bkap-manual-reminder-email-settings.php:24
@@ -4249,15 +4307,15 @@ msgstr ""
 msgid "Product"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:198
+#: includes/class-bkap-gcal-event-view.php:204
 msgid "This event is mapped."
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:202
+#: includes/class-bkap-gcal-event-view.php:208
 msgid "Map Event"
 msgstr ""
 
-#: includes/class-bkap-gcal-event-view.php:488
+#: includes/class-bkap-gcal-event-view.php:494
 msgid "Delete Events"
 msgstr ""
 
@@ -4552,80 +4610,80 @@ msgstr ""
 msgid "Unable to add person"
 msgstr ""
 
-#: includes/class-bkap-person.php:230
+#: includes/class-bkap-person.php:232
 msgid "Total number of persons can not be lesser than this value."
 msgstr ""
 
-#: includes/class-bkap-person.php:231
+#: includes/class-bkap-person.php:233
 msgid "Total number of persons will not exceed this value."
 msgstr ""
 
-#: includes/class-bkap-person.php:232
+#: includes/class-bkap-person.php:234
 msgid "All the cost will be multiplied by the number of persons."
 msgstr ""
 
-#: includes/class-bkap-person.php:233
+#: includes/class-bkap-person.php:235
 msgid ""
 "Enable this to count each person as booking until the Max Bookings per block "
 "is reached."
 msgstr ""
 
-#: includes/class-bkap-person.php:234
+#: includes/class-bkap-person.php:236
 msgid ""
 "Enable this to add different types of persons and its costs, e.g Adults and "
 "Children."
 msgstr ""
 
-#: includes/class-bkap-person.php:243
+#: includes/class-bkap-person.php:245
 msgid "Min Persons:"
 msgstr ""
 
-#: includes/class-bkap-person.php:257
+#: includes/class-bkap-person.php:259
 msgid "Max Persons:"
 msgstr ""
 
-#: includes/class-bkap-person.php:271
+#: includes/class-bkap-person.php:273
 msgid "Multiply price by persons count:"
 msgstr ""
 
-#: includes/class-bkap-person.php:288
+#: includes/class-bkap-person.php:290
 msgid "Consider each person as booking:"
 msgstr ""
 
-#: includes/class-bkap-person.php:305
+#: includes/class-bkap-person.php:307
 msgid "Enable Person Type:"
 msgstr ""
 
-#: includes/class-bkap-person.php:322
+#: includes/class-bkap-person.php:324
 msgid "Person Types"
 msgstr ""
 
-#: includes/class-bkap-person.php:326
+#: includes/class-bkap-person.php:328
 msgid "Person Type"
 msgstr ""
 
-#: includes/class-bkap-person.php:327
+#: includes/class-bkap-person.php:329
 #: templates/meta-boxes/html-bkap-resource.php:24
 msgid "Base Cost"
 msgstr ""
 
-#: includes/class-bkap-person.php:328
+#: includes/class-bkap-person.php:330
 msgid "Block Cost"
 msgstr ""
 
-#: includes/class-bkap-person.php:329
+#: includes/class-bkap-person.php:331
 msgid "Minimum"
 msgstr ""
 
-#: includes/class-bkap-person.php:330
+#: includes/class-bkap-person.php:332
 msgid "Maximum"
 msgstr ""
 
-#: includes/class-bkap-person.php:351
+#: includes/class-bkap-person.php:353
 msgid "Add Person Type"
 msgstr ""
 
-#: includes/class-bkap-person.php:460
+#: includes/class-bkap-person.php:462
 msgid "Person"
 msgstr ""
 
@@ -4772,10 +4830,10 @@ msgid "Item Booked"
 msgstr ""
 
 #: includes/class-bkap-privacy-exporter.php:220
-#: includes/class-bkap-rescheduled-order.php:66
-#: includes/class-bkap-rescheduled-order.php:155
-#: includes/class-bkap-rescheduled-order.php:158
-#: includes/class-bkap-rescheduled-order.php:227
+#: includes/class-bkap-rescheduled-order.php:68
+#: includes/class-bkap-rescheduled-order.php:157
+#: includes/class-bkap-rescheduled-order.php:160
+#: includes/class-bkap-rescheduled-order.php:229
 #: includes/class-import-bookings-table.php:100
 #: templates/meta-boxes/class-bkap-details-meta-box.php:69
 msgid "Booking Details"
@@ -4844,7 +4902,7 @@ msgid ""
 "completed by the customer."
 msgstr ""
 
-#: includes/class-bkap-privacy-policy.php:99
+#: includes/class-bkap-privacy-policy.php:102
 msgid "Items Booking Details"
 msgstr ""
 
@@ -4892,20 +4950,20 @@ msgstr ""
 msgid "Unable to add resource"
 msgstr ""
 
-#: includes/class-bkap-product-resource.php:1576
+#: includes/class-bkap-product-resource.php:1579
 msgid ""
 "This Booking is attached to a Resource which has been selected for deletion. "
 "Please use a different booking."
 msgstr ""
 
 #: includes/class-bkap-reminder.php:83
-#: includes/vendors/class-bkap-vendor-compatibility.php:449
+#: includes/vendors/class-bkap-vendor-compatibility.php:450
 #: templates/meta-boxes/class-bkap-send-reminder-meta-box.php:239
 msgid "Active"
 msgstr ""
 
 #: includes/class-bkap-reminder.php:84
-#: includes/vendors/class-bkap-vendor-compatibility.php:450
+#: includes/vendors/class-bkap-vendor-compatibility.php:451
 #: templates/meta-boxes/class-bkap-send-reminder-meta-box.php:240
 msgid "Inactive"
 msgstr ""
@@ -4928,304 +4986,304 @@ msgstr ""
 msgid "[{blogname}] You have a booking for {product_title}"
 msgstr ""
 
-#: includes/class-bkap-rescheduled-order.php:54
+#: includes/class-bkap-rescheduled-order.php:56
 msgid "Order Bookings"
 msgstr ""
 
-#: includes/class-bkap-rescheduled-order.php:152
-#: includes/class-bkap-rescheduled-order.php:224
+#: includes/class-bkap-rescheduled-order.php:154
+#: includes/class-bkap-rescheduled-order.php:226
 msgid "Booking Product"
 msgstr ""
 
-#: includes/class-bkap-rescheduled-order.php:324
+#: includes/class-bkap-rescheduled-order.php:326
 #, php-format
 msgid "Additional Payment for %1$s (Order #%2$d )"
 msgstr ""
 
-#: includes/class-bkap-rescheduled-order.php:356
+#: includes/class-bkap-rescheduled-order.php:358
 msgid "Related Order"
 msgstr ""
 
-#: includes/class-bkap-rescheduled-order.php:363
+#: includes/class-bkap-rescheduled-order.php:365
 msgid "Parent Order"
 msgstr ""
 
-#: includes/class-bkap-resource-listing.php:52
+#: includes/class-bkap-resource-listing.php:59
 msgid "No. of Products"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:222 includes/vendors/vendors-common.php:104
+#: includes/class-bkap-scripts.php:230 includes/vendors/vendors-common.php:104
 msgid "Moved to trash"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:314
+#: includes/class-bkap-scripts.php:322
 #: templates/vendors-integration/bkap-view-bookings.php:100
 msgid "Print"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:315
+#: includes/class-bkap-scripts.php:323
 #: templates/vendors-integration/bkap-view-bookings.php:99
 msgid "CSV"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:336
+#: includes/class-bkap-scripts.php:344
 #, php-format
 msgid "Total bookings to export %s..."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:339
+#: includes/class-bkap-scripts.php:347
 msgid "No pending bookings left to be exported."
-msgstr ""
-
-#: includes/class-bkap-scripts.php:357
-msgctxt "bkap customer filter"
-msgid "No matches found"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:358
-msgctxt "bkap customer filter"
-msgid "Could not fetch Customer Records"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:359
-msgctxt "bkap customer filter"
-msgid "Please enter 1 or more characters"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:360
-msgctxt "bkap customer filter"
-msgid "Please enter %qty% or more characters"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:361
-msgctxt "bkap customer filter"
-msgid "Please delete 1 character"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:362
-msgctxt "bkap customer filter"
-msgid "Please delete %qty% characters"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:363
-msgctxt "bkap customer filter"
-msgid "You can only select 1 item"
-msgstr ""
-
-#: includes/class-bkap-scripts.php:364
-msgctxt "bkap customer filter"
-msgid "You can only select %qty% items"
 msgstr ""
 
 #: includes/class-bkap-scripts.php:365
 msgctxt "bkap customer filter"
-msgid "Loading more results&hellip;"
+msgid "No matches found"
 msgstr ""
 
 #: includes/class-bkap-scripts.php:366
 msgctxt "bkap customer filter"
+msgid "Could not fetch Customer Records"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:367
+msgctxt "bkap customer filter"
+msgid "Please enter 1 or more characters"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:368
+msgctxt "bkap customer filter"
+msgid "Please enter %qty% or more characters"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:369
+msgctxt "bkap customer filter"
+msgid "Please delete 1 character"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:370
+msgctxt "bkap customer filter"
+msgid "Please delete %qty% characters"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:371
+msgctxt "bkap customer filter"
+msgid "You can only select 1 item"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:372
+msgctxt "bkap customer filter"
+msgid "You can only select %qty% items"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:373
+msgctxt "bkap customer filter"
+msgid "Loading more results&hellip;"
+msgstr ""
+
+#: includes/class-bkap-scripts.php:374
+msgctxt "bkap customer filter"
 msgid "Searching&hellip;"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:538
+#: includes/class-bkap-scripts.php:546
 msgid "General Booking settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:539
+#: includes/class-bkap-scripts.php:547
 msgid "Booking Availability settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:540
+#: includes/class-bkap-scripts.php:548
 msgid ""
 "Make sure you have filled Weekday and From fields in Set Weekdays/Dates And "
 "It's Timeslots section of Availability tab to save settings."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:541
+#: includes/class-bkap-scripts.php:549
 msgid "Settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:542
+#: includes/class-bkap-scripts.php:550
 msgid "Rental settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:543
+#: includes/class-bkap-scripts.php:551
 msgid "Use this for full day bookings or bookings spanning multiple nights."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:544
+#: includes/class-bkap-scripts.php:552
 msgid ""
 "Use this if you wish to take bookings for time slots. For e.g. coaching "
 "classes, appointments, ground on rent etc."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:545
+#: includes/class-bkap-scripts.php:553
 msgid ""
 "Use this if you have fixed time slots for bookings. For e.g. coaching "
 "classes, appointments etc."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:546
+#: includes/class-bkap-scripts.php:554
 msgid ""
 "Use this if you want your customer to select required duration for booking. "
 "For e.g. sports ground booking, appointments etc."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:547
+#: includes/class-bkap-scripts.php:555
 msgid "Use this for multiple dates bookings."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:548
+#: includes/class-bkap-scripts.php:556
 msgid "Use this for multiple dates and fixed time slots bookings."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:549
+#: includes/class-bkap-scripts.php:557
 msgid ""
 "Use this to take bookings like single day tours, event, appointments etc."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:550
+#: includes/class-bkap-scripts.php:558
 msgid ""
 "Use this for hotel bookings, rentals, etc. Checkout date is not included in "
 "the booking period."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:551
+#: includes/class-bkap-scripts.php:559
 msgid ""
 "Please enter the per night price in the Regular or Sale Price box in the "
 "Product meta box as needed. In case if you wish to charge special prices for "
 "a weekday, please enter them above."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:552
+#: includes/class-bkap-scripts.php:560
 msgid "Are you sure you want to delete all the timeslots?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:553
+#: includes/class-bkap-scripts.php:561
 msgid "Are you sure you want to delete the timeslot?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:554
+#: includes/class-bkap-scripts.php:562
 msgid "All the timeslots have been deleted successfully."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:555
+#: includes/class-bkap-scripts.php:563
 msgid "There are no timeslots added for the product."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:556
+#: includes/class-bkap-scripts.php:564
 msgid "Resource settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:557
+#: includes/class-bkap-scripts.php:565
 msgid "Person settings have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:559
+#: includes/class-bkap-scripts.php:567
 msgid "The FROM value must be less than the TO value."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:560
+#: includes/class-bkap-scripts.php:568
 msgid "The START range must be less than the END range."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:561
+#: includes/class-bkap-scripts.php:569
 msgid "The FROM Weekday timeslot must be less than the TO timeslot."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:562
+#: includes/class-bkap-scripts.php:570
 msgid "One or more fields have incorrect START/END or FROM/TO values."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:572
+#: includes/class-bkap-scripts.php:585
 msgid "Fixed Blocks have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:573
+#: includes/class-bkap-scripts.php:586
 msgid "Fixed Block have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:574
+#: includes/class-bkap-scripts.php:587
 msgid "All Fixed Blocks have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:575
+#: includes/class-bkap-scripts.php:588
 msgid "Are you sure you want to delete this fixed block?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:576
+#: includes/class-bkap-scripts.php:589
 msgid "Are you sure you want to delete all the blocks?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:578
+#: includes/class-bkap-scripts.php:591
 msgid "Price ranges have been saved."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:579
+#: includes/class-bkap-scripts.php:592
 msgid "Price Range have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:580
+#: includes/class-bkap-scripts.php:593
 msgid "All Price Ranges have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:581
+#: includes/class-bkap-scripts.php:594
 msgid "Are you sure you want to delete this price range?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:582
+#: includes/class-bkap-scripts.php:595
 msgid "Are you sure you want to delete all the ranges?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:746
+#: includes/class-bkap-scripts.php:759
 msgid "Are you sure you want to delete this resource?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:747
+#: includes/class-bkap-scripts.php:760
 msgid "Are you sure you want to delete all resources?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:748
+#: includes/class-bkap-scripts.php:761
 msgid "Resource have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:749
+#: includes/class-bkap-scripts.php:762
 msgid "Are you sure you want to delete this person?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:750
+#: includes/class-bkap-scripts.php:763
 msgid "Are you sure you want to delete all persons?"
 msgstr ""
 
-#: includes/class-bkap-scripts.php:751
+#: includes/class-bkap-scripts.php:764
 msgid "Person have been deleted."
 msgstr ""
 
-#: includes/class-bkap-scripts.php:845
+#: includes/class-bkap-scripts.php:864
 msgid "Loading"
 msgstr ""
 
-#: includes/class-bkap-sms-settings.php:176
+#: includes/class-bkap-sms-settings.php:179
 #, php-format
 msgid "The reminder SMS for Booking #%1$s has been sent to %2$s."
 msgstr ""
 
-#: includes/class-bkap-sms-settings.php:287
+#: includes/class-bkap-sms-settings.php:290
 #, php-format
 msgid "Message Status: %s"
 msgstr ""
 
-#: includes/class-bkap-sms-settings.php:293
+#: includes/class-bkap-sms-settings.php:296
 msgid ""
 "Incomplete Twilio Account Details. Please provide an Account SID and Auth "
 "Token to send a test message."
 msgstr ""
 
-#: includes/class-bkap-sms-settings.php:296
+#: includes/class-bkap-sms-settings.php:299
 msgid "Please enter the phone number in E.164 format"
 msgstr ""
 
-#: includes/class-bkap-sms-settings.php:299
+#: includes/class-bkap-sms-settings.php:302
 msgid ""
 "Please make sure the Recipient Number and Message field are populated with "
 "valid details."
@@ -5272,11 +5330,11 @@ msgstr ""
 msgid "Time Zone"
 msgstr ""
 
-#: includes/class-bkap-timezone-conversion.php:199
+#: includes/class-bkap-timezone-conversion.php:206
 msgid "Timezone"
 msgstr ""
 
-#: includes/class-bkap-timezone-conversion.php:282
+#: includes/class-bkap-timezone-conversion.php:289
 msgid "Times are in "
 msgstr ""
 
@@ -5316,102 +5374,171 @@ msgstr ""
 msgid "Booking deleted"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:90
+#: includes/class-bkap-zoom-meeting-settings.php:88
+msgid "Connected to Zoom successfully."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:95
+msgid "Successfully logged out from Zoom."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:113
+#, php-format
+msgid ""
+"Urgent Notification: Attention, please! By September 8, 2023, Zoom will no "
+"longer support JWT app type authorization. Your site is currently benefiting "
+"from the Zoom integration offered by the Booking & Appointment Plugin for "
+"WooCommerce. To continue enjoying uninterrupted service, we recommend "
+"transitioning from JWT app type to OAuth app type <a href=\"%s\">here.</a>"
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:124
 msgid ""
 "Zoom meeting links are getting generated and assigned in the background for "
 "future bookings. This process may take a little while, so please be patient."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:96
+#: includes/class-bkap-zoom-meeting-settings.php:130
 msgid "Zoom meeting links have been generated and assigned to future bookings."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:108
+#: includes/class-bkap-zoom-meeting-settings.php:140
 msgid "Zoom Meetings - Connection Failed."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:240
+#: includes/class-bkap-zoom-meeting-settings.php:309
 msgid "API Connection is good."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:405
-#: includes/class-bkap-zoom-meeting-settings.php:685
+#: includes/class-bkap-zoom-meeting-settings.php:474
+#: includes/class-bkap-zoom-meeting-settings.php:818
 #, php-format
 msgid "Zoom Meeting Error for Booking #%1$s - %2$s"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:482
+#: includes/class-bkap-zoom-meeting-settings.php:551
 msgid "Add zoom meeting"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:483
+#: includes/class-bkap-zoom-meeting-settings.php:552
 msgid "Add meeting link here"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:484
+#: includes/class-bkap-zoom-meeting-settings.php:553
 msgid "Keeping above field blank will generate new meeting link."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:505
-msgid "To find your <b>API Key</b> and <b>API Secret</b> do the following:"
+#: includes/class-bkap-zoom-meeting-settings.php:574
+msgid ""
+"To find your <b>Client ID</b> and <b>Client Secret</b> do the following:"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:508
-msgid "Sign in to your Zoom account."
-msgstr ""
-
-#: includes/class-bkap-zoom-meeting-settings.php:509
+#: includes/class-bkap-zoom-meeting-settings.php:582
 #, php-format
-msgid "Visit the <b>%s</b>."
+msgid "Sign in to your Zoom account and visit the %s."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:510
+#: includes/class-bkap-zoom-meeting-settings.php:592
 msgid ""
-"Click on the <b>Develop</b> option in the dropdown on the top-right corner "
-"and select <b>Build App</b>."
+"Click on the <b>Develop</b> option on the top-right corner and select "
+"<b>Build App</b>."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:511
+#: includes/class-bkap-zoom-meeting-settings.php:593
 msgid ""
-"A page with various app types will be displayed. Select <b>JWT</b> as the "
+"A page with various app types will be displayed. Select <b>OAuth</b> as the "
 "app type and click on <b>Create</b>."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:512
-msgid "After creating your app, fill out descriptive and contact information."
-msgstr ""
-
-#: includes/class-bkap-zoom-meeting-settings.php:513
+#: includes/class-bkap-zoom-meeting-settings.php:594
 msgid ""
-"Go to <b>App Credentials</b> tab and look for the <b>API Key</b> and <b>API "
-"Secret</b>. Use them in the form below on this page."
+"Fill out the <b>App Name</b> and choose the app type as <b>Account-level</b> "
+"app and switch off the option for publishing Zoom App to Marketplace and "
+"click on the <b>Create</b> button."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:514
+#: includes/class-bkap-zoom-meeting-settings.php:595
 msgid ""
-"Once you've copied over your API Key and Secret, go to <b>Activation</b> tab "
-"and make sure your app is activated."
+"The <b>Client ID</b> and <b>Client Secret</b> information will be available "
+"in the <b>App Credentials</b> tab. Use them in the form below on this page "
+"and click on the Save Settings button."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:530
-msgid "The API Key obtained from your JWT app."
+#: includes/class-bkap-zoom-meeting-settings.php:596
+msgid ""
+"Once you've copied over your Client ID and Client Secret, copy the "
+"<b>Redirect URL</b> and set it to <b>Redirect URL for the OAuth</b> option "
+"in the App Credentials section and <b>Add Allow List</b> option in the OAuth "
+"Allow List section. Click on Continue for the next step."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:543
-msgid "The API Secret obtained from your JWT app."
+#: includes/class-bkap-zoom-meeting-settings.php:597
+msgid ""
+"In the Information tab, fill data in the required fields like Short "
+"description, Long description, Company name, and Developer Contact "
+"Information and click on the Continue button."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:555
+#: includes/class-bkap-zoom-meeting-settings.php:598
+msgid ""
+"In the Features tab, enable the required features and click on the Continue "
+"button."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:599
+msgid ""
+"You will now be on the <b>Scopes</b> tab. Click on the <b>Add Scopes</b> "
+"button select all the scopes in <b>Meeting</b> and <b>User</b> tabs and "
+"click on the <b>Done</b> button."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:600
+msgid ""
+"Click on the Continue button and if there are no error messages for missing "
+"fields on the Activation tab then your app is ready."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:601
+msgid ""
+"Now you can connect the store with the created Zoom App by clicking on the "
+"<b>Connect to Zoom</b> button below."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:602
+msgid ""
+"On click of <b>Connect to Zoom</b> button, you will be redirected to the "
+"permission page of Zoom for using the app. Click on <b>Allow</b> button to "
+"give the permission and you will be redirected back to store upon the "
+"successful connection."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:620
+msgid "The Client ID obtained from your OAuth app."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:635
+msgid "The Client Secret obtained from your OAuth app."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:662
+msgid "Connect to Zoom"
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:676
+msgid "Connected to Zoom."
+msgstr ""
+
+#: includes/class-bkap-zoom-meeting-settings.php:688
 msgid "Assign Meeting to Bookings"
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:556
+#: includes/class-bkap-zoom-meeting-settings.php:689
 msgid ""
 "Click on Assign Meeting to Booking button to Create/Add meeting links for "
 "the Bookings which doesn't have the meetings."
 msgstr ""
 
-#: includes/class-bkap-zoom-meeting-settings.php:689
+#: includes/class-bkap-zoom-meeting-settings.php:822
 msgid "Invalid meeting link."
 msgstr ""
 
@@ -5419,74 +5546,84 @@ msgstr ""
 msgid "Import Event ID"
 msgstr ""
 
-#: includes/class.gcal.php:105
+#: includes/class.gcal.php:182
 msgid ""
-"<b>Test is successful</b>. Please REFRESH your Google Calendar and check "
-"that test appointment has been saved."
+"<div class=\"notice notice-success\"><p><b>Test is successful</b>. Please "
+"REFRESH your Google Calendar and check that test appointment has been saved."
+"</p></div>"
 msgstr ""
 
-#: includes/class.gcal.php:121
+#: includes/class.gcal.php:185
+#, php-format
+msgid ""
+"<div class=\"notice notice-error\"><p><b>Test failed</b>. Please inspect "
+"your log located at %s for more info.</p></div>"
+msgstr ""
+
+#: includes/class.gcal.php:198
 msgid "Do NOT use your primary Google calendar, but create a new one."
 msgstr ""
 
-#: includes/class.gcal.php:125
+#: includes/class.gcal.php:202
 msgid "The following error has been reported by Google Calendar API:<br />"
 msgstr ""
 
-#: includes/class.gcal.php:125
+#: includes/class.gcal.php:202
 msgid "<b>Recommendation:</b> Please double check your settings."
 msgstr ""
 
-#: includes/class.gcal.php:447
+#: includes/class.gcal.php:555
 msgid "Google PHP API Client <b>requires at least PHP 5.3</b>"
 msgstr ""
 
-#: includes/class.gcal.php:452
+#: includes/class.gcal.php:560
 #, php-format
 msgid ""
 "Google PHP API Client <b>requires at least 32 MByte Server RAM</b>. Please "
 "check this link how to increase it: %s"
 msgstr ""
 
-#: includes/class.gcal.php:452
+#: includes/class.gcal.php:560
 msgid "Increasing_memory_allocated_to_PHP"
 msgstr ""
 
-#: includes/class.gcal.php:456
+#: includes/class.gcal.php:564
 msgid "Google PHP API Client <b>requires the CURL PHP extension</b>"
 msgstr ""
 
-#: includes/class.gcal.php:460
+#: includes/class.gcal.php:568
 msgid "Google PHP API Client <b>requires the JSON PHP extension</b>"
 msgstr ""
 
-#: includes/class.gcal.php:464
+#: includes/class.gcal.php:572
 msgid "Google PHP API Client <b>requires http_build_query()</b>"
 msgstr ""
 
-#: includes/class.gcal.php:469
+#: includes/class.gcal.php:577
 msgid "Your server installation meets requirements."
 msgstr ""
 
-#: includes/class.gcal.php:473
-msgid "<b>Key file does not exist</b>"
+#: includes/class.gcal.php:581
+msgid ""
+"<b>Key file data does not exist. Please upload the key file in JSON format.</"
+"b>"
 msgstr ""
 
 #: includes/product-calendar-sync-settings.php:62
 msgid "Collapse Tabs"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:98
+#: includes/product-calendar-sync-settings.php:100
 msgid ""
 "Google Calendar Sync cannot be set up for a Grouped Product. Please set up "
 "the sync settings for individual child products."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:128
+#: includes/product-calendar-sync-settings.php:130
 msgid "Integration Mode:"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:138
+#: includes/product-calendar-sync-settings.php:140
 msgid ""
 "<b>OAuth Sync</b> will add booking event to Google Calendar Automatically "
 "using the OAuth method. This is the most recommended method to sync events "
@@ -5497,37 +5634,23 @@ msgid ""
 "events will work manually using .ics link."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:215
-msgid "Key File Name:"
-msgstr ""
-
-#: includes/product-calendar-sync-settings.php:221
+#: includes/product-calendar-sync-settings.php:244
 msgid ""
-"Enter key file name here without extention, e.g. ab12345678901234567890-"
-"privatekey."
+"Upload the JSON key file using this option. After selecting the JSON file, "
+"click on Upload button to upload it."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:233
-msgid "Service Account Email Address:"
-msgstr ""
-
-#: includes/product-calendar-sync-settings.php:239
-msgid ""
-"Enter Service account email address here, e.g. 1234567890@developer."
-"gserviceaccount.com."
-msgstr ""
-
-#: includes/product-calendar-sync-settings.php:251
+#: includes/product-calendar-sync-settings.php:256
 msgid "Calendar to be used:"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:257
+#: includes/product-calendar-sync-settings.php:262
 msgid ""
 "Enter the ID of the calendar in which your bookings will be saved, e.g. "
 "abcdefg1234567890@group.calendar.google.com."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:273
+#: includes/product-calendar-sync-settings.php:278
 msgid ""
 "You can follow the instructions given in <a href ='https://www."
 "tychesoftwares.com/how-to-send-woocommerce-bookings-to-different-google-"
@@ -5535,401 +5658,437 @@ msgid ""
 "setup the Google Calendar Sync settings for your product."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:281
+#: includes/product-calendar-sync-settings.php:286
 msgid "Import and Mapping of Events"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:292
+#: includes/product-calendar-sync-settings.php:297
 msgid "Enable Automated Mapping for Imported Events:"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:300
+#: includes/product-calendar-sync-settings.php:305
 msgid ""
 "Enable if you wish to allow for imported events to be automatically mapped "
 "to the product."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:319
+#: includes/product-calendar-sync-settings.php:324
 msgid "Default Variation to which Events should be mapped:"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:346
+#: includes/product-calendar-sync-settings.php:351
 msgid ""
 "Select the default variation to which the product should be mapped. If left "
 "blanks, then the first variation shall be chosen."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:359
+#: includes/product-calendar-sync-settings.php:364
 msgid ".ics/ICAL Feed URL"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:420
+#: includes/product-calendar-sync-settings.php:425
 msgid "Enable Zoom Meetings"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:428
+#: includes/product-calendar-sync-settings.php:433
 msgid "Enable Zoom Meetings."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:498
+#: includes/product-calendar-sync-settings.php:501
 msgid "Host"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:502
-#: includes/product-calendar-sync-settings.php:625
+#: includes/product-calendar-sync-settings.php:505
+#: includes/product-calendar-sync-settings.php:628
 #: templates/meta-boxes/html-bkap-resource-details.php:26
 msgid "Select Host"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:516
+#: includes/product-calendar-sync-settings.php:519
 msgid "Selected user will be assgined as host for created meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:524
+#: includes/product-calendar-sync-settings.php:527
 msgid "Meeting Authentication"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:532
+#: includes/product-calendar-sync-settings.php:535
 msgid ""
 "Enabling this option will allow only authenticated users to join the meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:540
+#: includes/product-calendar-sync-settings.php:543
 msgid "Join Before Host"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:548
+#: includes/product-calendar-sync-settings.php:551
 msgid ""
 "Enabling this option will allow participants to join the meeting before the "
 "host starts the meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:556
+#: includes/product-calendar-sync-settings.php:559
 msgid "Host Video"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:564
+#: includes/product-calendar-sync-settings.php:567
 msgid ""
-"Enaling this option will start the video when the host joins the meeting."
+"Enabling this option will start the video when the host joins the meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:572
+#: includes/product-calendar-sync-settings.php:575
 msgid "Participant Video"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:580
+#: includes/product-calendar-sync-settings.php:583
 msgid ""
-"Enaling this option will start the video when the participants join the "
+"Enabling this option will start the video when the participants join the "
 "meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:588
+#: includes/product-calendar-sync-settings.php:591
 msgid "Mute Upon Entry"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:596
+#: includes/product-calendar-sync-settings.php:599
 msgid "Enabling this option will mute the participants upon entry."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:604
+#: includes/product-calendar-sync-settings.php:607
 msgid "Auto Recording"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:608
+#: includes/product-calendar-sync-settings.php:611
 msgid "None"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:609
+#: includes/product-calendar-sync-settings.php:612
 msgid "Local"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:610
+#: includes/product-calendar-sync-settings.php:613
 msgid "Cloud"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:614
+#: includes/product-calendar-sync-settings.php:617
 msgid "Enable this option for automatic recording of meeting."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:621
+#: includes/product-calendar-sync-settings.php:624
 msgid "Alternative Host"
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:639
+#: includes/product-calendar-sync-settings.php:642
 msgid "Here you can select the alternative host's emails."
 msgstr ""
 
-#: includes/product-calendar-sync-settings.php:661
+#: includes/product-calendar-sync-settings.php:662
 #, php-format
 msgid ""
-"Set App API Key and API Secret for Zoom connection <a href=\"%s\" target="
-"\"_blank\">here.</a>"
+"Configure the Zoom connection <a href=\"%s\" target=\"_blank\">here.</a>"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:131
-#: includes/api/class-bkap-api-bookings.php:1313
+#: includes/api/class-bkap-api-bookings.php:140
+#: includes/api/class-bkap-api-bookings.php:621
+#: includes/api/class-bkap-api-bookings.php:1589
 #: includes/api/class-bkap-api-products.php:118
 #: includes/api/class-bkap-api-resources.php:105
 msgid "Limit parameter must be numeric"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:137
+#: includes/api/class-bkap-api-bookings.php:146
 msgid "Page parameter must be numeric"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:144
-#: includes/api/class-bkap-api-bookings.php:1320
+#: includes/api/class-bkap-api-bookings.php:153
+#: includes/api/class-bkap-api-bookings.php:628
+#: includes/api/class-bkap-api-bookings.php:1596
 #: includes/api/class-bkap-api-resources.php:112
 msgid "No valid Product has been found for the Product ID provided"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:149
-#: includes/api/class-bkap-api-bookings.php:1327
+#: includes/api/class-bkap-api-bookings.php:158
+#: includes/api/class-bkap-api-bookings.php:635
+#: includes/api/class-bkap-api-bookings.php:1603
 msgid "Product ID and Variation ID cannot be set at the same time"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:155
-#: includes/api/class-bkap-api-bookings.php:1333
+#: includes/api/class-bkap-api-bookings.php:164
+#: includes/api/class-bkap-api-bookings.php:641
+#: includes/api/class-bkap-api-bookings.php:1609
 msgid "No valid Product has been found for the Variation ID provided"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:161
-#: includes/api/class-bkap-api-bookings.php:712
+#: includes/api/class-bkap-api-bookings.php:170
 #: includes/api/class-bkap-api-resources.php:118
 msgid "Customer ID is invalid"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:167
-#: includes/api/class-bkap-api-bookings.php:1339
+#: includes/api/class-bkap-api-bookings.php:176
+#: includes/api/class-bkap-api-bookings.php:647
+#: includes/api/class-bkap-api-bookings.php:1615
 msgid "Resource ID must be numeric"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:177
+#: includes/api/class-bkap-api-bookings.php:182
+#: includes/api/class-bkap-api-bookings.php:653
+#: includes/api/class-bkap-api-bookings.php:1621
+msgid "Person IDs must be an array"
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:192
 msgid "No valid Order can be found for the Order ID provided"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:188
+#: includes/api/class-bkap-api-bookings.php:203
 msgid ""
 "Booking Status provided is invalid. Use -> draft, cancelled, confirmed, "
 "paid, pending-confirmation"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:195
-#: includes/api/class-bkap-api-bookings.php:768
-#: includes/api/class-bkap-api-bookings.php:1158
-#: includes/api/class-bkap-api-bookings.php:1346
+#: includes/api/class-bkap-api-bookings.php:210
+#: includes/api/class-bkap-api-bookings.php:660
+#: includes/api/class-bkap-api-bookings.php:974
+#: includes/api/class-bkap-api-bookings.php:1434
+#: includes/api/class-bkap-api-bookings.php:1628
 #: includes/api/class-bkap-api-products.php:153
 msgid "Please provide the Start Date in the Y-m-d format. Ex: 2021-09-11"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:202
-#: includes/api/class-bkap-api-bookings.php:781
-#: includes/api/class-bkap-api-bookings.php:1353
+#: includes/api/class-bkap-api-bookings.php:217
+#: includes/api/class-bkap-api-bookings.php:667
+#: includes/api/class-bkap-api-bookings.php:987
+#: includes/api/class-bkap-api-bookings.php:1635
 #: includes/api/class-bkap-api-products.php:161
 msgid "Please provide the End Date in the Y-m-d format. Ex: 2021-09-11"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:208
+#: includes/api/class-bkap-api-bookings.php:223
 #: includes/api/class-bkap-api-products.php:167
 #: includes/api/class-bkap-api-products.php:1588
 msgid "Price parameter must be numeric"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:214
+#: includes/api/class-bkap-api-bookings.php:229
 #: includes/api/class-bkap-api-resources.php:124
 msgid "Quantity parameter must be numeric"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:457
+#: includes/api/class-bkap-api-bookings.php:516
 msgid "Booking cannot be found or does not exist"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:470
+#: includes/api/class-bkap-api-bookings.php:529
 msgid ""
 "Booking has been deleted but the Booking Post may have not been deleted due "
 "to some errors"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:479
+#: includes/api/class-bkap-api-bookings.php:538
 msgid ""
 "Booking has been deleted but the Parent Order for the Booking may have not "
 "been deleted due to some errors"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:486
+#: includes/api/class-bkap-api-bookings.php:545
 #, php-format
 msgid "Booking #%s has been deleted"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:665
+#: includes/api/class-bkap-api-bookings.php:631
+#: includes/api/class-bkap-api-bookings.php:1599
+msgid "Please provide a Product ID to continue."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:673
+#: includes/api/class-bkap-api-bookings.php:1641
+msgid ""
+"Start Date cannot be in an array. Please provide a single date for ranges to "
+"apply."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:675
+#: includes/api/class-bkap-api-bookings.php:1643
+msgid ""
+"End Date cannot be in an array. Please provide a single date. Please provide "
+"a single date for ranges to apply."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:677
+#: includes/api/class-bkap-api-bookings.php:1645
+msgid ""
+"Start Date must not be greater than End Date. Please provide a valid date."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:741
+msgid "Something went wrong. Please check data."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:885
 msgid "Booking data has not been provided to create a new Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:670
+#: includes/api/class-bkap-api-bookings.php:890
 msgid "You do not have permission to create this Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:686
+#: includes/api/class-bkap-api-bookings.php:906
 #, php-format
 msgid "%1$s is invalid for the %2$s ID that has been provided"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:695
+#: includes/api/class-bkap-api-bookings.php:915
 msgid "Product ID is required to create a Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:718
-msgid "Please provide a Customer ID"
-msgstr ""
-
-#: includes/api/class-bkap-api-bookings.php:736
+#: includes/api/class-bkap-api-bookings.php:942
 msgid "Please provide the Price for the Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:747
+#: includes/api/class-bkap-api-bookings.php:953
 msgid "The provided Order ID is invalid"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:771
+#: includes/api/class-bkap-api-bookings.php:977
 msgid "Please provide the Start Date"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:784
+#: includes/api/class-bkap-api-bookings.php:990
 msgid "Please provide the End Date"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:797
-#: includes/api/class-bkap-api-bookings.php:973
-#: includes/api/class-bkap-api-bookings.php:1167
+#: includes/api/class-bkap-api-bookings.php:1003
+#: includes/api/class-bkap-api-bookings.php:1226
+#: includes/api/class-bkap-api-bookings.php:1443
 msgid "Please provide the Start Time in the H:i format. Ex: 23:15"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:800
+#: includes/api/class-bkap-api-bookings.php:1006
 msgid "Please provide the Start Time"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:815
-#: includes/api/class-bkap-api-bookings.php:982
-#: includes/api/class-bkap-api-bookings.php:1176
+#: includes/api/class-bkap-api-bookings.php:1021
+#: includes/api/class-bkap-api-bookings.php:1235
+#: includes/api/class-bkap-api-bookings.php:1452
 msgid "Please provide the End Time in the H:i format. Ex: 23:15"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:818
+#: includes/api/class-bkap-api-bookings.php:1024
 msgid "Please provide the End Time"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:835
+#: includes/api/class-bkap-api-bookings.php:1041
 msgid "Please provide the Duration for the Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:843
+#: includes/api/class-bkap-api-bookings.php:1049
 msgid "Please provide an array of Resource ID(s)"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:847
+#: includes/api/class-bkap-api-bookings.php:1053
 msgid "Please provide the Resource ID as a single item and not as an array"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:865
+#: includes/api/class-bkap-api-bookings.php:1071
 #, php-format
 msgid "The following Resource ID(s) provided are invalid: %s "
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:879
+#: includes/api/class-bkap-api-bookings.php:1091
+msgid "Please provide an array of Person ID(s)"
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:1101
+msgid "person_id is missing in person_ids array"
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:1104
+msgid "person_val is missing in person_ids array"
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:1118
+#, php-format
+msgid "The following Person ID(s) provided are invalid: %s "
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:1132
 msgid "Could not retrieve a valid Selecion Type for the provided product."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:895
+#: includes/api/class-bkap-api-bookings.php:1148
 msgid "Please provide the Multiple Booking Dates in an array."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:898
+#: includes/api/class-bkap-api-bookings.php:1151
 msgid "Please provide the Booking Dates."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:921
+#: includes/api/class-bkap-api-bookings.php:1174
 #, php-format
 msgid "Booking Dates Invalid. A minimum of %d must be provided."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:933
+#: includes/api/class-bkap-api-bookings.php:1186
 #, php-format
 msgid "Booking Dates Invalid. A maximum of %d must be provided."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:947
+#: includes/api/class-bkap-api-bookings.php:1200
 msgid "Please provide the Booking date and timeslots in an array."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:952
+#: includes/api/class-bkap-api-bookings.php:1205
 msgid "Date Parameter must be set for Multiple Dates Product having Timeslots."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:960
-#: includes/api/class-bkap-api-bookings.php:1006
+#: includes/api/class-bkap-api-bookings.php:1213
+#: includes/api/class-bkap-api-bookings.php:1259
 #, php-format
 msgid ""
 "Invalid Date: %s. Please provide this Date in the Y-m-d format. Ex: "
 "2021-09-11"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:968
+#: includes/api/class-bkap-api-bookings.php:1221
 msgid ""
 "Start Time Parameter must be set for Multiple Dates Product having Timeslots."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:977
+#: includes/api/class-bkap-api-bookings.php:1230
 msgid ""
 "End Time Parameter must be set for Multiple Dates Product having Timeslots."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:998
+#: includes/api/class-bkap-api-bookings.php:1251
 msgid "Please provide the Booking date as a single value."
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1100
+#: includes/api/class-bkap-api-bookings.php:1326
+msgid "Max limit are reached for booking."
+msgstr ""
+
+#: includes/api/class-bkap-api-bookings.php:1376
 msgid "Error occured while trying to create booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1121
+#: includes/api/class-bkap-api-bookings.php:1397
 msgid "Booking data has not been provided to edit Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1126
+#: includes/api/class-bkap-api-bookings.php:1402
 msgid "You do not have permission to edit this Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1141
+#: includes/api/class-bkap-api-bookings.php:1417
 msgid "Booking ID provided is not of type Booking"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1146
+#: includes/api/class-bkap-api-bookings.php:1422
 msgid "Please provide a Booking ID"
 msgstr ""
 
-#: includes/api/class-bkap-api-bookings.php:1195
+#: includes/api/class-bkap-api-bookings.php:1471
 msgid "Booking Status provided is invalid"
-msgstr ""
-
-#: includes/api/class-bkap-api-bookings.php:1323
-msgid "Please provide a Product ID to continue."
-msgstr ""
-
-#: includes/api/class-bkap-api-bookings.php:1359
-msgid ""
-"Start Date cannot be in an array. Please provide a single date for ranges to "
-"apply."
-msgstr ""
-
-#: includes/api/class-bkap-api-bookings.php:1361
-msgid ""
-"End Date cannot be in an array. Please provide a single date. Please provide "
-"a single date for ranges to apply."
-msgstr ""
-
-#: includes/api/class-bkap-api-bookings.php:1363
-msgid ""
-"Start Date must not be greater than End Date. Please provide a valid date."
 msgstr ""
 
 #: includes/api/class-bkap-api-products.php:129
@@ -6647,61 +6806,6 @@ msgstr ""
 msgid "Error encountered while trying to delete Subscription #%s"
 msgstr ""
 
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:81
-msgid "If you have a moment, please let us know why you are deactivating"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:82
-msgid "Submit & Deactivate"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:83
-msgid "Deactivate"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:85
-msgid "Yes - Deactivate"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:89
-msgid "I found a better plugin"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:90
-msgid "What's the plugin's name?"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:91
-msgid "I only needed the plugin for a short period"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:92
-msgid "The plugin is not working"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:93
-msgid "Kindly share what didn't work so we can fix it for future users..."
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:94
-msgid "The plugin is great, but I need specific feature that you don't support"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:95
-msgid "What feature?"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:96
-msgid "I don't like to share my information with you"
-msgstr ""
-
-#: includes/component/deactivate-survey-popup/class-ts-deactivation.php:97
-msgctxt ""
-"the text of the 'other' reason for deactivating the plugin that is shown in "
-"the modal box."
-msgid "Other"
-msgstr ""
-
 #: includes/component/faq_support/ts-faq-support.php:138
 #, php-format
 msgid "Frequently Asked Questions for %s"
@@ -6719,35 +6823,24 @@ msgstr ""
 msgid "We have noticed that the license for <b>"
 msgstr ""
 
-#: includes/component/tracking data/ts-tracking.php:143
-msgid "Reset usage tracking"
-msgstr ""
-
-#: includes/component/tracking data/ts-tracking.php:189
+#: includes/component/plugin-tracking/class-tyche-plugin-tracking.php:121
 msgid "Once in a Week"
 msgstr ""
 
-#: includes/component/tracking data/ts-tracking.php:278
+#: includes/component/plugin-tracking/class-tyche-plugin-tracking.php:252
 msgid "Want to help make "
 msgstr ""
 
-#: includes/component/tracking data/ts-tracking.php:280
+#: includes/component/plugin-tracking/class-tyche-plugin-tracking.php:255
 msgid "Allow"
 msgstr ""
 
-#: includes/component/tracking data/ts-tracking.php:281
+#: includes/component/plugin-tracking/class-tyche-plugin-tracking.php:256
 msgid "No thanks"
 msgstr ""
 
 #: includes/component/WooCommerce-Check/ts-woo-active.php:80
 msgid " plugin requires WooCommerce installed and active."
-msgstr ""
-
-#: includes/gcal/io/Google_CurlIO.php:119
-msgid ""
-"Either 1) Connection error to Google server. You may neglect this message if "
-"it is happening sporadically, or 2) SSL certificate problem, verify that the "
-"CA cert is OK."
 msgstr ""
 
 #: includes/vendors/vendors-common.php:891
@@ -6772,7 +6865,7 @@ msgstr ""
 msgid "Manage Booking Settings for this product."
 msgstr ""
 
-#: templates/bkap-calendar-view.php:19
+#: templates/bkap-calendar-view.php:21
 msgid "Loading Calendar Events...."
 msgstr ""
 
@@ -6782,7 +6875,7 @@ msgid ""
 "on Confirm Bookings"
 msgstr ""
 
-#: templates/bkap-edit-booking-modal.php:172
+#: templates/bkap-edit-booking-modal.php:184
 msgid "Confirm Bookings"
 msgstr ""
 
@@ -6806,23 +6899,27 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: templates/bookings/bkap-bookings-date.php:198
+#: templates/bookings/bkap-bookings-date.php:104
+msgid "Choose a date"
+msgstr ""
+
+#: templates/bookings/bkap-bookings-date.php:299
 msgid "Choose a date above to see available times."
 msgstr ""
 
-#: templates/bookings/bkap-cancel-booking.php:29
+#: templates/bookings/bkap-cancel-booking.php:32
 msgid "Upcoming Bookings"
 msgstr ""
 
-#: templates/bookings/bkap-cancel-booking.php:29
+#: templates/bookings/bkap-cancel-booking.php:32
 msgid "Past Bookings"
 msgstr ""
 
-#: templates/bookings/bkap-cancel-booking.php:86
+#: templates/bookings/bkap-cancel-booking.php:101
 msgid "#"
 msgstr ""
 
-#: templates/bookings/bkap-cancel-booking.php:117
+#: templates/bookings/bkap-cancel-booking.php:132
 msgid "No Booking has been placed."
 msgstr ""
 
@@ -6928,7 +7025,7 @@ msgstr ""
 
 #: templates/emails/customer-booking-cancelled.php:14
 #: templates/emails/customer-booking-confirmed.php:14
-#: templates/emails/customer-booking-reminder.php:81
+#: templates/emails/customer-booking-reminder.php:84
 #: templates/emails/customer-pending-confirmation.php:20
 #: templates/emails/plain/customer-booking-cancelled.php:11
 #: templates/emails/plain/customer-booking-confirmed.php:12
@@ -6963,7 +7060,7 @@ msgstr ""
 msgid "Pay for booking"
 msgstr ""
 
-#: templates/emails/customer-booking-reminder.php:84
+#: templates/emails/customer-booking-reminder.php:87
 msgid ""
 "You have an upcoming booking. The details of your booking are shown below."
 msgstr ""
@@ -7296,11 +7393,21 @@ msgid ""
 "page. Cannot be applied to products that require confirmation."
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:301
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:277
+msgid "Show dates in dropdown?"
+msgstr ""
+
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:294
+msgid ""
+"Enable this setting if you want to show dates in dropdown instead of "
+"calendar (This option will not work with Multiple Nights Booking Type.)"
+msgstr ""
+
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:324
 msgid "Advance Booking Period (in hours)"
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:313
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:336
 msgid ""
 "Enable Booking after X number of hours from the current time. The customer "
 "can select a booking date/time slot that is available only after the minimum "
@@ -7308,22 +7415,22 @@ msgid ""
 "notice for a booking, enter 12 here."
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:321
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:344
 msgid "Number of dates to choose"
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:340
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:363
 msgid ""
 "The maximum number of booking dates you want to be available for your "
 "customers to choose from. For example, if you take only 2 months booking in "
 "advance, enter 60 here."
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:348
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:371
 msgid "Maximum Bookings On Any Date"
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:363
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:386
 msgid ""
 "Set this field if you want to place a limit on maximum bookings on any given "
 "date. If you can manage up to 15 bookings in a day, set this value to 15. "
@@ -7331,22 +7438,22 @@ msgid ""
 "further bookings."
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:371
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:394
 msgid "Minimum number of nights to book"
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:385
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:408
 msgid ""
 "The minimum number of booking days you want to book for multiple days "
 "booking. For example, if you take minimum 2 days of booking, add 2 in the "
 "field here."
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:393
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:416
 msgid "Maximum number of nights to book"
 msgstr ""
 
-#: templates/meta-boxes/html-bkap-booking-meta-box.php:407
+#: templates/meta-boxes/html-bkap-booking-meta-box.php:430
 msgid ""
 "The maximum number of booking days you want to book for multiple days "
 "booking. For example, if you take maximum 60 days of booking, add 60 in the "

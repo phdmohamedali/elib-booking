@@ -35,6 +35,27 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Connection' ) ) {
 		public $zoom_api_secret;
 
 		/**
+		 * Zoom Client ID
+		 *
+		 * @var string $zoom_client_id Client ID.
+		 */
+		public $zoom_client_id;
+
+		/**
+		 * Zoom Client Secret
+		 *
+		 * @var string $zoom_client_secret Client Secret.
+		 */
+		public $zoom_client_secret;
+
+		/**
+		 * Zoom Type
+		 *
+		 * @var $zoom_type Zoom connection type.
+		 */
+		private $zoom_type; // phpcs:ignore
+
+		/**
 		 * Hold my instance
 		 *
 		 * @var $_instance Instance of the class.
@@ -66,10 +87,15 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Connection' ) ) {
 		 *
 		 * @param string $zoom_api_key Zoom API Key.
 		 * @param string $zoom_api_secret Zoom API Secret.
+		 * @param string $zoom_client_id Zoom Client ID.
+		 * @param string $zoom_client_secret Zoom Client Secret.
 		 */
-		public function __construct( $zoom_api_key = '', $zoom_api_secret = '' ) {
-			$this->zoom_api_key    = $zoom_api_key;
-			$this->zoom_api_secret = $zoom_api_secret;
+		public function __construct( $zoom_api_key = '', $zoom_api_secret = '', $zoom_client_id = '', $zoom_client_secret = '' ) {
+			$this->zoom_api_key       = $zoom_api_key;
+			$this->zoom_api_secret    = $zoom_api_secret;
+			$this->zoom_client_id     = $zoom_client_id;
+			$this->zoom_client_secret = $zoom_client_secret;
+			$this->zoom_type          = bkap_zoom_connection_type();
 		}
 
 		/**
@@ -82,12 +108,23 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Connection' ) ) {
 		 * @return array|bool|string|WP_Error
 		 */
 		protected function bkap_send_request( $called_function, $data, $request = 'GET' ) {
+
 			$request_url = $this->api_url . $called_function;
-			$args        = array(
+			$code        = '';
+			switch ( $this->zoom_type ) {
+				case 'oauth':
+					$code = $this->bkap_get_access_token();
+					break;
+				case 'jwt':
+					$code = $this->generate_jwt_key();
+					break;
+			}
+
+			$args = array(
 				'headers' => array(
-					'Authorization' => 'Bearer ' . $this->generate_jwt_key(),
-					'Content-Type'  => 'application/json'
-				)
+					'Authorization' => 'Bearer ' . $code,
+					'Content-Type'  => 'application/json',
+				),
 			);
 
 			if ( 'GET' === $request ) {
@@ -131,6 +168,100 @@ if ( ! class_exists( 'Bkap_Zoom_Meeting_Connection' ) ) {
 			);
 
 			return JWT::encode( $token, $secret, 'HS256' );
+		}
+
+		/**
+		 * Function to generate JWT.
+		 *
+		 * @return string
+		 */
+		public function bkap_redirect_url() {
+
+			$args = array(
+				'response_type' => 'code',
+				'client_id'     => $this->zoom_client_id,
+				'redirect_uri'  => rawurlencode( bkap_zoom_redirect_url() ),
+			);
+
+			$zoom_url = add_query_arg( $args, 'https://zoom.us/oauth/authorize' );
+
+			return $zoom_url;
+		}
+
+		/**
+		 * Generate access token code from the code.
+		 *
+		 * @param string $code Code from Zoom.
+		 * @return string
+		 */
+		public function bkap_exchange_code_for_token( $code ) {
+
+			$response = wp_remote_post(
+				'https://zoom.us/oauth/token',
+				array(
+					'body' => array(
+						'grant_type'    => 'authorization_code',
+						'code'          => $code,
+						'client_id'     => $this->zoom_client_id,
+						'client_secret' => $this->zoom_client_secret,
+						'redirect_uri'  => bkap_zoom_redirect_url(),
+					),
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				return false;
+			}
+
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			return isset( $data['access_token'] ) ? $data : false;
+		}
+
+		/**
+		 * Function to get access token.
+		 *
+		 * @return $access_token Access token.
+		 */
+		public function bkap_get_access_token() {
+
+			$token_expiry = get_option( 'bkap_zoom_token_expiry', 0 );
+
+			if ( $token_expiry > time() ) {
+				$access_token = get_option( 'bkap_zoom_access_token', '' );
+				return $access_token;
+			} else {
+
+				$access_data  = get_option( 'bkap_zoom_access_data' );
+				$refresh_data = array(
+					'grant_type'    => 'refresh_token',
+					'refresh_token' => $access_data['refresh_token'],
+					'client_id'     => $this->zoom_client_id,
+					'client_secret' => $this->zoom_client_secret,
+				);
+
+				$token_url = 'https://zoom.us/oauth/token';
+
+				$response = wp_remote_post(
+					$token_url,
+					array(
+						'body' => $refresh_data,
+					)
+				);
+
+				if ( ! is_wp_error( $response ) ) {
+					$body             = wp_remote_retrieve_body( $response );
+					$new_token_data   = json_decode( $body, true );
+					$new_access_token = $new_token_data['access_token'];
+					update_option( 'bkap_zoom_access_token', $new_access_token );
+					update_option( 'bkap_zoom_token_expiry', time() + $new_token_data['expires_in'] );
+
+					return $new_access_token;
+				} else {
+					// Handle refresh token error.
+					return false;
+				}
+			}
 		}
 
 		/**

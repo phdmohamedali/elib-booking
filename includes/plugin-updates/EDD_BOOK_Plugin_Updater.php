@@ -9,12 +9,42 @@
  * @author Ashok Rane
  * @version 1.7
  */
-
 class EDD_BOOK_Plugin_Updater {
-	private $api_url  = 'https://www.tychesoftwares.com/';
+
+	/**
+	 * API URL.
+	 *
+	 * @var String
+	 */
+	private $api_url = 'https://www.tychesoftwares.com/';
+
+	/**
+	 * API Data.
+	 *
+	 * @var Array
+	 */
 	private $api_data = array();
-	private $name     = 'Booking & Appointment Plugin for WooCommerce';
-	private $slug     = 'woocommerce-booking';
+
+	/**
+	 * Plugin Name.
+	 *
+	 * @var String
+	 */
+	private $name = 'Booking & Appointment Plugin for WooCommerce';
+
+	/**
+	 * Plugin Slug.
+	 *
+	 * @var String
+	 */
+	private $slug = 'woocommerce-booking';
+
+	/**
+	 * Version.
+	 *
+	 * @var String
+	 */
+	private $version;
 
 	/**
 	 * Class constructor.

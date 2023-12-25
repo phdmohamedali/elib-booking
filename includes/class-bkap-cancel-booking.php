@@ -98,36 +98,38 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 
 				// Load static files for Reschedule Bookings - on the Boookings Page only.
 				$fetch_bookings    = self::fetch_bookings();
-				$upcoming_bookings = $fetch_bookings['Upcoming Bookings'];
+				$upcoming_bookings = isset( $fetch_bookings['Upcoming Bookings'] ) ? $fetch_bookings['Upcoming Bookings'] : array();
 
-				foreach ( $upcoming_bookings as $booking ) {
+				if ( ! empty( $upcoming_bookings ) ) {
+					foreach ( $upcoming_bookings as $booking ) {
 
-					$booking_id              = $booking->id;
-					$reschedule_booking_data = self::reschedule_booking_data( $booking_id );
-					$product_id = $booking->get_product_id();
+						$booking_id              = $booking->id;
+						$reschedule_booking_data = self::reschedule_booking_data( $booking_id );
+						$product_id              = $booking->get_product_id();
 
-					$_item_id = $reschedule_booking_data['item_id'];
+						$_item_id = $reschedule_booking_data['item_id'];
 
-					if ( 'multiple' === BKAP_Product_Resource::get_resource_selection_type( $product_id ) ) {
+						if ( 'multiple' === BKAP_Product_Resource::get_resource_selection_type( $product_id ) ) {
 
-						// Single Modals would be displayed for multiple resources for Order. Need to make moal unique as they would share the same item_id.
-						$_item_id = $reschedule_booking_data['item_id'] . '__' . $booking_id;
+							// Single Modals would be displayed for multiple resources for Order. Need to make moal unique as they would share the same item_id.
+							$_item_id = $reschedule_booking_data['item_id'] . '__' . $booking_id;
+						}
+
+						$localized_array = array(
+							'bkap_booking_params' => $reschedule_booking_data['bkap_booking'],
+							'bkap_cart_item'      => $reschedule_booking_data['item'],
+							'bkap_cart_item_key'  => $_item_id,
+							'bkap_order_id'       => $reschedule_booking_data['order_id'],
+							'bkap_page_type'      => 'view-order',
+							'booking_id'          => $reschedule_booking_data['booking_id'],
+						);
+
+						wp_localize_script(
+							'bkap-reschedule-booking',
+							'bkap_edit_params_' . $_item_id,
+							$localized_array
+						);
 					}
-
-					$localized_array = array(
-						'bkap_booking_params' => $reschedule_booking_data['bkap_booking'],
-						'bkap_cart_item'      => $reschedule_booking_data['item'],
-						'bkap_cart_item_key'  => $_item_id,
-						'bkap_order_id'       => $reschedule_booking_data['order_id'],
-						'bkap_page_type'      => 'view-order',
-						'booking_id'          => $reschedule_booking_data['booking_id'],
-					);
-
-					wp_localize_script(
-						'bkap-reschedule-booking',
-						'bkap_edit_params_' . $_item_id,
-						$localized_array
-					);
 				}
 
 				wp_enqueue_style( 'bkap-reschedule-booking' );
@@ -392,7 +394,7 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$current_date   = date( 'YmdHis', current_time( 'timestamp' ) );
 			$is_booking_new = ( $booking->get_start() >= $current_date );
 
-			$is_booking_paid_for = ( 'paid' === $booking->get_status() );
+			$is_booking_paid_for = in_array( $booking->get_status(), array( 'confirmed', 'paid' ) );
 
 			// Check if booking is old or not paid for. They do not need a Cancel button.
 			if ( $is_booking_new && $is_booking_paid_for ) {
@@ -572,7 +574,8 @@ if ( ! class_exists( 'Bkap_Cancel_Booking' ) ) {
 			$item_id                          = $booking->get_item_id();
 			$product_resource_selection_type  = BKAP_Product_Resource::get_resource_selection_type( $product_id );
 			$_item_id                         = $item_id;
-			
+			$bkap_setting                     = get_post_meta( $product_id, 'woocommerce_booking_settings', true );
+
 			if ( 'multiple' === $product_resource_selection_type ) {
 				// Single Modals would be displayed for multiple resources for Order. Need to make modal unique as they would share the same item_id.
 				$_item_id = $item_id . '__' . $booking_id;

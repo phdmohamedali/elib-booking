@@ -123,7 +123,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 		 */
 		public function bkap_add_edit_link( $product_title, $cart_item, $cart_item_key ) {
 
-			if ( ( ( is_cart() && ! wp_doing_ajax() ) || is_checkout() ) && ! is_product() &&
+			if ( ( ( is_cart() && strpos( $product_title, '<a href' ) !== false && ! wp_doing_ajax() ) || is_checkout() ) && ! is_product() &&
 			! ( is_wc_endpoint_url( 'view-order' ) || is_wc_endpoint_url( 'order-received' ) ) &&
 			isset( $cart_item['bkap_booking'] ) &&
 			! bkap_common::bkap_is_cartitem_bundled( $cart_item ) &&
@@ -348,8 +348,17 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 							);
 						}
 
+						if ( isset( $booking_details['hidden_date'] ) && ( '' === $booking_details['hidden_date'] || '01-01-1970' === $booking_details['hidden_date'] ) ) {
+							$booking_details['hidden_date'] = date( 'j-n-Y' );
+						}
+
 						if ( ! isset( $booking_details['booking_status'] ) || 'cancelled' != $booking_details['booking_status'] ) {
-							printf( '<input type="button" class="bkap_edit_bookings" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,%s)" value="%s">', $item->get_product_id( 'view' ), $item_id, __( $edit_booking_label, 'woocommerce-booking' ) );
+							$booking_ids = bkap_common::get_booking_id( $item_id );
+							if ( is_array( $booking_ids ) && ! $show_button ) {
+								esc_html_e( '', 'woocommerce-booking' );
+							} else {
+								printf( '<input type="button" class="bkap_edit_bookings" onclick="bkap_edit_booking_class.bkap_edit_bookings(%d,%s)" value="%s">', $item->get_product_id( 'view' ), $item_id, __( $edit_booking_label, 'woocommerce-booking' ) );
+							}
 						} else {
 							esc_html_e( 'Cancelled', 'woocommerce-booking' );
 						}
@@ -538,13 +547,14 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 					$item_tax                        = number_format( (float) $item_obj->get_total_tax(), wc_get_price_decimals(), '.', '' );
 					$item_total                      = ( $item_total + $item_tax ) / $quantity;
 					$booking_id                      = isset( $_POST['booking_post_id'] ) ? $_POST['booking_post_id'] : bkap_common::get_booking_id( $item_id, true );
-					$booking_data['resources']       = $booking_data['resource_id'];
+					$booking_data['resources']       = isset( $booking_data['resource_id'] ) ? $booking_data['resource_id'] : '';
 					$resource_ids                    = array();
 					$product_resource_selection_type = BKAP_Product_Resource::get_resource_selection_type( $product_id );
 					$is_multiple_resource_selection  = 'multiple' === $product_resource_selection_type;
 					$notes                           = array();
 					$current_user                    = wp_get_current_user();
 					$current_user_name               = $current_user->display_name;
+					$booking_data['customer_id']     = $current_user->ID;
 
 					if ( ! is_array( $booking_id ) ) {
 						$temp       = $booking_id;
@@ -613,7 +623,7 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 
 					$old_item_total = (float) wc_get_order_item_meta( $item_id, '_line_total' );
 
-					if ( $new_item_total !== $old_item_total ) {
+					if ( ! $multidates && $new_item_total !== $old_item_total ) {
 						$new_item_total  = bkap_common::compute_price_for_order_with_tax_for_edited_bookings( $product_id, $item_id, $order_id, $new_item_total );
 						$order_currency  = ( version_compare( WOOCOMMERCE_VERSION, '3.0.0' ) < 0 ) ? $order->get_order_currency() : $order->get_currency();
 						$currency_symbol = get_woocommerce_currency_symbol( $order_currency );
@@ -773,17 +783,71 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 					$old_time = $booking->get_time();
 				}
 			} else {
-				wc_update_order_item_meta( $item_id, '_wapbk_booking_status', 'confirmed' );
-				$booking    = bkap_checkout::bkap_create_booking_post( $item_id, $product_id, $quantity, $booking_data );
-				$booking_id = $booking->id;
 
-				if ( isset( $booking_data['add_create_booking_id_to_order_note'] ) && 'yes' === $booking_data['add_create_booking_id_to_order_note'] ) {
-					$product   = wc_get_product( $product_id );
-					$order_obj = wc_get_order( $order_id );
-					$order_obj->add_order_note(
-						/* translators: %1$d: Booking ID, %2$s: Resource Title, %3$s: Product Title */
-						sprintf( __( 'Booking #%1$d has been created for Resource %2$s. Product: %3$s', 'woocommerce-booking' ), (int) $booking_id, Class_Bkap_Product_Resource::get_resource_name( $booking_data['resource_id'] ), $product->get_name() )
-					);
+				if ( 'multidates' === $booking_type ) {
+					if ( isset( $booking_data['bkap_multidate_data'] ) && '' != $booking_data['bkap_multidate_data'] ) {
+
+						$booking_details['has_multidates'] = true;
+						$booking_details['product_id']     = $product_id;
+						$booking_details['quantity']       = $quantity;
+						$booking_details['page']           = $page;
+						$booking_details['item_id']        = $item_id;
+
+						$bkap_multidate_data = $booking_data['bkap_multidate_data'];
+						foreach ( $bkap_multidate_data as $value ) {
+
+							$booking                = array();
+							$booking['date']        = $value['date'];
+							$booking['hidden_date'] = $value['hidden_date'];
+
+							if ( isset( $value['hidden_date'] ) ) {
+								$start_date = date( 'Ymd', strtotime( $value['hidden_date'] ) );
+								$end_date   = date( 'Ymd', strtotime( $value['hidden_date'] ) );
+								$start_time = '000000';
+								$end_time   = '000000';
+
+								$booking_details['start'] = $start_date . $start_time;
+								$booking_details['end']   = $end_date . $end_time;
+							}
+
+							if ( isset( $_POST['block_option'] ) && '' !== $_POST['block_option'] ) {
+								$booking['fixed_block'] = $_POST['block_option'];
+							}
+
+							if ( isset( $_POST['booking_calender_checkout'] ) ) {
+								$booking['date_checkout'] = $_POST['booking_calender_checkout'];
+							}
+
+							if ( isset( $_POST['wapbk_hidden_date_checkout'] ) ) {
+								$booking['hidden_date_checkout'] = $_POST['wapbk_hidden_date_checkout'];
+							}
+
+							if ( isset( $value['time_slot'] ) ) {
+								$booking['time_slot'] = $value['time_slot'];
+							}
+
+							$booking_details['price']                = 0;
+							$booking['price_charged']                = $value['price_charged'];
+							$booking_details['multidates_booking'][] = $booking;
+						}
+					}
+
+					$booking_details['order_id'] = $order_id;
+					$status                      = import_bookings::bkap_create_booking( $booking_details, false );
+				} else {
+
+					wc_update_order_item_meta( $item_id, '_wapbk_booking_status', 'confirmed' );
+					$booking    = bkap_checkout::bkap_create_booking_post( $item_id, $product_id, $quantity, $booking_data );
+					$booking_id = $booking->id;
+
+					if ( isset( $booking_data['add_create_booking_id_to_order_note'] ) && 'yes' === $booking_data['add_create_booking_id_to_order_note'] ) {
+						$product   = wc_get_product( $product_id );
+						$order_obj = wc_get_order( $order_id );
+						$order_obj->add_order_note(
+							/* translators: %1$d: Booking ID, %2$s: Resource Title, %3$s: Product Title */
+							sprintf( __( 'Booking #%1$d has been created for Resource %2$s. Product: %3$s', 'woocommerce-booking' ), (int) $booking_id, Class_Bkap_Product_Resource::get_resource_name( $booking_data['resource_id'] ), $product->get_name() )
+						);
+					}
 				}
 			}
 
@@ -890,12 +954,14 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 			$checkout_item_meta_date = $additional_data['end_date_label'];
 			$book_item_meta_time     = $additional_data['time_slot_label'];
 
-			if ( $additional_data['multiple_dates'] ) { // rescheduling multiple dates booking.
-				bkap_update_order_itemmeta_multidates( $item_id, $book_item_meta_date, $booking_data['booking_date'], $additional_data['old_bookings']['booking_date'], $additional_data['item_number'] );
-				bkap_update_order_itemmeta_multidates( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start, $additional_data['item_number'] );
-			} else {
-				wc_update_order_item_meta( $item_id, $book_item_meta_date, $booking_data['booking_date'], $additional_data['old_bookings']['booking_date'] );
-				wc_update_order_item_meta( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start );
+			if ( isset( $additional_data['old_bookings'] ) && ! empty( $additional_data['old_bookings'] ) && isset( $additional_data['old_bookings']['booking_date'] ) && ! empty( $additional_data['old_bookings']['booking_date'] ) ) {
+				if ( isset( $additional_data['multiple_dates'] ) && ! empty( $additional_data['multiple_dates'] ) ) { // rescheduling multiple dates booking.
+					bkap_update_order_itemmeta_multidates( $item_id, $book_item_meta_date, $booking_data['booking_date'], $additional_data['old_bookings']['booking_date'], $additional_data['item_number'] );
+					bkap_update_order_itemmeta_multidates( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start, $additional_data['item_number'] );
+				} else {
+					wc_update_order_item_meta( $item_id, $book_item_meta_date, $booking_data['booking_date'], $additional_data['old_bookings']['booking_date'] );
+					wc_update_order_item_meta( $item_id, '_wapbk_booking_date', $date_to_convert, $old_start );
+				}
 			}
 
 			$postmeta_start_date = $date_to_convert . '000000';
@@ -1135,15 +1201,16 @@ if ( ! class_exists( 'bkap_edit_bookings_class' ) ) {
 								}
 								break;
 							case 'duration_time':
+								$booking_id     = $id->booking_id;
 								$from_time_slot = date( 'H:i', strtotime( $bkap_details[0]->from_time ) );
 								$to_time_slot   = date( 'H:i', strtotime( $bkap_details[0]->to_time ) );
-								$old_from_time  = date( 'H:i', strtotime( get_post_meta( $post_id, '_bkap_end', true ) ) );
+								$old_from_time  = date( 'H:i', strtotime( get_post_meta( $booking_id, '_bkap_end', true ) ) );
 								$d_setting      = get_post_meta( $product_id, '_bkap_duration_settings', true );
 
-								$selected_duration = $new_duration * $d_setting['duration'];
+								$new_duration      = isset( $_REQUEST['bkap_duration_field'] ) ? $_REQUEST['bkap_duration_field'] : 1;
+								$selected_duration = (int) $new_duration * $d_setting['duration'];
 
-								$data['selected_duration']         = $selected_duration . '-' . $d_setting['duration_type'];
-								$booking_data['selected_duration'] = $booking_data['selected_duration'] . '-' . $d_setting['duration_type'];
+								$data['selected_duration'] = $selected_duration . '-' . $d_setting['duration_type'];
 								if ( strtotime( $old_start ) === strtotime( $bkap_details[0]->start_date ) && $old_time === $from_time_slot && $old_from_time == $to_time_slot ) {
 									$booking_id = $id->booking_id;
 									$matched    = true;

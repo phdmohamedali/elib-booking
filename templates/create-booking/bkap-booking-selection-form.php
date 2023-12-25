@@ -4,7 +4,7 @@
 <div id="bkap-manual-booking-section">
 	<h2><?php esc_html_e( 'Create Booking', 'woocommerce-booking' ); ?></h2>
 	<form method="POST">
-		<table id="bkap-manual-date-selection" style="width:50%;text-align:left;">
+		<table id="bkap-manual-date-selection">
 			<thead>
 				<tr>
 					<th scope="row">

@@ -4,9 +4,9 @@ Donate link: https://www.paypal.me/TycheSoftwares
 Author URI: https://www.tychesoftwares.com/
 Tags: booking, woocommerce booking, appointment, woocommerce appointment
 Requires at least: 3.9
-Tested up to: 5.9
-Requires PHP: 5.6
-Stable tag: 5.18.0
+Tested up to: 6.3
+Requires PHP: 7.3
+Stable tag: 5.23.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

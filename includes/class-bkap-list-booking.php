@@ -567,7 +567,7 @@ if ( ! class_exists( 'BKAP_List_Booking' ) ) {
 			}
 
 			$args                = $_POST;
-			$args['numberposts'] = -1;
+			$args['numberposts'] = apply_filters( 'bkap_available_bookings_block_number_posts', -1 );
 			$args['bkap_view']   = ! empty( $_REQUEST['bkap_view'] ) ? $_REQUEST['bkap_view'] : 'list';
 
 			$events = BKAP_Bookable_Query::get_events( $args );
